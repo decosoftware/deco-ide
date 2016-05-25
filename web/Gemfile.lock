@@ -25,7 +25,7 @@ GEM
       listen (>= 1.0, < 3.0)
       thor (~> 0.14)
     hitimes (1.2.2)
-    json (1.8.1)
+    json (1.8.3)
     listen (2.8.3)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
