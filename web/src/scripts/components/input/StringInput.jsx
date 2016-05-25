@@ -97,6 +97,10 @@ class StringInput extends Component {
       style = Object.assign({}, baseStyle, {
         width: this.props.width,
       })
+    } else {
+      style = Object.assign({}, baseStyle, {
+        width: 0,
+      })
     }
 
     return (
