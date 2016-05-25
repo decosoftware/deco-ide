@@ -2,12 +2,12 @@
 
 ### The all-in-one solution for building React Native applications.
 
-You can get started right away on your React Native project by installing Deco and creating a new project — it's fast and theirs no manual setup needed. File scaffolding handles your boilerplate. Ready-made components drop right into your code. Properties are humanely editable through the inspector panel. It's an entirely new way to reuse and manipulate code.
+You can get started right away on your React Native project by installing Deco and creating a new project — it's fast and there's no manual setup needed. File scaffolding handles your boilerplate. Ready-made components drop right into your code. Properties are graphically editable through the property inspector. It's an entirely new way to write, tweak, and re-use code.
 
 ![Deco Screenshot](https://s3-us-west-2.amazonaws.com/imhost/DecoIDEScreenshot.png)
 
 #### [Download Deco](https://www.decosoftware.com/beta/downloads) to try out the latest release.
-#### [Documentation](https://www.decosoftware.com/getting-started) to get you started on Deco IDE.
+#### [Documentation](https://www.decosoftware.com/docs) to get you started on Deco IDE.
 #### [Open an Issue](#opening-issues) for bug reports and feature requests.
 #### [Join Slack](https://decoslackin.herokuapp.com) to talk with us.
 
