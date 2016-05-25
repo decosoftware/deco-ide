@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<installer-script>
+<installer-gui-script>
     <options customize="never"/>
     <!--+==========================+
         |       Presentation       |
         +==========================+-->
     <title>Deco</title>
+    <license file="license.html"/>
     <!--+==========================+
         |         Installer        |
         +==========================+-->
@@ -17,8 +18,8 @@
     <!--+==========================+
         |    Package References    |
         +==========================+-->
-    <pkg-ref id="com.decosoftware.deco" version="0.5.1" auth="Root" installKBytes="0">#Deco.pkg</pkg-ref>
+    <pkg-ref id="com.decosoftware.deco" version="0.6.0" auth="Root" installKBytes="0">#Deco.pkg</pkg-ref>
     <!--+==========================+
         |    JavaScript Scripts    |
         +==========================+-->
-</installer-script>
+</installer-gui-script>

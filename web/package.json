@@ -1,7 +1,7 @@
 {
   "name": "DecoIDE-Web",
   "description": "A react native IDE",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "author": "Deco Software <info@decosoftware.com>",
   "dependencies": {
     "babel-core": "^5.8.22",
