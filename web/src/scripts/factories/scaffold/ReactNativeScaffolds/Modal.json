@@ -1,0 +1,48 @@
+{
+  "name": "Modal",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<View> \n  <Modal \n    animated={true}\n    transparent={false}\n    visible={(this.state && this.state.modalVisible) || true }>\n    <View \n      style={{\n        flex: 1, \n        backgroundColor: '#f5fcff', \n        alignItems: 'center', \n        justifyContent: 'center', \n        padding: 20,\n      }}>\n      <Text>Hello Modal</Text>\n    </View>\n  </Modal>\n</View>",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 14
+        },
+        "to": {
+          "line": 2,
+          "ch": 18
+        }
+      },
+      "type": "boolean",
+      "name": "Animated"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 17
+        },
+        "to": {
+          "line": 3,
+          "ch": 22
+        }
+      },
+      "type": "boolean",
+      "name": "Transparent"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Modal, View, Text, } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Modal",
+      "View",
+      "Text"
+    ]
+  }
+}

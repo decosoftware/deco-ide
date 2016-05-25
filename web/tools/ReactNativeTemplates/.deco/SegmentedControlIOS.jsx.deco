@@ -1,0 +1,33 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 2,
+					"ch": 13
+				},
+				"to": {
+					"line": 2,
+					"ch": 17
+				}
+			},
+			"type": "boolean",
+			"name": "Momentary"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 3,
+					"ch": 13
+				},
+				"to": {
+					"line": 3,
+					"ch": 20
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "TintColor"
+		}
+	]
+}

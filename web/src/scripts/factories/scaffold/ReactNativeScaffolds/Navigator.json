@@ -1,0 +1,35 @@
+{
+  "name": "Navigator",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Navigator \n  style={{width: 300, height: 300,}}\n  initialRoute={{\n    title: 'Home',\n    routeProps: {\n      style: {\n        flex: 1, \n        alignItems: 'center', \n        paddingTop: 100, \n        backgroundColor: \"rgba(74,144,226,1)\",\n      }\n    },\n  }}\n  navigationBar={null}\n  renderScene={(route, navigator) => {\n    return (\n      <View style={route.routeProps && route.routeProps.style}>\n        <Text>My Scene</Text>\n      </View>\n    )\n  }} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 9,
+          "ch": 25
+        },
+        "to": {
+          "line": 9,
+          "ch": 45
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "BackgroundColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Navigator, View, Text } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Navigator",
+      "View",
+      "Text"
+    ]
+  }
+}

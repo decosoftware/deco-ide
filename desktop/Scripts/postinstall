@@ -1,0 +1,97 @@
+#!/bin/bash
+
+set -e
+
+if [ $USER = "root" ]; then
+  echo $USER
+  exit 1
+fi
+
+DECO_VERSION=0.5.1
+
+rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/libs
+mkdir -p ~/Library/Application\ Support/com.decosoftware.Deco/libs
+
+if [ "$1" = "dev" ]; then
+  cp -r $2/* ~/Library/Application\ Support/com.decosoftware.Deco/libs
+elif [ "$1" = "upgrade" ]; then
+  cp -r /Applications/Deco.app/Contents/Resources/app.asar.unpacked/* ~/Library/Application\ Support/com.decosoftware.Deco/libs
+else
+  pkgutil --expand "$PACKAGE_PATH" ~/Library/Application\ Support/com.decosoftware.Deco/pkg
+  tar -zxf ~/Library/Application\ Support/com.decosoftware.Deco/pkg/Deco.pkg/Payload -C ~/Library/Application\ Support/com.decosoftware.Deco/
+  cp -r ~/Library/Application\ Support/com.decosoftware.Deco/Deco.app/Contents/Resources/app.asar.unpacked/* ~/Library/Application\ Support/com.decosoftware.Deco/libs
+  rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/pkg
+  rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/Deco.app
+fi
+
+sudo chown -R $USER:staff ~/Library/Application\ Support/com.decosoftware.Deco
+
+RUN_DIR=/usr/local/var/run/watchman
+if [ ! -d "$RUN_DIR" ]; then
+  # Control will enter here if $DIRECTORY doesn't exist.
+  sudo mkdir -p /usr/local/var/run/watchman/$USER-state
+  sudo chmod 777 /usr/local/var/run/watchman
+  sudo chown -R $USER:admin /usr/local/var/run/watchman
+  sudo chmod 700 /usr/local/var/run/watchman/$USER-state
+  echo '{}' > /usr/local/var/run/watchman/$USER-state/state
+  sudo chmod 600 /usr/local/var/run/watchman/$USER-state/state
+fi
+
+CACHE_DIR=~/Library/Application\ Support/com.decosoftware.Deco/cache
+if [ ! -d "$CACHE_DIR" ]; then
+  mkdir -p ~/Library/Application\ Support/com.decosoftware.Deco/cache
+fi
+
+OLD_PROJ_DIR=~/.Deco/tmp/Project
+if [ -d "$OLD_PROJ_DIR" ]; then
+  sudo chmod -R 755 ~/.Deco
+  sudo chown -R $USER:staff ~/.Deco
+  sudo rm -rf ~/.Deco/tmp/Project
+fi
+
+tar -zxf ~/Library/Application\ Support/com.decosoftware.Deco/libs/modules.tar.gz -C ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project
+HOME_DIR=~/.Deco/tmp
+if [ -d "$HOME_DIR" ]; then
+   sudo rm -rf ~/.Deco/tmp
+fi
+
+sudo mkdir -p ~/.Deco/tmp
+sudo cp -rf ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project ~/.Deco/tmp/.template.Project
+sudo chmod -R 755 ~/.Deco
+sudo chown -R $USER:staff ~/.Deco
+
+BIN_DIR=/usr/local/Deco/watchman
+if [ ! -d "$BIN_DIR" ]; then
+  sudo mkdir -p /usr/local/Deco/watchman
+fi
+sudo chmod -R 755 /usr/local/Deco
+sudo chown -R $USER:admin /usr/local/Deco
+
+NODE_BIN_DIR=/usr/local/Deco/node
+if [ ! -d "$NODE_BIN_DIR" ]; then
+  tar -zxf ~/Library/Application\ Support/com.decosoftware.Deco/libs/node-v5.7.0-darwin-x64.tar.gz -C /usr/local/Deco
+  mv /usr/local/Deco/node-v5.7.0-darwin-x64 /usr/local/Deco/node
+  sudo chown -R $USER:admin /usr/local/Deco/node
+fi
+
+NGROK_BIN=/usr/local/Deco/bin
+if [ ! -d "$NGROK_BIN" ]; then
+  mkdir -p /usr/local/Deco/bin
+fi
+
+cp ~/Library/Application\ Support/com.decosoftware.Deco/libs/binaries/watchman* /usr/local/Deco/watchman/
+sudo chown -R $USER:admin /usr/local/Deco/watchman
+
+cp ~/Library/Application\ Support/com.decosoftware.Deco/libs/binaries/ngrok* /usr/local/Deco/bin/
+chown -R $USER:admin /usr/local/Deco/bin
+
+sudo chown -R $USER:staff ~/Library/Application\ Support/com.decosoftware.Deco
+sudo chmod -R 755 ~/Library/Application\ Support/com.decosoftware.Deco
+
+DECO_VERSION_FILE=~/Library/Application\ Support/com.decosoftware.Deco/.deco.version
+if [ -f "$DECO_VERSION_FILE" ]; then
+  sudo rm -f "$DECO_VERSION_FILE"
+fi
+printf $DECO_VERSION >> "$DECO_VERSION_FILE"
+
+exit

@@ -1,0 +1,16 @@
+{
+  "name": "Picker",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Picker \n  style={{\n    width: 100,\n  }}\n  selectedValue={(this.state && this.state.pickerValue) || 'a'}\n  onValueChange={(value) => {\n    this.setState({value})\n  }}>\n  <Picker.Item label={'Hello'} value={'a'} />\n  <Picker.Item label={'World'} value={'b'} />\n</Picker>",
+  "parentModule": "react-native",
+  "require": [
+    "import { Picker } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Picker"
+    ]
+  }
+}

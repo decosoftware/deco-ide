@@ -1,0 +1,32 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 2,
+					"ch": 14
+				},
+				"to": {
+					"line": 2,
+					"ch": 18
+				}
+			},
+			"type": "boolean",
+			"name": "Animated"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 3,
+					"ch": 17
+				},
+				"to": {
+					"line": 3,
+					"ch": 22
+				}
+			},
+			"type": "boolean",
+			"name": "Transparent"
+		}
+	]
+}

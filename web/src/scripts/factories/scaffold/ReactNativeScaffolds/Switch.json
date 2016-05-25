@@ -1,0 +1,48 @@
+{
+  "name": "Switch",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Switch\n  value={(this.state && this.state.switchValue) || false}\n  onValueChange={(value) => {\n    this.setState({switchValue: value})\n  }}\n  // Color props are iOS-only\n  // thumbTintColor={'white'} // Removes shadow\n  tintColor={\"rgba(230,230,230,1)\"}\n  onTintColor={\"rgba(68,219,94,1)\"} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 7,
+          "ch": 13
+        },
+        "to": {
+          "line": 7,
+          "ch": 34
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "TintColor"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 8,
+          "ch": 15
+        },
+        "to": {
+          "line": 8,
+          "ch": 34
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "OnTintColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Switch } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Switch"
+    ]
+  }
+}

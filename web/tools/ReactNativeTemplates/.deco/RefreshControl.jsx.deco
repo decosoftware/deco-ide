@@ -1,0 +1,49 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 10,
+					"ch": 13
+				},
+				"to": {
+					"line": 10,
+					"ch": 33
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "TintColor"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 11,
+					"ch": 9
+				},
+				"to": {
+					"line": 11,
+					"ch": 21
+				}
+			},
+			"editWith": "inputField",
+			"type": "string",
+			"name": "Title"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 13,
+					"ch": 27
+				},
+				"to": {
+					"line": 13,
+					"ch": 48
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "ProgressBackgroundColor"
+		}
+	]
+}

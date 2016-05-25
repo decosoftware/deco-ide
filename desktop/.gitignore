@@ -1,0 +1,9 @@
+node_modules
+installer/osx/InstallerPlugins/**/gavin.*
+installer/osx/mpkg/Deco.pkg
+installer/osx/InstallerPlugins/Pods
+installer/osx/InstallerPlugins/InstallerPlugins.xcworkspace
+build/*
+public/*
+package/*
+!node_modules/react-native/local-cli/setup_env.sh

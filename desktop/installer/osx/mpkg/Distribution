@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<installer-script>
+    <options customize="never"/>
+    <!--+==========================+
+        |       Presentation       |
+        +==========================+-->
+    <title>Deco</title>
+    <!--+==========================+
+        |         Installer        |
+        +==========================+-->
+    <choices-outline>
+        <line choice="installer_choice_1"/>
+    </choices-outline>
+    <choice id="installer_choice_1" start_visible="false" title="Deco" description="">
+        <pkg-ref id="com.decosoftware.deco"/>
+    </choice>
+    <!--+==========================+
+        |    Package References    |
+        +==========================+-->
+    <pkg-ref id="com.decosoftware.deco" version="0.5.1" auth="Root" installKBytes="0">#Deco.pkg</pkg-ref>
+    <!--+==========================+
+        |    JavaScript Scripts    |
+        +==========================+-->
+</installer-script>

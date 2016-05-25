@@ -1,0 +1,47 @@
+{
+  "name": "SegmentedControlIOS",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<SegmentedControlIOS \n  values={['A', 'B', 'C']}\n  momentary={true}\n  tintColor={'black'}\n  style={{\n    width: 100,\n  }}\n  selectedIndex={(this.state && this.state.scIndex) || 0}\n  onValueChange={(value) => {}}\n  onChange={(event) => {\n    this.setState({ \n      scIndex: event.nativeEvent.selectedSegmentIndex \n    })\n  }} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 13
+        },
+        "to": {
+          "line": 2,
+          "ch": 17
+        }
+      },
+      "type": "boolean",
+      "name": "Momentary"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 13
+        },
+        "to": {
+          "line": 3,
+          "ch": 20
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "TintColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { SegmentedControlIOS } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "SegmentedControlIOS"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+// Animate.css and Animate.scss are both licensed under the MIT license. (http://opensource.org/licenses/MIT)
+@mixin button ($color, $borderWidth: 0, $borderRadius: 3/8, $fontSize: 3/4, $paddingVertical: 1/4, $paddingHorizontal: 3/4) {
+  @include sassy-button-structure(rhythm($borderRadius), rhythm($fontSize), rhythm($paddingVertical) rhythm($paddingHorizontal));
+  @include sassy-button-gradient('flat', $color, $text-color: gray(30%));
+  @include adjust-font-size-to(14px);
+  text-shadow: none;
+
+  @if $borderWidth != 0 {
+    @include horizontal-borders($borderWidth, $paddingVertical);
+    @include apply-side-rhythm-border('left', $borderWidth, $paddingHorizontal);
+    @include apply-side-rhythm-border('right', $borderWidth, $paddingHorizontal);
+  }
+}

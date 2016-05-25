@@ -1,0 +1,62 @@
+{
+  "name": "Image",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Image \n  style={{\n    width: 300,\n    height: 200,\n  }}\n  resizeMode={\"contain\"}\n  source={{uri:'https://unsplash.it/600/400/?random'}} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 11
+        },
+        "to": {
+          "line": 2,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Width"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 12
+        },
+        "to": {
+          "line": 3,
+          "ch": 15
+        }
+      },
+      "type": "number",
+      "name": "Height"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 14
+        },
+        "to": {
+          "line": 5,
+          "ch": 23
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "ResizeMode",
+      "type": "string",
+      "name": "ResizeMode"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Image } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Image"
+    ]
+  }
+}

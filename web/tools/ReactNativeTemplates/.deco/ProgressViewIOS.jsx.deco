@@ -1,0 +1,61 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 2,
+					"ch": 12
+				},
+				"to": {
+					"line": 2,
+					"ch": 14
+				}
+			},
+			"type": "number",
+			"name": "Margin"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 3,
+					"ch": 11
+				},
+				"to": {
+					"line": 3,
+					"ch": 14
+				}
+			},
+			"type": "number",
+			"name": "Width"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 5,
+					"ch": 12
+				},
+				"to": {
+					"line": 5,
+					"ch": 14
+				}
+			},
+			"type": "number",
+			"name": "Progress"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 6,
+					"ch": 21
+				},
+				"to": {
+					"line": 6,
+					"ch": 41
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "ProgressTintColor"
+		}
+	]
+}

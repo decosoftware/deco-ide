@@ -1,0 +1,16 @@
+{
+  "name": "DatePickerIOS",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<DatePickerIOS \n  date={(this.state && this.state.date) || new Date()}\n  onDateChange={(newDate) => {\n    this.setState({date: newDate})\n  }}\n  mode={'datetime'}\n  timeZoneOffsetInMinutes={-1 * new Date().getTimezoneOffset()} />",
+  "parentModule": "react-native",
+  "require": [
+    "import { DatePickerIOS } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "DatePickerIOS"
+    ]
+  }
+}

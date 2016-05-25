@@ -1,0 +1,79 @@
+{
+  "name": "Text",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Text\n  style={{\n    color: 'black',\n    fontSize: 16,\n    fontWeight: 'normal',\n    fontFamily: 'Helvetica Neue',\n  }}>\n  My Text\n</Text>",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 11
+        },
+        "to": {
+          "line": 2,
+          "ch": 18
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "Color"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 14
+        },
+        "to": {
+          "line": 3,
+          "ch": 16
+        }
+      },
+      "type": "number",
+      "name": "FontSize"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 4,
+          "ch": 16
+        },
+        "to": {
+          "line": 4,
+          "ch": 24
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "FontWeight",
+      "type": "string",
+      "name": "FontWeight"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 16
+        },
+        "to": {
+          "line": 5,
+          "ch": 32
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "FontFamily",
+      "type": "string",
+      "name": "FontFamily"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Text } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Text"
+    ]
+  }
+}

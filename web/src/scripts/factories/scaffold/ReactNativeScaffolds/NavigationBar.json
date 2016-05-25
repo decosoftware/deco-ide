@@ -1,0 +1,66 @@
+{
+  "name": "NavigationBar",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<Navigator.NavigationBar \n  style={{flex: 1, height: 44, backgroundColor: 'white', alignItems: 'center'}}\n  routeMapper={{\n    RightButton: (route, navigator, index, navState) => {\n      return (\n        <TouchableOpacity onPress={() => {}}>\n          <Text style={{color: '#0076FF', marginRight: 10}}>{'Next'}</Text>\n        </TouchableOpacity>\n      )\n    },\n    LeftButton: (route, navigator, index, navState) => {\n      return (\n        <TouchableOpacity onPress={() => {}}>\n          <Text style={{color: '#0076FF', marginLeft: 10}}>{'Previous'}</Text>\n        </TouchableOpacity>\n      )\n    },\n    Title: (route, navigator, index, navState) => {\n      return <Text>{route.title}</Text>\n    },\n  }} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 1,
+          "ch": 48
+        },
+        "to": {
+          "line": 1,
+          "ch": 55
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "BackgroundColor"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 6,
+          "ch": 31
+        },
+        "to": {
+          "line": 6,
+          "ch": 40
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "Color"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 13,
+          "ch": 31
+        },
+        "to": {
+          "line": 13,
+          "ch": 40
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "Color"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { Navigator, View, Text, TouchableOpacity } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "Navigator",
+      "View",
+      "Text",
+      "TouchableOpacity"
+    ]
+  }
+}

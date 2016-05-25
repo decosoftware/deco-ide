@@ -1,0 +1,46 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 3,
+					"ch": 20
+				},
+				"to": {
+					"line": 3,
+					"ch": 24
+				}
+			},
+			"type": "boolean",
+			"name": "ShowUserLocation"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 5,
+					"ch": 12
+				},
+				"to": {
+					"line": 5,
+					"ch": 15
+				}
+			},
+			"type": "number",
+			"name": "Height"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 6,
+					"ch": 11
+				},
+				"to": {
+					"line": 6,
+					"ch": 14
+				}
+			},
+			"type": "number",
+			"name": "Width"
+		}
+	]
+}

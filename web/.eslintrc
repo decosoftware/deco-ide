@@ -1,0 +1,34 @@
+{
+    "ecmaFeatures": {
+        "jsx": true,
+        "modules": true,
+    },
+    "rules": {
+        "semi": [2, 'never'],
+        "new-cap": 2,
+        "constructor-super": 2,
+        "no-const-assign": 2,
+        "no-this-before-super": 2,
+        "prefer-const": 2,
+        "new-parens": 2,
+        "comma-dangle": [2, "always"]        
+    },
+    "parserOptions": {
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    {
+      "plugins": [
+        "react"
+      ]
+    },
+    "extends": "eslint:recommended",
+    "env": {
+        "es6": true,
+        "node": true,
+        "browser": true,
+        "commonjs": true,
+    }
+}

@@ -1,0 +1,94 @@
+{
+  "name": "ActivityIndicatorIOS",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<ActivityIndicatorIOS\n  style={{\n    alignItems: 'center',\n    justifyContent: 'center',\n  }}\n  animating={true}\n  size={'small'}\n  color={'black'} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 16
+        },
+        "to": {
+          "line": 2,
+          "ch": 24
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "AlignItems",
+      "type": "string",
+      "name": "AlignItems"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 20
+        },
+        "to": {
+          "line": 3,
+          "ch": 28
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "JustifyContent",
+      "type": "string",
+      "name": "JustifyContent"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 13
+        },
+        "to": {
+          "line": 5,
+          "ch": 17
+        }
+      },
+      "type": "boolean",
+      "name": "Animating"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 6,
+          "ch": 8
+        },
+        "to": {
+          "line": 6,
+          "ch": 15
+        }
+      },
+      "editWith": "inputField",
+      "type": "string",
+      "name": "Size"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 7,
+          "ch": 9
+        },
+        "to": {
+          "line": 7,
+          "ch": 16
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "Color"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { ActivityIndicatorIOS } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "ActivityIndicatorIOS"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Dependency directory
+# Deployed apps should consider commenting this line out:
+# see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
+node_modules
+public/bundle.js
+.sass-cache/
+public/bundle.js.map
+public/index.html
+public/scripts/raven.min.js
+public/main.css
+public/main.css.map
+public/icons
+
+# Mac stuff
+*.DS_Store

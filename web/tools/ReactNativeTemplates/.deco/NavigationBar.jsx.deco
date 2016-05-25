@@ -1,0 +1,49 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 1,
+					"ch": 48
+				},
+				"to": {
+					"line": 1,
+					"ch": 55
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "BackgroundColor"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 6,
+					"ch": 31
+				},
+				"to": {
+					"line": 6,
+					"ch": 40
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "Color"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 13,
+					"ch": 31
+				},
+				"to": {
+					"line": 13,
+					"ch": 40
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "Color"
+		}
+	]
+}

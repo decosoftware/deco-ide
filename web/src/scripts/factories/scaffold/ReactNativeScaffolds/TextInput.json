@@ -1,0 +1,76 @@
+{
+  "name": "TextInput",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<TextInput\n  style={{\n    height: 30, \n    width: 100,\n    borderWidth: 1,\n    borderColor: \"rgba(0,0,0,0.5)\",\n  }}\n  placeholder={'Type here'}\n  onChangeText={(text) => {this.setState({text})}}\n  value={(this.state && this.state.text) || ''} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 12
+        },
+        "to": {
+          "line": 2,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Height"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 11
+        },
+        "to": {
+          "line": 3,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Width"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 17
+        },
+        "to": {
+          "line": 5,
+          "ch": 34
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "BorderColor"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 7,
+          "ch": 15
+        },
+        "to": {
+          "line": 7,
+          "ch": 26
+        }
+      },
+      "editWith": "inputField",
+      "type": "string",
+      "name": "Placeholder"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { TextInput } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "TextInput"
+    ]
+  }
+}

@@ -1,0 +1,348 @@
+/**
+ * RECOMMENDED STYLES
+ */
+
+@mixin abs ($top:auto, $left:auto, $bottom:auto, $right:auto) {
+  display: block;
+  position: absolute;
+  top: $top;
+  bottom: $bottom;
+  left: $left;
+  right: $right;
+}
+
+@mixin checkered (
+    $size: 10px,
+    $color1: rgb(225,225,225), $color2: #fff,
+    $align-x: center, $align-y: center,
+    $offset-y: 0px, $offset-x: 0px) {
+  background-color: $color2;
+  background-image: linear-gradient(45deg, $color1 25%, transparent 25%, transparent 75%, $color1 75%, $color1),
+      linear-gradient(45deg, $color1 25%, transparent 25%, transparent 75%, $color1 75%, $color1);
+  background-size: ($size * 2) ($size * 2);
+
+  $background-1-x: 0;
+  $background-2-x: ($size);
+  $background-1-y: ($size);
+  $background-2-y: 0;
+
+  @if $align-x == start {
+    $background-1-x: 0;
+    $background-2-x: ($size);
+  } @else {
+    $background-1-x: ($size / 2);
+    $background-2-x: ($size * 3/2);
+  }
+
+  @if $align-y == start {
+    $background-1-y: ($size);
+    $background-2-y: 0;
+  } @else {
+    $background-1-y: ($size * 3/2);
+    $background-2-y: ($size / 2);
+  }
+
+  // background-position: ($size * 2) ($size * 3/2), ($size) ($size / 2);
+  background-position: ($background-1-x + $offset-x) ($background-1-y + $offset-y),
+      ($background-2-x + $offset-x) ($background-2-y + $offset-y);
+}
+
+@mixin darkened-outline () {
+  border-radius: 2px;
+  box-shadow: 0 0 1px 1px rgba(0,0,0,0.3) inset;
+}
+
+.transparency-checkers {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  @include checkered($size: 8px, $align-x: start, $align-y: start, $offset-y: 1px, $offset-x: 1px);
+}
+
+.colorpicker {
+
+  .hbox {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .vbox {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flex-variable {
+    flex: 1 1 0;
+  }
+
+  .flex-fixed {
+    flex: 0 0 auto;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  // color: #fff;
+  // background: #fff;
+  // @include abs(0, 0, 0, 0);
+
+  .map {
+    height: 155px;
+    width: 210px;
+    position: relative;
+    user-select: none;
+    overflow: hidden;
+
+    &.active {
+    //   cursor: none;
+    }
+
+    // &.dark .pointer {
+    //   border-color: #fff;
+    // }
+    //
+    // &.light .pointer {
+    //   border-color: #000;
+    // }
+
+    .pointer {
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      margin-left: -5px;
+      margin-bottom: -5px;
+      border-radius: 100%;
+      border: 1px solid #fff;
+      box-shadow: 0 0 1px 1px rgba(0,0,0,0.3), 0 0 1px 1px rgba(0,0,0,0.3) inset;
+      box-sizing: content-box;
+    }
+
+    .background {
+    //   top: 0;
+    //   left: 0;
+    //   position: absolute;
+      height: 100%;
+      width: 100%;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .background:before,
+    .background:after {
+      display: block;
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+    }
+
+    .background:after {
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%);
+      @include darkened-outline();
+    }
+
+    .background:before {
+      background: linear-gradient(to right, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+    }
+
+  }
+
+  .sliders-container {
+    margin-right: 10px;
+    margin-left: 1px;
+  }
+
+  .slider {
+    // position: absolute;
+    user-select: none;
+
+    &.vertical {
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 10px;
+      cursor: ns-resize;
+
+      .track {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 6px;
+        margin-left: -3px;
+      }
+    }
+
+    &.horizontal {
+    //   left: 0;
+    //   right: 0;
+    //   top: 50%;
+      cursor: ew-resize;
+      position: relative;
+
+      .track {
+        // position: relative;
+        // left: 0;
+        // right: 0;
+        // top: 0;
+        height: 10px;
+        @include darkened-outline();
+        margin-right: -6px;
+        margin-left: -1px;
+      }
+
+      .pointer {
+        position: absolute;
+        // bottom: 50%;
+        // left: 50%;
+        top: 1px;
+        width: 5px;
+        height: 8px;
+        background: #fff;
+        // margin-left: -7px;
+        // margin-bottom: -7px;
+        border-radius: 1px;
+        box-shadow: 0 0 1px black;
+      }
+    }
+
+    .track {
+      background: #888;
+    }
+
+    // .pointer {
+    //   position: absolute;
+    //   bottom: 50%;
+    //   left: 50%;
+    //   width: 14px;
+    //   height: 14px;
+    //   background: #ddd;
+    //   margin-left: -7px;
+    //   margin-bottom: -7px;
+    //   border-radius: 14px;
+    // }
+
+  }
+
+  .sat-slider {
+    // @include abs(auto, 56px, 33px, 181px);
+  }
+
+  .light-slider {
+    // @include abs(25px, 23px, 56px, auto);
+  }
+
+  .hue-slider {
+    // @include abs(25px, auto, 56px, 158px);
+    // @include abs(auto, 56px, 33px, 181px);
+    // @include abs(254px, 57px, auto, 187px);
+    margin-top: 4px;
+    width: 175px;
+    height: 10px;
+
+    .track {
+      background: linear-gradient(to left,
+        #FF0000 0%,
+        #FF0099 10%,
+        #CD00FF 20%,
+        #3200FF 30%,
+        #0066FF 40%,
+        #00FFFD 50%,
+        #00FF66 60%,
+        #35FF00 70%,
+        #CDFF00 80%,
+        #FF9900 90%,
+        #FF0000 100%
+      );
+    }
+  }
+
+  .opacity-slider {
+    // @include abs(25px, auto, 56px, 158px);
+    // @include abs(auto, 56px, 33px, 181px);
+    // @include abs(270px, 57px, auto, 187px);
+    margin-top: 4px;
+    width: 175px;
+    height: 10px;
+
+    @include checkered($size: 8px, $align-x: start, $align-y: center, $offset-y: 1px);
+
+    .track {
+      background: linear-gradient(to left,
+        rgba(255,255,255,1) 0%,
+        rgba(255,255,255,0) 100%
+      );
+    }
+  }
+
+  .sample {
+    // @include abs(25px, auto, auto, 25px);
+    width: 24px;
+    height: 24px;
+    margin-top: 4px;
+    overflow: hidden;
+
+    @include checkered($size: 8px, $align-x: start, $align-y: start);
+
+    .current {
+      height: 24px;
+      @include darkened-outline();
+    }
+
+    .origin {
+      display: none;
+      height: 24px;
+    }
+  }
+
+  .details {
+    width: 210px;
+    overflow: hidden;
+
+    ul {
+      padding: 0;
+      margin: 0 0 20px 0;
+
+      li {
+        list-style-type: none;
+      }
+    }
+
+    label {
+      display: inline-block;
+      color: #888;
+      width: 15px;
+      margin-right: 5px;
+      text-align: right;
+    }
+
+    input {
+      width: 29px;
+      text-transform: uppercase;
+      background: none;
+      border-radius: 3px;
+      border: none;
+      outline: none;
+      color: #ccc;
+      background: rgba(#000, 0.1);
+
+      &:focus {
+        color: #333;
+        background: rgba(#fff, 0.9);
+      }
+    }
+
+  }
+}

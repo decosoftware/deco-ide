@@ -1,0 +1,103 @@
+{
+	"liveValues": [
+		{
+			"range": {
+				"from": {
+					"line": 4,
+					"ch": 16
+				},
+				"to": {
+					"line": 4,
+					"ch": 21
+				}
+			},
+			"type": "boolean",
+			"name": "Horizontal"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 5,
+					"ch": 33
+				},
+				"to": {
+					"line": 5,
+					"ch": 37
+				}
+			},
+			"type": "boolean",
+			"name": "ShowVerticalScrollIndicator"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 6,
+					"ch": 35
+				},
+				"to": {
+					"line": 6,
+					"ch": 40
+				}
+			},
+			"type": "boolean",
+			"name": "ShowHorizontalScrollIndicator"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 7,
+					"ch": 26
+				},
+				"to": {
+					"line": 7,
+					"ch": 30
+				}
+			},
+			"type": "boolean",
+			"name": "AlwaysBounceVertical"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 8,
+					"ch": 28
+				},
+				"to": {
+					"line": 8,
+					"ch": 33
+				}
+			},
+			"type": "boolean",
+			"name": "AlwaysBounceHorizontal"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 9,
+					"ch": 29
+				},
+				"to": {
+					"line": 9,
+					"ch": 49
+				}
+			},
+			"editWith": "colorPicker",
+			"type": "string",
+			"name": "BackgroundColor"
+		},
+		{
+			"range": {
+				"from": {
+					"line": 11,
+					"ch": 19
+				},
+				"to": {
+					"line": 11,
+					"ch": 24
+				}
+			},
+			"type": "boolean",
+			"name": "PagingEnabled"
+		}
+	]
+}

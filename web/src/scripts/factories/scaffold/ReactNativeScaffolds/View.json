@@ -1,0 +1,65 @@
+{
+  "name": "View",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<View\n  style={{\n    flex: 1,\n    justifyContent: 'flex-start',\n    alignItems: 'stretch',\n    backgroundColor: \"rgba(74,144,226,1)\",\n  }}>\n</View>",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 20
+        },
+        "to": {
+          "line": 3,
+          "ch": 32
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "JustifyContent",
+      "type": "string",
+      "name": "JustifyContent"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 4,
+          "ch": 16
+        },
+        "to": {
+          "line": 4,
+          "ch": 25
+        }
+      },
+      "editWith": "dropdown",
+      "dropdownOptions": "AlignItems",
+      "type": "string",
+      "name": "AlignItems"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 21
+        },
+        "to": {
+          "line": 5,
+          "ch": 41
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "BackgroundColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { View } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "View"
+    ]
+  }
+}

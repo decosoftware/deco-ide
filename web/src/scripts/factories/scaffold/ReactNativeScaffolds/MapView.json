@@ -1,0 +1,60 @@
+{
+  "name": "MapView",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<MapView \n  onRegionChange={() => {}}\n  onRegionChangeComplete={() => {}}\n  showUserLocation={true}\n  style={{\n    height: 200,\n    width: 300,\n  }}>\n</MapView>",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 20
+        },
+        "to": {
+          "line": 3,
+          "ch": 24
+        }
+      },
+      "type": "boolean",
+      "name": "ShowUserLocation"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 12
+        },
+        "to": {
+          "line": 5,
+          "ch": 15
+        }
+      },
+      "type": "number",
+      "name": "Height"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 6,
+          "ch": 11
+        },
+        "to": {
+          "line": 6,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Width"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { MapView } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "MapView"
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "RefreshControl",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<RefreshControl \n  // RefreshControl is meant to be used with ScrollView\n  onRefresh={() => {\n    // setTimeout is just for this example and is not safe to use in practice\n    this.setState({refreshing: true})\n    setTimeout(() => { \n      this.setState({refreshing: false}) \n    }, 1000)\n  }}\n  refreshing={(this.state && this.state.refreshing) || false}\n  tintColor={\"rgba(74,144,226,1)\"}\n  title={'Loading...'}\n  colors={['#ff0000', '#00ff00', '#0000ff']}\n  progressBackgroundColor={\"rgba(100,100,100,1)\"} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 10,
+          "ch": 13
+        },
+        "to": {
+          "line": 10,
+          "ch": 33
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "TintColor"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 11,
+          "ch": 9
+        },
+        "to": {
+          "line": 11,
+          "ch": 21
+        }
+      },
+      "editWith": "inputField",
+      "type": "string",
+      "name": "Title"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 13,
+          "ch": 27
+        },
+        "to": {
+          "line": 13,
+          "ch": 48
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "ProgressBackgroundColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { RefreshControl } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "RefreshControl"
+    ]
+  }
+}

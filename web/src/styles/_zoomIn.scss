@@ -1,0 +1,42 @@
+// Animate.css and Animate.scss are both licensed under the MIT license. (http://opensource.org/licenses/MIT)
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }
+
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }
+
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@include keyframes(zoomIn) {
+  0% {
+    opacity: 0;
+    @include transform(scale3d(.3, .3, .3));
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@mixin zoomIn($count: $countDefault, $duration: $durationDefault, $delay: $delayDefault, $function: $functionDefault, $fill: $fillDefault, $visibility: $visibilityDefault) {
+  @include animation-name(zoomIn);
+  @include count($count);
+  @include duration($duration);
+  @include delay($delay);
+  @include function($function);
+  @include fill-mode($fill);
+  @include visibility($visibility);
+}

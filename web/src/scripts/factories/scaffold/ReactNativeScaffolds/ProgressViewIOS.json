@@ -1,0 +1,75 @@
+{
+  "name": "ProgressViewIOS",
+  "version": "0.0.1",
+  "packages": {},
+  "props": [],
+  "template": "<ProgressViewIOS \n  style={{\n    margin: 20,\n    width: 100,\n  }}\n  progress={50 / 100}\n  progressTintColor={\"rgba(74,144,226,1)\"} />",
+  "liveValues": [
+    {
+      "range": {
+        "from": {
+          "line": 2,
+          "ch": 12
+        },
+        "to": {
+          "line": 2,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Margin"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 3,
+          "ch": 11
+        },
+        "to": {
+          "line": 3,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Width"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 5,
+          "ch": 12
+        },
+        "to": {
+          "line": 5,
+          "ch": 14
+        }
+      },
+      "type": "number",
+      "name": "Progress"
+    },
+    {
+      "range": {
+        "from": {
+          "line": 6,
+          "ch": 21
+        },
+        "to": {
+          "line": 6,
+          "ch": 41
+        }
+      },
+      "editWith": "colorPicker",
+      "type": "string",
+      "name": "ProgressTintColor"
+    }
+  ],
+  "parentModule": "react-native",
+  "require": [
+    "import { ProgressViewIOS } from 'react-native'"
+  ],
+  "dependencies": {
+    "react-native": [
+      "ProgressViewIOS"
+    ]
+  }
+}
