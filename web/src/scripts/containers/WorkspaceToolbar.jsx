@@ -109,7 +109,7 @@ class WorkspaceToolbar extends Component {
   }
 
   _openDocs() {
-    shell.openExternal("http://facebook.github.io/react-native/docs/view.html#content")
+    shell.openExternal("https://www.decosoftware.com/docs")
   }
 
   _openCreateDiscussAccount() {
