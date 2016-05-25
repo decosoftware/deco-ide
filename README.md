@@ -4,7 +4,7 @@
 
 You can get started right away on your React Native project by installing Deco and creating a new project — it's fast and there's no manual setup needed. File scaffolding handles your boilerplate. Ready-made components drop right into your code. Properties are graphically editable through the property inspector. It's an entirely new way to write, tweak, and re-use code.
 
-![Deco Screenshot](https://s3-us-west-2.amazonaws.com/imhost/DecoIDEScreenshot.png)
+![Deco Screenshot](http://i.imgur.com/KoZrWoF.png)
 
 #### [Download Deco](https://www.decosoftware.com/beta/downloads) to try out the latest release.
 #### [Documentation](https://www.decosoftware.com/docs) to get you started on Deco IDE.
