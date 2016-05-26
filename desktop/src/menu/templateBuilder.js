@@ -21,6 +21,7 @@
 import {
   app,
   dialog,
+  shell
 } from 'electron'
 
 //Deco Requires
@@ -174,7 +175,7 @@ const TemplateBuilder = function(platform) {
     submenu: [{
       label: 'Chat With Deco Team...',
       click: function() {
-        require('shell').openExternal(
+        shell.openExternal(
           'https://decoslack.slack.com/messages/deco/'
         )
       }
