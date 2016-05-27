@@ -30,6 +30,13 @@ const defaultArgs = {
   simulator: DEFAULT_SIM,
 }
 
+import TaskLauncher from './taskLauncher'
+import bridge from '../bridge'
+import {
+  onPackagerOutput,
+  onPackagerError,
+} from '../actions/processActions'
+
 class SimulatorController {
 
   constructor() {
@@ -57,34 +64,6 @@ class SimulatorController {
     return this._simulatorIsOpen
   }
 
-  _installApplication(args) {
-    try {
-      const installing = child_process.spawn('xcrun', ['simctl', 'install', 'booted', args.appPath])
-      installing.on('close', (code) => {
-        if (code != 0) {
-          Logger.error('error on xcrun simctl install booted: ' + code)
-        }
-        this._bootApplication(args)
-      })
-    } catch (e) {
-      Logger.error(e)
-    }
-  }
-
-  _bootApplication(args) {
-    try {
-      const booting = child_process.spawn('xcrun', ['simctl', 'launch', 'booted', args.bundleID])
-      booting.on('close', (code) => {
-        if (code != 0) {
-          Logger.error('error on xcrun simctl launch booted: ' + code)
-          return
-        }
-      })
-    } catch(e) {
-      Logger.error(e)
-    }
-  }
-
   runSimulator(args) {
     this._lastSimulatorArg = args.simulator || DEFAULT_SIM
     this._runSimulator(Object.assign({}, defaultArgs, args))
@@ -99,19 +78,32 @@ class SimulatorController {
       }
 
       const simulatorFullName = `${selectedSimulator.name} (${selectedSimulator.version})`
-      const sim = child_process.spawn('xcrun', ['instruments', '-w', selectedSimulator.udid], {
-        stdio: 'inherit',
-        env: process.env,
+
+      const child = TaskLauncher.runTask('sim-ios', ['--deviceId', selectedSimulator.udid, '--target', args.appPath])
+
+      child.stdout.on('data', (data) => {
+        try {
+          var plainTextData = data.toString()
+          Logger.info(plainTextData)
+          bridge.send(onPackagerOutput(plainTextData))
+        } catch (e) {
+          Logger.error(e)
+        }
       })
 
-      sim.on('close', (code) => {
-        // instruments always fail with 255 because it expects more arguments,
-        // but we want it to only launch the simulator
-        if (code != 0 && code != 255) {
-          Logger.error('error thrown on xcrun instruments: ' + code + ' for simulator name ' + simulatorFullName)
+      child.stderr.on('data', (data) => {
+        try {
+          var plainTextData = data.toString()
+          Logger.error('packager stderr', plainTextData)
+          // TODO
+          // not going to distinguish between stderr and stdout for now
+          bridge.send(onPackagerError(plainTextData))
+        } catch (e) {
+          Logger.error(e)
         }
-        this._installApplication(args)
       })
+
+
     } catch(e) {
       Logger.error(e)
     }

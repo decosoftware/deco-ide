@@ -32,6 +32,7 @@ import path from 'path'
 import findXcodeProject from './utils/findXcodeProject'
 import simulatorUtils from './utils/simulatorUtils'
 import xcodeUtils from './utils/xcodeUtils'
+import TaskLauncher from './taskLauncher'
 
 import bridge from '../bridge'
 import {
@@ -71,32 +72,23 @@ class BuildController {
       }
 
       const inferredSchemeName = xcodeUtils.inferredSchemeName(xcodeProject)
-      bridge.send(onPackagerOutput(`Found Xcode ${xcodeProject.isWorkspace ? 'workspace' : 'project'} ${xcodeProject.name}`))
-
 
       const simulators = simulatorUtils.parseSimulatorList(
         child_process.execFileSync('xcrun', ['simctl', 'list', 'devices'], {encoding: 'utf8'})
       )
+
       const selectedSimulator = simulatorUtils.matchingSimulator(simulators, args.simulator)
       if (!selectedSimulator) {
         const err = `Couldn't find ${selectedSimulator} simulator`
         Logger.error(err)
         bridge.send(onPackagerOutput(err))
       }
-      const xcodebuildArgs = [
-        xcodeProject.isWorkspace ? '-workspace' : '-project', xcodeProject.name,
-        '-scheme', inferredSchemeName,
-        '-destination', `id=${selectedSimulator.udid}`,
-        'ONLY_ACTIVE_ARCH=NO',
-        '-derivedDataPath', 'build',
-      ]
-      bridge.send(onPackagerOutput(`Building using "xcodebuild ${xcodebuildArgs.join(' ')}"`))
-      const xcodeBuildChild = child_process.spawn('xcodebuild', xcodebuildArgs, {
-        cwd: runPath,
-      })
-      xcodeBuildChild.on('error', (error) => {
-        Logger.error(error)
-      })
+
+      const xcodeBuildChild = TaskLauncher.runTask('build-ios', [
+        '--scheme', inferredSchemeName,
+        '--deviceId', selectedSimulator.udid,
+        '--project', xcodeProject.name
+      ])
 
       xcodeBuildChild.stdout.on('data', (data) => {
         var plainTextData = data.toString()
