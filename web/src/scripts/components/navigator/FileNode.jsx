@@ -51,6 +51,9 @@ class FileNode extends Component {
         style: style,
       })
     }
+    this._onShowInFinder = () => {
+      this.props.onShowInFinder(this.props.node)
+    }
     this._onRename = () => {
       this.props.onRename(this.props.node)
     }
@@ -60,6 +63,7 @@ class FileNode extends Component {
     this._menu = new Menu()
     this._menu.append(new MenuItem({ label: 'Rename', click: this._onRename }))
     this._menu.append(new MenuItem({ label: 'Delete', click: this._onDelete }))
+    this._menu.append(new MenuItem({ label: 'Show in Finder', click: this._onShowInFinder }))
   }
 
   _showContextMenu(e) {

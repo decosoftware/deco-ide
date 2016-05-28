@@ -23,6 +23,7 @@ const {
   CREATE_DIRECTORY,
   RENAME,
   DELETE,
+  SHOW_IN_FINDER,
   FETCH_SUB_PATH,
   WATCH_PATH,
 } = FileConstants
@@ -271,6 +272,19 @@ function _delete(id, fileType) {
 export function deleteNode(fileInfo) {
   return (dispatch) => {
     request(_delete(fileInfo.id, fileInfo.fileType))
+  }
+}
+
+function _showInFinder(id, fileType) {
+  return {
+    type: SHOW_IN_FINDER,
+    id,
+    fileType,
+  }
+}
+export function showInFinder(fileInfo) {
+  return (dispatch) => {
+    request(_showInFinder(fileInfo.id, fileInfo.fileType))
   }
 }
 
