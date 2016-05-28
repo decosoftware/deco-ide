@@ -93,12 +93,14 @@ class TabbedEditor extends Component {
   }
 
   onImportItem(item) {
+    const {options} = this.props
     this.props.dispatch(importComponent(item)).then((payload) => {
       fetchTemplateAndImportDependencies(
         item.dependencies,
         item.template.text,
         item.template.metadata,
-        this.props.rootPath
+        this.props.rootPath,
+        options.npmRegistry,
       ).then(({text, metadata}) => {
         const {decoDoc} = this.props
 
@@ -119,6 +121,7 @@ class TabbedEditor extends Component {
 
   render() {
     const tabBarHeight = 32
+    const {npmRegistry} = this.props.options
 
     const editorStyle = {
       top: 0,
@@ -228,7 +231,8 @@ class TabbedEditor extends Component {
             this.props.progressBar && (
               <ProgressBar
                 style={progressBarStyle}
-                name={`npm install ${this.props.progressBar.name}`}
+                name={`npm install ${this.props.progressBar.name}` +
+                      (npmRegistry? ` --registry=${npmRegistry}`: '')}
                 progress={this.props.progressBar.progress} />
             )
           }
@@ -302,6 +306,7 @@ const mapStateToProps = (state, ownProps) => {
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
       styleActiveLine: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE],
       showIndentGuides: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INDENT_GUIDES],
+      npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
     }
   }
 }
