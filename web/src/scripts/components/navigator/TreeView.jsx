@@ -63,6 +63,7 @@ function renderFileNode(props, node) {
       moduleName={node.module}
       onRename={props.onRename}
       onDelete={props.onDelete}
+      onShowInFinder={props.onShowInFinder}
       onClick={() => {
         props.onClickNode(node)
       }}
@@ -81,6 +82,7 @@ function renderDirNode(props, node, collapseButton) {
       scaffolds={props.scaffolds}
       onRename={props.onRenameDir}
       onDelete={props.onDelete}
+      onShowInFinder={props.onShowInFinder}
       onCreateSubFile={props.onCreateSubFile}
       onCreateSubDir={props.onCreateSubDir}>
       {collapseButton}
@@ -147,7 +149,7 @@ class TreeView extends Component {
     const {
       tree, scaffolds,
       onCollapse, onClickNode, onDoubleClickNode,
-      onCreateSubDir, onCreateSubFile, onRename, onRenameDir, onDelete
+      onCreateSubDir, onCreateSubFile, onRename, onRenameDir, onDelete, onShowInFinder,
     } = this.props
 
     const {viewport, scrollTop} = this.state
@@ -169,6 +171,7 @@ class TreeView extends Component {
             onRename,
             onRenameDir,
             onDelete,
+            onShowInFinder,
             scaffolds,
           })}
           onCollapse={onCollapse}/>

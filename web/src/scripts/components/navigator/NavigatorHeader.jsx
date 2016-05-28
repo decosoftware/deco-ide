@@ -80,6 +80,9 @@ class NavigatorHeader extends Component {
       if (this.props.node.isProjectRoot) return
       this.props.onDelete(this.props.node)
     }
+    this._onShowInFinder = () => {
+      this.props.onShowInFinder(this.props.node)
+    }
   }
   _showContextMenu(e) {
     e.preventDefault()
@@ -91,6 +94,7 @@ class NavigatorHeader extends Component {
       this._menu.append(new MenuItem({ type: 'separator' }))
       this._menu.append(new MenuItem({ label: 'Rename', click: this._onRename }))
       this._menu.append(new MenuItem({ label: 'Delete', click: this._onDelete }))
+      this._menu.append(new MenuItem({ label: 'Show in Finder', click: this._onShowInFinder }))
     }
 
     this._menu.popup(remote.getCurrentWindow())

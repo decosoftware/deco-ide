@@ -28,6 +28,7 @@ import {
   createDirectory,
   rename,
   deleteNode,
+  showInFinder,
   addSubPath,
   fetchSubPath,
   fileIdChange,
@@ -144,6 +145,9 @@ class ProjectNavigator extends Component {
           onDelete={(node) => {
             this.props.dispatch(closeTab(CONTENT_PANES.CENTER, node.id))
             this.props.dispatch(deleteNode(node))
+          }}
+          onShowInFinder={(node) => {
+            this.props.dispatch(showInFinder(node))
           }}
           onClickNode={(node) => {
             this.props.dispatch(openFile(node))
