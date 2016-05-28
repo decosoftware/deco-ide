@@ -33,7 +33,7 @@ const containerStyle = {
 const upgradeStyle = {
   color: 'rgb(80,80,80)',
   fontSize: 26,
-  fontFamily: 'Helvetica Neue',
+  fontFamily: '"Helvetica Neue", sans-serif',
   marginLeft: 20,
 }
 const flex = {
