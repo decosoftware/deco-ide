@@ -25,6 +25,8 @@ import mkdirp from 'mkdirp'
 import _ from 'lodash'
 import sane from 'sane'
 
+import { shell } from 'electron'
+
 import fs from 'fs-plus'
 import FileSystem from '../fs/fileSystem'
 import bridge from '../bridge'
@@ -59,6 +61,7 @@ const {
   WRITE_FILE_METADATA,
   DELETE_FILE_METADATA,
   DELETE,
+  SHOW_IN_FINDER,
   CREATE_DIRECTORY,
   RENAME,
   CREATE_FILE,
@@ -185,6 +188,7 @@ class FileHandler {
     bridge.on(WRITE_FILE_METADATA, this.writeFileMetadata.bind(this))
     bridge.on(DELETE_FILE_METADATA, this.deleteFileMetadata.bind(this))
     bridge.on(DELETE, this.delete.bind(this))
+    bridge.on(SHOW_IN_FINDER, this.showInFinder.bind(this))
     bridge.on(CREATE_DIRECTORY, this.createDirectory.bind(this))
     bridge.on(RENAME, this.rename.bind(this))
     bridge.on(CREATE_FILE, this.createFile.bind(this))
@@ -266,6 +270,17 @@ class FileHandler {
       Logger.error(e)
     }
     respond(onSuccess(DELETE))
+  }
+
+  showInFinder(payload, respond) {
+    try {
+      const absolutePath = getPathFromId(payload.id)
+      Logger.error(absolutePath)
+      shell.showItemInFolder(absolutePath)
+    } catch (e) {
+      Logger.error(e)
+    }
+    respond(onSuccess(SHOW_IN_FINDER))
   }
 
   createDirectory(payload, respond) {
