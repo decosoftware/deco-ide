@@ -46,8 +46,10 @@ import { closeTab, clearFocusedTab } from '../actions/tabActions'
 import { clearSelections } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+
+const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 
 class TabbedEditor extends Component {
   constructor(props) {
@@ -155,6 +157,9 @@ class TabbedEditor extends Component {
     const editorClassName = 'flex-variable editor ' +
         (this.props.highlightLiteralTokens ? 'highlight' : '')
 
+    // Show npm registry only if it's not the default
+    const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
+
     return (
       <HotKeys handlers={this.keyHandlers} keyMap={this.keyMap}
         className={'vbox flex-variable full-size-relative'}
@@ -231,7 +236,7 @@ class TabbedEditor extends Component {
               <ProgressBar
                 style={progressBarStyle}
                 name={`npm install ${this.props.progressBar.name}` +
-                      (this.props.npmRegistry? ` --registry=${this.props.npmRegistry}`: '')}
+                      (showNpmRegistry ? ` --registry=${this.props.npmRegistry}` : '')}
                 progress={this.props.progressBar.progress} />
             )
           }
