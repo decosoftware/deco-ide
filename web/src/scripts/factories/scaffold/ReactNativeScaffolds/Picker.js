@@ -29,7 +29,7 @@ const Picker = {
     defaultValue: {
       color: 'black',
       fontWeight: 'normal',
-      fontFamily: 'helvetica',
+      fontFamily: 'Helvetica, sans-serif',
       fontSize: 16,
       textAlign: 'center',
     },
