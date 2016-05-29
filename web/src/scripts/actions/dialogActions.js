@@ -26,13 +26,16 @@ import {
 } from '../actions/editorActions'
 import NamingBanner from '../components/modal/NamingBanner'
 import { getRootPath } from '../utils/PathUtils'
+import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
 
 export const openInstallModuleDialog = () => (dispatch, getState) => {
   const dialog = (
     <NamingBanner
       bannerText={'Install module'}
       onTextDone={(name) => {
-        importModule(name, 'latest', getRootPath(getState()))
+        const state = getState()
+        const registry = state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY]
+        importModule(name, 'latest', getRootPath(state), registry)
       }} />
   )
   dispatch(pushModal(dialog, true))
