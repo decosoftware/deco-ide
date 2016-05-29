@@ -93,12 +93,14 @@ class TabbedEditor extends Component {
   }
 
   onImportItem(item) {
+    const {options} = this.props
     this.props.dispatch(importComponent(item)).then((payload) => {
       fetchTemplateAndImportDependencies(
         item.dependencies,
         item.template.text,
         item.template.metadata,
-        this.props.rootPath
+        this.props.rootPath,
+        this.props.npmRegistry,
       ).then(({text, metadata}) => {
         const {decoDoc} = this.props
 
@@ -228,7 +230,8 @@ class TabbedEditor extends Component {
             this.props.progressBar && (
               <ProgressBar
                 style={progressBarStyle}
-                name={`npm install ${this.props.progressBar.name}`}
+                name={`npm install ${this.props.progressBar.name}` +
+                      (this.props.npmRegistry? ` --registry=${this.props.npmRegistry}`: '')}
                 progress={this.props.progressBar.progress} />
             )
           }
@@ -297,6 +300,7 @@ const mapStateToProps = (state, ownProps) => {
     filesByTabId,
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
+    npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
