@@ -46,8 +46,10 @@ import { closeTab, clearFocusedTab } from '../actions/tabActions'
 import { clearSelections } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+
+const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 
 class TabbedEditor extends Component {
   constructor(props) {
@@ -93,12 +95,14 @@ class TabbedEditor extends Component {
   }
 
   onImportItem(item) {
+    const {options} = this.props
     this.props.dispatch(importComponent(item)).then((payload) => {
       fetchTemplateAndImportDependencies(
         item.dependencies,
         item.template.text,
         item.template.metadata,
-        this.props.rootPath
+        this.props.rootPath,
+        this.props.npmRegistry,
       ).then(({text, metadata}) => {
         const {decoDoc} = this.props
 
@@ -152,6 +156,9 @@ class TabbedEditor extends Component {
 
     const editorClassName = 'flex-variable editor ' +
         (this.props.highlightLiteralTokens ? 'highlight' : '')
+
+    // Show npm registry only if it's not the default
+    const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
 
     return (
       <HotKeys handlers={this.keyHandlers} keyMap={this.keyMap}
@@ -228,7 +235,8 @@ class TabbedEditor extends Component {
             this.props.progressBar && (
               <ProgressBar
                 style={progressBarStyle}
-                name={`npm install ${this.props.progressBar.name}`}
+                name={`npm install ${this.props.progressBar.name}` +
+                      (showNpmRegistry ? ` --registry=${this.props.npmRegistry}` : '')}
                 progress={this.props.progressBar.progress} />
             )
           }
@@ -297,6 +305,7 @@ const mapStateToProps = (state, ownProps) => {
     filesByTabId,
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
+    npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
