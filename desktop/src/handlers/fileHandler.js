@@ -124,7 +124,10 @@ function closeWatchman() {
 
 function shutdownWatchman() {
   try {
-    child_process.spawnSync('/usr/local/Deco/watchman/watchman', ['shutdown-server'])
+    // this should only be the case if we added watchman to the $PATH on initialization
+    if (process.env.PATH.indexOf('/usr/local/Deco/watchman') != -1) {
+      child_process.spawnSync('/usr/local/Deco/watchman/watchman', ['shutdown-server'])
+    }
   } catch (e) {
     //do nothing
     Logger.error(e)
