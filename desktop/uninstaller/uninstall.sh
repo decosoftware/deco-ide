@@ -1,7 +1,8 @@
 #!/bin/bash
 
-sudo rm /usr/local/Deco
-sudo rm ~/Library/Application Support/com.decosoftware.Deco
-sudo rm /usr/local/var/run/watchman
-sudo rm ~/.Deco
-sudo rm /Applications/Deco.app
+sudo rm -R /usr/local/Deco
+sudo rm -R ~/Library/Application\ Support/com.decosoftware.Deco
+sudo rm -R ~/Library/Application\ Support/com.decosoftware.deco.ShipIt
+sudo rm -R /usr/local/var/run/watchman
+sudo rm -R ~/.Deco
+sudo rm -R /Applications/Deco.app
