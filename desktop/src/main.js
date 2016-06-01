@@ -32,6 +32,7 @@ global.__DEV__ = __DEV__
 global.openWindows = {}
 
 import os from 'os'
+import child_process from 'child_process'
 
 //DECO APP REQUIRES
 var WindowManager = require('./window/windowManager.js')
@@ -53,13 +54,33 @@ app.on('window-all-closed', function() {
   // }
 })
 
+var conditionallyAddWatchmanToPath = function() {
+  // conditionally switch on our custom watchman instance
+  let foundWatchman = false
+  try {
+    const result = child_process.spawnSync('watchman', ['version'], {
+      env: process.env
+    })
+    
+    if (result && result.stdout && result.stdout.toString().length > 0) {
+      foundWatchman = true
+    }
+  } catch (e) {
+    // something went wrong, so we'll fallback to our own
+  }
+  if (!foundWatchman) {
+    process.env.PATH = process.env.PATH + ":" + '/usr/local/Deco/watchman'
+  }
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // THIS IS WHERE DECO APP FUNCTIONALITY SHOULD LIVE, EXERCISE CAUTION OUTSIDE THIS FUNCTION
 app.on('ready', function() {
   //setup environment variables
-  process.env.PATH = process.env.PATH + ":" + '/usr/local/Deco/watchman'
   app.commandLine.appendSwitch('js-flags', '--harmony')
+  conditionallyAddWatchmanToPath()
+
 
   Logger.info('Deco initializing...')
 
