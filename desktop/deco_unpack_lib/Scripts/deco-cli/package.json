@@ -1,0 +1,14 @@
+{
+  "name": "deco-cli",
+  "version": "0.6.0",
+  "description": "Command line tool for Deco IDE",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Deco Software Inc.",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "minimist": "^1.2.0"
+  }
+}

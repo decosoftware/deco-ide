@@ -36,6 +36,8 @@ import processHandler from '../handlers/processHandler'
 import PackagerController from '../process/packagerController'
 import SimulatorController from '../process/simulatorController'
 import BuildController from '../process/buildController'
+import taskLauncher from '../process/taskLauncher'
+
 import {
   INFO,
   QUESTION,
@@ -146,6 +148,13 @@ const TemplateBuilder = function(platform) {
       accelerator: 'CmdOrCtrl+Shift+M',
       click: () => {
         bridge.send(openInstallModuleDialog())
+      },
+    }, {
+      type: 'separator'
+    }, {
+      label: 'Add Deco config to project',
+      click: () => {
+        taskLauncher.runTask('init-template')
       },
     }, ],
   }
