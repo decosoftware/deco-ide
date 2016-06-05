@@ -45,6 +45,12 @@ brew install ruby
 gem install bundler
 ```
 
+Enable key repeat if you're running Vim mode:
+
+```
+defaults write com.decosoftware.deco ApplePressAndHoldEnabled -bool false
+```
+
 #### Linux
 
 Linux is not supported at this time.
