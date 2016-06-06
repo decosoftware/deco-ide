@@ -123,7 +123,6 @@ export const addNode = (tree, rootPath, fileInfo) => {
       }
     }
   }
-  console.log('arg', fileInfo);
   return addPath(tree, getRelativeRootArray(rootPath, fileInfo.absolutePath), fileInfo)
 }
 
