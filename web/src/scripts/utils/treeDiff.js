@@ -16,12 +16,14 @@
  */
 
 import _ from 'lodash'
-const path = require('path')
+const path = Electron.remote.require('path')
 
 //PRIVATE
 function getRelativeRootArray(rootPath, fullPathArray) {
   const rootParentPath = path.resolve(rootPath, '..')
-  const fullPath = path.join(...fullPathArray)
+  // fullPath needs to be revisited for Windows. The path array currently
+  // chops off the / in the beginning so we add it back here as a workaround.
+  const fullPath = path.sep + path.join(...fullPathArray)
   return path.relative(rootParentPath, fullPath).split(path.sep)
 }
 
@@ -117,8 +119,10 @@ export const addNode = (tree, rootPath, fileInfo) => {
     fileInfo.leaf = true
   } else {
     if (fileInfo.module == [...rootPath.split(path.sep)].pop()) {
-      // Check full path against project root if the name alone matches
-      if (path.relative(path.join(...fileInfo.absolutePath), rootPath) == '') {
+      // Check full path against project root if the name alone matches.
+      // Add path.sep to beginning as a workaround for path array missing /,
+      // needs to be revisited for Windows.
+      if (path.relative(path.sep + path.join(...fileInfo.absolutePath), rootPath) == '') {
         fileInfo.isProjectRoot = true
       }
     }
