@@ -16,11 +16,13 @@
  */
 
 import _ from 'lodash'
+const path = require('path')
 
 //PRIVATE
-function getRelativeRootArray(rootName, fullPathArray) {
-  const baseIndex = fullPathArray.indexOf(rootName)
-  return fullPathArray.slice(baseIndex, fullPathArray.length)
+function getRelativeRootArray(rootPath, fullPathArray) {
+  const rootParentPath = path.resolve(rootPath, '..')
+  const fullPath = path.join(...fullPathArray)
+  return path.relative(rootParentPath, fullPath).split(path.sep)
 }
 
 function mapTree(tree, fn) {
@@ -36,8 +38,8 @@ function mapTree(tree, fn) {
   return fn(tree)
 }
 
-function addPath(tree, path, fileInfo) {
-  if (path.length == 1) {
+function addPath(tree, workingPath, fileInfo) {
+  if (workingPath.length == 1) {
     if (!tree.children || tree.children.length == 0) {
       // set empty children only if we are sure this is a new directory
       // anything else could potentially overwrite old children
@@ -51,7 +53,7 @@ function addPath(tree, path, fileInfo) {
     }
   }
 
-  const subPath = path.slice(1, path.length)
+  const subPath = workingPath.slice(1, workingPath.length)
   _.forIn(tree, (val, key) => {
     if (_.isArray(val) && key == 'children') {
       const idx = _.findIndex(val, (el) => { return el.module === subPath[0] })
@@ -87,8 +89,8 @@ function addPath(tree, path, fileInfo) {
   return tree
 }
 
-function removePath(tree, path) {
-  const subPath = path.slice(1, path.length)
+function removePath(tree, workingPath) {
+  const subPath = workingPath.slice(1, workingPath.length)
   _.forIn(tree, (val, key) => {
     if (_.isArray(val) && key == 'children') {
       const idx = _.findIndex(val, (el) => { return el.module === subPath[0] })
@@ -110,25 +112,26 @@ function removePath(tree, path) {
 
 //EXPORTS
 
-export const addNode = (tree, rootName, fileInfo) => {
+export const addNode = (tree, rootPath, fileInfo) => {
   if (fileInfo.fileType == 'file') {
     fileInfo.leaf = true
   } else {
-    if (fileInfo.module == rootName) {
-      //sub dirs with the same name as project should not be default uncollapsed
-      if (fileInfo.absolutePath.indexOf(rootName) == fileInfo.absolutePath.length - 1) {
+    if (fileInfo.module == [...rootPath.split(path.sep)].pop()) {
+      // Check full path against project root if the name alone matches
+      if (path.relative(path.join(...fileInfo.absolutePath), rootPath) == '') {
         fileInfo.isProjectRoot = true
       }
     }
   }
-  return addPath(tree, getRelativeRootArray(rootName, fileInfo.absolutePath), fileInfo)
+  console.log('arg', fileInfo);
+  return addPath(tree, getRelativeRootArray(rootPath, fileInfo.absolutePath), fileInfo)
 }
 
-export const removeNode = (tree, rootName, fileInfo) => {
-  return removePath(tree, getRelativeRootArray(rootName, fileInfo.absolutePath))
+export const removeNode = (tree, rootPath, fileInfo) => {
+  return removePath(tree, getRelativeRootArray(rootPath, fileInfo.absolutePath))
 }
 
-export const updateSubTree = (tree, rootName, node, oldNode) => {
+export const updateSubTree = (tree, rootPath, node, oldNode) => {
   try {
     const replaceTree = mapTree(tree, (childNode) => {
       if (childNode.id == oldNode.id) {
