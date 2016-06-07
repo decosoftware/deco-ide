@@ -19,6 +19,11 @@ import _ from 'lodash'
 
 import request from '../ipc/Request'
 
+import ApplicationConstants from 'shared/constants/ipc/ApplicationConstants'
+const {
+  GET_SYSTEM_PATHS,
+} = ApplicationConstants
+
 import WindowConstants from 'shared/constants/ipc/WindowConstants'
 const {
   OPEN_PROJECT_DIALOG,
@@ -33,10 +38,12 @@ const {
 import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
 const {
   RUN_SIMULATOR,
+  STOP_PACKAGER,
   RUN_PACKAGER,
   RESUME_PACKAGER,
   RESUME_SIMULATOR,
   LIST_AVAILABLE_SIMS,
+  HARD_RELOAD_SIMULATOR,
 } = ProcessConstants
 import FileConstants from 'shared/constants/ipc/FileConstants'
 const {
@@ -44,8 +51,11 @@ const {
 } = FileConstants
 
 import { ProcessStatus, } from '../constants/ProcessStatus'
+import { mergeSystemPreferences, savePreferences } from './preferencesActions'
 import { saveMetadata } from './metadataActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
+
+import { PREFERENCES, CATEGORIES } from 'shared/constants/PreferencesConstants'
 
 function _openProject(path, resumeState = false) {
   return {
@@ -54,11 +64,13 @@ function _openProject(path, resumeState = false) {
     resumeState,
   }
 }
+
 function _openProjectDialog() {
   return {
     type: OPEN_PROJECT_DIALOG,
   }
 }
+
 export function openProject(projectPath = null) {
   return function(dispatch) {
     ga('send', {
@@ -103,10 +115,11 @@ export function createProject() {
   }
 }
 
-function _runSimulator(name = 'iPhone 6') {
+function _runSimulator(simInfo = {}, platform = 'ios') {
   return {
     type: RUN_SIMULATOR,
-    name,
+    simInfo,
+    platform,
   }
 }
 
@@ -116,21 +129,21 @@ function _resumeSimulator() {
   }
 }
 
-export function runSimulator(name) {
+export function hardReloadSimulator() {
   return function(dispatch) {
-    request(_runSimulator(name)).then((err) => {
-      dispatch(setSimulatorStatus(ProcessStatus.ON))
-    })
+    request({ type: HARD_RELOAD_SIMULATOR })
+  }
+}
+
+export function runSimulator(simInfo, platform) {
+  return function(dispatch) {
+    request(_runSimulator(simInfo, platform))
   }
 }
 
 export function resumeSimulator() {
   return function(dispatch) {
-    request(_resumeSimulator()).then((err) => {
-      dispatch(setSimulatorStatus(ProcessStatus.ON))
-    }).catch((err) => {
-      dispatch(setSimulatorStatus(ProcessStatus.OFF))
-    })
+    request(_resumeSimulator())
   }
 }
 
@@ -141,10 +154,24 @@ function _runPackager(rootPath) {
   }
 }
 
+function _stopPackager() {
+  return {
+    type: STOP_PACKAGER,
+  }
+}
+
 function _resumePackager(rootPath) {
   return {
     type: RESUME_PACKAGER,
     rootPath,
+  }
+}
+
+export function stopPackager() {
+  return function(dispatch, getState) {
+    request(_stopPackager()).then((err) => {
+      dispatch(setPackagerStatus(ProcessStatus.OFF))
+    })
   }
 }
 
@@ -172,22 +199,30 @@ export function resumePackager(rootPath) {
   }
 }
 
-function _askForSimulatorList() {
-  return { type: LIST_AVAILABLE_SIMS, }
+function _askForSimulatorList(platform) {
+  return { type: LIST_AVAILABLE_SIMS, platform, }
 }
 
-function _onSimulatorListReceived(resp) {
-  return { type: GET_AVAILABLE_SIMULATORS, simulators: resp.simulators }
+function _onSimulatorListReceived(resp, platform, error) {
+  return {
+    type: GET_AVAILABLE_SIMULATORS,
+    payload: {
+      simList: resp.simList,
+      message: resp.message,
+    },
+    platform,
+    error,
+  }
 }
 
 export const GET_AVAILABLE_SIMULATORS = "GET_AVAILABLE_SIMULATORS"
-export function getAvailableSimulators() {
+export function getAvailableSimulators(platform = 'ios') {
   return function(dispatch, getState) {
-    request(_askForSimulatorList())
+    request(_askForSimulatorList(platform))
       .then((resp) => {
-        dispatch(_onSimulatorListReceived(resp))
+        dispatch(_onSimulatorListReceived(resp, platform, resp.error))
       }).catch((err) => {
-        //merp
+        // big fail
       })
   }
 }
@@ -231,14 +266,39 @@ function _writeFileData(id, data) {
   }
 }
 
+export const CONFIG_ERROR_MESSAGE = 'CONFIG_ERROR_MESSAGE'
+export const customConfigError = (errorMessage) => {
+  return {
+    type: CONFIG_ERROR_MESSAGE,
+    payload: {
+      configError: errorMessage || '',
+    }
+  }
+}
+
+export const clearConfigError = () => {
+  return {
+    type: CONFIG_ERROR_MESSAGE,
+    payload: {
+      configError: '',
+    }
+  }
+}
+
 export const initializeProcessesForDir = (path) => {
   return function(dispatch, getState) {
     dispatch(setPackagerStatus(ProcessStatus.OFF))
-    dispatch(getAvailableSimulators())
+    dispatch(getAvailableSimulators('ios'))
+    dispatch(getAvailableSimulators('android'))
 
     // if these were running, we restart and resume their operation
     dispatch(resumePackager(path))
     dispatch(resumeSimulator())
+    request({ type: GET_SYSTEM_PATHS }).then((response) => {
+      dispatch(mergeSystemPreferences(response.payload)).then(() => {
+        dispatch(savePreferences())
+      })
+    })
   }
 }
 

@@ -22,6 +22,7 @@ import {
   PACKAGER_STATUS,
   PACKAGER_OUTPUT,
   GET_AVAILABLE_SIMULATORS,
+  CONFIG_ERROR_MESSAGE
 } from '../actions/applicationActions'
 
 import { ProcessStatus, } from '../constants/ProcessStatus'
@@ -32,7 +33,13 @@ const initialState = {
   simulatorStatus: ProcessStatus.OFF,
   packagerStatus: ProcessStatus.OFF,
   packagerOutput: '',
-  availableSimulators: [],
+  availableSimulatorsIOS: {
+    simList: [],
+  },
+  availableSimulatorsAndroid: {
+    simList: [],
+  },
+  configError: '',
 }
 
 const applicationReducer = (state = initialState, action) => {
@@ -55,17 +62,30 @@ const applicationReducer = (state = initialState, action) => {
         packagerOutput: output,
       })
     case GET_AVAILABLE_SIMULATORS:
-      // Take the highest versioned simulator for each name.
-      // Reverse so that the newest simulators are first.
-      const availableSimulators = _.chain(action.simulators)
-          .orderBy('version', 'desc')
-          .unionBy('name')
-          .reverse()
-          .value()
-
+      switch (action.platform) {
+        case 'ios':
+          return {
+            ...state,
+            availableSimulatorsIOS: {
+              error: action.error,
+              ...action.payload,
+            }
+          }
+        case 'android':
+          return {
+            ...state,
+            availableSimulatorsAndroid: {
+              error: action.error,
+              ...action.payload,
+            }
+          }
+        default:
+          return state
+      }
+    case CONFIG_ERROR_MESSAGE:
       return {
         ...state,
-        availableSimulators,
+        ...action.payload,
       }
     default:
       return state

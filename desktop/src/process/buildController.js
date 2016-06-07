@@ -63,16 +63,6 @@ class BuildController {
   buildIOS(_args, callback) {
     const args = Object.assign({}, defaultArgs, _args)
     try {
-      const runPath = path.join(fileHandler.getWatchedPath(), 'ios')
-      const xcodeProject = findXcodeProject(fs.readdirSync(runPath))
-      if (!xcodeProject) {
-        Logger.error('Could not find Xcode project path!')
-        bridge.send(onPackagerOutput('Could not find Xcode project file in path: ' + runPath))
-        return
-      }
-
-      const inferredSchemeName = xcodeUtils.inferredSchemeName(xcodeProject)
-
       const simulators = simulatorUtils.parseSimulatorList(
         child_process.execFileSync('xcrun', ['simctl', 'list', 'devices'], {encoding: 'utf8'})
       )
@@ -85,9 +75,7 @@ class BuildController {
       }
 
       const xcodeBuildChild = TaskLauncher.runTask('build-ios', [
-        '--scheme', inferredSchemeName,
         '--deviceId', selectedSimulator.udid,
-        '--project', xcodeProject.name
       ])
 
       xcodeBuildChild.stdout.on('data', (data) => {
@@ -109,10 +97,6 @@ class BuildController {
       xcodeBuildChild.on('close', (code) => {
         if (callback) callback()
       })
-
-      appPath = xcodeUtils.getAppPath(runPath, inferredSchemeName)
-      bundleID = xcodeUtils.getBundleID(appPath)
-
     } catch (e) {
       Logger.error(e)
     }

@@ -95,10 +95,11 @@ function createMetadataParentPath(filepath) {
   }
 }
 
+
 function buildMetadataFilePath(filePath, rootPath) {
-  const metadataPath = path.join(formatPayloadPath(rootPath), '.deco', formatPayloadPath(filePath).replace(rootPath, '') + '.deco')
-  createMetadataParentPath(metadataPath)
-  return metadataPath
+    const metadataPath = path.join(formatPayloadPath(rootPath), '.deco', 'metadata', formatPayloadPath(filePath).replace(rootPath, '') + '.deco')
+    createMetadataParentPath(metadataPath)
+    return metadataPath
 }
 
 function shouldEmitChangesForPath(filePath) {
@@ -144,7 +145,7 @@ process.on('SIGTERM', () => {
   shutdownWatchman()
 })
 
-function buildPathObjects(absolutePath) {
+export function buildPathObjects(absolutePath) {
   const buffer = new Buffer(absolutePath)
   const id = buffer.toString('hex')
   const baseName = path.basename(absolutePath)
@@ -225,16 +226,6 @@ class FileHandler {
     try {
       const absolutePath = getPathFromId(payload.id)
       const newPath = path.join(path.dirname(absolutePath), payload.newName)
-      if (!fs.isDirectorySync(absolutePath)) {
-        try {
-          const possibleMetadata = absolutePath + '.deco'
-          if (fs.existsSync(possibleMetadata)) {
-            fs.moveSync(possibleMetadata, newPath + '.deco')
-          }
-        } catch (e) {
-          Logger.error(e)
-        }
-      }
       fs.moveSync(absolutePath, newPath)
       const pathObj = buildPathObjects(newPath)
       respond(onRename(pathObj))
@@ -256,18 +247,6 @@ class FileHandler {
             Logger.error(err)
           }
         })
-        const possibleMetadata = absolutePath + '.deco'
-        try {
-          if (fs.existsSync(possibleMetadata)) {
-            _fs.unlink(absolutePath, (err) => {
-              if (err) {
-                Logger.error(err)
-              }
-            })
-          }
-        } catch (e) {
-          Logger.error(e)
-        }
       }
     } catch (e) {
       Logger.error(e)

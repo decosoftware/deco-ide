@@ -27,7 +27,7 @@ var app = require('electron').app;
 
 var Logger = require('../log/logger');
 
-var preferencesWindow = null
+global.preferencesWindow = null
 var upgradeWindow = null
 
 import _ from 'lodash'
@@ -69,9 +69,9 @@ const intializeMainWindow = (browserWindow) => {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     delete global.openWindows[id]
-    if (preferencesWindow) {
-      preferencesWindow.destroy()
-      preferencesWindow = null
+    if (global.preferencesWindow) {
+      global.preferencesWindow.destroy()
+      global.preferencesWindow = null
     }
   })
 }
@@ -159,15 +159,18 @@ var WindowManager = {
       })
     })
   },
+  hidePreferencesWindow: function() {
+    preferencesWindow.hide()
+  },
   openPreferencesWindow: function() {
-    if (preferencesWindow) {
-      preferencesWindow.show()
+    if (global.preferencesWindow) {
+      global.preferencesWindow.show()
     }
   },
   initializePreferencesWindow: function() {
 
     // Retain reference
-    preferencesWindow = new BrowserWindow({
+    var preferencesWindow = new BrowserWindow({
       width: 450,
       height: 360,
       show: false,
@@ -185,6 +188,8 @@ var WindowManager = {
       e.preventDefault()
       preferencesWindow.hide()
     })
+
+    global.preferencesWindow = preferencesWindow
     return preferencesWindow
   },
 };

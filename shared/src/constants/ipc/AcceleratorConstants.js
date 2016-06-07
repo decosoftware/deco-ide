@@ -26,4 +26,5 @@ export default _.mapKeys([
   'SHOULD_CLOSE_TAB',
   'OPEN_INSTALL_MODULE_DIALOG',
   'OPEN_IMPORT_TEMPLATE_DIALOG',
+  'OPEN_FILE',
 ])

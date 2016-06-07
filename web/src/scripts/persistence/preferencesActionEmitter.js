@@ -19,7 +19,7 @@ import _ from 'lodash'
 
 import LocalStorage from './LocalStorage'
 import { setPreferences } from '../actions/preferencesActions'
-import { ROOT_KEY, CATEGORIES, PREFERENCES, METADATA } from '../constants/PreferencesConstants'
+import { ROOT_KEY, CATEGORIES, PREFERENCES, METADATA } from 'shared/constants/PreferencesConstants'
 
 const preferencesActionEmitter = (store) => {
 

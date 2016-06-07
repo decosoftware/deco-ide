@@ -35,7 +35,9 @@ import {
   onPackagerError,
   onPackagerOutput,
   listAvailableSims,
+  showSimulatorError,
   updateSimulatorStatus,
+  updatePackagerStatus,
 } from '../actions/processActions'
 import {
   onSuccess,
@@ -44,46 +46,111 @@ import {
 import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
 const {
   RUN_SIMULATOR,
+  STOP_PACKAGER,
   RUN_PACKAGER,
   RESUME_PACKAGER,
   RESUME_SIMULATOR,
+  HARD_RELOAD_SIMULATOR,
   LIST_AVAILABLE_SIMS,
 } = ProcessConstants
 import fileHandler from './fileHandler'
+import preferenceHandler from './preferenceHandler'
+
 import PackagerController from '../process/packagerController'
 import SimulatorController from '../process/simulatorController'
 
 import Logger from '../log/logger'
 
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
+const injectOptionsFromPreferences = (options) => {
+  const preferences = preferenceHandler.getPreferences()
+  const androidHome = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.ANDROID_HOME]
+  if (androidHome == '') {
+    Logger.info('Path to Android SDK is not set, android functionality may be broken as a result')
+    return //just not worth it
+  }
+  options.env.ANDROID_HOME = androidHome
+  options.env.PATH = `${options.env.PATH}:${path.join(androidHome, 'tools')}:${path.join(androidHome, 'platform-tools')}`
+}
+
 class ProcessHandler {
   register() {
     bridge.on(RUN_SIMULATOR, this.onRunSimulator.bind(this))
+    bridge.on(STOP_PACKAGER, this.onStopPackager.bind(this))
     bridge.on(RUN_PACKAGER, this.onRunPackager.bind(this))
     bridge.on(RESUME_PACKAGER, this.onResumePackager.bind(this))
     bridge.on(RESUME_SIMULATOR, this.onResumeSimulator.bind(this))
+    bridge.on(HARD_RELOAD_SIMULATOR, this.onHardReloadSimulator.bind(this))
     bridge.on(LIST_AVAILABLE_SIMS, this.listAvailableSims.bind(this))
+    this._initMonitor()
+  }
+
+  _initMonitor() {
     this._monitorSimulatorProcess()
+    process.on('exit', () => {
+      this._simWatcher.kill()
+    })
+
+    process.on('SIGINT', () => {
+      this._simWatcher.kill()
+    })
+
+    preferenceHandler.onPreferenceUpdate(() => {
+      this._restartMonitorProcess()
+    })
+
+    setInterval(() => {
+      if (!this._simWatcher || this._simWatcher.killed) {
+        this._monitorSimulatorProcess()
+      }
+    }, 30000)
+  }
+
+  _handleMonitorMessage(message) {
+    try {
+      const simStatus = message.androidRunning || message.iosRunning
+      if (SimulatorController.simulatorStatus != simStatus) {
+        bridge.send(updateSimulatorStatus(simStatus))
+      }
+
+      SimulatorController.androidRunning = message.androidRunning
+      SimulatorController.iosRunning = message.iosRunning
+    } catch (e) {
+      Logger.error(e)
+    }
   }
 
   _monitorSimulatorProcess() {
-    this._simWatcher = child_process.fork(APP_WATCHER_FILE)
-    this._simWatcher.on('message', (message) => {
-      if (SimulatorController.simulatorStatus != message.simStatus) {
-        bridge.send(updateSimulatorStatus(message.simStatus))
+    const options = {}
+    options.env = Object.assign({}, options.env || {}, process.env)
+    injectOptionsFromPreferences(options)
+    options.stdio = 'inherit'
+
+    this._simWatcher = child_process.fork(APP_WATCHER_FILE, [], options)
+
+    this._simWatcher.on('message', this._handleMonitorMessage.bind(this))
+  }
+
+  _restartMonitorProcess() {
+    try {
+      this._simWatcher.kill()
+    } catch (e) {
+      Logger.error(e)
+    }
+    this._monitorSimulatorProcess()
+  }
+
+  onStopPackager(payload, respond) {
+    try {
+      if (PackagerController.stopPackager()) {
+        respond(onSuccess(STOP_PACKAGER))
+      } else {
+        respond(onError('Error when stopping packager.'))
       }
-
-      SimulatorController.simulatorStatus = message.simStatus
-    })
-
-    this._simWatcher.on('exit', (code) => {
-      if (code != 0) {
-        this._simWatcher = child_process.fork(APP_WATCHER_FILE)
-        this._simWatcher.on('message', (message) => {
-          SimulatorController.simulatorStatus = message.simStatus
-        })
-      }
-    })
-
+    } catch(e) {
+      Logger.error(e)
+      respond(onError('Error when stopping packager.'))
+    }
   }
 
   onRunPackager(payload, respond) {
@@ -99,12 +166,18 @@ class ProcessHandler {
   }
 
   listAvailableSims(payload, respond) {
-    const simList = SimulatorController.listAvailableSimulators()
-    if (!simList) {
-      respond(onError(LIST_AVAILABLE_SIMS))
-    } else {
-      respond(listAvailableSims(simList))
-    }
+    SimulatorController.listAvailableSimulators(payload.platform)
+      .then((response) => {
+        if (response.error) {
+          respond(showSimulatorError(response.payload))
+        } else {
+          respond(listAvailableSims(response.payload))
+        }
+      })
+      .catch((err) => {
+        Logger.error(err)
+        respond(onError(LIST_AVAILABLE_SIMS))
+      })
   }
 
   _findAppFile(dir) {
@@ -123,32 +196,11 @@ class ProcessHandler {
     return foundApp
   }
 
-  _getSimArgs() {
-    const relativeAppDir = 'ios/build/Build/Products/Debug-iphonesimulator'
-    const absoluteAppDir = path.join(fileHandler.getWatchedPath(), relativeAppDir)
-
-    fs.statSync(absoluteAppDir)
-    //it exists, so we should find the info
-    const runPath = path.join(fileHandler.getWatchedPath(), 'ios')
-    const xcodeProject = findXcodeProject(fs.readdirSync(runPath))
-    const inferredSchemeName = xcodeUtils.inferredSchemeName(xcodeProject)
-    const appPath = xcodeUtils.getAppPath(runPath, inferredSchemeName)
-    const bundleID = xcodeUtils.getBundleID(appPath)
-
-    return {
-      appPath: appPath,
-      bundleID: bundleID,
-    }
-  }
-
   onResumeSimulator(payload, respond) {
     // Only relaunches simulator if the Simulator.app is running and the controller's state has been preserved
-    if (SimulatorController.isSimulatorRunning() && SimulatorController.lastSimulatorUsed() != null) {
+    if (SimulatorController.isSimulatorRunning() && SimulatorController.lastUsedArgs() != null) {
       try {
-        var args = this._getSimArgs()
-        SimulatorController.runSimulator(Object.assign({}, args, {
-          simulator: SimulatorController.lastSimulatorUsed(),
-        }))
+        SimulatorController.runSimulator()
         respond(onSuccess(RESUME_SIMULATOR))
       } catch (e) {
         Logger.error(e)
@@ -160,11 +212,22 @@ class ProcessHandler {
     }
   }
 
+  onHardReloadSimulator(payload, respond) {
+    try {
+      SimulatorController.hardReload()
+      respond(onSuccess())
+    } catch (e) {
+      Logger.error(e)
+      respond(onError('Could not hard reload the application.'))
+    }
+  }
+
   onRunSimulator(payload, respond) {
     try {
-      SimulatorController.runSimulator(Object.assign({}, this._getSimArgs(), {
-        simulator: payload.name || 'iPhone 6'
-      }))
+      SimulatorController.runSimulator({
+        simInfo: payload.simInfo,
+        platform: payload.platform || 'ios',
+      })
       respond(onSuccess(RUN_SIMULATOR))
     } catch (e) {
       Logger.error(e)

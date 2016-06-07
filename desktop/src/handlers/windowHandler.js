@@ -31,6 +31,7 @@ import bridge from '../bridge'
 import {
   openProjectDialog,
   saveAsDialog,
+  openPathChooserDialog,
 } from '../actions/windowActions'
 import {
   onSuccess,
@@ -41,6 +42,7 @@ const {
   OPEN_PROJECT_DIALOG,
   SAVE_AS_DIALOG,
   RESIZE,
+  OPEN_PATH_CHOOSER_DIALOG,
 } = WindowConstants
 
 import Logger from '../log/logger'
@@ -50,6 +52,7 @@ class WindowHandler {
     bridge.on(OPEN_PROJECT_DIALOG, this.openProjectDialog.bind(this))
     bridge.on(SAVE_AS_DIALOG, this.saveAsDialog.bind(this))
     bridge.on(RESIZE, this.resizeWindow.bind(this))
+    bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
   }
 
   openProjectDialog(payload, respond) {
@@ -66,6 +69,23 @@ class WindowHandler {
     }
 
     respond(openProjectDialog(selectedPaths[0]))
+  }
+
+  openPathChooserDialog(payload, respond) {
+    if (!payload.dialogProperty) payload.dialogProperty = 'openDirectory'
+    var selectedPaths = dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+      title: payload.title || 'Select Path',
+      properties: [payload.dialogProperty],
+      filter: [
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+
+    if (! selectedPaths || selectedPaths.length === 0) {
+      return
+    }
+
+    respond(openPathChooserDialog(selectedPaths[0]))
   }
 
   _cleanBuildDirectory(projectPath) {

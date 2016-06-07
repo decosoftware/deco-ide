@@ -25,11 +25,6 @@ const LIB_FOLDER = require('../fs/model').LIB_FOLDER
 const APP_WATCHER_FILE = path.join(LIB_FOLDER, '/Scripts/appWatcher.js')
 const SimulatorUtils = require('./utils/simulatorUtils')
 
-const DEFAULT_SIM = 'iPhone 6'
-const defaultArgs = {
-  simulator: DEFAULT_SIM,
-}
-
 import TaskLauncher from './taskLauncher'
 import bridge from '../bridge'
 import {
@@ -40,46 +35,78 @@ import {
 class SimulatorController {
 
   constructor() {
-    this._lastSimulatorArg = null
-    this._simulatorIsOpen = false
+    this._lastUsedArgs = null
+    this._androidRunning = false
+    this._iosRunning = false
   }
 
   clearLastSimulator() {
-    this._lastSimulatorArg = null
+    this._lastUsedArgs = null
   }
 
-  lastSimulatorUsed() {
-    return this._lastSimulatorArg
+  lastUsedArgs() {
+    return this._lastUsedArgs
   }
 
   isSimulatorRunning() {
-    return this._simulatorIsOpen
+    return this._androidRunning || this._iosRunning
   }
 
-  set simulatorStatus(status) {
-    this._simulatorIsOpen = status || false
+  get androidRunning() {
+    return this._androidRunning
+  }
+
+  get iosRunning() {
+    return this._iosRunning
+  }
+
+  set androidRunning(status) {
+    this._androidRunning = status
+  }
+
+  set iosRunning(status) {
+    this._iosRunning = status
   }
 
   get simulatorStatus() {
-    return this._simulatorIsOpen
+    return this.isSimulatorRunning()
   }
 
   runSimulator(args) {
-    this._lastSimulatorArg = args.simulator || DEFAULT_SIM
-    this._runSimulator(Object.assign({}, defaultArgs, args))
+    if (!args) {
+      args = {}
+      if (this._lastUsedArgs) {
+        args = this._lastUsedArgs
+      }
+    }
+    this._lastUsedArgs = args
+    this._runSimulator(args)
   }
 
-  _runSimulator(args) {
+  hardReload() {
+    if (this.androidRunning) {
+      TaskLauncher.runTask('reload-android-app')
+    }
+    if (this.iosRunning) {
+      TaskLauncher.runTask('reload-ios-app')
+    }
+  }
+
+  _runIOS(args) {
+    return TaskLauncher.runTask('sim-ios', args)
+  }
+
+  _runAndroid(args) {
+    return TaskLauncher.runTask('sim-android', args)
+  }
+
+  _runSimulator(_args) {
     try {
-      const simulators = this.listAvailableSimulators()
-      const selectedSimulator = SimulatorUtils.matchingSimulator(simulators, args.simulator)
-      if (!selectedSimulator) {
-        throw new `Cound't find ${args.simulator} simulator`
+      const args = TaskLauncher.objToArgString(_args.simInfo)
+      const child = _args.platform == 'ios' ? this._runIOS(args) : this._runAndroid(args)
+      if (!child) {
+        return
       }
-
-      const simulatorFullName = `${selectedSimulator.name} (${selectedSimulator.version})`
-
-      const child = TaskLauncher.runTask('sim-ios', ['--deviceId', selectedSimulator.udid, '--target', args.appPath])
 
       child.stdout.on('data', (data) => {
         try {
@@ -109,16 +136,36 @@ class SimulatorController {
     }
   }
 
-  listAvailableSimulators() {
-    try {
-      const simulators = SimulatorUtils.parseSimulatorList(
-        child_process.execFileSync('xcrun', ['simctl', 'list', 'devices'], {encoding: 'utf8'})
-      )
-      return simulators
-    } catch(e) {
-      Logger.error(e)
-      return null
-    }
+  listAvailableSimulators(platform = 'ios') {
+    return new Promise( (resolve, reject) => {
+      const timeout = setTimeout(() => {
+        try {
+          resolve({
+            error: true,
+            payload: ['The task to find simulators took too long.', 'Try hitting the simulator button again or restarting Deco.']
+          })
+        } catch (e) {
+          Logger.error(e)
+          reject(e)
+        }
+      }, 30000)
+
+      const cb = (obj) => {
+        clearTimeout(timeout)
+        resolve(obj)
+      }
+
+      switch (platform) {
+        case 'ios':
+          TaskLauncher.runManagedTask('list-ios-sim', [], null, cb)
+          break
+        case 'android':
+          TaskLauncher.runManagedTask('list-android-sim', [], null, cb)
+          break
+        default:
+          break
+      }
+    })
   }
 }
 
