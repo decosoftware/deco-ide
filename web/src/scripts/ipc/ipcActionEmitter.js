@@ -40,7 +40,14 @@ import {
   markSaved,
   clearFileState,
 } from '../actions/fileActions'
-import { cacheDoc, markClean, clearEditorState, } from '../actions/editorActions'
+import {
+  cacheDoc,
+  markClean,
+  clearEditorState,
+  insertComponent,
+  clearCurrentDoc,
+  insertTemplate,
+} from '../actions/editorActions'
 import {
   setConsoleVisibility,
   startProgressBar,
@@ -49,7 +56,9 @@ import {
   upgradeStatus,
 } from '../actions/uiActions'
 import {
+  closeTab,
   closeAllTabs,
+  clearFocusedTab,
 } from '../actions/tabActions'
 
 import AcceleratorConstants from 'shared/constants/ipc/AcceleratorConstants'
@@ -57,6 +66,7 @@ const {
   SHOULD_CREATE_NEW_PROJECT,
   SHOULD_OPEN_PROJECT_DIALOG,
   SHOULD_TOGGLE_TERM,
+  SHOULD_CLOSE_TAB,
   SHOULD_SAVE_PROJECT,
   SHOULD_SAVE_PROJECT_AS,
   OPEN_INSTALL_MODULE_DIALOG,
@@ -93,6 +103,10 @@ const {
   PROGRESS_END,
   UPGRADE_STATUS,
 } = UIConstants
+
+import { CONTENT_PANES } from '../constants/LayoutConstants'
+import { openFile } from '../actions/compositeFileActions'
+import TabUtils from '../utils/TabUtils'
 
 /**
  * Ties ipc listeners to actions
@@ -162,6 +176,24 @@ const ipcActionEmitter = (store) => {
   ipc.on(SHOULD_TOGGLE_TERM, () => {
     const state = store.getState()
     store.dispatch(setConsoleVisibility(!state.ui.consoleVisible))
+  })
+
+  ipc.on(SHOULD_CLOSE_TAB, () => {
+    const tabs = store.getState().ui.tabs
+
+    const tabToFocus = TabUtils.determineTabToFocus(tabs.CENTER.tabIds, tabs.CENTER.focusedTabId, tabs.CENTER.focusedTabId)
+
+    store.dispatch(closeTab(CONTENT_PANES.CENTER, tabs.CENTER.focusedTabId))
+
+    // If there's another tab to open, open the file for it
+    if (tabToFocus) {
+      store.dispatch(openFile(store.getState().directory.filesById[tabToFocus]))
+    } else {
+      store.dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
+      store.dispatch(clearCurrentDoc())
+      store.dispatch(clearSelections())
+    }
+
   })
 
   ipc.on(SHOULD_SAVE_PROJECT, () => {
