@@ -20,6 +20,22 @@ the package will be output to `./dist/osx/Deco-$VERSION.pkg`
 
 - The `npm run start` task passes in a 'developer' flag to the main process. Certain things are turned off as a result, paths are changed, etc. depending on whether the `__DEV__` variable is set to true. Mainly, `__DEV__` turns OFF the update mechanism, turns ON the developer tools, and loads the web code from a localhost webpack server rather than from a static file.
 
+#### Upgrading the temporary Project template
+
+1. Create a "temp" RN project on the latest stable release by running `react-native init Project` somewhere outside of the `deco-ide` project
+2. Build the iOS app in Xcode (**Note**: You don’t even need to run the RN packager, we just need the binary.)
+3. Open “Window > Projects” in Xcode and follow the link to the “Derived Data” for the Project. Dig down until you find the `Debug-iphonesimulator/Project.app` file.
+4. Copy that file into the root of your "temp" RN project: ie. `~/Path/To/Project/Project.app`
+5. Navigate to the `deco-ide/desktop` directory and run:
+    
+    ```
+    npm run upgrade-project-template -- --projectPath ~/Path/To/Project
+    ```
+    
+6. You may have to enter your password at some point during the last step.
+7. Open Deco, press "New Project"
+8. Enjoy your freshly updated RN template 👍 
+
 #### Architecture Overview
 
 ##### Actions
