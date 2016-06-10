@@ -45,7 +45,6 @@ import {
   markClean,
   clearEditorState,
   insertComponent,
-  clearCurrentDoc,
   insertTemplate,
 } from '../actions/editorActions'
 import {
@@ -56,9 +55,7 @@ import {
   upgradeStatus,
 } from '../actions/uiActions'
 import {
-  closeTab,
   closeAllTabs,
-  clearFocusedTab,
 } from '../actions/tabActions'
 
 import AcceleratorConstants from 'shared/constants/ipc/AcceleratorConstants'
@@ -105,8 +102,7 @@ const {
 } = UIConstants
 
 import { CONTENT_PANES } from '../constants/LayoutConstants'
-import { openFile } from '../actions/compositeFileActions'
-import TabUtils from '../utils/TabUtils'
+import { closeTabWindow } from '../actions/compositeFileActions'
 
 /**
  * Ties ipc listeners to actions
@@ -180,20 +176,7 @@ const ipcActionEmitter = (store) => {
 
   ipc.on(SHOULD_CLOSE_TAB, () => {
     const tabs = store.getState().ui.tabs
-
-    const tabToFocus = TabUtils.determineTabToFocus(tabs.CENTER.tabIds, tabs.CENTER.focusedTabId, tabs.CENTER.focusedTabId)
-
-    store.dispatch(closeTab(CONTENT_PANES.CENTER, tabs.CENTER.focusedTabId))
-
-    // If there's another tab to open, open the file for it
-    if (tabToFocus) {
-      store.dispatch(openFile(store.getState().directory.filesById[tabToFocus]))
-    } else {
-      store.dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
-      store.dispatch(clearCurrentDoc())
-      store.dispatch(clearSelections())
-    }
-
+    store.dispatch(closeTabWindow(tabs.CENTER.focusedTabId))
   })
 
   ipc.on(SHOULD_SAVE_PROJECT, () => {
