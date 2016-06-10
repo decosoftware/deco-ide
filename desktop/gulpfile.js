@@ -9,6 +9,7 @@ var child_process = require('child_process');
 var fs = require('fs');
 var plist = require('plist');
 var $ = require('gulp-load-plugins')();
+var runSequence = require('run-sequence');
 
 var BUILD_VERSION = "0.6.0";
 
@@ -131,6 +132,51 @@ process.on('exit', function() {
 
 gulp.task('default', function() {
   return gulp.start('pack');
+});
+
+gulp.task('process-new-project-template', function(callback) {
+  var oldProjectPath = path.join(__dirname, 'deco_unpack_lib/Project');
+  var newProjectPath = gutil.env.projectPath;
+  var nodeModulesPath = path.join(__dirname, 'deco_unpack_lib/Project/node_modules');
+  var nodeModulesArchive = path.join(__dirname, 'deco_unpack_lib/modules.tar.gz');
+  var projectBinary = path.join(__dirname, 'deco_unpack_lib/Project/Project.app');
+  var binaryDestination = path.join(__dirname, 'deco_unpack_lib/Project/ios/build/Build/Products/Debug-iphonesimulator');
+
+  fs.stat(newProjectPath, function(err, stat) {
+    if (err == null) {
+      console.log('Preparing project directory...');
+      child_process.execSync('rm -rf ' + oldProjectPath);
+      child_process.execSync('cp -rf ' + newProjectPath + ' ' + oldProjectPath);
+
+      fs.stat(projectBinary, function(err, stat) {
+        if (err == null) {
+          console.log('Creating the modules archive...');
+          child_process.execSync('tar -cvzf ' + nodeModulesArchive + ' -C ' + oldProjectPath + ' node_modules');
+
+          console.log('Copying the binary...');
+          child_process.execSync('mkdir -p ' + binaryDestination);
+          child_process.execSync('cp -rf ' + projectBinary + ' ' + binaryDestination + '/Project.app');
+
+          console.log('Cleaning up...');
+          child_process.execSync('rm -rf ' + projectBinary);
+          child_process.execSync('rm -rf ' + nodeModulesPath);
+
+          callback();
+        } else {
+          console.log('Error: Please copy the "Project.app" binary file into the root of your "Project" dir.');
+          callback(err);
+        }
+      });
+    } else {
+      console.log('Error: Nothing found at the path specified.');
+      callback(err);
+    }
+  });
+
+});
+
+gulp.task('upgrade-project-template', function() {
+  runSequence('process-new-project-template', 'dev-unpack-lib');
 });
 
 gulp.task('pack', [
