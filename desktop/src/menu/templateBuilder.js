@@ -54,6 +54,7 @@ import {
   shouldSaveProject,
   openProjectDialog,
   toggleTerm,
+  shouldCloseTab,
   openInstallModuleDialog,
   openImportTemplateDialog,
 } from '../actions/acceleratorActions'
@@ -167,9 +168,11 @@ const TemplateBuilder = function(platform) {
       accelerator: 'CmdOrCtrl+M',
       role: 'minimize'
     }, {
-      label: 'Close',
+      label: 'Close Tab',
       accelerator: 'CmdOrCtrl+W',
-      role: 'close'
+      click: function() {
+        bridge.send(shouldCloseTab())
+      }
     }, {
       type: 'separator'
     }, {
