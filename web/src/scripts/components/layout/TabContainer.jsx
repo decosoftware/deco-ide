@@ -15,7 +15,6 @@
  *
  */
 
-import _ from 'lodash'
 import React, { Component, } from 'react'
 import TabUtils from '../../utils/TabUtils'
 
@@ -55,8 +54,7 @@ class TabContainer extends Component {
           this.props.onFocusTab(tabIds[i])
         },
         onClose: () => {
-          const tabToFocus = TabUtils.determineTabToFocus(tabIds, tabIds[i], this.props.focusedTabId)
-          this.props.onCloseTab(tabIds[i], tabToFocus)
+          this.props.onCloseTab(tabIds[i])
         },
         focused: tabIds[i] === this.props.focusedTabId,
       })

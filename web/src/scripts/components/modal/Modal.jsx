@@ -16,7 +16,6 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import _ from 'lodash'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 class Modal extends Component {

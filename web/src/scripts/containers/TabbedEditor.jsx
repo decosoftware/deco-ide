@@ -40,10 +40,9 @@ import Tab from '../components/buttons/Tab'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
 import { importComponent, loadComponent } from '../actions/componentActions'
-import { insertComponent, clearCurrentDoc, insertTemplate } from '../actions/editorActions'
+import { insertComponent, insertTemplate } from '../actions/editorActions'
+import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
-import { closeTab, clearFocusedTab } from '../actions/tabActions'
-import { clearSelections } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
@@ -172,17 +171,8 @@ class TabbedEditor extends Component {
             onFocusTab={(tabId) => {
               this.props.dispatch(openFile(this.props.filesByTabId[tabId]))
             }}
-            onCloseTab={(tabId, tabToFocus) => {
-              this.props.dispatch(closeTab(CONTENT_PANES.CENTER, tabId))
-
-              // If there's another tab to open, open the file for it
-              if (tabToFocus) {
-                this.props.dispatch(openFile(this.props.filesByTabId[tabToFocus]))
-              } else {
-                this.props.dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
-                this.props.dispatch(clearCurrentDoc())
-                this.props.dispatch(clearSelections())
-              }
+            onCloseTab={(tabId) => {
+              this.props.dispatch(closeTabWindow(tabId))
             }}
             width={this.props.width}>
             {_.map(this.props.tabIds, (tabId) => {

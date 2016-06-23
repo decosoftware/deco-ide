@@ -24,6 +24,7 @@ const {
   SHOULD_SAVE_PROJECT,
   SHOULD_OPEN_PROJECT_DIALOG,
   SHOULD_TOGGLE_TERM,
+  SHOULD_CLOSE_TAB,
   OPEN_INSTALL_MODULE_DIALOG,
   OPEN_IMPORT_TEMPLATE_DIALOG,
 } = AcceleratorConstants
@@ -55,6 +56,12 @@ export const openProjectDialog = () => {
 export const toggleTerm = () => {
   return {
     type: SHOULD_TOGGLE_TERM,
+  }
+}
+
+export const shouldCloseTab = () => {
+  return {
+    type: SHOULD_CLOSE_TAB,
   }
 }
 

@@ -15,12 +15,14 @@
     "gulp-shell": "^0.3.0",
     "gulp-util": "^3.0.4",
     "plist": "^1.2.0",
+    "run-sequence": "^1.2.1",
     "webpack": "^1.12.14"
   },
   "scripts": {
     "start": "./node_modules/.bin/gulp start",
     "pack": "./node_modules/.bin/gulp pack",
-    "copy-libs": "./node_modules/.bin/gulp dev-unpack-lib"
+    "copy-libs": "./node_modules/.bin/gulp dev-unpack-lib",
+    "upgrade-project-template": "./node_modules/.bin/gulp upgrade-project-template"
   },
   "dependencies": {
     "babel-core": "^6.4.0",
