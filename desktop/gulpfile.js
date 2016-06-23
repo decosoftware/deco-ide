@@ -16,10 +16,9 @@ var BUILD_VERSION = "0.6.0";
 var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
 var child = null
-
 gulp.task('clean-pkg', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist')), "mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
-gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -r " + (path.join(__dirname, './deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
+gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -rf " + (path.join(__dirname, './package/deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
 
 gulp.task('dev-unpack-lib', function(callback) {
   var _child;
@@ -57,7 +56,7 @@ gulp.task('setup-pack-folder', ['build'], function(callback) {
   child_process.execSync('mkdir -p ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'build/app.js') + ' ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts') + ' ' + path.join(packagePath, 'deco_unpack_lib'))
+  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
   child_process.execSync('rm -rf ' + path.join(__dirname, 'public', 'bundle.js.map'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
@@ -76,7 +75,7 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     version: '1.1.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
-    ignore: /deco_unpack_lib\/.*/,
+    ignore: /deco_unpack_lib\/.*/g,
     out: path.join(__dirname, '../app/deco'),
     asar: true
   };
