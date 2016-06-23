@@ -15,6 +15,10 @@
  *
  */
 
+import Telemetry from '../utils/Telemetry.js'
+
+Telemetry.bindAppFocusListener()
+
 const ga = window.ga || ()=>{}
 
 const eventsToTrack = {
