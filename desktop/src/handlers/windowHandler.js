@@ -72,10 +72,10 @@ class WindowHandler {
   }
 
   openPathChooserDialog(payload, respond) {
-    if (!payload.dialogProperty) payload.dialogProperty = 'openDirectory'
+    if (!payload.propertyType) payload.propertyType = 'openDirectory'
     var selectedPaths = dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
       title: payload.title || 'Select Path',
-      properties: [payload.dialogProperty],
+      properties: [payload.propertyType],
       filter: [
         { name: 'All Files', extensions: ['*'] }
       ]

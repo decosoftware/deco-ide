@@ -38,6 +38,38 @@ const checkEnvironmentOK = () => {
     const tools = path.join(process.env.ANDROID_HOME, 'tools')
     const platformTools = path.join(process.env.ANDROID_HOME, 'platform-tools')
     process.env.PATH = `${process.env.PATH}:${tools}:${platformTools}`
+  } else {
+    try {
+      fs.statSync(process.env.ANDROID_HOME)
+      const tools = path.join(process.env.ANDROID_HOME, 'tools')
+      const platformTools = path.join(process.env.ANDROID_HOME, 'platform-tools')
+      fs.statSync(tools)
+      fs.statSync(platformTools)
+    } catch (e) {
+      return false
+    }
+  }
+
+  return true
+}
+
+const checkGenymotionOK = () => {
+  if (!process.env.GENYMOTION_APP) {
+    const defaultGenymotionPath = `/Applications/Genymotion.app`
+    try {
+      fs.statSync(defaultGenymotionPath)
+    } catch (e) {
+      return false
+    }
+  } else {
+    try {
+      fs.statSync(process.env.GENYMOTION_APP)
+      if (path.basename(process.env.GENYMOTION_APP).indexOf('Genymotion') == -1) {
+        return false
+      }
+    } catch (e) {
+      return false
+    }
   }
   return true
 }
@@ -226,19 +258,25 @@ DECO.on('build-ios', function (args) {
  */
 DECO.on('list-android-sim', function(args) {
   if (!checkEnvironmentOK()) {
-    return Promise.resolve()
-  }
-
-  if (!process.env.ANDROID_HOME) {
     return Promise.reject({
       payload: [
-        'No simulators available.',
-        'Please install Android Studio and create an emulator.'
+        'The Android SDK path is missing the "tools" sub-folder.',
+        'Please install Android Studio if you haven\'t already. (https://facebook.github.io/react-native/docs/getting-started.html#android-studio)',
+        'Please check preferences (cmd + ,) to make sure your Android SDK path is set to the right location.',
       ]
     })
   }
 
   if (process.env.USE_GENYMOTION) {
+    if (!checkGenymotionOK()) {
+      return Promise.reject({
+        payload: [
+          'Cannot find your Genymotion Application',
+          'Check that it is installed, then set the path to your Genymotion in preferences (cmd + ,)'
+        ]
+      })
+    }
+
     return Promise.resolve({
       payload: [{
         name: 'Launch Geny',
@@ -350,8 +388,8 @@ DECO.on('sim-android', function (args) {
         if (ticker > 60) {
           console.log(`Device did not boot up in time, please wait for Android device to boot and then re-run this command.`)
           clearInterval(interval)
-        } else if (ticker % 5 === 0){
-          console.log(`Still waiting on Android Virtual Device... will wait ${(60 - ticker)} more seconds.`)
+        } else if (ticker % 5 === 0) {
+          console.log(`Still waiting on Android Device to connect... will wait ${(60 - ticker)} more seconds.`)
         }
       }
     }, 1000)

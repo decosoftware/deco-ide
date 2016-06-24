@@ -35,7 +35,7 @@ const style = {
 const LABEL_WIDTH = 140
 const INSET_LEVEL = 15
 
-export default ({onPreferenceChange, setSystemLocationPreference, androidHome, useGenymotion}) => {
+export default ({onPreferenceChange, setSystemLocationPreference, androidHome, pathToGenymotionApp, useGenymotion}) => {
   return (
     <div style={style}>
       <FormRow
@@ -45,6 +45,14 @@ export default ({onPreferenceChange, setSystemLocationPreference, androidHome, u
           value={androidHome}
           onSelectFile={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.ANDROID_HOME, 'openDirectory', 'Choose Android SDK Location')}
           placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME].defaultValue} />
+      </FormRow>
+      <FormRow
+        label={'Genymotion Install Location'}
+        labelWidth={LABEL_WIDTH}>
+        <FileSelectorInput
+          value={pathToGenymotionApp}
+          onSelectFile={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.GENYMOTION_APP, 'openFile', 'Choose Genymotion Install Location')}
+          placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP].defaultValue} />
       </FormRow>
     </div>
   )
