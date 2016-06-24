@@ -46,13 +46,6 @@ export default ({onPreferenceChange, setSystemLocationPreference, androidHome, u
           onSelectFile={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.ANDROID_HOME, 'openDirectory', 'Choose Android SDK Location')}
           placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME].defaultValue} />
       </FormRow>
-      <FormRow
-        label={'Use Genymotion'}
-        labelWidth={LABEL_WIDTH}>
-        <CheckboxInput
-          value={useGenymotion}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.USE_GENYMOTION)} />
-      </FormRow>
     </div>
   )
 }

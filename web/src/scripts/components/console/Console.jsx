@@ -102,7 +102,7 @@ class Console extends Component {
         <div className='flex-fixed' style={style.termBar} onClick={this.props.toggleConsole}>
           <div>
             <div style={iconStyle} />
-            <span style={style.termTitleText}>{'Packager Output'}</span>
+            <span style={style.termTitleText}>{'Console Output'}</span>
           </div>
           <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'flex-end', }}>
             <PackagerSwitch
