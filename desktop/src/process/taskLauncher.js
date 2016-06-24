@@ -74,11 +74,13 @@ process.on('exit', () => {
 const injectOptionsFromPreferences = (options) => {
   const preferences = preferenceHandler.getPreferences()
   const androidHome = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.ANDROID_HOME]
+  const genymotionApp = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.GENYMOTION_APP]
   if (androidHome == '') {
     Logger.info('Path to Android SDK is not set, android functionality may be broken as a result')
     return //just not worth it
   }
   options.env.ANDROID_HOME = androidHome
+  options.env.GENYMOTION_APP = genymotionApp
   options.env.PATH = `${options.env.PATH}:${path.join(androidHome, 'tools')}:${path.join(androidHome, 'platform-tools')}`
   if (preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION]) {
     options.env.USE_GENYMOTION = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION]

@@ -47,7 +47,7 @@ const REQUEST_TYPES = [
   ModuleConstants,
 ]
 
-function sendToRenderer(channel, payload, toPreferences) {
+function sendToRenderer(channel, payload, windowId) {
   if (!channel) {
     Logger.error('Channel was found broken', channel)
     return
@@ -57,7 +57,7 @@ function sendToRenderer(channel, payload, toPreferences) {
     payload = {} // not sure if this will cause problems when undefined or null
   }
 
-  if (toPreferences) {
+  if (windowId == 'preferences') {
     try {
       if (!global.preferencesWindow) return
       global.preferencesWindow.webContents.send(channel, payload)
@@ -84,7 +84,7 @@ class Bridge extends EventEmitter {
   _init() {
     _.each(REQUEST_TYPES, (requestTypes) => {
       _.each(requestTypes, (id, requestType) => {
-        requestEmitter.on(id, (body, callback, evt, fromPreferences) => {
+        requestEmitter.on(id, (body, callback, evt) => {
           this.emit(id, body, (resp) => {
             if (resp && resp.type != ERROR) {
               callback(null, resp)
@@ -97,8 +97,8 @@ class Bridge extends EventEmitter {
     })
   }
 
-  send(payload, toPreferences) {
-    this._send(payload.type, payload, toPreferences)
+  send(payload, windowId) {
+    this._send(payload.type, payload, windowId)
   }
 
 }
