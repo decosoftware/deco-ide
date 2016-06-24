@@ -38,7 +38,7 @@
   transition: all 0.2s ease; }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: #017cfe; }
+  background-color: rgba(1, 124, 254, 0.5); }
 
 .react-toggle-track-check {
   position: absolute;

@@ -241,10 +241,10 @@ DECO.on('list-android-sim', function(args) {
   if (process.env.USE_GENYMOTION) {
     return Promise.resolve({
       payload: [{
-        name: 'Launch Device',
+        name: 'Launch Geny',
         identifier: 'launch',
       }, {
-        name: 'Run Android',
+        name: 'Run App',
         identifier: 'run',
       }]
     })
@@ -347,11 +347,11 @@ DECO.on('sim-android', function (args) {
         clearInterval(interval)
       } else {
         ticker += 1
-        if (ticker > 30) {
+        if (ticker > 60) {
           console.log(`Device did not boot up in time, please wait for Android device to boot and then re-run this command.`)
           clearInterval(interval)
-        } else {
-          console.log(`Still waiting... for ${(30 - ticker)} more seconds.`)
+        } else if (ticker % 5 === 0){
+          console.log(`Still waiting on Android Virtual Device... will wait ${(60 - ticker)} more seconds.`)
         }
       }
     }, 1000)

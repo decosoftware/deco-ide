@@ -26,7 +26,7 @@ const style = {
     marginRight: 11,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center',    
   },
   indicator: {
     width: 10,
@@ -48,7 +48,7 @@ class PackagerSwitch extends Component {
     return (
       <div style={style.container}>
         <div style={style.termTitleText}>
-          {this.props.isRunning ? 'Packager is running' : 'Switch to run packager'}
+          {this.props.isRunning ? 'Packager running' : 'Run packager'}
         </div>
         <div style={{display: 'flex', alignSelf: 'center'}} onClick={this.props.onClick}>
           <Switch checked={this.props.isRunning}/>

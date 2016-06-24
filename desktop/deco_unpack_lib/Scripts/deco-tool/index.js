@@ -244,11 +244,12 @@ Module.prototype.require = function(id) {
 const filePath = path.join(process.cwd(), CONFIG_FILE_NAME)
 try {
   fs.statSync(filePath)
+  console.log('Running with Deco config found at ./configure.deco.js')
   require(filePath)
 } catch (e) {
   // no file, that's ok
   if (e.code == 'ENOENT') {
-    console.log('No user specified config file was found, falling back to default!')
+    console.log('Running with default Deco config')
   } else {
     handleError(e)
   }

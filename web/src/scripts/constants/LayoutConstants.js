@@ -27,6 +27,7 @@ export const LAYOUT_FIELDS = {
   LEFT_SIDEBAR_VISIBLE: 'leftSidebarVisible',
   CONSOLE_VISIBLE: 'consoleVisible',
   WINDOW_BOUNDS: 'windowBounds',
+  SIMULATOR_MENU_PLATFORM: 'simulatorMenuPlatform',
 }
 
 export const RIGHT_SIDEBAR_CONTENT = _.mapKeys([

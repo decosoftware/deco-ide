@@ -30,10 +30,15 @@ import {
   getAvailableSimulators,
 } from '../actions/applicationActions'
 
+
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
+import { setPreference, savePreferences } from '../actions/preferencesActions'
+
 import {
   setConsoleVisibility,
   setLeftSidebarVisibility,
   setRightSidebarContent,
+  setSimulatorMenuPlatform,
 } from '../actions/uiActions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 
@@ -137,6 +142,17 @@ class WorkspaceToolbar extends Component {
   _renderSimulatorMenu() {
     return (
       <SimulatorMenu
+        setAndroidEmulationOption={(option) => {
+          const value = option == 'AVD' ? false : true
+          this.props.dispatch(setPreference(CATEGORIES.GENERAL, PREFERENCES.GENERAL.USE_GENYMOTION, value))
+          this.props.dispatch(savePreferences())
+          this.props.dispatch(getAvailableSimulators('android'))
+        }}
+        activeEmulationOption={this.props.useGenymotion ? 'Genymotion' : 'AVD'}
+        setActiveList={(platform) => {
+          this.props.dispatch(setSimulatorMenuPlatform(platform))
+        }}
+        active={this.props.simulatorMenuPlatform}
         checkAvailableSims={() => {
           // check to see if path changes or config changes open up new simulators
           this.props.dispatch(getAvailableSimulators('ios'))
@@ -325,11 +341,13 @@ const mapStateToProps = (state) => {
     consoleVisible: state.ui.consoleVisible,
     projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
     rightSidebarContent: state.ui.rightSidebarContent,
+    simulatorMenuPlatform: state.ui.simulatorMenuPlatform,
     packagerIsOff: state.application.packagerStatus == ProcessStatus.OFF,
     simulatorProjectActive: state.application.simulatorStatus == ProcessStatus.ON,
     isTempProject: state.routing.location.query && state.routing.location.query.temp,
     availableSimulatorsIOS: state.application.availableSimulatorsIOS,
     availableSimulatorsAndroid: state.application.availableSimulatorsAndroid,
+    useGenymotion: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION],
   }
 }
 
