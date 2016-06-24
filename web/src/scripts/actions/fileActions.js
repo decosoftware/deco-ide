@@ -45,6 +45,14 @@ function getPathRoot(absolutePath) {
   return path.basename(absolutePath)
 }
 
+export const ADD_HIDDEN_FILE_ID = 'ADD_HIDDEN_FILE_ID'
+export const addHiddenFileId = (fileInfo) => {
+  return {
+    type: ADD_HIDDEN_FILE_ID,
+    fileInfo,
+  }
+}
+
 export const CLEAR_FILE_STATE = 'CLEAR_FILE_STATE'
 export const clearFileState = () => {
   return {

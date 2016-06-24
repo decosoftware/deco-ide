@@ -29,6 +29,7 @@ const style = {
 
 const listStyle = {
   flex: '0 0 50%',
+  overflow: 'hidden',
 }
 
 const getRowStyle = (options, i) => {

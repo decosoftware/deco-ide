@@ -36,7 +36,7 @@ import { createHistory, addToHistory, undoFromHistory, redoToHistory } from './h
 import { setLiveValueIds, createLiveValue, setLiveValues, importLiveValues } from './liveValueActions'
 import { loadMetadata } from './metadataActions'
 import { save, saveLive } from './applicationActions'
-import { CATEGORIES, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 export const CLEAR_EDITOR_STATE = 'CLEAR_EDITOR_STATE'
 export const clearEditorState = () => {

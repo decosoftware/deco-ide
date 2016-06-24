@@ -25,15 +25,18 @@ export default {
   getSimulatorLaunchedLast() {
     const saved = LocalStorage.loadObject(SIMULATOR_KEY)
     if (!saved) {
-      return 'iPhone 6'
+      return ''
     }
     return saved.lastLaunched
   },
-  didLaunchSimulator(sim) {
+  didLaunchSimulator(simInfo, platform) {
     const saved = LocalStorage.loadObject(SIMULATOR_KEY)
     LocalStorage.saveObject(SIMULATOR_KEY, {
       ...saved,
-      lastLaunched: sim,
+      lastLaunched: {
+        simInfo,
+        platform,
+      },
     })
   },
 }

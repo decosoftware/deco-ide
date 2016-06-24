@@ -18,6 +18,9 @@
 import React, { Component, PropTypes, } from 'react'
 
 import PackagerConsole from './PackagerConsole'
+import PackagerSwitch from './PackagerSwitch'
+
+import { ProcessStatus, } from '../../constants/ProcessStatus'
 
 const tabBarHeight = 32
 
@@ -36,6 +39,9 @@ const style = {
     paddingLeft: 8,
     cursor: 'pointer',
     overflow: 'hidden',
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'row',
   },
   termTitleText: {
     fontSize: 11,
@@ -94,8 +100,18 @@ class Console extends Component {
     return (
       <div className={containerClass} style={style.termContainer}>
         <div className='flex-fixed' style={style.termBar} onClick={this.props.toggleConsole}>
-          <div style={iconStyle} />
-          <span style={style.termTitleText}>{'Packager Output'}</span>
+          <div>
+            <div style={iconStyle} />
+            <span style={style.termTitleText}>{'Packager Output'}</span>
+          </div>
+          <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'flex-end', }}>
+            <PackagerSwitch
+              isRunning={this.props.packagerStatus == ProcessStatus.ON}
+              onClick={(e) => {
+                e.stopPropagation()
+                this.props.togglePackager(this.props.packagerStatus)
+              }}/>
+          </div>
         </div>
         {this._packagerDisplay()}
       </div>
@@ -105,6 +121,8 @@ class Console extends Component {
 
 Console.propTypes = {
   packagerOutput: PropTypes.string,
+  packagerStatus: PropTypes.number.isRequired,
+  togglePackager: PropTypes.func.isRequired,
   toggleConsole: PropTypes.func.isRequired,
   consoleOpen: PropTypes.bool.isRequired,
   initialScrollHeight: PropTypes.number.isRequired,

@@ -61,7 +61,7 @@ var conditionallyAddWatchmanToPath = function() {
     const result = child_process.spawnSync('watchman', ['version'], {
       env: process.env
     })
-    
+
     if (result && result.stdout && result.stdout.toString().length > 0) {
       foundWatchman = true
     }

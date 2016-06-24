@@ -26,7 +26,7 @@ import {
 } from '../actions/editorActions'
 import NamingBanner from '../components/modal/NamingBanner'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 export const openInstallModuleDialog = () => (dispatch, getState) => {
   const dialog = (
