@@ -21,7 +21,7 @@
     "json-loader": "^0.5.4",
     "lodash": "^4.0.0",
     "raven-js": "^2.2.0",
-    "react": "^0.14.7",
+    "react": "^0.14.8",
     "react-addons-css-transition-group": "^0.14.7",
     "react-addons-linked-state-mixin": "^0.14.7",
     "react-colorpicker": "dabbott/react-colorpicker#opacity-slider-package",
@@ -40,6 +40,8 @@
     "sklad": "^4.1.1",
     "style-loader": "^0.8.3",
     "url-loader": "^0.5.7",
+    "react-addons-pure-render-mixin": "^15.1.0",
+    "classnames": "^2.2.5",
     "uuid": "^2.0.1",
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.11.0"
@@ -58,7 +60,7 @@
   "devDependencies": {
     "babel-eslint": "^5.0.0",
     "del": "^2.1.0",
-    "eslint": "^2.1.0",
+    "eslint": "^2.10.2",
     "eslint-plugin-react": "^3.16.1",
     "gulp": "^3.9.0",
     "gulp-autoprefixer": "^3.0.2",

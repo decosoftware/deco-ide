@@ -30,6 +30,7 @@ import {
   REPLACE_NODE,
   FILE_ID_CHANGE,
   SET_COLLAPSE_ON_NODE,
+  ADD_HIDDEN_FILE_ID,
 } from '../actions/fileActions'
 
 import {
@@ -57,6 +58,14 @@ const fileReducer = (state = initialState, action) => {
           rootPath: action.rootPath,
           rootName: action.rootName,
         })
+    case ADD_HIDDEN_FILE_ID:
+      return {
+        ...state,
+        filesById: {
+          ...state.filesById,
+          [action.fileInfo.id]: action.fileInfo
+        }
+      }
     case ADD_SUB_PATH:
       const addTree = addNode(
         Object.assign({}, state.tree),

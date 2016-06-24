@@ -37,10 +37,15 @@ import { openDocument } from '../actions/editorActions'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 export const openFile = (file) => (dispatch, getState) => {
-  dispatch(openDocument(file))
-  dispatch(addTab(CONTENT_PANES.CENTER, file.id))
-  dispatch(clearSelections())
-  dispatch(selectFile(file.id))
+  dispatch(openDocument(file)).then(() => {
+    dispatch(addTab(CONTENT_PANES.CENTER, file.id))
+    dispatch(clearSelections())
+    dispatch(selectFile(file.id))
+  }).catch(() => {
+    dispatch(addTab(CONTENT_PANES.CENTER, file.id))
+    dispatch(clearSelections())
+    dispatch(selectFile(file.id))
+  })
 }
 
 export const closeTabWindow = (closeTabId) => (dispatch, getState) => {
@@ -57,7 +62,3 @@ export const closeTabWindow = (closeTabId) => (dispatch, getState) => {
       dispatch(clearSelections())
     }
 }
-
-
-
-

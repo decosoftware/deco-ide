@@ -24,13 +24,15 @@ import {
   shell
 } from 'electron'
 
+import path from 'path'
+
 //Deco Requires
 import WindowManager from '../window/windowManager'
 import UpdateManager from '../updateManager'
 
 import windowHandler from '../handlers/windowHandler'
 import projectHandler from '../handlers/projectHandler'
-import fileHandler from '../handlers/fileHandler'
+import fileHandler, { buildPathObjects } from '../handlers/fileHandler'
 import processHandler from '../handlers/processHandler'
 
 import PackagerController from '../process/packagerController'
@@ -57,7 +59,16 @@ import {
   shouldCloseTab,
   openInstallModuleDialog,
   openImportTemplateDialog,
+  openFile,
 } from '../actions/acceleratorActions'
+
+import {
+  updatePackagerStatus,
+} from '../actions/processActions'
+
+import {
+  openProjectSettings,
+} from '../actions/projectActions'
 
 const Logger = require('../log/logger')
 
@@ -153,9 +164,13 @@ const TemplateBuilder = function(platform) {
     }, {
       type: 'separator'
     }, {
-      label: 'Add Deco config to project',
+      label: 'Add deco config to project',
       click: () => {
-        taskLauncher.runTask('init-template')
+        const task = taskLauncher.runTask('init-template')
+        task.on('exit', () => {
+          const root = fileHandler.getWatchedPath()
+          bridge.send(openFile(buildPathObjects(path.join(root, 'configure.deco.js'))))
+        })
       },
     }, ],
   }
@@ -171,6 +186,12 @@ const TemplateBuilder = function(platform) {
       label: 'Close Tab',
       accelerator: 'CmdOrCtrl+W',
       click: function() {
+        if (global.preferencesWindow) {
+          if (global.preferencesWindow.isFocused()) {
+            WindowManager.hidePreferencesWindow()
+            return
+          }
+        }
         bridge.send(shouldCloseTab())
       }
     }, {
@@ -225,6 +246,19 @@ const TemplateBuilder = function(platform) {
           WindowManager.openPreferencesWindow()
         }
       }, {
+        label: 'Project Settings',
+        click: function() {
+          const root = fileHandler.getWatchedPath()
+          //in case this is clicked before a project is open
+          if (!root || root == '') return
+
+          projectHandler.createProjectSettingsTemplate(root)
+            .then((settingsPath) => {
+              //TODO make a call to web to open this file
+              bridge.send(openProjectSettings(buildPathObjects(settingsPath)))
+            })
+        }
+      }, {
         type: 'separator'
       }, {
         label: 'Services',
@@ -262,7 +296,7 @@ const TemplateBuilder = function(platform) {
     submenu: [{
       label: 'Restart Packager',
       click: function() {
-        PackagerController.runPackager()
+        PackagerController.runPackager(null)
       }
     }, {
       type: 'separator',
@@ -291,7 +325,7 @@ const TemplateBuilder = function(platform) {
       label: 'Run/Reload Simulator',
       accelerator: 'CmdOrCtrl+R',
       click: function() {
-        processHandler.onRunSimulator({}, (response) => {
+        processHandler.onHardReloadSimulator({}, (response) => {
           if (response.type == ERROR) {
             Logger.error(response.message)
           }

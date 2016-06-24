@@ -18,6 +18,7 @@
 'use strict'
 
 const child_process = require('child_process')
+const EventEmitter = require('events')
 const Logger = require('../log/logger')
 
 import TaskLauncher from './taskLauncher'
@@ -25,6 +26,7 @@ import bridge from '../bridge'
 import {
   onPackagerOutput,
   onPackagerError,
+  updatePackagerStatus,
 } from '../actions/processActions'
 
 const DEFAULT_OPTS = {
@@ -35,23 +37,59 @@ class PackagerController {
   constructor() {
     this._packagerProcess = null
     this._packagerPath = null
+    this._packagerIsActive = false
+
+    process.on('exit', () => {
+      this.killPackager()
+    })
+
+    process.on('SIGINT', () => {
+      this.killPackager()
+    })
   }
 
   processIsRunning() {
-    return this._packagerProcess != null
+    return this.isActive()
   }
 
   get packagerPath() {
     return this._packagerPath
   }
 
-  runPackager(opts) {
-    try {
-      if (this._packagerProcess != null) {
-        this.killPackager()
-      }
+  emitPackagerState(obj) {
+    if (obj == null || typeof obj == 'undefined') return
+    this._packagerIsActive = obj.isAlive ? true : false
+    bridge.send(updatePackagerStatus(this._packagerIsActive))
+  }
 
-      this._packagerProcess = TaskLauncher.runTask('run-packager', ['--port', `${DEFAULT_OPTS.packagerPort}`])
+  isActive() {
+    return this._packagerIsActive
+  }
+
+  checkPackagerStatus() {
+    if (!this._packagerProcess || this._packagerProcess.killed) {
+      this.emitPackagerState({ isAlive: false })
+    } else {
+      this.emitPackagerState({ isAlive: true })
+    }
+  }
+
+  stopPackager() {
+    if (this.isActive()) {
+      this.promiseKillPackager()
+        .then(() => {
+          return this.isActive()
+        }).catch(() => {
+          return this.isActive()
+        })
+    }
+
+    return !this.isActive()
+  }
+
+  _runPackager(opts) {
+    try {
+      this._packagerProcess = TaskLauncher.runTask('run-packager')
 
       this._packagerProcess.stdout.on('data', (data) => {
         try {
@@ -75,24 +113,78 @@ class PackagerController {
         }
       })
 
-      process.on('exit', () => {
-        this.killPackager()
+      this._packagerProcess.once('exit', () => {
+        this.emitPackagerState({ isAlive: false })
       })
+
+      this._packagerProcess.once('SIGINT', () => {
+        this.emitPackagerState({ isAlive: false })
+      })
+
+      this.checkPackagerStatus()
+
     } catch(e) {
       Logger.error(e)
     }
   }
 
-  killPackager() {
-    if (this._packagerProcess != null) {
-      try {
-        this._packagerProcess.kill()
-        this._packagerProcess = null
-      } catch(e) {
-        Logger.error(e)
+  runPackager(opts) {
+    try {
+      this.promiseKillPackager()
+        .then(() => {
+          this._runPackager(opts)
+        }).catch(() => {
+          this._runPackager(opts)
+        })
+    } catch (e) {
+      Logger.error(e)
+    }
+  }
+
+  promiseKillPackager() {
+    return new Promise((resolve, reject) => {
+      const tryToKill = () => {
+        if (!!this._packagerProcess) {
+          try {
+            this._packagerProcess.kill('SIGINT')
+          } catch(e) {
+            Logger.error(e)
+          }
+        }
       }
+      let killCounter = 0
+      const repeatedlyKill = setInterval(() => {
+        if (killCounter > 3) {
+          reject()
+        } else if (!this._packagerProcess) {
+          resolve()
+          this.emitPackagerState({ isAlive: false })
+        } else if (this._packagerProcess.killed) {
+          resolve()
+          this.emitPackagerState({ isAlive: false })
+        } else {
+          killCounter += 1
+          tryToKill() // try to kill again
+          return
+        }
+        clearInterval(repeatedlyKill)
+      }, 150)
+      tryToKill()
+    })
+  }
+
+  killPackager() {
+    try {
+      if (!!this._packagerProcess && !this._packagerProcess.killed) {
+        this._packagerProcess.kill('SIGINT')
+      }
+    }
+    catch (e) {
+      Logger.error(e)
     }
   }
 }
+
+
 
 module.exports = new PackagerController()

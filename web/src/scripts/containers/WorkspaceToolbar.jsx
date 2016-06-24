@@ -22,7 +22,14 @@ import React, { Component, } from 'react'
 import { Link, } from 'react-router'
 import { connect} from 'react-redux'
 
-import { save, runSimulator, runPackager } from '../actions/applicationActions'
+import {
+  save,
+  runSimulator,
+  runPackager,
+  hardReloadSimulator,
+  getAvailableSimulators,
+} from '../actions/applicationActions'
+
 import {
   setConsoleVisibility,
   setLeftSidebarVisibility,
@@ -35,12 +42,11 @@ import Toolbar from '../components/toolbar/Toolbar'
 import ToolbarButton from '../components/buttons/ToolbarButton'
 import ToolbarButtonGroup from '../components/buttons/ToolbarButtonGroup'
 import DropdownMenuButton from '../components/buttons/DropdownMenuButton'
-import TwoColumnMenu from '../components/menu/TwoColumnMenu'
-import NoContent from '../components/display/NoContent'
 import LandingButton from '../components/buttons/LandingButton'
 import { ProcessStatus, } from '../constants/ProcessStatus'
 import OnboardingUtils from '../utils/OnboardingUtils'
 import SimulatorUtils from '../utils/SimulatorUtils'
+import SimulatorMenu from '../components/menu/SimulatorMenu'
 
 const sectionStyle = {
   WebkitAppRegion: 'drag',
@@ -116,19 +122,12 @@ class WorkspaceToolbar extends Component {
     shell.openExternal("https://decoslackin.herokuapp.com/")
   }
 
-  _mapSimulatorListToMenuOptions() {
-    return _.map(this.props.availableSimulators, (simulator) => {
-      return {
-        text: simulator.name,
-        action: this._launchSimulatorOfType.bind(this, simulator.name)
-      }
-    })
-  }
-
-  _launchSimulatorOfType(name) {
-    this.props.dispatch(runPackager())
-    this.props.dispatch(runSimulator(name))
-    SimulatorUtils.didLaunchSimulator(name)
+  _launchSimulatorOfType(simInfo, platform) {
+    if (this.props.packagerIsOff) {
+      this.props.dispatch(runPackager())
+    }
+    this.props.dispatch(runSimulator(simInfo, platform))
+    SimulatorUtils.didLaunchSimulator(simInfo, platform)
     if (OnboardingUtils.shouldOpenConsoleForFirstTime()) {
       this.props.dispatch(setConsoleVisibility(true))
       OnboardingUtils.didOpenConsoleForFirstTime()
@@ -136,35 +135,17 @@ class WorkspaceToolbar extends Component {
   }
 
   _renderSimulatorMenu() {
-    const options = this._mapSimulatorListToMenuOptions()
-
-    if (options.length > 0) {
-      const iphones = _.filter(options, option => option.text.match(/iPhone/))
-      const ipads = _.filter(options, option => option.text.match(/iPad/))
-
-      return (
-        <TwoColumnMenu
-          column1={iphones}
-          column2={ipads}
-        />
-      )
-    } else {
-      return (
-        <div
-          className={'helvetica-smooth'}
-          style={emptySimulatorMenuStyle}>
-          <NoContent>
-            No simulators available.
-            <br />
-            <br />
-            Please install Xcode and an iOS simulator to preview your project.
-            <br />
-            <br />
-            To run on Android, use react-native-cli and the run-android command from the terminal.
-          </NoContent>
-        </div>
-      )
-    }
+    return (
+      <SimulatorMenu
+        checkAvailableSims={() => {
+          // check to see if path changes or config changes open up new simulators
+          this.props.dispatch(getAvailableSimulators('ios'))
+          this.props.dispatch(getAvailableSimulators('android'))
+        }}
+        ios={this.props.availableSimulatorsIOS}
+        android={this.props.availableSimulatorsAndroid}
+        onClick={this._launchSimulatorOfType.bind(this)}/>
+    )
   }
 
   _renderDropdownMenu(options) {
@@ -237,7 +218,6 @@ class WorkspaceToolbar extends Component {
   }
 
   _renderCenterSection() {
-    const simulatorMenuOptions = this._mapSimulatorListToMenuOptions()
     const simulatorButtonState = this.props.simulatorProjectActive ?
         ToolbarButton.BUTTON_STATE.ACTIVE :
         ToolbarButton.BUTTON_STATE.DEFAULT
@@ -265,7 +245,7 @@ class WorkspaceToolbar extends Component {
             text={'Reload'}
             icon={'refresh'}
             onClick={() => {
-              this.props.dispatch(runSimulator(SimulatorUtils.getSimulatorLaunchedLast()))
+              this.props.dispatch(hardReloadSimulator())
             }} />
         </ToolbarButtonGroup>
       </div>
@@ -345,9 +325,11 @@ const mapStateToProps = (state) => {
     consoleVisible: state.ui.consoleVisible,
     projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
     rightSidebarContent: state.ui.rightSidebarContent,
+    packagerIsOff: state.application.packagerStatus == ProcessStatus.OFF,
     simulatorProjectActive: state.application.simulatorStatus == ProcessStatus.ON,
     isTempProject: state.routing.location.query && state.routing.location.query.temp,
-    availableSimulators: state.application.availableSimulators,
+    availableSimulatorsIOS: state.application.availableSimulatorsIOS,
+    availableSimulatorsAndroid: state.application.availableSimulatorsAndroid,
   }
 }
 

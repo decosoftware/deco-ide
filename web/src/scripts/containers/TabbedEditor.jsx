@@ -37,15 +37,17 @@ import SearchMenu from '../components/menu/SearchMenu'
 import ComponentMenuItem from '../components/menu/ComponentMenuItem'
 import TabContainer from '../components/layout/TabContainer'
 import Tab from '../components/buttons/Tab'
+import EditorToast from '../components/editor/EditorToast'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
+import { stopPackager, runPackager, clearConfigError } from '../actions/applicationActions'
 import { importComponent, loadComponent } from '../actions/componentActions'
 import { insertComponent, insertTemplate } from '../actions/editorActions'
 import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
@@ -158,6 +160,17 @@ class TabbedEditor extends Component {
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
+    const conditionallyRenderToast = () => {
+      if (this.props.configError != '') {
+        return (
+          <EditorToast message={this.props.configError} onClose={() => {
+              this.props.dispatch(clearConfigError())
+            }}/>
+        )
+      } else {
+        return null
+      }
+    }
 
     return (
       <HotKeys handlers={this.keyHandlers} keyMap={this.keyMap}
@@ -185,6 +198,7 @@ class TabbedEditor extends Component {
               )
             })}
           </TabContainer>
+          {conditionallyRenderToast()}
           {
             this.props.decoDoc ? (
               <EditorDropTarget className={editorClassName}
@@ -214,9 +228,17 @@ class TabbedEditor extends Component {
           }
           <Console consoleOpen={this.props.consoleVisible}
             packagerOutput={this.props.packagerOutput}
+            packagerStatus={this.props.packagerStatus}
             initialScrollHeight={this.props.savedScrollHeight}
             toggleConsole={() => {
               this.props.dispatch(setConsoleVisibility(!this.props.consoleVisible))
+            }}
+            togglePackager={(isRunning) => {
+              if (isRunning) {                
+                this.props.dispatch(stopPackager())
+              } else {
+                this.props.dispatch(runPackager())
+              }
             }}
             saveScrollHeight={(scrollHeight) => {
               this.props.dispatch(setConsoleScrollHeight(scrollHeight))
@@ -288,6 +310,7 @@ const mapStateToProps = (state, ownProps) => {
     componentList: state.modules.modules,
     consoleVisible: state.ui.consoleVisible,
     packagerOutput: state.application.packagerOutput,
+    packagerStatus: state.application.packagerStatus,
     savedScrollHeight: state.ui.scrollHeight,
     liveValuesById: state.metadata.liveValues.liveValuesById,
     focusedTabId: _.get(state, `ui.tabs.${CONTENT_PANES.CENTER}.focusedTabId`),
@@ -296,6 +319,7 @@ const mapStateToProps = (state, ownProps) => {
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
     npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
+    configError: state.application.configError,
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
