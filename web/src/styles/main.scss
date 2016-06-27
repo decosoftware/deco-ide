@@ -13,6 +13,7 @@
 @import "./colorpicker";
 @import "../../node_modules/codemirror/lib/codemirror";
 @import "./codemirror/proto";
+@import "./react-toggle.scss";
 
 .m-node {
 	.collapse {
@@ -127,7 +128,7 @@ html, body, #app {
 %helvetica-smooth {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    font-family: 'Helvetica Neue', 'Lucida Grande';
+    font-family: 'Helvetica Neue', 'Lucida Grande', sans-serif;
 }
 
 .subpixel-antialiased {
@@ -694,6 +695,8 @@ input[type=button] {
 		color: white;
 	}
 }
+
+
 
 @keyframes progress-bar-flicker {
   0%   { background-color: rgb(35,36,38); }

@@ -15,7 +15,6 @@
  *
  */
 
-import _ from 'lodash'
 import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -108,6 +107,7 @@ class StringInput extends Component {
         type="text"
         style={style}
         value={this.props.value}
+        placeholder={this.props.placeholder}
         onChange={this._onInputChange}
         onKeyDown={this._onKeyDown}
         onBlur={this._onBlur}/>
@@ -120,6 +120,7 @@ StringInput.propTypes = {
   onChange: React.PropTypes.func.isRequired,
   onSubmit: React.PropTypes.func,
   value: React.PropTypes.string.isRequired,
+  placeholder: React.PropTypes.string,
 }
 
 StringInput.defaultProps = {

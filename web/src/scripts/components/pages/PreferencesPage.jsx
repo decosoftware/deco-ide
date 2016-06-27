@@ -21,10 +21,11 @@ import _ from 'lodash'
 import Toolbar from '../toolbar/Toolbar'
 import ToolbarButton from '../buttons/ToolbarButton'
 import ToolbarButtonGroup from '../buttons/ToolbarButtonGroup'
+import GeneralPreferences from '../preferences/GeneralPreferences'
 import SavingPreferences from '../preferences/SavingPreferences'
 import EditorPreferences from '../preferences/EditorPreferences'
 
-import { CATEGORIES, PREFERENCES } from '../../constants/PreferencesConstants'
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 const style = {
   display: 'flex',
@@ -63,6 +64,15 @@ class PreferencesPage extends Component {
     switch (activeIndex) {
       case 0:
         return (
+          <GeneralPreferences
+            onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.GENERAL)}
+            setSystemLocationPreference={this.props.setSystemLocationPreference.bind(null, CATEGORIES.GENERAL)}
+            androidHome={this.props.general[PREFERENCES.GENERAL.ANDROID_HOME]}
+            pathToGenymotionApp={this.props.general[PREFERENCES.GENERAL.GENYMOTION_APP]}
+            useGenymotion={this.props.general[PREFERENCES.GENERAL.USE_GENYMOTION]} />
+        )
+      case 1:
+        return (
           <SavingPreferences
             onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.SAVING)}
             autosave={this.props.saving[PREFERENCES.SAVING.AUTOSAVE]}
@@ -70,14 +80,15 @@ class PreferencesPage extends Component {
             textEdit={this.props.saving[PREFERENCES.SAVING.TEXT_EDIT]}
             debounce={this.props.saving[PREFERENCES.SAVING.DEBOUNCE]} />
         )
-      case 1:
+      case 2:
         return (
           <EditorPreferences
             onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.EDITOR)}
             vimMode={this.props.editor[PREFERENCES.EDITOR.VIM_MODE]}
             showInvisibles={this.props.editor[PREFERENCES.EDITOR.SHOW_INVISIBLES]}
             highlightActiveLine={this.props.editor[PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE]}
-            showIndentGuides={this.props.editor[PREFERENCES.EDITOR.SHOW_INDENT_GUIDES]} />
+            showIndentGuides={this.props.editor[PREFERENCES.EDITOR.SHOW_INDENT_GUIDES]}
+            npmRegistry={this.props.editor[PREFERENCES.EDITOR.NPM_REGISTRY]} />
         )
       default:
         return null
@@ -94,11 +105,19 @@ class PreferencesPage extends Component {
             activeIndexes={this.state.activeIndexes}
             style={buttonGroupStyle}>
             <ToolbarButton
+              text={'General'}
+              icon={'project-settings'}
+              onClick={() => {
+                this.setState({
+                  activeIndexes: setIndex(0, this.state.activeIndexes)
+                })
+              }} />
+            <ToolbarButton
               text={'Saving'}
               icon={'save'}
               onClick={() => {
                 this.setState({
-                  activeIndexes: setIndex(0, this.state.activeIndexes)
+                  activeIndexes: setIndex(1, this.state.activeIndexes)
                 })
               }} />
             <ToolbarButton
@@ -106,7 +125,7 @@ class PreferencesPage extends Component {
               icon={'docs'}
               onClick={() => {
                 this.setState({
-                  activeIndexes: setIndex(1, this.state.activeIndexes)
+                  activeIndexes: setIndex(2, this.state.activeIndexes)
                 })
               }} />
           </ToolbarButtonGroup>

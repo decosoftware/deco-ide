@@ -18,7 +18,7 @@
     <!--+==========================+
         |    Package References    |
         +==========================+-->
-    <pkg-ref id="com.decosoftware.deco" version="0.6.0" auth="Root" installKBytes="0">#Deco.pkg</pkg-ref>
+    <pkg-ref id="com.decosoftware.deco" version="0.7.0" auth="Root" installKBytes="0">#Deco.pkg</pkg-ref>
     <!--+==========================+
         |    JavaScript Scripts    |
         +==========================+-->

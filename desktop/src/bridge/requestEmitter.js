@@ -23,16 +23,16 @@ import {
 } from 'electron'
 import { EventEmitter, } from 'events'
 
-function sendToRenderer(messageId, err, data) {
-  for (var id in global.openWindows) {
-    global.openWindows[id].webContents.send('response', messageId, err, data)
-  }
-}
+import Logger from '../log/logger'
 
 class RequestEmitter extends EventEmitter {
   emit(channel, messageId, body, evt) {
     const callback = (err, data) => {
-      sendToRenderer(messageId, err, data)
+      try {
+        evt.sender.send('response', messageId, err, data)
+      } catch (e) {
+        Logger.error(e)
+      }
     }
     super.emit(channel, body, callback, evt)
   }

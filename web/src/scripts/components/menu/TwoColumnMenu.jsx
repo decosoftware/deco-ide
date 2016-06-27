@@ -24,11 +24,12 @@ const style = {
   flexDirection: 'row',
   alignItems: 'stretch',
   display: 'flex',
-  width: 280,
+  width: 300,
 }
 
 const listStyle = {
   flex: '0 0 50%',
+  overflow: 'hidden',
 }
 
 const getRowStyle = (options, i) => {

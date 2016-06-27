@@ -33,6 +33,7 @@ import {
   UPDATE_PROGRESS_BAR,
   END_PROGRESS_BAR,
   UPGRADE_STATUS,
+  SET_SIMULATOR_MENU_PLATFORM,
 } from '../actions/uiActions'
 
 import {
@@ -46,8 +47,9 @@ const initialState = {
   [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: true,
   [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: RIGHT_SIDEBAR_CONTENT.PROPERTIES,
   [LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH]: 230,
-  [LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH]: 170,
+  [LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH]: 290,
   [LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT]: 300,
+  [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: 'iOS',
   scrollHeight: 9999,
   modalQueue: [],
   windowBounds: {
@@ -108,6 +110,11 @@ const uiReducer = (state = initialState, action) => {
       return Object.assign({}, state, {
         [LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT]: action.payload,
       })
+    case SET_SIMULATOR_MENU_PLATFORM:
+      return {
+        ...state,
+        [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: action.payload,
+      }
     case PUSH_MODAL:
       return Object.assign({}, state, {
          modalQueue: state.modalQueue.concat([action.modal]),

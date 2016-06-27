@@ -9,16 +9,16 @@ var child_process = require('child_process');
 var fs = require('fs');
 var plist = require('plist');
 var $ = require('gulp-load-plugins')();
+var runSequence = require('run-sequence');
 
-var BUILD_VERSION = "0.6.0";
+var BUILD_VERSION = "0.7.0";
 
 var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
 var child = null
-
 gulp.task('clean-pkg', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist')), "mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
-gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -r " + (path.join(__dirname, './deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
+gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -rf " + (path.join(__dirname, './package/deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
 
 gulp.task('dev-unpack-lib', function(callback) {
   var _child;
@@ -56,7 +56,7 @@ gulp.task('setup-pack-folder', ['build'], function(callback) {
   child_process.execSync('mkdir -p ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'build/app.js') + ' ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts') + ' ' + path.join(packagePath, 'deco_unpack_lib'))
+  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
   child_process.execSync('rm -rf ' + path.join(__dirname, 'public', 'bundle.js.map'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
@@ -75,7 +75,7 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     version: '1.1.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
-    ignore: /deco_unpack_lib\/.*/,
+    ignore: /deco_unpack_lib\/.*/g,
     out: path.join(__dirname, '../app/deco'),
     asar: true
   };
@@ -131,6 +131,51 @@ process.on('exit', function() {
 
 gulp.task('default', function() {
   return gulp.start('pack');
+});
+
+gulp.task('process-new-project-template', function(callback) {
+  var oldProjectPath = path.join(__dirname, 'deco_unpack_lib/Project');
+  var newProjectPath = gutil.env.projectPath;
+  var nodeModulesPath = path.join(__dirname, 'deco_unpack_lib/Project/node_modules');
+  var nodeModulesArchive = path.join(__dirname, 'deco_unpack_lib/modules.tar.gz');
+  var projectBinary = path.join(__dirname, 'deco_unpack_lib/Project/Project.app');
+  var binaryDestination = path.join(__dirname, 'deco_unpack_lib/Project/ios/build/Build/Products/Debug-iphonesimulator');
+
+  fs.stat(newProjectPath, function(err, stat) {
+    if (err == null) {
+      console.log('Preparing project directory...');
+      child_process.execSync('rm -rf ' + oldProjectPath);
+      child_process.execSync('cp -rf ' + newProjectPath + ' ' + oldProjectPath);
+
+      fs.stat(projectBinary, function(err, stat) {
+        if (err == null) {
+          console.log('Creating the modules archive...');
+          child_process.execSync('tar -cvzf ' + nodeModulesArchive + ' -C ' + oldProjectPath + ' node_modules');
+
+          console.log('Copying the binary...');
+          child_process.execSync('mkdir -p ' + binaryDestination);
+          child_process.execSync('cp -rf ' + projectBinary + ' ' + binaryDestination + '/Project.app');
+
+          console.log('Cleaning up...');
+          child_process.execSync('rm -rf ' + projectBinary);
+          child_process.execSync('rm -rf ' + nodeModulesPath);
+
+          callback();
+        } else {
+          console.log('Error: Please copy the "Project.app" binary file into the root of your "Project" dir.');
+          callback(err);
+        }
+      });
+    } else {
+      console.log('Error: Nothing found at the path specified.');
+      callback(err);
+    }
+  });
+
+});
+
+gulp.task('upgrade-project-template', function() {
+  runSequence('process-new-project-template', 'dev-unpack-lib');
 });
 
 gulp.task('pack', [

@@ -16,7 +16,8 @@
       ga('create', 'UA-67627558-2', 'auto', {
         appName: 'Deco Mac App',
         storage: 'none',
-        clientId: localStorage.getItem(GA_LOCAL_STORAGE_KEY)
+        clientId: localStorage.getItem(GA_LOCAL_STORAGE_KEY),
+        cookieDomain: 'none'
       })
 
       ga(function(tracker) {

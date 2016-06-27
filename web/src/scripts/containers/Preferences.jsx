@@ -18,8 +18,8 @@
 import _ from 'lodash'
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
-import { ROOT_KEY, CATEGORIES } from '../constants/PreferencesConstants'
-import { setPreference, savePreferences } from '../actions/preferencesActions'
+import { ROOT_KEY, CATEGORIES } from 'shared/constants/PreferencesConstants'
+import { setSystemLocationPreference, setPreference, savePreferences } from '../actions/preferencesActions'
 import LocalStorage from '../persistence/LocalStorage'
 import PreferencesPage from '../components/pages/PreferencesPage'
 
@@ -30,8 +30,15 @@ const Preferences = ({dispatch, preferences}) => {
         dispatch(setPreference(categoryKey, key, value))
         dispatch(savePreferences())
       }}
+      setSystemLocationPreference={(categoryKey, key, propertyType, title) => {
+        dispatch(setSystemLocationPreference(categoryKey, key, propertyType, title)).then(() => {
+          dispatch(savePreferences())
+        })
+      }}
+      general={preferences[CATEGORIES.GENERAL]}
       saving={preferences[CATEGORIES.SAVING]}
-      editor={preferences[CATEGORIES.EDITOR]} />
+      editor={preferences[CATEGORIES.EDITOR]}
+      />
   )
 }
 

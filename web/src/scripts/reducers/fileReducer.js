@@ -30,6 +30,7 @@ import {
   REPLACE_NODE,
   FILE_ID_CHANGE,
   SET_COLLAPSE_ON_NODE,
+  ADD_HIDDEN_FILE_ID,
 } from '../actions/fileActions'
 
 import {
@@ -57,10 +58,18 @@ const fileReducer = (state = initialState, action) => {
           rootPath: action.rootPath,
           rootName: action.rootName,
         })
+    case ADD_HIDDEN_FILE_ID:
+      return {
+        ...state,
+        filesById: {
+          ...state.filesById,
+          [action.fileInfo.id]: action.fileInfo
+        }
+      }
     case ADD_SUB_PATH:
       const addTree = addNode(
         Object.assign({}, state.tree),
-        state.rootName,
+        state.rootPath,
         action.fileInfo
       )
       return Object.assign({}, state, {
@@ -79,7 +88,7 @@ const fileReducer = (state = initialState, action) => {
       _.each(action.paths, (pathInfo) => {
         batchTree = addNode(
           batchTree,
-          state.rootName,
+          state.rootPath,
           pathInfo.fileInfo
         )
       })
@@ -92,7 +101,7 @@ const fileReducer = (state = initialState, action) => {
     {
       const removeTree = removeNode(
         Object.assign({}, state.tree),
-        state.rootName,
+        state.rootPath,
         action.fileInfo
       )
       const filesById = Object.assign({}, state.filesById)
@@ -109,7 +118,7 @@ const fileReducer = (state = initialState, action) => {
       _.each(action.paths, (pathInfo) => {
         batchRemoveTree = removeNode(
           batchRemoveTree,
-          state.rootName,
+          state.rootPath,
           pathInfo.fileInfo
         )
         delete filesById[pathInfo.fileInfo.id]
@@ -173,7 +182,7 @@ const fileReducer = (state = initialState, action) => {
     case REPLACE_NODE:
       const insertTree = updateSubTree(
         Object.assign({}, state.tree),
-        state.rootName,
+        state.rootPath,
         action.node,
         action.oldNode,
       )
