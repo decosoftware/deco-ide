@@ -3,12 +3,13 @@ import React, { Component } from 'react'
 import NoContent from '../display/NoContent'
 import Icon from '../display/Icon'
 import TwoColumnMenu from './TwoColumnMenu'
+import ToggleTab from '../buttons/ToggleTab'
 
 import _ from 'lodash'
 
 const emptySimulatorMenuStyle = {
   width: 300,
-  height: 280,
+  // height: 280,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -29,10 +30,10 @@ const mapSimulatorListToMenuOptions = (options, platform, onClick) => {
 
 const renderError = (messageList) => {
   const children = []
-  _.forEach(messageList, (message) => {
+  _.forEach(messageList, (message, i) => {
     children.push(message)
-    children.push(<br />)
-    children.push(<br />)
+    children.push(<br key={`${i}`}/>)
+    children.push(<br key={`${i}b`}/>)
   })
 
   return (
@@ -69,29 +70,53 @@ const IOSMenu = ({ display, onClick }) => {
   ])
 }
 
-const AndroidMenu = ({ display, onClick }) => {
-  if (display.error) {
-    return renderError(display.message)
-  }
-  const options = mapSimulatorListToMenuOptions(display.simList, 'android', onClick)
-  if (options.length > 0) {
-    const androidCol1 = options.splice(0, Math.ceil(options.length / 2))
-    const androidCol2 = options
-
+const AndroidMenuList = ({ errorMessage, androidLists }) => {
+  if (errorMessage != null) {
+    return renderError(errorMessage)
+  } else {
     return (
       <TwoColumnMenu
-        column1={androidCol1}
-        column2={androidCol2}
+        column1={androidLists[0]}
+        column2={androidLists[1]}
       />
     )
   }
-
-  return renderError([
-    'No simulators available.',
-    'Please install Android Studio and set your path to the Android SDK in preferences (cmd + ,)'
-  ])
 }
 
+const AndroidMenu = ({ display, onClick, onToggleEmulationOption, activeEmulationOption }) => {
+  let errorMessage = display.error ? display.message : null
+
+  const options = mapSimulatorListToMenuOptions(display.simList, 'android', onClick)
+  let androidLists = []
+  if (options.length > 0) {
+    androidLists.push(options.splice(0, Math.ceil(options.length / 2)))
+    androidLists.push(options)
+  } else if (!display.error) {
+    errorMessage = [
+      'No simulators available.',
+      'Please install Android Studio and set your path to the Android SDK in preferences (cmd + ,)'
+    ]
+  }
+
+
+  return (
+    <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+      <ToggleTab
+        buttonWidth={90}
+        onClick={onToggleEmulationOption}
+        options={['AVD', 'Genymotion']}
+        active={activeEmulationOption} />
+      <div style={{marginTop: 10}} />
+      <AndroidMenuList
+        errorMessage={errorMessage}
+        androidLists={androidLists}/>
+    </div>
+  )
+}
 
 class SimulatorMenu extends Component {
   componentDidMount() {
@@ -99,22 +124,23 @@ class SimulatorMenu extends Component {
     this.props.checkAvailableSims()
   }
   render() {
-    const { ios, android, onClick } = this.props
+    const { ios, android, onClick, active = 'iOS', setActiveList, setAndroidEmulationOption, activeEmulationOption } = this.props
     return (
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-        <Icon iconUrl={'icons/icon-apple.png'} iconUrl2x={'icons/icon-apple.png'} style={{
-            width: 18,
-            height: 18,
-            marginBottom: 15,
-        }}/>
-      <IOSMenu display={ios} onClick={onClick} />
-        <Icon iconUrl={'icons/icon-android.png'} iconUrl2x={'icons/icon-android.png'} style={{
-          width: 20,
-          height: 24,
-          marginTop: 20,
-          marginBottom: 10,
-        }}/>
-      <AndroidMenu display={android} onClick={onClick} />
+        <ToggleTab
+          onClick={setActiveList}
+          options={['iOS', 'Android']}
+          active={active}
+        />
+        <div style={{marginTop: 10}} />
+        {active === 'iOS' ? (
+          <IOSMenu display={ios} onClick={onClick} />
+        ) : (
+          <AndroidMenu display={android}
+            onClick={onClick}
+            activeEmulationOption={activeEmulationOption}
+            onToggleEmulationOption={setAndroidEmulationOption} />
+        )}
       </div>
     )
   }

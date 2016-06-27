@@ -37,7 +37,7 @@
   width: 52px;
   height: 20px;
   padding: 0;
-  border-radius: 26px;  
+  border-radius: 26px;
   background-color: rgb(65,66,68);
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
@@ -45,7 +45,7 @@
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: rgb(1, 124, 254);
+  background-color: rgba(1, 124, 254, 0.5);
 }
 
 .react-toggle-track-check {

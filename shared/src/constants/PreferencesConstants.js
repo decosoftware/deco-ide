@@ -28,6 +28,7 @@ export const CATEGORIES = _.mapKeys([
 export const PREFERENCES = {
   [CATEGORIES.GENERAL]: _.mapKeys([
     'ANDROID_HOME',
+    'GENYMOTION_APP',
     'USE_GENYMOTION',
   ]),
   [CATEGORIES.SAVING]: _.mapKeys([
@@ -48,6 +49,9 @@ export const PREFERENCES = {
 export const METADATA = {
   [CATEGORIES.GENERAL]: {
     [PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME]: {
+      defaultValue: '',
+    },
+    [PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP]: {
       defaultValue: '',
     },
     [PREFERENCES[CATEGORIES.GENERAL].USE_GENYMOTION]: {

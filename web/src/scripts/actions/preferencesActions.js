@@ -31,8 +31,6 @@ const {
 
 import request from '../ipc/Request'
 
-const PREFERENCE_WINDOW_REQUEST = true
-
 export const SET_PREFERENCE = 'SET_PREFERENCE'
 export const setPreference = (categoryKey, key, value) => {
   return {
@@ -62,7 +60,7 @@ export const mergeSystemPreferences = (preferences) => {
 export const setSystemLocationPreference = (categoryKey, key, propertyType = 'openDirectory', title = 'Select Location') => {
   return function (dispatch) {
     return request(
-      { type: OPEN_PATH_CHOOSER_DIALOG, propertyType, title, }, PREFERENCE_WINDOW_REQUEST
+      { type: OPEN_PATH_CHOOSER_DIALOG, propertyType, title, } 
     ).then((resp) => {
       dispatch({
         type: SET_PREFERENCE,

@@ -24,7 +24,7 @@ const style = {
   flexDirection: 'row',
   alignItems: 'stretch',
   display: 'flex',
-  width: 280,
+  width: 300,
 }
 
 const listStyle = {

@@ -22,7 +22,7 @@ const requestMap = {}
 let messageId = 1
 const generateMessageId = (channel) => channel + messageId++
 
-const _request = (channel, body, fromPreferences) => {
+const _request = (channel, body) => {
   if (typeof channel !== 'string' || channel.length === 0) {
     throw new Error(`Invalid message channel: ${channel}`)
   }
@@ -30,7 +30,7 @@ const _request = (channel, body, fromPreferences) => {
   const messageId = generateMessageId(channel)
   console.log('registering ' + messageId)
 
-  ipc.send('request', messageId, channel, body, fromPreferences)
+  ipc.send('request', messageId, channel, body)
 
   return new Promise((resolve, reject) => {
     requestMap[messageId] = (err, data) => {
@@ -54,8 +54,8 @@ ipc.on('response', (evt, messageId, err, data) => {
   handler(err, data)
 })
 
-const request = (req, fromPreferences) => {
-  return _request(req.type, req, fromPreferences)
+const request = (req) => {
+  return _request(req.type, req)
 }
 
 export default request

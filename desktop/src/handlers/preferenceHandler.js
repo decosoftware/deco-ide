@@ -57,6 +57,7 @@ class PreferenceHandler {
     return {
       [CATEGORIES.GENERAL]: {
         [PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME]: path.join(`/Users/${process.env['USER']}`, '/Library/Android/sdk'),
+        [PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP]: path.join('/Applications', 'Genymotion.app'),
       },
     }
   }
