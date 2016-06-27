@@ -177,7 +177,14 @@ class ModuleHandler {
         bridge.send(startProgressBar(name, 0))
 
         try {
-          npm.run(['install', '-S', `${name}@${version}`], {cwd: installPath}, (err) => {
+          const command = [
+            'install', '-S', `${name}@${version}`,
+            ...options.registry && ['--registry', options.registry]
+          ]
+
+          Logger.info(`npm ${command.join(' ')}`)
+
+          npm.run(command, {cwd: installPath}, (err) => {
 
             // Ensure a trailing throttled call doesn't fire
             progressCallback.cancel()

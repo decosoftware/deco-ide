@@ -26,11 +26,15 @@ import {
   createProject,
   openProject,
   setSimulatorStatus,
+  setPackagerStatus,
+  customConfigError,
 } from '../actions/applicationActions'
+
 import {
   openInstallModuleDialog,
   openImportTemplateDialog,
 } from '../actions/dialogActions'
+
 import {
   addSubPath,
   removeSubPath,
@@ -39,8 +43,19 @@ import {
   batchAddSubPaths,
   markSaved,
   clearFileState,
+  addHiddenFileId,
 } from '../actions/fileActions'
-import { cacheDoc, markClean, clearEditorState, } from '../actions/editorActions'
+
+import {
+  cacheDoc,
+  markClean,
+  clearEditorState,
+  insertComponent,
+  insertTemplate,
+} from '../actions/editorActions'
+
+import { openFile } from '../actions/compositeFileActions'
+
 import {
   setConsoleVisibility,
   startProgressBar,
@@ -48,6 +63,7 @@ import {
   endProgressBar,
   upgradeStatus,
 } from '../actions/uiActions'
+
 import {
   closeAllTabs,
 } from '../actions/tabActions'
@@ -57,10 +73,12 @@ const {
   SHOULD_CREATE_NEW_PROJECT,
   SHOULD_OPEN_PROJECT_DIALOG,
   SHOULD_TOGGLE_TERM,
+  SHOULD_CLOSE_TAB,
   SHOULD_SAVE_PROJECT,
   SHOULD_SAVE_PROJECT_AS,
   OPEN_INSTALL_MODULE_DIALOG,
   OPEN_IMPORT_TEMPLATE_DIALOG,
+  OPEN_FILE,
 } = AcceleratorConstants
 
 import ProjectConstants from 'shared/constants/ipc/ProjectConstants'
@@ -68,6 +86,8 @@ const {
   SAVE_PROJECT,
   SAVE_AS_PROJECT,
   SET_PROJECT_DIR,
+  OPEN_PROJECT_SETTINGS,
+  CUSTOM_CONFIG_ERROR,
 } = ProjectConstants
 
 import FileConstants from 'shared/constants/ipc/FileConstants'
@@ -84,6 +104,7 @@ import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
 const {
   PACKAGER_OUTPUT,
   UPDATE_SIMULATOR_STATUS,
+  UPDATE_PACKAGER_STATUS,
 } = ProcessConstants
 
 import UIConstants from 'shared/constants/ipc/UIConstants'
@@ -93,6 +114,11 @@ const {
   PROGRESS_END,
   UPGRADE_STATUS,
 } = UIConstants
+
+import { ProcessStatus } from '../constants/ProcessStatus'
+
+import { CONTENT_PANES } from '../constants/LayoutConstants'
+import { closeTabWindow } from '../actions/compositeFileActions'
 
 /**
  * Ties ipc listeners to actions
@@ -116,6 +142,10 @@ const ipcActionEmitter = (store) => {
       pathname: `/workspace/${rootPath}`,
       query: query,
     }))
+  })
+
+  ipc.on(CUSTOM_CONFIG_ERROR, (evt, payload) => {
+    store.dispatch(customConfigError(payload.errorMessage))
   })
 
   ipc.on(OPEN_INSTALL_MODULE_DIALOG, () => {
@@ -142,6 +172,11 @@ const ipcActionEmitter = (store) => {
     store.dispatch(setSimulatorStatus(payload.simulatorIsOpen))
   })
 
+  ipc.on(UPDATE_PACKAGER_STATUS, (evt, payload) => {
+    const status = payload.status ? ProcessStatus.ON : ProcessStatus.OFF
+    store.dispatch(setPackagerStatus(status))
+  })
+
   ipc.on(REMOVE_SUB_PATH, (evt, payload) => {
     store.dispatch(removeSubPath(payload))
   })
@@ -164,6 +199,11 @@ const ipcActionEmitter = (store) => {
     store.dispatch(setConsoleVisibility(!state.ui.consoleVisible))
   })
 
+  ipc.on(SHOULD_CLOSE_TAB, () => {
+    const tabs = store.getState().ui.tabs
+    store.dispatch(closeTabWindow(tabs.CENTER.focusedTabId))
+  })
+
   ipc.on(SHOULD_SAVE_PROJECT, () => {
     const state = store.getState()
     const location = state.routing.location
@@ -176,6 +216,15 @@ const ipcActionEmitter = (store) => {
 
   ipc.on(SHOULD_SAVE_PROJECT_AS, () => {
     store.dispatch(saveAs())
+  })
+  ipc.on(OPEN_FILE, (evt, obj) => {
+    const { fileInfo } = obj
+    store.dispatch(openFile(fileInfo))
+  })
+  ipc.on(OPEN_PROJECT_SETTINGS, (evt, obj) => {
+    const { settingsInfo } = obj
+    store.dispatch(addHiddenFileId(settingsInfo))
+    store.dispatch(openFile(settingsInfo))
   })
 
   ipc.on(PROGRESS_START, (evt, obj) => {

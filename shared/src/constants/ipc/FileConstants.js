@@ -24,6 +24,7 @@ export default _.mapKeys([
   'CREATE_DIRECTORY',
   'RENAME',
   'DELETE',
+  'SHOW_IN_FINDER',
   'DELETE_FILE_METADATA',
   'FETCH_SUB_PATH',
   'ON_FILE_DATA',

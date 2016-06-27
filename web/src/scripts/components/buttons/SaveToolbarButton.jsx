@@ -16,7 +16,6 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import _ from 'lodash'
 
 import ToolbarButton from './ToolbarButton'
 

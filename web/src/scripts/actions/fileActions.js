@@ -23,6 +23,7 @@ const {
   CREATE_DIRECTORY,
   RENAME,
   DELETE,
+  SHOW_IN_FINDER,
   FETCH_SUB_PATH,
   WATCH_PATH,
 } = FileConstants
@@ -42,6 +43,14 @@ import _ from 'lodash'
 const path = Electron.remote.require('path')
 function getPathRoot(absolutePath) {
   return path.basename(absolutePath)
+}
+
+export const ADD_HIDDEN_FILE_ID = 'ADD_HIDDEN_FILE_ID'
+export const addHiddenFileId = (fileInfo) => {
+  return {
+    type: ADD_HIDDEN_FILE_ID,
+    fileInfo,
+  }
 }
 
 export const CLEAR_FILE_STATE = 'CLEAR_FILE_STATE'
@@ -271,6 +280,19 @@ function _delete(id, fileType) {
 export function deleteNode(fileInfo) {
   return (dispatch) => {
     request(_delete(fileInfo.id, fileInfo.fileType))
+  }
+}
+
+function _showInFinder(id, fileType) {
+  return {
+    type: SHOW_IN_FINDER,
+    id,
+    fileType,
+  }
+}
+export function showInFinder(fileInfo) {
+  return (dispatch) => {
+    request(_showInFinder(fileInfo.id, fileInfo.fileType))
   }
 }
 

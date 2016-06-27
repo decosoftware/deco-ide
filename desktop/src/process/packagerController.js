@@ -18,23 +18,16 @@
 'use strict'
 
 const child_process = require('child_process')
-const path = require('path')
-
+const EventEmitter = require('events')
 const Logger = require('../log/logger')
-const WATCHMAN_PATH = require('../constants/BinaryPaths').WATCHMAN_PATH
-const NODE_PATH = require('../constants/BinaryPaths').NODE_PATH
-const NODE_EXEC = path.join(NODE_PATH, '/bin/node')
 
-import { app, } from 'electron'
-
+import TaskLauncher from './taskLauncher'
 import bridge from '../bridge'
 import {
   onPackagerOutput,
   onPackagerError,
+  updatePackagerStatus,
 } from '../actions/processActions'
-
-const fileHandler = require('../handlers/fileHandler')
-const fs = require('fs-plus')
 
 const DEFAULT_OPTS = {
   packagerPort: 8081,
@@ -44,82 +37,154 @@ class PackagerController {
   constructor() {
     this._packagerProcess = null
     this._packagerPath = null
+    this._packagerIsActive = false
+
+    process.on('exit', () => {
+      this.killPackager()
+    })
+
+    process.on('SIGINT', () => {
+      this.killPackager()
+    })
   }
 
   processIsRunning() {
-    return this._packagerProcess != null
+    return this.isActive()
   }
 
   get packagerPath() {
     return this._packagerPath
   }
 
-  runPackager(opts) {
-    try {
-      opts = Object.assign({}, DEFAULT_OPTS, opts)
-      if (!opts.rootPath) {
-        opts.rootPath = fileHandler.getWatchedPath()
-      }
+  emitPackagerState(obj) {
+    if (obj == null || typeof obj == 'undefined') return
+    this._packagerIsActive = obj.isAlive ? true : false
+    bridge.send(updatePackagerStatus(this._packagerIsActive))
+  }
 
-      this._packagerPath = opts.rootPath
+  isActive() {
+    return this._packagerIsActive
+  }
 
-      const scriptPath = path.join(opts.rootPath, 'node_modules/react-native/local-cli/cli.js')
-      if (!fs.existsSync(scriptPath)) {
-        Logger.error('Could not find local packager cli at path: ' + scriptPath)
-        return
-      }
-      const env = Object.assign({}, process.env, {
-        PATH: process.env.PATH + ':' + WATCHMAN_PATH + ':' + NODE_PATH,
-      })
+  checkPackagerStatus() {
+    if (!this._packagerProcess || this._packagerProcess.killed) {
+      this.emitPackagerState({ isAlive: false })
+    } else {
+      this.emitPackagerState({ isAlive: true })
+    }
+  }
 
-      if (this._packagerProcess != null) {
-        this.killPackager()
-      }
-
-      this._packagerProcess = child_process.spawn(NODE_EXEC, [
-        scriptPath,
-        'start',
-        '--port', opts.packagerPort,
-      ], {
-          env: env,
+  stopPackager() {
+    if (this.isActive()) {
+      this.promiseKillPackager()
+        .then(() => {
+          return this.isActive()
+        }).catch(() => {
+          return this.isActive()
         })
+    }
 
-      this._packagerProcess.on('error', (error) => {
-        Logger.error(error)
-      })
+    return !this.isActive()
+  }
+
+  _runPackager(opts) {
+    try {
+      this._packagerProcess = TaskLauncher.runTask('run-packager')
 
       this._packagerProcess.stdout.on('data', (data) => {
-        var plainTextData = data.toString()
-        Logger.info(plainTextData)
-        bridge.send(onPackagerOutput(plainTextData))
+        try {
+          var plainTextData = data.toString()
+          Logger.info(plainTextData)
+          bridge.send(onPackagerOutput(plainTextData))
+        } catch (e) {
+          Logger.error(e)
+        }
       })
 
       this._packagerProcess.stderr.on('data', (data) => {
-        var plainTextData = data.toString()
-        Logger.error('packager stderr', plainTextData)
-        // TODO
-        // not going to distinguish between stderr and stdout for now
-        bridge.send(onPackagerError(plainTextData))
+        try {
+          var plainTextData = data.toString()
+          Logger.error('packager stderr', plainTextData)
+          // TODO
+          // not going to distinguish between stderr and stdout for now
+          bridge.send(onPackagerError(plainTextData))
+        } catch (e) {
+          Logger.error(e)
+        }
       })
 
-      process.on('exit', () => {
-        this.killPackager()
+      this._packagerProcess.once('exit', () => {
+        this.emitPackagerState({ isAlive: false })
       })
+
+      this._packagerProcess.once('SIGINT', () => {
+        this.emitPackagerState({ isAlive: false })
+      })
+
+      this.checkPackagerStatus()
+
     } catch(e) {
       Logger.error(e)
     }
   }
 
-  killPackager() {
-    if (this._packagerProcess != null) {
-      try {
-        this._packagerProcess.kill()
-        this._packagerProcess = null
-      } catch(e) {
-        Logger.error(e)
+  runPackager(opts) {
+    try {
+      this.promiseKillPackager()
+        .then(() => {
+          this._runPackager(opts)
+        }).catch(() => {
+          this._runPackager(opts)
+        })
+    } catch (e) {
+      Logger.error(e)
+    }
+  }
+
+  promiseKillPackager() {
+    return new Promise((resolve, reject) => {
+      const tryToKill = () => {
+        if (!!this._packagerProcess) {
+          try {
+            this._packagerProcess.kill('SIGINT')
+          } catch(e) {
+            Logger.error(e)
+          }
+        }
       }
+      let killCounter = 0
+      const repeatedlyKill = setInterval(() => {
+        if (killCounter > 3) {
+          reject()
+        } else if (!this._packagerProcess) {
+          resolve()
+          this.emitPackagerState({ isAlive: false })
+        } else if (this._packagerProcess.killed) {
+          resolve()
+          this.emitPackagerState({ isAlive: false })
+        } else {
+          killCounter += 1
+          tryToKill() // try to kill again
+          return
+        }
+        clearInterval(repeatedlyKill)
+      }, 150)
+      tryToKill()
+    })
+  }
+
+  killPackager() {
+    try {
+      if (!!this._packagerProcess && !this._packagerProcess.killed) {
+        this._packagerProcess.kill('SIGINT')
+      }
+    }
+    catch (e) {
+      Logger.error(e)
     }
   }
 }
+
+
 
 module.exports = new PackagerController()

@@ -37,17 +37,20 @@ import SearchMenu from '../components/menu/SearchMenu'
 import ComponentMenuItem from '../components/menu/ComponentMenuItem'
 import TabContainer from '../components/layout/TabContainer'
 import Tab from '../components/buttons/Tab'
+import EditorToast from '../components/editor/EditorToast'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
+import { stopPackager, runPackager, clearConfigError } from '../actions/applicationActions'
 import { importComponent, loadComponent } from '../actions/componentActions'
-import { insertComponent, clearCurrentDoc, insertTemplate } from '../actions/editorActions'
+import { insertComponent, insertTemplate } from '../actions/editorActions'
+import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
-import { closeTab, clearFocusedTab } from '../actions/tabActions'
-import { clearSelections } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+
+const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 
 class TabbedEditor extends Component {
   constructor(props) {
@@ -93,12 +96,14 @@ class TabbedEditor extends Component {
   }
 
   onImportItem(item) {
+    const {options} = this.props
     this.props.dispatch(importComponent(item)).then((payload) => {
       fetchTemplateAndImportDependencies(
         item.dependencies,
         item.template.text,
         item.template.metadata,
-        this.props.rootPath
+        this.props.rootPath,
+        this.props.npmRegistry,
       ).then(({text, metadata}) => {
         const {decoDoc} = this.props
 
@@ -153,6 +158,20 @@ class TabbedEditor extends Component {
     const editorClassName = 'flex-variable editor ' +
         (this.props.highlightLiteralTokens ? 'highlight' : '')
 
+    // Show npm registry only if it's not the default
+    const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
+    const conditionallyRenderToast = () => {
+      if (this.props.configError != '') {
+        return (
+          <EditorToast message={this.props.configError} onClose={() => {
+              this.props.dispatch(clearConfigError())
+            }}/>
+        )
+      } else {
+        return null
+      }
+    }
+
     return (
       <HotKeys handlers={this.keyHandlers} keyMap={this.keyMap}
         className={'vbox flex-variable full-size-relative'}
@@ -165,17 +184,8 @@ class TabbedEditor extends Component {
             onFocusTab={(tabId) => {
               this.props.dispatch(openFile(this.props.filesByTabId[tabId]))
             }}
-            onCloseTab={(tabId, tabToFocus) => {
-              this.props.dispatch(closeTab(CONTENT_PANES.CENTER, tabId))
-
-              // If there's another tab to open, open the file for it
-              if (tabToFocus) {
-                this.props.dispatch(openFile(this.props.filesByTabId[tabToFocus]))
-              } else {
-                this.props.dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
-                this.props.dispatch(clearCurrentDoc())
-                this.props.dispatch(clearSelections())
-              }
+            onCloseTab={(tabId) => {
+              this.props.dispatch(closeTabWindow(tabId))
             }}
             width={this.props.width}>
             {_.map(this.props.tabIds, (tabId) => {
@@ -188,6 +198,7 @@ class TabbedEditor extends Component {
               )
             })}
           </TabContainer>
+          {conditionallyRenderToast()}
           {
             this.props.decoDoc ? (
               <EditorDropTarget className={editorClassName}
@@ -217,9 +228,17 @@ class TabbedEditor extends Component {
           }
           <Console consoleOpen={this.props.consoleVisible}
             packagerOutput={this.props.packagerOutput}
+            packagerStatus={this.props.packagerStatus}
             initialScrollHeight={this.props.savedScrollHeight}
             toggleConsole={() => {
               this.props.dispatch(setConsoleVisibility(!this.props.consoleVisible))
+            }}
+            togglePackager={(isRunning) => {
+              if (isRunning) {                
+                this.props.dispatch(stopPackager())
+              } else {
+                this.props.dispatch(runPackager())
+              }
             }}
             saveScrollHeight={(scrollHeight) => {
               this.props.dispatch(setConsoleScrollHeight(scrollHeight))
@@ -228,7 +247,8 @@ class TabbedEditor extends Component {
             this.props.progressBar && (
               <ProgressBar
                 style={progressBarStyle}
-                name={`npm install ${this.props.progressBar.name}`}
+                name={`npm install ${this.props.progressBar.name}` +
+                      (showNpmRegistry ? ` --registry=${this.props.npmRegistry}` : '')}
                 progress={this.props.progressBar.progress} />
             )
           }
@@ -290,6 +310,7 @@ const mapStateToProps = (state, ownProps) => {
     componentList: state.modules.modules,
     consoleVisible: state.ui.consoleVisible,
     packagerOutput: state.application.packagerOutput,
+    packagerStatus: state.application.packagerStatus,
     savedScrollHeight: state.ui.scrollHeight,
     liveValuesById: state.metadata.liveValues.liveValuesById,
     focusedTabId: _.get(state, `ui.tabs.${CONTENT_PANES.CENTER}.focusedTabId`),
@@ -297,6 +318,8 @@ const mapStateToProps = (state, ownProps) => {
     filesByTabId,
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
+    npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
+    configError: state.application.configError,
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],

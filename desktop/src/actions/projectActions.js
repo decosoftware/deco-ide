@@ -25,6 +25,8 @@ const {
   SET_PROJECT_DIR,
   SAVE_PROJECT,
   SAVE_AS_PROJECT,
+  OPEN_PROJECT_SETTINGS,
+  CUSTOM_CONFIG_ERROR,
 } = ProjectConstants
 
 const EventTypes = {
@@ -33,6 +35,12 @@ const EventTypes = {
 
 const RequestTypes = {}
 
+export const customConfigError = (errorMessage) => {
+  return {
+    type: CUSTOM_CONFIG_ERROR,
+    errorMessage,
+  }
+}
 
 export const setProject = (projectPath, isTemp) => {
   return {
@@ -57,5 +65,18 @@ export const save = () => {
 export const saveAs = () => {
   return {
     type: SAVE_AS_PROJECT,
+  }
+}
+
+export const openProjectSettings = (settingsPathInfo) => {
+  return {
+    type: OPEN_PROJECT_SETTINGS,
+    settingsInfo: {
+      fileType: 'file',
+      id: settingsPathInfo.id,
+      module: settingsPathInfo.baseName,
+      absolutePath: settingsPathInfo.absolutePathArray,
+      isLeaf: true,
+    }
   }
 }

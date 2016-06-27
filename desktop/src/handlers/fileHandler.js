@@ -25,6 +25,8 @@ import mkdirp from 'mkdirp'
 import _ from 'lodash'
 import sane from 'sane'
 
+import { shell } from 'electron'
+
 import fs from 'fs-plus'
 import FileSystem from '../fs/fileSystem'
 import bridge from '../bridge'
@@ -59,6 +61,7 @@ const {
   WRITE_FILE_METADATA,
   DELETE_FILE_METADATA,
   DELETE,
+  SHOW_IN_FINDER,
   CREATE_DIRECTORY,
   RENAME,
   CREATE_FILE,
@@ -92,10 +95,11 @@ function createMetadataParentPath(filepath) {
   }
 }
 
+
 function buildMetadataFilePath(filePath, rootPath) {
-  const metadataPath = path.join(formatPayloadPath(rootPath), '.deco', formatPayloadPath(filePath).replace(rootPath, '') + '.deco')
-  createMetadataParentPath(metadataPath)
-  return metadataPath
+    const metadataPath = path.join(formatPayloadPath(rootPath), '.deco', 'metadata', formatPayloadPath(filePath).replace(rootPath, '') + '.deco')
+    createMetadataParentPath(metadataPath)
+    return metadataPath
 }
 
 function shouldEmitChangesForPath(filePath) {
@@ -121,7 +125,10 @@ function closeWatchman() {
 
 function shutdownWatchman() {
   try {
-    child_process.spawnSync('/usr/local/Deco/watchman/watchman', ['shutdown-server'])
+    // this should only be the case if we added watchman to the $PATH on initialization
+    if (process.env.PATH.indexOf('/usr/local/Deco/watchman') != -1) {
+      child_process.spawnSync('/usr/local/Deco/watchman/watchman', ['shutdown-server'])
+    }
   } catch (e) {
     //do nothing
     Logger.error(e)
@@ -138,7 +145,7 @@ process.on('SIGTERM', () => {
   shutdownWatchman()
 })
 
-function buildPathObjects(absolutePath) {
+export function buildPathObjects(absolutePath) {
   const buffer = new Buffer(absolutePath)
   const id = buffer.toString('hex')
   const baseName = path.basename(absolutePath)
@@ -185,6 +192,7 @@ class FileHandler {
     bridge.on(WRITE_FILE_METADATA, this.writeFileMetadata.bind(this))
     bridge.on(DELETE_FILE_METADATA, this.deleteFileMetadata.bind(this))
     bridge.on(DELETE, this.delete.bind(this))
+    bridge.on(SHOW_IN_FINDER, this.showInFinder.bind(this))
     bridge.on(CREATE_DIRECTORY, this.createDirectory.bind(this))
     bridge.on(RENAME, this.rename.bind(this))
     bridge.on(CREATE_FILE, this.createFile.bind(this))
@@ -218,16 +226,6 @@ class FileHandler {
     try {
       const absolutePath = getPathFromId(payload.id)
       const newPath = path.join(path.dirname(absolutePath), payload.newName)
-      if (!fs.isDirectorySync(absolutePath)) {
-        try {
-          const possibleMetadata = absolutePath + '.deco'
-          if (fs.existsSync(possibleMetadata)) {
-            fs.moveSync(possibleMetadata, newPath + '.deco')
-          }
-        } catch (e) {
-          Logger.error(e)
-        }
-      }
       fs.moveSync(absolutePath, newPath)
       const pathObj = buildPathObjects(newPath)
       respond(onRename(pathObj))
@@ -249,23 +247,22 @@ class FileHandler {
             Logger.error(err)
           }
         })
-        const possibleMetadata = absolutePath + '.deco'
-        try {
-          if (fs.existsSync(possibleMetadata)) {
-            _fs.unlink(absolutePath, (err) => {
-              if (err) {
-                Logger.error(err)
-              }
-            })
-          }
-        } catch (e) {
-          Logger.error(e)
-        }
       }
     } catch (e) {
       Logger.error(e)
     }
     respond(onSuccess(DELETE))
+  }
+
+  showInFinder(payload, respond) {
+    try {
+      const absolutePath = getPathFromId(payload.id)
+      Logger.error(absolutePath)
+      shell.showItemInFolder(absolutePath)
+    } catch (e) {
+      Logger.error(e)
+    }
+    respond(onSuccess(SHOW_IN_FINDER))
   }
 
   createDirectory(payload, respond) {

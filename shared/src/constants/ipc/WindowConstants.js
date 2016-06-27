@@ -20,5 +20,6 @@ import _ from 'lodash'
 export default _.mapKeys([
   'OPEN_PROJECT_DIALOG',
   'SAVE_AS_DIALOG',
+  'OPEN_PATH_CHOOSER_DIALOG',
   'RESIZE',
 ])

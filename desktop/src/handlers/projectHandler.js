@@ -20,6 +20,8 @@
 import fs from 'fs'
 import path from 'path'
 import child_process from 'child_process'
+import mv from 'mv'
+import mkdirp from 'mkdirp'
 
 import fs_plus from 'fs-plus'
 import _ from 'lodash'
@@ -51,6 +53,24 @@ import PackagerController from '../process/packagerController'
 import Logger from '../log/logger'
 
 let unsavedMap = {}
+
+const PROJECT_SETTINGS_TEMPLATE =`{
+
+  // relative path from project root to the .app binary that is generated after building iOS
+  "iosTarget": "ios/build/Build/Products/Debug-iphonesimulator/Project.app",
+
+  // relative path from project root to the xcode project or workspace file for iOS build
+  "iosProject": "ios/Project.xcodeproj",
+
+  // scheme name to use when building in Deco
+  "iosBuildScheme": "Project",
+
+  // relative path from project to the AndroidManifest.xml file for your application
+  "androidManifest": "android/app/src/main/AndroidManifest.xml",
+
+  // port for the packager to run on
+  "packagerPort": 8081
+}`
 
 class ProjectHandler {
 
@@ -152,6 +172,7 @@ class ProjectHandler {
           respond(onSuccess(CREATE_NEW_PROJECT))
           bridge.send(setProject(payload.path, payload.tmp))
           this._createTemplateFolder()
+          this.createProjectSettingsTemplate(payload.path)
         })
         unsavedMap = {}
       }
@@ -171,12 +192,90 @@ class ProjectHandler {
     }
   }
 
+  createProjectSettingsTemplate(rootPath) {
+    return new Promise((resolve, reject) => {
+      const metadataPath = path.join(rootPath, '.deco')
+      const settingsFilePath = path.join(metadataPath, '.settings')
+      try {
+        fs.statSync(settingsFilePath)
+        resolve(settingsFilePath)
+      } catch (e) {
+        if (e && e.code == 'ENOENT') {
+          mkdirp(metadataPath, () => {
+            try {
+              fs.writeFileSync(settingsFilePath, PROJECT_SETTINGS_TEMPLATE, {
+                mode: '755'
+              })
+              resolve(settingsFilePath)
+            } catch (e) {
+              //could not write out the file
+              Logger.error('Failed to write settings file template', e)
+              reject()
+            }
+          })
+        } else {
+          Logger.error(e)
+          reject()
+        }
+      }
+    })
+  }
+
+  /**
+   * Backwards compatability!
+   */
+  updateOldProjectStructure(rootPath) {
+    const oldMetadata = path.join(rootPath, '.deco')
+    const list = fs.readdirSync(oldMetadata)
+    _.each(list, (sub) => {
+      const oldPath = path.join(oldMetadata, sub)
+      const newPath = path.join(oldMetadata, 'metadata', sub)
+      mv(oldPath, newPath, {mkdirp: true}, (err) => {
+        if (err) {
+          Logger.error(err)
+        }
+      })
+    })
+    // add .settings file
+    this.createProjectSettingsTemplate(rootPath)
+  }
+
+  /**
+   * Backwards compatability!
+   */
+  checkOldProjectStructure(rootPath) {
+    const oldMetadataPath = path.join(rootPath, '.deco')
+    const newMetadataPath = path.join(oldMetadataPath, 'metadata')
+    fs.stat(oldMetadataPath, (err, stats) => {
+      if (err) {
+        //project is clean
+        this.createProjectSettingsTemplate(rootPath)
+        return
+      }
+
+      fs.stat(newMetadataPath, (err, stats) => {
+        if (!err) {
+          this.createProjectSettingsTemplate(rootPath)
+          return //project is current
+        }
+        if (err.code == 'ENOENT') {
+          //this is an old project structure
+          this.updateOldProjectStructure(rootPath)
+        } else {
+          Logger.error(err)
+          return //something went wrong
+        }
+      })
+    })
+  }
+
   openProject(payload, respond) {
     if (!payload.resumeState) {
       this._resetProcessState()
     }
     unsavedMap = {}
     bridge.send(setProject(payload.path, false))
+    this.checkOldProjectStructure(payload.path)
     respond(onSuccess(OPEN_PROJECT))
   }
 }

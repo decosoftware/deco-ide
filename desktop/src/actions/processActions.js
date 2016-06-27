@@ -18,7 +18,7 @@
 import Logger from '../log/logger'
 
 import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
-const { PACKAGER_OUTPUT, LIST_AVAILABLE_SIMS, UPDATE_SIMULATOR_STATUS, } = ProcessConstants
+const { PACKAGER_OUTPUT, LIST_AVAILABLE_SIMS, UPDATE_SIMULATOR_STATUS, UPDATE_PACKAGER_STATUS } = ProcessConstants
 
 export const onPackagerOutput = (text) => {
   return {
@@ -34,11 +34,33 @@ export const onPackagerError = (err) => {
   }
 }
 
-export const listAvailableSims = (simulators) => {
+export const updatePackagerStatus = (status) => {
+  return {
+    type: UPDATE_PACKAGER_STATUS,
+    status,
+  }
+}
+
+export const listAvailableSims = (simList) => {
   return {
     type: LIST_AVAILABLE_SIMS,
-    simulators,
+    simList,
   }
+}
+
+export const showSimulatorError = (message) => {
+  if (!message) message = ''
+  if (typeof message == 'string') {
+    return {
+      error: true,
+      message: [message],
+    }
+  }
+  return {
+    error: true,
+    message,
+  }
+
 }
 
 export const updateSimulatorStatus = (simulatorIsOpen) => {

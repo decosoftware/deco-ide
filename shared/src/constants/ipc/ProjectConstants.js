@@ -24,4 +24,6 @@ export default _.mapKeys([
   'CREATE_NEW_PROJECT',
   'OPEN_PROJECT',
   'SHARE_SAVE_STATUS',
+  'OPEN_PROJECT_SETTINGS',
+  'CUSTOM_CONFIG_ERROR',
 ])
