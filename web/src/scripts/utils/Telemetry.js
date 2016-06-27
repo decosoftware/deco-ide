@@ -17,13 +17,12 @@
 
 class Telemetry {
   constructor() {
-    this.ga = window.ga || () => {}
     this.lastFocusTime = Date.now()
   }
 
   bindAppFocusListener() {
     window.addEventListener('focus', () => {
-      this.ga('send', {
+      window.ga && window.ga('send', {
         hitType: 'event',
         eventCategory: 'Window',
         eventAction: 'focus',
@@ -33,7 +32,7 @@ class Telemetry {
     })
 
     window.addEventListener('unload', () => {
-      this.ga('send', {
+      window.ga && window.ga('send', {
         hitType: 'event',
         eventCategory: 'Window',
         eventAction: 'unload',
