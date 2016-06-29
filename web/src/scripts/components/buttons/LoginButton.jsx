@@ -15,14 +15,32 @@
  *
  */
 
-export FilterableList from './menu/FilterableList'
-export ComponentMenuItem from './menu/ComponentMenuItem'
-export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
+import React, { Component, } from 'react'
 
-export SimpleButton from './buttons/SimpleButton'
-export LoginButton from './buttons/LoginButton'
-export InspectorButton from './buttons/InspectorButton'
-export PaneHeader from '../components/headers/PaneHeader'
-export NoContent from '../components/display/NoContent'
-export Callout from '../components/display/Callout'
-export UserDetailsBanner from '../components/user/UserDetailsBanner'
+import InspectorButton from './InspectorButton'
+import GithubIcon from '../display/GithubIcon'
+
+export default class extends Component {
+
+  static propTypes = {}
+
+  static defaultProps = {}
+
+  constructor(props) {
+    super(props)
+
+    this.state = {}
+  }
+
+  render() {
+    const {children} = this.props
+
+    return (
+      <InspectorButton>
+        <GithubIcon />
+        <div style={{marginRight: 6}} />
+        {'Sign in with GitHub'}
+      </InspectorButton>
+    )
+  }
+}

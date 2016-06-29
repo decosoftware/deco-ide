@@ -276,19 +276,26 @@ class WorkspaceToolbar extends Component {
     }
 
     // Left & right must have equal width for best flexboxing
-    const spacer = SIZE.BTN_LARGE + SIZE.BTN_SMALL * 2 + SIZE.SEP_SMALL + SIZE.SEP_LARGE
+    const spacer = SIZE.BTN_LARGE + SIZE.BTN_SMALL * 2 + SIZE.SEP_SMALL
 
     return (
       <div style={sectionStyle}>
         <div style={{width: spacer}}></div>
         <ToolbarButtonGroup
+          theme={ToolbarButtonGroup.THEME.DARK}
           activeIndexes={[
             this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PROPERTIES,
+            this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PUBLISHING,
           ]}>
           <ToolbarButton
             text={'Properties'}
             icon={'properties'}
             onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PROPERTIES)}
+            width={SIZE.BTN_LARGE} />
+          <ToolbarButton
+            text={'Publishing'}
+            icon={'publish'}
+            onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PUBLISHING)}
             width={SIZE.BTN_LARGE} />
         </ToolbarButtonGroup>
       </div>

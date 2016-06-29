@@ -33,11 +33,11 @@ class SimpleButton extends Component {
       isMouseDown: false,
       styleSelector: 'defaultStyle',
     })
-    this._bindMouseEvent('_onMouseOver', 'onMouseOver', {
+    this._bindMouseEvent('_onMouseEnter', 'onMouseEnter', {
       isMouseOver: true,
       styleSelector: 'hoverStyle',
     })
-    this._bindMouseEvent('_onMouseOut', 'onMouseOut', {
+    this._bindMouseEvent('_onMouseLeave', 'onMouseLeave', {
       isMouseOver: false,
       styleSelector: 'defaultStyle',
     })
@@ -59,8 +59,8 @@ class SimpleButton extends Component {
         style={buttonStyle}
         onMouseDown={this._onMouseDown}
         onMouseUp={this._onMouseUp}
-        onMouseOver={this._onMouseOver}
-        onMouseOut={this._onMouseOut}>
+        onMouseEnter={this._onMouseEnter}
+        onMouseLeave={this._onMouseLeave}>
         <div style={this.props.innerStyle}>
           {this.props.children}
         </div>
