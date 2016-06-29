@@ -26,7 +26,7 @@ export default () => {
           return
         }
 
-        const reactExtensionName = BrowserWindow.addDevToolsExtension(extensionPath)
+        const reactExtensionName = BrowserWindow.addDevToolsExtension(reactExtensionPath)
         console.log('Successfully installed chrome extension:', reactExtensionName)
       }
     } catch (e) {
