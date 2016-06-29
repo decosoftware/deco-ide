@@ -18,13 +18,75 @@
 import _ from 'lodash'
 
 import Pos from '../../models/editor/CodeMirrorPos'
+import {toCode} from '../Parser'
 
-export default {
-  countIndentation(string) {
+export default class {
+
+  static computePropCode(prop, value) {
+    const {template} = prop
+
+    if (template) {
+      return _.template(template)({value})
+    } else {
+      return toCode(value)
+    }
+  }
+
+  static changePropValue(decoDoc, elementProp, value, componentProp = {}) {
+    const {cmDoc} = decoDoc
+
+    // If componentProp is passed, override elementProp
+    elementProp = {...elementProp, ...componentProp}
+
+    const {valueStart, valueEnd} = elementProp
+    const code = this.computePropCode(elementProp, value)
+    cmDoc.replaceRange(code, valueStart, valueEnd)
+  }
+
+  static removeProp(decoDoc, element, prop) {
+    const {cmDoc} = decoDoc
+    const {start, end} = prop
+    const {openStart} = element
+
+    cmDoc.replaceRange('', start, end)
+
+    // Try to delete an empty line
+    if (start.line === end.line && cmDoc.getLine(start.line).trim() === '') {
+      cmDoc.replaceRange('', {ch: 0, line: start.line}, {ch: 0, line: start.line + 1})
+    }
+
+    cmDoc.setSelection(openStart)
+  }
+
+  static addProp(decoDoc, element, prop, value) {
+    const {cmDoc} = decoDoc
+    const {name, defaultValue, template} = prop
+    const {openStart, openEnd, selfClosing} = element
+
+    if (_.isUndefined(value)) {
+      value = this.computePropCode(prop, defaultValue)
+    } else {
+      value = this.computePropCode(prop, value)
+    }
+
+    const endLength = selfClosing ? 2 : 1
+    const indentStart = _.repeat(' ', openStart.ch)
+    let text = `  ${name}={${value}}\n${indentStart}`
+
+    // Single-line component, likely with no props
+    if (openStart.line === openEnd.line) {
+      text = `\n${indentStart}${text}`
+    }
+
+    cmDoc.replaceRange(text, {ch: openEnd.ch - endLength, line: openEnd.line})
+    cmDoc.setSelection(openStart)
+  }
+
+  static countIndentation(string) {
     return string.search(/\S|$/)
-  },
+  }
 
-  ensureNewlineWithIndentation(cmDoc) {
+  static ensureNewlineWithIndentation(cmDoc) {
 
     // Get the cm instance and cursor
     const cm = cmDoc.getEditor()
@@ -51,9 +113,9 @@ export default {
 
     // TODO handle after case?
     // const charAfter = cmDoc.getRange(cursor, {line, ch: ch + 1})
-  },
+  }
 
-  indent(cm) {
+  static indent(cm) {
 
     const indentUnit = cm.getOption('indentUnit')
 
@@ -85,5 +147,5 @@ export default {
         }
       }
     })
-  },
+  }
 }

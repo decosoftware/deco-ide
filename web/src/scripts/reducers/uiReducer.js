@@ -17,6 +17,7 @@
 
 import _ from 'lodash'
 import tabReducer from './tabReducer'
+import publishing from './publishingReducer'
 
 import {
   SET_CONSOLE_VISIBILITY,
@@ -59,6 +60,7 @@ const initialState = {
     height: window.innerHeight,
   },
   tabs: undefined,
+  publishing: undefined,
   progressBar: null,
   upgrade: {
     status: 'pending',
@@ -69,6 +71,7 @@ const uiReducer = (state = initialState, action) => {
 
   state = _.cloneDeep(state)
   state.tabs = tabReducer(state.tabs, action)
+  state.publishing = publishing(state.publishing, action)
 
   switch(action.type) {
     case WINDOW_SIZE_CHANGED:

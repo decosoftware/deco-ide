@@ -15,9 +15,15 @@
  *
  */
 
-import _ from 'lodash'
+export const at = {
+  SET_AST: 'SET_AST',
+  RESET_ALL_AST: 'RESET_ALL_AST',
+}
 
-export default _.mapKeys([
-  'IMPORT_COMPONENT',
-  'GET_COMPONENT_LIST',
-])
+export const setAST = (filename, ast) => async (dispatch) => {
+  dispatch({type: at.SET_AST, payload: {filename, ast}})
+}
+
+export const resetAllAST = () => async (dispatch) => {
+  dispatch({type: at.RESET_ALL_AST})
+}

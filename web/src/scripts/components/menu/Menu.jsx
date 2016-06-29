@@ -20,8 +20,8 @@ import ReactDOM from 'react-dom'
 import React, { Component } from 'react'
 
 const caretBaseStyle = {
-  width: '0',
-  height: '0',
+  width: 0,
+  height: 0,
   borderStyle: 'solid',
   borderWidth: '0 10px 10px 10px',
   borderColor: 'transparent transparent rgb(252,251,252) transparent',

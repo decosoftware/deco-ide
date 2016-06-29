@@ -15,27 +15,22 @@
  *
  */
 
-'use strict'
+import { publishingConstants as at } from '../actions'
 
-import Logger from '../log/logger'
-import ComponentConstants from 'shared/constants/ipc/ComponentConstants'
-const {
-  GET_COMPONENT_LIST,
-  IMPORT_COMPONENT,
-} = ComponentConstants 
-
-
-export const onComponentList = (componentList) => {
-  return {
-    type: GET_COMPONENT_LIST,
-    componentList
-  }
+const initialState = {
+  currentComponentId: null,
 }
 
-export const onImportComponent = (metadata, requirePath) => {
-  return {
-    type: IMPORT_COMPONENT,
-    metadata,
-    requirePath,
+export default (state = initialState, action) => {
+  const {type, payload} = action
+
+  switch(type) {
+    case at.SET_CURRENT_COMPONENT: {
+      return {...state, currentComponentId: payload}
+    }
+
+    default: {
+      return state
+    }
   }
 }

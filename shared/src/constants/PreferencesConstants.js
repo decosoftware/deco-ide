@@ -30,6 +30,7 @@ export const PREFERENCES = {
     'ANDROID_HOME',
     'GENYMOTION_APP',
     'USE_GENYMOTION',
+    'PUBLISHING_FEATURE',
   ]),
   [CATEGORIES.SAVING]: _.mapKeys([
     'AUTOSAVE',
@@ -55,6 +56,9 @@ export const METADATA = {
       defaultValue: '',
     },
     [PREFERENCES[CATEGORIES.GENERAL].USE_GENYMOTION]: {
+      defaultValue: false,
+    },
+    [PREFERENCES[CATEGORIES.GENERAL].PUBLISHING_FEATURE]: {
       defaultValue: false,
     },
   },

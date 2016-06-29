@@ -19,12 +19,12 @@ import React, { Component } from 'react'
 import _ from 'lodash'
 
 const defaultStyle = {
-  width: '12px',
-  height: '12px',
+  width: '14px',
+  height: '14px',
   position: 'absolute',
-  top: '13px',
+  top: '15px',
   right: '15px',
-  fontSize: '12px',
+  fontSize: '14px',
   WebkitAppearance: 'searchfield-cancel-button',
 }
 

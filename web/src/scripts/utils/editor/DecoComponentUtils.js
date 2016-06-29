@@ -18,7 +18,7 @@
 import _ from 'lodash'
 import esprima from 'esprima'
 
-import ASTUtils from '../astUtils'
+import ASTUtils from '../ASTUtils'
 import DecoChangeFactory from '../../factories/editor/DecoChangeFactory'
 import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
 import DecoTextChange from '../../models/editor/DecoTextChange'

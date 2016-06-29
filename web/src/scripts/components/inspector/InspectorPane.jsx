@@ -16,25 +16,42 @@
  */
 
 import React, { Component, } from 'react'
-import { connect } from 'react-redux'
 
-import PaneHeader from '../components/headers/PaneHeader'
-import NoContent from '../components/display/NoContent'
-import {toValue} from '../utils/Parser'
+import PaneHeader from '../headers/PaneHeader'
 
-const style = {
-  display: 'flex',
-  flex: '1 0 auto',
-  flexDirection: 'column',
-  alignItems: 'stretch',
+const styles = {
+  container: {
+    flex: '1 0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  inner: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    minHeight: 0,
+    minWidth: 0,
+    flex: '1 0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  }
 }
 
-const PublishingInspector = ({decoDoc}) => {
-  return (
-    <div style={style}>
-      <PaneHeader text={'Publishing'} />
-    </div>
-  )
-}
+export default class extends Component {
 
-export default connect()(PublishingInspector)
+  render() {
+    const {children, title} = this.props
+
+    return (
+      <div style={styles.container}>
+        <PaneHeader
+          text={title}
+        />
+        <div style={styles.inner}>
+          {children}
+        </div>
+      </div>
+    )
+  }
+}

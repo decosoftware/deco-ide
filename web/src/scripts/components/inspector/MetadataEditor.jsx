@@ -45,6 +45,10 @@ const INPUT_WIDTH = 130
 
 class MetadataEditor extends Component {
 
+  static defaultProps = {
+    disabledFields: [],
+  }
+
   constructor(props) {
     super(props)
     this.state = {
@@ -54,11 +58,14 @@ class MetadataEditor extends Component {
 
   componentDidMount() {
     const nameElement = ReactDOM.findDOMNode(this.refs.nameInput)
-    nameElement.focus()
-    return nameElement.setSelectionRange(0, nameElement.value.length)
+
+    if (nameElement) {
+      nameElement.focus()
+      nameElement.setSelectionRange(0, nameElement.value.length)
+    }
   }
 
-  renderFormForType() {
+  renderFormForType(disabledKeys) {
     const {metadata, onMetadataChange, requestClose} = this.props
     const elements = []
 
@@ -72,7 +79,7 @@ class MetadataEditor extends Component {
         })
 
         elements.push(
-          <FormRow
+          ! disabledKeys['editWith'] && <FormRow
             key={'editWith'}
             label={'Edit With'}
             inputWidth={INPUT_WIDTH}>
@@ -88,7 +95,7 @@ class MetadataEditor extends Component {
       break
       case PrimitiveTypes.NUMBER:
         elements.push(
-          <FormRow
+          ! disabledKeys['min'] && <FormRow
             key={'min'}
             label={'Minimum'}
             inputWidth={INPUT_WIDTH}>
@@ -101,7 +108,7 @@ class MetadataEditor extends Component {
         )
 
         elements.push(
-          <FormRow
+          ! disabledKeys['max'] && <FormRow
             key={'max'}
             label={'Maximum'}
             inputWidth={INPUT_WIDTH}>
@@ -122,42 +129,56 @@ class MetadataEditor extends Component {
   }
 
   render() {
-    const {metadata, onMetadataChange, requestClose} = this.props
+    const {metadata, onMetadataChange, requestClose, disabledFields} = this.props
+    const disabledKeys = _.keyBy(disabledFields)
 
     const groupNameInProgress = this.state.groupNameInProgress
     const groupName = groupNameInProgress !== null ? groupNameInProgress : metadata.group
 
     return (
       <div style={menuStyle}>
-        <FormRow
-          key={'name'}
-          label={'Name'}
-          inputWidth={INPUT_WIDTH}>
-          <StringInput
-            ref={'nameInput'}
-            value={metadata.name}
-            onChange={onMetadataChange.bind(null, 'name')}
-            onSubmit={requestClose} />
-        </FormRow>
-        <FormRow
-          key={'group'}
-          label={groupNameInProgress !== null ? '↵ to confirm' : 'Group'}
-          inputWidth={INPUT_WIDTH}>
-          <StringInput
-            value={groupName || ''}
-            onChange={(value) => {
-              this.setState({
-                groupNameInProgress: value,
-              })
-            }}
-            onSubmit={(value) => {
-              this.setState({
-                groupNameInProgress: null,
-              })
-              onMetadataChange('group', value)
-            }} />
-        </FormRow>
-        {this.renderFormForType()}
+        {! disabledKeys['name'] && <FormRow
+            key={'name'}
+            label={'Name'}
+            inputWidth={INPUT_WIDTH}>
+            <StringInput
+              ref={'nameInput'}
+              value={metadata.name}
+              onChange={onMetadataChange.bind(null, 'name')}
+              onSubmit={requestClose}
+            />
+        </FormRow>}
+        {! disabledKeys['type'] && <FormRow
+            key={'type'}
+            label={'Type'}
+            inputWidth={INPUT_WIDTH}>
+            <SelectInput
+              value={metadata.type}
+              width={INPUT_WIDTH}
+              options={_.map(PrimitiveTypes)}
+              onChange={onMetadataChange.bind(null, 'type')}
+            />
+        </FormRow>}
+        {! disabledKeys['group'] && <FormRow
+            key={'group'}
+            label={groupNameInProgress !== null ? '↵ to confirm' : 'Group'}
+            inputWidth={INPUT_WIDTH}>
+            <StringInput
+              value={groupName || ''}
+              onChange={(value) => {
+                this.setState({
+                  groupNameInProgress: value,
+                })
+              }}
+              onSubmit={(value) => {
+                this.setState({
+                  groupNameInProgress: null,
+                })
+                onMetadataChange('group', value)
+              }}
+            />
+        </FormRow>}
+        {this.renderFormForType(disabledKeys)}
       </div>
     )
   }

@@ -69,7 +69,8 @@ class PreferencesPage extends Component {
             setSystemLocationPreference={this.props.setSystemLocationPreference.bind(null, CATEGORIES.GENERAL)}
             androidHome={this.props.general[PREFERENCES.GENERAL.ANDROID_HOME]}
             pathToGenymotionApp={this.props.general[PREFERENCES.GENERAL.GENYMOTION_APP]}
-            useGenymotion={this.props.general[PREFERENCES.GENERAL.USE_GENYMOTION]} />
+            useGenymotion={this.props.general[PREFERENCES.GENERAL.USE_GENYMOTION]}
+            publishingFeature={this.props.general[PREFERENCES.GENERAL.PUBLISHING_FEATURE]} />
         )
       case 1:
         return (

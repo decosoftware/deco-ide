@@ -68,6 +68,14 @@ class FlowController {
     return this.runFlowCommand('autocomplete', input, pos, path.dirname(filename))
   }
 
+  async getAST(input, filename) {
+    return bufferedProcess.run(this.getBinaryPath(), {
+      cwd: path.dirname(filename),
+      args: ['ast'],
+      input,
+    })
+  }
+
   getBinaryPath() {
     const root = fileHandler.getWatchedPath()
     return path.join(root, 'node_modules/.bin/flow')

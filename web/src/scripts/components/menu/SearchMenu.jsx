@@ -20,31 +20,48 @@ import React, { Component, PropTypes } from 'react'
 import DropdownMenu from './DropdownMenu'
 import FilterableList from './FilterableList'
 
+const styles = {
+  inner: {
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    height: 380,
+    borderRadius: 3,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  menu: {
+    padding: 0,
+    overflow: 'hidden',
+    borderRadius: 3,
+  },
+}
+
 class SearchMenu extends Component {
   constructor(props) {
     super(props)
   }
 
   render () {
+    const {show, requestClose, anchorPosition, ItemComponent, items, onItemClick} = this.props
+
     return (
-      <DropdownMenu show={this.props.show}
-        requestClose={this.props.requestClose}
-        anchorPosition={this.props.anchorPosition}
-        style={{padding: 0, overflow: 'hidden'}}
-        hideOnClick={true}>
-        <FilterableList
-          items={this.props.items}
-          onItemClick={this.props.onItemClick}
-          renderItem={this.props.renderItem}
-          autoSelectFirst={true}
-          width={this.props.anchorPosition.width}
-          innerStyle={{
-            overflowY: 'auto',
-            maxHeight: 380,
-            width: this.props.anchorPosition.width,
-            borderBottomLeftRadius: 3,
-            borderBottomRightRadius: 3,
-          }} />
+      <DropdownMenu
+        show={show}
+        requestClose={requestClose}
+        anchorPosition={anchorPosition}
+        style={styles.menu}
+        hideOnClick={true}
+      >
+        <div style={{...styles.inner, width: anchorPosition.width}}>
+          <FilterableList
+            ItemComponent={ItemComponent}
+            items={items}
+            onItemClick={onItemClick}
+            autoSelectFirst={true}
+            hideMenu={requestClose}
+          />
+        </div>
       </DropdownMenu>
     )
   }

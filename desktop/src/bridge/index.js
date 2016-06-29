@@ -23,7 +23,6 @@ import requestEmitter from './requestEmitter'
 
 import ApplicationConstants from 'shared/constants/ipc/ApplicationConstants'
 import FileConstants from 'shared/constants/ipc/FileConstants'
-import ComponentConstants from 'shared/constants/ipc/ComponentConstants'
 import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
 import ProjectConstants from 'shared/constants/ipc/ProjectConstants'
 import WindowConstants from 'shared/constants/ipc/WindowConstants'
@@ -40,7 +39,6 @@ import Logger from '../log/logger'
 const REQUEST_TYPES = [
   ApplicationConstants,
   FileConstants,
-  ComponentConstants,
   ProcessConstants,
   ProjectConstants,
   WindowConstants,

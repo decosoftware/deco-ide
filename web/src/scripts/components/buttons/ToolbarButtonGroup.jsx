@@ -26,9 +26,13 @@ class ToolbarButtonGroup extends Component {
   }
 
   render() {
-    const childCount = React.Children.count(this.props.children)
+    // Normalize to array and filter falsy children
+    const normalized = React.Children.map(this.props.children, child => child).filter(child => child)
+    const childCount = normalized.length
 
-    const clonedChildren = React.Children.map(this.props.children, (child, i) => {
+    const clonedChildren = normalized.map((child, i) => {
+      if (!child) return
+
       const isActive = this.props.activeIndexes[i] === true
 
       let groupPosition

@@ -15,40 +15,17 @@
  *
  */
 
-"use strict"
+import React, { Component, } from 'react'
 
-import fs from 'fs'
-import child_process from 'child_process'
-import path from 'path'
-import mkdirp from 'mkdirp'
-
-import Logger from '../log/logger'
-
-import {
-  TMP_FOLDER,
-  CACHE_FOLDER,
-  TEMP_PROJECT_FOLDER,
-} from '../constants/DecoPaths'
-
-
-var errFunc = function(err) {
-  if (err) {
-    Logger.error('System paths failed to init properly!', err)
+const styles = {
+  github: {
+    width: 20,
+    height: 20,
+    backgroundSize: '20px 20px',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundImage: `-webkit-image-set(url('./images/github-logo.png') 1x, url('./images/github-logo@2x.png') 2x)`,
   }
 }
 
-class SystemPathInitializer {
-  static init() {
-    try {
-      fs.statSync(CACHE_FOLDER)
-    } catch (e) {
-      try {
-        fs.mkdir(CACHE_FOLDER, '775', errFunc)
-      } catch (e) {
-        Logger.error('Could not make the component cache folder.', e)
-      }
-    }
-  }
-}
-
-export default SystemPathInitializer
+export default () => <div style={styles.github} />

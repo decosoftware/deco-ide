@@ -21,6 +21,7 @@ import React, { Component } from 'react'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 import { EDIT_WITH, DROPDOWN_OPTIONS } from '../../constants/LiveValueConstants'
 
+import InspectorField from './InspectorField'
 import MetadataEditor from './MetadataEditor'
 import FormRow from '../forms/FormRow'
 import StringInput from '../input/StringInput'
@@ -29,49 +30,44 @@ import NumberInput from '../input/NumberInput'
 import SliderInput from '../input/SliderInput'
 import CheckboxInput from '../input/CheckboxInput'
 import ColorInput from '../input/ColorInput'
-import Menu from '../menu/Menu'
 
-const INPUT_WIDTH = 115
+const INPUT_WIDTH = INPUT_WIDTH
 
-class LiveValue extends Component {
+export default class extends Component {
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      showMenu: false,
-      menuPosition: {
-        x: 0,
-        y: 0,
-      }
-    }
-
-    this.setMenuVisibility = this.setMenuVisibility.bind(this)
-    this.setMenuVisibility = _.throttle(this.setMenuVisibility, 100, {
-      leading: true,
-      trailing: false
-    })
+  static propTypes = {
+    id: React.PropTypes.string,
+    value: React.PropTypes.any,
+    metadata: React.PropTypes.object.isRequired,
+    onChange: React.PropTypes.func.isRequired,
+    onMetadataChange: React.PropTypes.func,
+    onDelete: React.PropTypes.func,
+    inset: React.PropTypes.number,
+    width: React.PropTypes.number,
   }
 
-  setMenuVisibility(visible) {
-    this.setState({
-      showMenu: visible
-    })
+  static defaultProps = {
+    inset: 0,
+    deletable: false,
+    onMetadataChange: () => {},
   }
 
   render() {
-    const {id, value, metadata, onChange, inset, width} = this.props
+    const {id, value, metadata, onChange, onMetadataChange, deletable, onDelete, addable, onAdd, disabledFields, inset, width} = this.props
+    const {name} = metadata
 
-    let inputElement = null
+    let inputElement
 
     switch (metadata.type) {
+      case PrimitiveTypes.RAW:
       case PrimitiveTypes.STRING:
         switch (metadata.editWith) {
           case EDIT_WITH.COLOR_PICKER:
             inputElement = (
               <ColorInput
                 value={value}
-                onChange={onChange} />
+                onChange={onChange}
+              />
             )
           break
           case EDIT_WITH.DROPDOWN:
@@ -87,8 +83,9 @@ class LiveValue extends Component {
                 value={value}
                 options={dropdownOptions}
                 showValueAsOption={true}
-                width={115}
-                onChange={onChange} />
+                width={INPUT_WIDTH}
+                onChange={onChange}
+              />
             )
           break
           case EDIT_WITH.INPUT_FIELD: // Fallthrough
@@ -96,7 +93,8 @@ class LiveValue extends Component {
             inputElement = (
               <StringInput
                 value={value}
-                onChange={onChange} />
+                onChange={onChange}
+              />
             )
           break
         }
@@ -109,81 +107,48 @@ class LiveValue extends Component {
             width={40}
             min={metadata.min}
             max={metadata.max}
-            onChange={onChange} />,
+            onChange={onChange}
+          />,
           <div
             key={'Spacer'}
-            style={{marginRight: 10}} />,
+            style={{marginRight: 10}}
+          />,
           <NumberInput
             key={'NumberInput'}
-            value={value}            
-            onChange={onChange} />,
+            value={value}
+            onChange={onChange}
+          />,
         ]
       break
       case PrimitiveTypes.BOOLEAN:
         inputElement = (
           <CheckboxInput
             value={value}
-            onChange={onChange} />
+            onChange={onChange}
+          />
         )
       break
     }
 
     return (
-      <FormRow
-        label={metadata.name}
-        statefulLabel={true}
-        labelEnabled={this.state.showMenu}
-        labelWidth={width - INPUT_WIDTH}
+      <InspectorField
+        name={name}
         inset={inset}
-        inputWidth={INPUT_WIDTH}
-        onLabelChange={() => {
-          this.setMenuVisibility(! this.state.showMenu)
-        }}
-        onLabelPositionChange={({x, y, width}) => {
-          this.setState({
-            menuPosition: {
-              x: x - width / 2,
-              y,
-            },
-            caretOffset: {
-              x: Math.max(width / 2, 5),
-              y: 0,
-            },
-          })
-        }}>
-        {inputElement}
-        <Menu show={this.state.showMenu}
-          caret={true}
-          caretOffset={this.state.caretOffset}
-          requestClose={this.setMenuVisibility.bind(null, false)}
-          anchorPosition={this.state.menuPosition}>
-          {
-            this.state.showMenu && (
-              <MetadataEditor
-                id={id}
-                metadata={metadata}
-                onMetadataChange={this.props.onMetadataChange}
-                requestClose={this.setMenuVisibility.bind(null, false)} />
-            )
-          }
-        </Menu>
-      </FormRow>
+        width={width}
+        inputElement={inputElement}
+        addable={addable}
+        onAdd={onAdd}
+        deletable={deletable}
+        onDelete={onDelete}
+        menuElement={(
+          <MetadataEditor
+            id={id}
+            metadata={metadata}
+            onMetadataChange={onMetadataChange}
+            disabledFields={disabledFields}
+          />
+        )}
+      />
     )
   }
-
 }
-
-LiveValue.propTypes = {
-  id: React.PropTypes.string.isRequired,
-  value: React.PropTypes.any,
-  metadata: React.PropTypes.object.isRequired,
-  onChange: React.PropTypes.func.isRequired,
-  inset: React.PropTypes.number,
-}
-
-LiveValue.defaultProps = {
-  inset: 0,
-  onMetadataChange: () => {},
-}
-
-export default LiveValue
