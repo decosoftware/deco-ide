@@ -18,7 +18,7 @@
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
-import {LoginButton, Callout} from '../components'
+import {LoginButton, Callout} from '../../components'
 
 const styles = {
   container: {
