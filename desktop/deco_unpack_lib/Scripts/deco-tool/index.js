@@ -31,7 +31,7 @@ const handleError = (e) => {
       errorMessage: `Error in config: ${e.toString()}`,
     })
   } else {
-    console.error(`\nLocal config is broken: \n\n[${e}]\n`)
+    console.error(`\nError in config: \n\n[${e}]\n`)
     process.exit(1)
   }
 }
@@ -210,7 +210,6 @@ try {
   fs.statSync(settingsPath)
   PROJECT_SETTING = JSON.parse(stripComments(fs.readFileSync(settingsPath).toString()))
 } catch (e) {
-  console.log('Warning: No local .settings file is present at path: ' + settingsPath + ' falling back to defaults.')
   try {
     const getDefaults = require(path.join(moduleWorkingDir, 'default.settings.js'))
     const projectName = path.basename(process.cwd())
@@ -315,6 +314,5 @@ try {
       }
     })
 } catch (e) {
-  console.error(e)
   handleError(e)
 }
