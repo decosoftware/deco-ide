@@ -18,9 +18,9 @@
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
-import SignIn from './SignIn'
-import Publishing from './Publishing'
-import {PaneHeader} from '../components'
+import PublishingSignIn from './PublishingSignIn'
+import PublishingBrowser from './PublishingBrowser'
+import {PaneHeader} from '../../components'
 
 const styles = {
   container: {
@@ -44,12 +44,12 @@ const PublishingInspector = ({signedIn, user, components}) => {
         onClickRightTitle={() => {console.log('Sign out?')}}
       />
       {signedIn ? (
-        <Publishing
+        <PublishingBrowser
           user={user}
           components={components}
         />
       ) : (
-        <SignIn />
+        <PublishingSignIn />
       )}
     </div>
   )
