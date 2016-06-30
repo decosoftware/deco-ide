@@ -15,14 +15,17 @@
  *
  */
 
-export FilterableList from './menu/FilterableList'
-export ComponentMenuItem from './menu/ComponentMenuItem'
-export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
+import React, { Component, } from 'react'
 
-export SimpleButton from './buttons/SimpleButton'
-export LoginButton from './buttons/LoginButton'
-export InspectorButton from './buttons/InspectorButton'
-export PaneHeader from '../components/headers/PaneHeader'
-export NoContent from '../components/display/NoContent'
-export Callout from '../components/display/Callout'
-export UserDetailsBanner from '../components/user/UserDetailsBanner'
+const styles = {
+  github: {
+    width: 20,
+    height: 20,
+    backgroundSize: '20px 20px',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundImage: `-webkit-image-set(url('./images/github-logo.png') 1x, url('./images/github-logo@2x.png') 2x)`,
+  }
+}
+
+export default () => <div style={styles.github} />

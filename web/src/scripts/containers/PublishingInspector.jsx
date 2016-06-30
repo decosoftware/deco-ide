@@ -18,23 +18,70 @@
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
-import PaneHeader from '../components/headers/PaneHeader'
-import NoContent from '../components/display/NoContent'
-import {toValue} from '../utils/Parser'
+import SignIn from './SignIn'
+import Publishing from './Publishing'
+import {PaneHeader} from '../components'
 
-const style = {
-  display: 'flex',
-  flex: '1 0 auto',
-  flexDirection: 'column',
-  alignItems: 'stretch',
+const styles = {
+  container: {
+    display: 'flex',
+    flex: '1 0 auto',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  inner: {
+    overflowY: 'auto',
+    padding: 10,
+  }
 }
 
-const PublishingInspector = ({decoDoc}) => {
+const PublishingInspector = ({signedIn, user, components}) => {
   return (
-    <div style={style}>
-      <PaneHeader text={'Publishing'} />
+    <div style={styles.container}>
+      <PaneHeader
+        text={'Publishing'}
+        rightTitle={signedIn ? 'Sign out' : null}
+        onClickRightTitle={() => {console.log('Sign out?')}}
+      />
+      {signedIn ? (
+        <Publishing
+          user={user}
+          components={components}
+        />
+      ) : (
+        <SignIn />
+      )}
     </div>
   )
 }
 
-export default connect()(PublishingInspector)
+const mapStateToProps = (state) => {
+  return {
+    signedIn: true,
+    user: {
+      username: 'dabbott',
+      firstname: 'Devin',
+      lastname: 'Abbott',
+      thumbnail: 'https://avatars0.githubusercontent.com/u/1198882?v=3&s=460',
+    },
+    components: [
+      {
+        name: 'Button',
+        repository: 'dabbott/button',
+        downloads: 214,
+      },
+      {
+        name: 'PhotoGrid',
+        repository: 'dabbott/photo-grid',
+        downloads: 88,
+      },
+      {
+        name: 'Lightbox',
+        repository: 'dabbott/lightbox',
+        downloads: 43,
+      },
+    ],
+  }
+}
+
+export default connect(mapStateToProps)(PublishingInspector)
