@@ -143,9 +143,20 @@ class TaskLauncher {
       cwd: LIB_FOLDER,
     }))
 
+    let errors = ''
+
+    task.stderr.on('data', (data) => {
+      try {
+        var plainTextData = data.toString()
+        errors += plainTextData
+      } catch (e) {
+        Logger.error(e)
+      }
+    })
+
     task.once('exit', (code, signal) => {
       if (code == 1) {
-        launchCustomTaskErrorDialog(task.stderr.toString())
+        launchCustomTaskErrorDialog(errors)
       }
     })
 
