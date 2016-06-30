@@ -33,7 +33,7 @@ import LocalStorage from '../persistence/LocalStorage'
 import WorkspaceToolbar from './WorkspaceToolbar'
 import TabbedEditor from './TabbedEditor'
 import LiveValueInspector from './LiveValueInspector'
-import PublishingInspector from './PublishingInspector'
+import Publishing from './Publishing/Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentBrowser from './ComponentBrowser'
 import Pane from '../components/layout/Pane'
@@ -109,7 +109,7 @@ class Workspace extends Component {
       break
       case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
         content = (
-          <PublishingInspector
+          <Publishing
             width={this.props.rightSidebarWidth}
             decoDoc={this.props.decoDoc} />
         )

@@ -18,7 +18,7 @@
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
-import {UserDetailsBanner, InspectorButton} from '../components'
+import {UserDetailsBanner, InspectorButton} from '../../components'
 
 const styles = {
   container: {
@@ -46,7 +46,7 @@ const styles = {
   },
 }
 
-const Publishing = ({user, components}) => {
+const PublishingBrowser = ({user, components}) => {
   const {firstname, lastname, username, thumbnail} = user
   const downloadCount = components.reduce((sum, component) => sum + component.downloads, 0)
 
@@ -80,4 +80,4 @@ const Publishing = ({user, components}) => {
   )
 }
 
-export default connect()(Publishing)
+export default connect()(PublishingBrowser)
