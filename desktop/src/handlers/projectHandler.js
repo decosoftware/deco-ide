@@ -172,7 +172,6 @@ class ProjectHandler {
           respond(onSuccess(CREATE_NEW_PROJECT))
           bridge.send(setProject(payload.path, payload.tmp))
           this._createTemplateFolder()
-          this.createProjectSettingsTemplate(payload.path)
         })
         unsavedMap = {}
       }
