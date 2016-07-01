@@ -1,6 +1,6 @@
 {
   "name": "DecoIDE-Desktop",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "main": "build/app.js",
   "devDependencies": {
     "babel-core": "^6.7.2",

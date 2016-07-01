@@ -13,7 +13,7 @@ var $ = require('gulp-load-plugins')();
 var open = require('gulp-open');
 var runSequence = require('run-sequence');
 
-var BUILD_VERSION = "0.7.0";
+var BUILD_VERSION = "0.7.1";
 
 var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
