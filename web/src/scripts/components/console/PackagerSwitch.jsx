@@ -17,7 +17,7 @@
 
 import React, { Component } from 'react'
 
-import Switch from '../buttons/SwitchButton'
+import ToggleButton from 'react-toggle-button'
 
 const style = {
   container: {
@@ -26,7 +26,7 @@ const style = {
     marginRight: 11,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',    
+    justifyContent: 'center',
   },
   indicator: {
     width: 10,
@@ -50,10 +50,21 @@ class PackagerSwitch extends Component {
         <div style={style.termTitleText}>
           {this.props.isRunning ? 'Packager running' : 'Run packager'}
         </div>
-        <div style={{display: 'flex', alignSelf: 'center'}} onClick={this.props.onClick}>
-          <Switch checked={this.props.isRunning}/>
+        <div onMouseDown={this.props.onClick} onClick={(e) => {
+            e.stopPropagation()
+          }}>
+          <ToggleButton
+            value={this.props.isRunning}
+            colors={{
+              active: {
+                base: 'rgb(18, 80, 146)',
+              }
+            }}
+            inactiveLabelStyle={{
+              marginRight: 2,
+            }}
+            onToggle={() => { }} />
         </div>
-
       </div>
     )
   }
