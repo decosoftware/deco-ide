@@ -199,7 +199,7 @@ class ProcessHandler {
   onResumeSimulator(payload, respond) {
     // Only relaunches simulator if the Simulator.app is running and the controller's state has been preserved
     if (SimulatorController.isSimulatorRunning() && SimulatorController.lastUsedArgs() != null) {
-      try {
+      try {        
         SimulatorController.runSimulator()
         respond(onSuccess(RESUME_SIMULATOR))
       } catch (e) {
