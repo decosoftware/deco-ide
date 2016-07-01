@@ -4,11 +4,13 @@ var gulpFail = require('gulp-fail');
 var path = require('path');
 var webpack = require("webpack");
 var webpackProductionConfig = require("./webpack.production.config.js");
+var webpackDevConfig = require("./webpack.config.js");
 var ElectronPackager = require('electron-packager');
 var child_process = require('child_process');
 var fs = require('fs');
 var plist = require('plist');
 var $ = require('gulp-load-plugins')();
+var open = require('gulp-open');
 var runSequence = require('run-sequence');
 
 var BUILD_VERSION = "0.7.0";
@@ -16,6 +18,7 @@ var BUILD_VERSION = "0.7.0";
 var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
 var child = null
+var debug_child = null
 gulp.task('clean-pkg', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist')), "mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
 gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -rf " + (path.join(__dirname, './package/deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
@@ -108,6 +111,19 @@ gulp.task("build", function(callback) {
   });
 });
 
+gulp.task("build-dev", function(callback) {
+  return webpack(webpackDevConfig, function(err, stats) {
+    if (err) {
+      throw new gutil.PluginError("webpack:build", err);
+    }
+    gutil.log("[webpack:build]", stats.toString({
+      colors: true
+    }));
+    callback();
+  });
+});
+
+
 gulp.task('build-web', ['build', 'clean-pkg'], function(callback) {
   child_process.execSync('npm run build', {
     cwd: path.join(__dirname, '../web')
@@ -123,9 +139,40 @@ gulp.task("start", ["build"], function(callback) {
   });
 });
 
+gulp.task('debug', ['run-debug-processes'], function(callback) {
+  gulp.src(__filename)
+  .pipe(open({
+    uri: 'http://127.0.0.1:3000/?port=5858',
+    //TODO: needs to change for OS once we support other platforms
+    app: '/Applications/Google\ Chrome.app',
+  }))
+  callback()
+});
+
+gulp.task("run-debug-processes", ["build-dev"], function(callback) {
+  child = child_process.fork("" + (path.join(__dirname, './node_modules/.bin/electron')), ["--debug-brk=5858", __dirname, "--dev-mode"], {
+    cwd: __dirname,
+    env: process.env
+  });
+  debug_child = child_process.fork("" + (path.join(__dirname, './node_modules/.bin/electron')), [
+    "node_modules/node-inspector/bin/inspector.js",
+    "--web-port=3000",
+  ], {
+    cwd: __dirname,
+    env: Object.assign({},
+      process.env, {
+        ELECTRON_RUN_AS_NODE: true,
+      })
+  });
+  callback()
+})
+
 process.on('exit', function() {
   if (child != null && !child.killed) {
     child.kill();
+  }
+  if (debug_child != null && !debug_child.killed) {
+    debug_child.kill();
   }
 });
 

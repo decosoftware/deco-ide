@@ -12,8 +12,11 @@
     "gulp": "^3.8.11",
     "gulp-fail": "^1.0.1",
     "gulp-load-plugins": "^0.8.1",
+    "gulp-open": "^2.0.0",
     "gulp-shell": "^0.3.0",
     "gulp-util": "^3.0.4",
+    "node-inspector": "^0.12.8",
+    "node-pre-gyp": "^0.6.29",
     "plist": "^1.2.0",
     "run-sequence": "^1.2.1",
     "webpack": "^1.12.14"
@@ -21,6 +24,7 @@
   "scripts": {
     "start": "./node_modules/.bin/gulp start",
     "pack": "./node_modules/.bin/gulp pack",
+    "debug": "./node_modules/.bin/gulp debug",
     "copy-libs": "./node_modules/.bin/gulp dev-unpack-lib",
     "upgrade-project-template": "./node_modules/.bin/gulp upgrade-project-template"
   },
