@@ -21,6 +21,7 @@ const fs = require('fs')
 const path = require('path')
 const clinput = require('minimist')(process.argv.slice(2))
 const stripComments = require('./util/stripComments')
+const findXcodeProject = require('./util/findXcodeProject')
 
 let RUNNING_DEFAULT = false
 
@@ -198,6 +199,18 @@ if (clinput.r) {
   process.chdir(clinput.r)
 }
 
+const guessProjectName = (rootPath) => {
+  const defaultPath = path.join(rootPath, 'ios')
+  try {
+    fs.statSync(defaultPath)
+    const files = fs.readdirSync(defaultPath)
+    const projectFile = findXcodeProject(files).name
+    return path.basename(projectFile, path.extname(projectFile))
+  } catch (e) {
+    return path.basename(rootPath)
+  }
+}
+
 var CONFIG_FILE_NAME = 'configure.deco.js'
 var METADATA_DIR = '.deco'
 var SETTINGS_FILE_NAME = '.settings'
@@ -212,7 +225,7 @@ try {
 } catch (e) {
   try {
     const getDefaults = require(path.join(moduleWorkingDir, 'default.settings.js'))
-    const projectName = path.basename(process.cwd())
+    const projectName = guessProjectName(process.cwd())
     PROJECT_SETTING = getDefaults(projectName)
   } catch (e) {
 

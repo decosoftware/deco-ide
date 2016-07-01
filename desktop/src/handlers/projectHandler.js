@@ -50,6 +50,8 @@ import {
 import SimulatorController from '../process/simulatorController'
 import PackagerController from '../process/packagerController'
 
+import findXcodeProject from '../process/utils/findXcodeProject'
+
 import Logger from '../log/logger'
 
 let unsavedMap = {}
@@ -191,16 +193,29 @@ class ProjectHandler {
     }
   }
 
+  _guessProjectName(rootPath) {
+    const defaultPath = path.join(rootPath, 'ios')
+    try {
+      fs.statSync(defaultPath)
+      const files = fs.readdirSync(defaultPath)
+      const projectFile = findXcodeProject(files).name
+      return path.basename(projectFile, path.extname(projectFile))
+    } catch (e) {
+      return path.basename(rootPath)
+    }
+  }
+
   createProjectSettingsTemplate(rootPath) {
     return new Promise((resolve, reject) => {
       const metadataPath = path.join(rootPath, '.deco')
       const settingsFilePath = path.join(metadataPath, '.settings')
-      const assumedProjectName = path.basename(rootPath)
+      const assumedProjectName = this._guessProjectName(rootPath)
       try {
         fs.statSync(settingsFilePath)
         resolve(settingsFilePath)
       } catch (e) {
         if (e && e.code == 'ENOENT') {
+
           mkdirp(metadataPath, () => {
             try {
               fs.writeFileSync(settingsFilePath, PROJECT_SETTINGS_TEMPLATE(assumedProjectName), {
