@@ -15,6 +15,7 @@ fs.readdirSync('node_modules')
 module.exports = {
   entry: './src/main.js',
   target: 'atom',
+  devtool: 'inline-source-map',
   output: {
     path: path.join(__dirname, 'build'),
     filename: 'app.js'

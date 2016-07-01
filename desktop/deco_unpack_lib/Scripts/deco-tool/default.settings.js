@@ -19,7 +19,7 @@ var path = require('path')
 
 module.exports = function(projectName) {
   return {
-    iosTarget: path.join("ios/build/Build/Products/Debug-iphonesimulator/", projectName, ".app"),
+    iosTarget: path.join("ios/build/Build/Products/Debug-iphonesimulator/", projectName + ".app"),
     iosProject: path.join("ios", projectName + ".xcodeproj"),
     iosBuildScheme: projectName,
     androidManifest: path.join("android/app/src/main/AndroidManifest.xml"),

@@ -21,7 +21,7 @@ import SimpleButton from '../buttons/SimpleButton'
 
 const style = {
   width: '100%',
-  height: 32,
+  minHeight: 32,
   backgroundColor: 'rgb(180,58,60)',
   borderRight: '1px solid rgb(16,16,16)',
   position: 'relative',
@@ -30,11 +30,12 @@ const style = {
 }
 
 const textStyle = {
+  whiteSpace: 'pre-wrap',
   width: '100%',
   height: '100%',
-  overflow: 'hidden',
   padding: '0 10px',
   display: 'flex',
+  WebkitUserSelect: 'text',
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',

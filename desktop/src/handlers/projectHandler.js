@@ -54,16 +54,16 @@ import Logger from '../log/logger'
 
 let unsavedMap = {}
 
-const PROJECT_SETTINGS_TEMPLATE =`{
+const PROJECT_SETTINGS_TEMPLATE = (projectName) => `{
 
   // relative path from project root to the .app binary that is generated after building iOS
-  "iosTarget": "ios/build/Build/Products/Debug-iphonesimulator/Project.app",
+  "iosTarget": "ios/build/Build/Products/Debug-iphonesimulator/${projectName}.app",
 
   // relative path from project root to the xcode project or workspace file for iOS build
-  "iosProject": "ios/Project.xcodeproj",
+  "iosProject": "ios/${projectName}.xcodeproj",
 
   // scheme name to use when building in Deco
-  "iosBuildScheme": "Project",
+  "iosBuildScheme": "${projectName}",
 
   // relative path from project to the AndroidManifest.xml file for your application
   "androidManifest": "android/app/src/main/AndroidManifest.xml",
@@ -196,6 +196,7 @@ class ProjectHandler {
     return new Promise((resolve, reject) => {
       const metadataPath = path.join(rootPath, '.deco')
       const settingsFilePath = path.join(metadataPath, '.settings')
+      const assumedProjectName = path.basename(rootPath)
       try {
         fs.statSync(settingsFilePath)
         resolve(settingsFilePath)
@@ -203,7 +204,7 @@ class ProjectHandler {
         if (e && e.code == 'ENOENT') {
           mkdirp(metadataPath, () => {
             try {
-              fs.writeFileSync(settingsFilePath, PROJECT_SETTINGS_TEMPLATE, {
+              fs.writeFileSync(settingsFilePath, PROJECT_SETTINGS_TEMPLATE(assumedProjectName), {
                 mode: '755'
               })
               resolve(settingsFilePath)
@@ -249,13 +250,11 @@ class ProjectHandler {
     fs.stat(oldMetadataPath, (err, stats) => {
       if (err) {
         //project is clean
-        this.createProjectSettingsTemplate(rootPath)
         return
       }
 
       fs.stat(newMetadataPath, (err, stats) => {
         if (!err) {
-          this.createProjectSettingsTemplate(rootPath)
           return //project is current
         }
         if (err.code == 'ENOENT') {
