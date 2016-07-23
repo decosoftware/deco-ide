@@ -1,14 +1,14 @@
-<View> 
-  <Modal 
-    animated={true}
+<View>
+  <Modal
+    animationType={"slide"}
     transparent={false}
     visible={(this.state && this.state.modalVisible) || true }>
-    <View 
+    <View
       style={{
         flex: 1, 
-        backgroundColor: '#f5fcff', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
+        backgroundColor: '#f5fcff',
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: 20,
       }}>
       <Text>Hello Modal</Text>
