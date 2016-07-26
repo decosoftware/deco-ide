@@ -19,13 +19,12 @@ import _ from 'lodash'
 
 import DecoChange, {CHANGE_TYPE, } from './DecoChange'
 import DecoChangeFactory from '../../factories/editor/DecoChangeFactory'
-import DecoChangeTransformer from '../../utils/editor/DecoChangeTransformer'
 
 class DecoCompositeChange extends DecoChange {
 
   constructor(subChanges) {
     super()
-    this._subChanges = DecoChangeTransformer.flattenChanges(subChanges)
+    this._subChanges = this.flattenChanges(subChanges)
   }
 
   get type() {
@@ -57,6 +56,26 @@ class DecoCompositeChange extends DecoChange {
 
   clone() {
     return DecoCompositeChange.fromJSON(this.toJSON())
+  }
+
+  /**
+   * Flatten any DecoCompositeChanges, returning a list of DecoChanges with no
+   * DecoCompositeChanges.
+   *
+   * @param  {DecoChange[]} decoChanges
+   * @return {DecoChange[]}
+   */
+  flattenChanges(decoChanges, accumulator = []) {
+    _.each(decoChanges, (decoChange) => {
+      if (decoChange.type === CHANGE_TYPE.COMPOSITE) {
+        const subChanges = this.flattenChanges(decoChange.subChanges)
+        accumulator.push.apply(accumulator, subChanges)
+      } else {
+        accumulator.push(decoChange)
+      }
+    })
+
+    return accumulator
   }
 
 }

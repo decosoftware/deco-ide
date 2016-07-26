@@ -29,7 +29,6 @@ import {
   OPERATION_UNDO,
   OPERATION_REDO,
   DOC_ID_CHANGE,
-  HIGHLIGHT_LITERAL_TOKENS,
 } from '../actions/editorActions'
 
 const initialState = {
@@ -47,10 +46,6 @@ const editorReducer = (state = initialState, action) => {
     case OPERATION_UNDO:
     case OPERATION_REDO:
       return state
-    case HIGHLIGHT_LITERAL_TOKENS:
-      return Object.assign({}, state, {
-        highlightLiteralTokens: action.payload
-      })
     case CLEAR_EDITOR_STATE:
       _.each(state.docCache, (doc, id) => {
         delete state.docCache[id]
@@ -107,7 +102,7 @@ const editorReducer = (state = initialState, action) => {
           dirtyList: dirtyList,
         })
       }
-      return state 
+      return state
     case MARK_CLEAN:
       if (cache[action.id]) {
         cache = Object.assign({}, state.docCache)

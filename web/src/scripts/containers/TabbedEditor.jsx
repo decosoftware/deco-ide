@@ -25,7 +25,6 @@ import { HotKeys } from 'react-hotkeys'
 import EditorDropTarget from '../components/editor/EditorDropTarget'
 import HistoryMiddleware from '../middleware/editor/HistoryMiddleware'
 import TokenMiddleware from '../middleware/editor/TokenMiddleware'
-import DecoRangeMiddleware from '../middleware/editor/DecoRangeMiddleware'
 import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
 import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
@@ -155,8 +154,7 @@ class TabbedEditor extends Component {
       opacity: 0.8,
     }
 
-    const editorClassName = 'flex-variable editor ' +
-        (this.props.highlightLiteralTokens ? 'highlight' : '')
+    const editorClassName = 'flex-variable editor'
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
@@ -201,11 +199,11 @@ class TabbedEditor extends Component {
           {conditionallyRenderToast()}
           {
             this.props.decoDoc ? (
-              <EditorDropTarget className={editorClassName}
+              <EditorDropTarget
+                className={editorClassName}
                 ref='editor'
                 middleware={[
                   DragAndDropMiddleware(this.props.dispatch),
-                  DecoRangeMiddleware(this.props.dispatch),
                   HistoryMiddleware(this.props.dispatch),
                   TokenMiddleware(this.props.dispatch),
                   ClipboardMiddleware(this.props.dispatch, this.props.liveValuesById),
@@ -234,7 +232,7 @@ class TabbedEditor extends Component {
               this.props.dispatch(setConsoleVisibility(!this.props.consoleVisible))
             }}
             togglePackager={(isRunning) => {
-              if (isRunning) {                
+              if (isRunning) {
                 this.props.dispatch(stopPackager())
               } else {
                 this.props.dispatch(runPackager())

@@ -36,9 +36,9 @@ class CodeMirrorTextMarker {
     this._id = id
 
     this._className = CLASSNAME.DEFAULT
-    this._inclusiveLeft = false
-    this._inclusiveRight = false
-    this._atomic = true
+    this._inclusiveLeft = true
+    this._inclusiveRight = true
+    this._atomic = false
     this._collapsed = false
     this._clearOnEnter = false
     this._clearWhenEmpty = false
