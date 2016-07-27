@@ -56,7 +56,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
   }
 
   get code() {
-    return this.toJSON().code
+    return this.cmDoc.getValue()
   }
 
   set code(value) {
