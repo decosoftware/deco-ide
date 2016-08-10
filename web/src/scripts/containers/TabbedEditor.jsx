@@ -20,6 +20,9 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 
+const remote = Electron.remote
+const path = remote.require('path')
+
 import { HotKeys } from 'react-hotkeys'
 
 import EditorDropTarget from '../components/editor/EditorDropTarget'
@@ -180,14 +183,14 @@ class TabbedEditor extends Component {
           <TabContainer style={tabBarStyle}
             focusedTabId={this.props.focusedTabId}
             onFocusTab={(tabId) => {
-              this.props.dispatch(openFile(this.props.filesByTabId[tabId]))
+              this.props.dispatch(openFile(this.props.filesByTabId[tabId].path))
             }}
             onCloseTab={(tabId) => {
               this.props.dispatch(closeTabWindow(tabId))
             }}
             width={this.props.width}>
             {_.map(this.props.tabIds, (tabId) => {
-              const filename = this.props.filesByTabId[tabId].module
+              const filename = path.basename(tabId)
 
               return (
                 <Tab key={tabId}

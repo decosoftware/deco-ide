@@ -16,205 +16,61 @@
  */
 
 import _ from 'lodash'
+
 import {
-  CLEAR_FILE_STATE,
-  SET_TOP_DIR,
-  ADD_SUB_PATH,
-  BATCH_ADD_SUB_PATHS,
-  REMOVE_SUB_PATH,
-  REMOVE_SUB_PATH_BATCH,
-  SELECT_FILE,
-  CLEAR_SELECTIONS,
-  MARK_UNSAVED,
+  REGISTER_PATH,
+  REMOVE_REGISTERED_PATH,
   MARK_SAVED,
-  REPLACE_NODE,
-  FILE_ID_CHANGE,
-  SET_COLLAPSE_ON_NODE,
-  ADD_HIDDEN_FILE_ID,
+  MARK_UNSAVED,
+  CLEAR_FILE_STATE,
 } from '../actions/fileActions'
 
-import {
-  addNode,
-  removeNode,
-  updateSubTree,
-  updateSelected,
-  updateSaveStatus,
-  updateCollapsed,
-} from '../utils/treeDiff.js'
-
 const initialState = {
-  paths: {},
-  tree: {},
-  selected: {},
   filesById: {},
+  version: 0,  //necessary to update the file tree component
+  unsaved: {},
 }
 
 const fileReducer = (state = initialState, action) => {
+  const { payload } = action
   switch(action.type) {
-    case CLEAR_FILE_STATE:
-      return Object.assign({}, initialState)
-    case SET_TOP_DIR:
-      return Object.assign({}, state, {
-          rootPath: action.rootPath,
-          rootName: action.rootName,
-        })
-    case ADD_HIDDEN_FILE_ID:
+    case MARK_SAVED:
+      const newSavedState = {
+        ...state,
+      }
+      delete newSavedState.unsaved[action.id]
+      return newSavedState
+    case MARK_UNSAVED:
+      return {
+        ...state,
+        unsaved: {
+          ...state.unsaved,
+          ...payload,
+        }
+      }
+    case REGISTER_PATH:
       return {
         ...state,
         filesById: {
           ...state.filesById,
-          [action.fileInfo.id]: action.fileInfo
+          ...payload,
         }
       }
-    case ADD_SUB_PATH:
-      const addTree = addNode(
-        Object.assign({}, state.tree),
-        state.rootPath,
-        action.fileInfo
-      )
-      return Object.assign({}, state, {
-        tree: addTree, //tree diff only updates single paths
-        filesById: Object.assign({}, state.filesById, {
-          [action.fileInfo.id]: action.fileInfo,
-        })
-      })
-    case BATCH_ADD_SUB_PATHS:
-    {
-      const filesById = _.chain(action.paths)
-        .map('fileInfo')
-        .keyBy('id')
-        .value()
-      let batchTree = Object.assign({}, state.tree)
-      _.each(action.paths, (pathInfo) => {
-        batchTree = addNode(
-          batchTree,
-          state.rootPath,
-          pathInfo.fileInfo
-        )
-      })
-      return Object.assign({}, state, {
-        tree: batchTree,
-        filesById: Object.assign({}, state.filesById, filesById)
-      })
-    }
-    case REMOVE_SUB_PATH:
-    {
-      const removeTree = removeNode(
-        Object.assign({}, state.tree),
-        state.rootPath,
-        action.fileInfo
-      )
-      const filesById = Object.assign({}, state.filesById)
-      delete filesById[action.fileInfo.id]
-      return Object.assign({}, state, {
-        tree: removeTree,
-        filesById,
-      })
-    }
-    case REMOVE_SUB_PATH_BATCH:
-    {
-      let batchRemoveTree = Object.assign({}, state.tree)
-      const filesById = Object.assign({}, state.filesById)
-      _.each(action.paths, (pathInfo) => {
-        batchRemoveTree = removeNode(
-          batchRemoveTree,
-          state.rootPath,
-          pathInfo.fileInfo
-        )
-        delete filesById[pathInfo.fileInfo.id]
-      })
+    case REMOVE_REGISTERED_PATH:
+      const newRegisteredState = {
+        ...state,
+      }
+      delete newRegisteredState.filesById[action.filePath]
+      return newRegisteredState
+    case CLEAR_FILE_STATE:
+      return {
+        ...initialState,
+      }
+    default:
       return {
         ...state,
-        tree: batchRemoveTree,
-        filesById,
+        ...payload,
       }
-    }
-    case SELECT_FILE:
-      const newSelection = Object.assign({}, state.selected, {
-        [action.id]: true,
-      })
-      const updatedTree = updateSelected(
-        Object.assign({}, state.tree),
-        newSelection
-      )
-      return Object.assign({}, state, {
-        selected: newSelection,
-        tree: updatedTree,
-      })
-    case CLEAR_SELECTIONS:
-      return Object.assign({}, state, {
-        selected: {},
-      })
-    case SET_COLLAPSE_ON_NODE:
-      const newCollapseTree = updateCollapsed(
-        Object.assign({}, state.tree),
-        action.id,
-        action.collapsed
-      )
-      return Object.assign({}, state, {
-        tree: newCollapseTree,
-      })
-    case FILE_ID_CHANGE:
-      const changedUnsaved = state.unsaved
-      const changedSelection = state.selected
-      _.each(_.keys(changedUnsaved), (key) => {
-        if (key.includes(action.oldId)) {
-          const newSubId = key.replace(action.oldId, action.newId)
-          if (_.has(changedUnsaved, newSubId)) {
-            changedUnsaved[newSubId] = changedUnsaved[key]
-            delete changedUnsaved[key]
-          }
-        }
-      })
-      _.each(_.keys(changedSelection), (key) => {
-        if (key.includes(action.oldId)) {
-          const newSubId = key.replace(action.oldId, action.newId)
-          if (_.has(changedSelection, newSubId)) {
-            changedSelection[newSubId] = changedSelection[key]
-            delete changedSelection[key]
-          }
-        }
-      })
-      return Object.assign({}, state, {
-        unsaved: changedUnsaved,
-        selected: changedSelection,
-      })
-    case REPLACE_NODE:
-      const insertTree = updateSubTree(
-        Object.assign({}, state.tree),
-        state.rootPath,
-        action.node,
-        action.oldNode,
-      )
-      return Object.assign({}, state, {
-        tree: insertTree,
-      })
-    case MARK_SAVED:
-      const savedTree = updateSaveStatus(
-        Object.assign({}, state.tree),
-        action.id,
-        false
-      )
-      const newUnsaved = Object.assign({}, state.unsaved)
-      delete newUnsaved[action.id]
-      return Object.assign({}, state, {
-        tree: savedTree,
-        unsaved: newUnsaved,
-      })
-    case MARK_UNSAVED:
-      const unsavedTree = updateSaveStatus(
-        Object.assign({}, state.tree),
-        action.id,
-        true
-      )
-      return Object.assign({}, state, {
-        tree: unsavedTree,
-        unsaved: Object.assign({}, state.unsaved, {
-          [action.id]: true
-        }),
-      })
-    default:
-      return state
   }
 }
 

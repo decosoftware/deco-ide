@@ -24,6 +24,7 @@ const {
   OPEN_PROJECT_DIALOG,
   SAVE_AS_DIALOG,
   OPEN_PATH_CHOOSER_DIALOG,
+  CONFIRM_DELETE_DIALOG,
 } = WindowConstants
 
 export const openProjectDialog = (path) => {
@@ -44,5 +45,12 @@ export const openPathChooserDialog = (path) => {
   return {
     type: OPEN_PATH_CHOOSER_DIALOG,
     path: path,
+  }
+}
+
+export const confirmDeleteDialog = (shouldDelete) => {
+  return {
+    type: CONFIRM_DELETE_DIALOG,
+    shouldDelete: shouldDelete,
   }
 }

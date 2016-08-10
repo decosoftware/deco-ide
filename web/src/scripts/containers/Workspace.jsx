@@ -171,9 +171,8 @@ class Workspace extends Component {
                 }}>
                 <ProjectNavigator className={'subpixel-antialiased helvetica-smooth full-size-relative'}
                   style={projectNavigatorStyle}
-                  tree={this.props.directory.tree}
-                  rootName={this.props.directory.rootName || ''}
-                  selectedIds={this.props.directory.selected} />
+                  tree={this.props.directory.fileTree}
+                  version={this.props.directory.version}/>
                 <div
                   style={leftPaneBottomSectionContainerStyle}>
                   <Pane
