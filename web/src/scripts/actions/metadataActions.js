@@ -27,19 +27,19 @@ const {
 
 import LiveValueUtils from '../utils/metadata/LiveValueUtils'
 
-function _writeFileMetadata(id, rootPath, metadata) {
+function _writeFileMetadata(filePath, rootPath, metadata) {
   return {
     type: WRITE_FILE_METADATA,
-    id,
+    filePath,
     rootPath,
     metadata,
   }
 }
 
-const _deleteFileMetadata = (id, rootPath) => {
+const _deleteFileMetadata = (filePath, rootPath) => {
   return {
     type: DELETE_FILE_METADATA,
-    id,
+    filePath,
     rootPath,
   }
 }
@@ -68,17 +68,17 @@ export const saveMetadata = (fileId) => {
   }
 }
 
-function _getFileMetadata(path, rootPath) {
+function _getFileMetadata(filePath, rootPath) {
   return {
     type: GET_FILE_METADATA,
-    path,
+    filePath,
     rootPath,
   }
 }
 export const loadMetadata = (fileId) => {
   return (dispatch, getState) => {
     const rootPath = getState().directory.rootPath
-    return request(_getFileMetadata(fileId, rootPath)).then((payload) => {
+    return request(_getFileMetadata(fileId, rootPath)).then((payload) => {    
       const json = JSON.parse(payload.utf8Data)
       const output = {
         liveValues: LiveValueUtils.normalizeLiveValueMetadata(json.liveValues)

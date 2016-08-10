@@ -24,17 +24,17 @@ import LandingButton from '../buttons/LandingButton'
 import NewIcon from '../display/NewIcon'
 
 export default ({
-  node, scaffolds, onCreateSubFile, onCreateSubDir, onVisibilityChange, visible,
+  node, scaffolds, createFileScaffold, onVisibilityChange, visible,
 }) => {
   const scaffoldOptions = scaffolds.map(({name, id}) => {
     return {
       text: `New ${name}`,
-      action: () => onCreateSubFile(node, id),
+      action: () => createFileScaffold(node, id),
     }
   })
 
   const options = [
-    { text: 'New File', action: () => onCreateSubFile(node) },
+    { text: 'New File', action: () => createFileScaffold(node) },
     ...scaffoldOptions,
   ]
 

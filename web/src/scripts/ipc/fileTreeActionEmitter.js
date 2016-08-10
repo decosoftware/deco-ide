@@ -15,12 +15,15 @@
  *
  */
 
-import _ from 'lodash'
+import { updateFileTreeVersion, registerPath } from '../actions/fileActions'
+import { openFile } from '../actions/compositeFileActions'
 
-export default _.mapKeys([
-  'OPEN_PROJECT_DIALOG',
-  'SAVE_AS_DIALOG',
-  'OPEN_PATH_CHOOSER_DIALOG',
-  'RESIZE',
-  'CONFIRM_DELETE_DIALOG',
-])
+import { fileTreeController } from '../filetree'
+
+const fileTreeActionEmitter = (store) => {
+  fileTreeController.on('change', (args) => {
+    store.dispatch(updateFileTreeVersion(fileTreeController.tree.state.version))
+  })
+}
+
+export default fileTreeActionEmitter

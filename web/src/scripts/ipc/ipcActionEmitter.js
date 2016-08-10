@@ -36,17 +36,6 @@ import {
 } from '../actions/dialogActions'
 
 import {
-  addSubPath,
-  removeSubPath,
-  removeSubPathBatch,
-  fetchSubPath,
-  batchAddSubPaths,
-  markSaved,
-  clearFileState,
-  addHiddenFileId,
-} from '../actions/fileActions'
-
-import {
   cacheDoc,
   markClean,
   clearEditorState,
@@ -54,6 +43,7 @@ import {
   insertTemplate,
 } from '../actions/editorActions'
 
+import { updateFileTreeVersion } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 
 import {
@@ -119,14 +109,12 @@ import { ProcessStatus } from '../constants/ProcessStatus'
 
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { closeTabWindow } from '../actions/compositeFileActions'
+import { clearFileState, markSaved } from '../actions/fileActions'
 
 /**
  * Ties ipc listeners to actions
  */
 const ipcActionEmitter = (store) => {
-  ipc.on(ADD_SUB_PATH_BATCH, (evt, payload) => {
-    store.dispatch(batchAddSubPaths(payload))
-  })
 
   ipc.on(SET_PROJECT_DIR, (evt, payload) => {
     const rootPath = payload.absolutePath
@@ -177,21 +165,13 @@ const ipcActionEmitter = (store) => {
     store.dispatch(setPackagerStatus(status))
   })
 
-  ipc.on(REMOVE_SUB_PATH, (evt, payload) => {
-    store.dispatch(removeSubPath(payload))
-  })
-
-  ipc.on(REMOVE_SUB_PATH_BATCH, (evt, payload) => {
-    store.dispatch(removeSubPathBatch(payload))
-  })
-
   ipc.on(ON_FILE_DATA, (evt, payload) => {
     store.dispatch(cacheDoc(payload))
   })
 
   ipc.on(SAVE_SUCCESSFUL, (evt, payload) => {
-    store.dispatch(markClean(payload.id))
-    store.dispatch(markSaved(payload.id))
+    store.dispatch(markClean(payload.filePath))
+    store.dispatch(markSaved(payload.filePath))
   })
 
   ipc.on(SHOULD_TOGGLE_TERM, () => {
@@ -223,7 +203,8 @@ const ipcActionEmitter = (store) => {
   })
   ipc.on(OPEN_PROJECT_SETTINGS, (evt, obj) => {
     const { settingsInfo } = obj
-    store.dispatch(addHiddenFileId(settingsInfo))
+    // TODO how to handle this meow?
+    // store.dispatch(addHiddenFileId(settingsInfo))
     store.dispatch(openFile(settingsInfo))
   })
 

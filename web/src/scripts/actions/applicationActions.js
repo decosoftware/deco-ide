@@ -258,10 +258,10 @@ function _saveAsDialog(rootPath) {
   }
 }
 
-function _writeFileData(id, data) {
+function _writeFileData(filePath, data) {
   return {
     type: WRITE_FILE_DATA,
-    id,
+    filePath,
     data,
   }
 }
@@ -290,10 +290,7 @@ export const initializeProcessesForDir = (path) => {
     dispatch(setPackagerStatus(ProcessStatus.OFF))
     dispatch(getAvailableSimulators('ios'))
     dispatch(getAvailableSimulators('android'))
-
-    // if these were running, we restart and resume their operation
-    dispatch(resumePackager(path))
-    dispatch(resumeSimulator())
+  
     request({ type: GET_SYSTEM_PATHS }).then((response) => {
       dispatch(mergeSystemPreferences(response.payload)).then(() => {
         dispatch(savePreferences())
