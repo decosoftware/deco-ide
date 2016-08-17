@@ -162,50 +162,18 @@ html, body, #app {
 	}
 }
 
-$lv-bg: rgba(255,255,255,0.1);
-$lv-bg-active: rgba(255,255,255,0.15);
+$lv-bg: rgba(124, 217, 255, 0.11);
 
 .editor-lv {
-	padding-top: 2px;
-	padding-bottom: 2px;
+	padding-top: 1px;
+	padding-bottom: 1px;
 	font-weight: 500;
 
-	&:not(.editor-lv-start):not(.editor-lv-end) {
-		background-image: linear-gradient($lv-bg, $lv-bg), url('./images/live-value-cap-middle-start.svg'), url('./images/live-value-cap-middle-end.svg');
-		background-size: calc(100% - 6px) 100%, 3px 100%, 3px 100%;
-		background-position: center, left, right;
-		background-repeat: no-repeat, no-repeat, no-repeat;
-
-		&.editor-lv-active {
-			background-image: linear-gradient($lv-bg-active, $lv-bg-active), url('./images/live-value-cap-middle-start-active.svg'), url('./images/live-value-cap-middle-end-active.svg');
-			background-size: calc(100% - 6px) 100%, 3px 100%, 3px 100%;
-			background-position: center, left, right;
-			background-repeat: no-repeat, no-repeat, no-repeat;
-		}
-	}
+	background-color: $lv-bg;
+	border-bottom: 2px solid rgba(73, 195, 252, 0.9);
 
 	&.CodeMirror-matchingbracket {
 		background: $lv-bg;
-
-		&.editor-lv-active {
-			background: $lv-bg-active;
-		}
-	}
-}
-
-.editor-lv-start, .CodeMirror-matchingtag.editor-lv-start {
-	background: transparent url('./images/live-value-cap-start.svg') no-repeat center center;
-
-	&.editor-lv-active {
-		background: transparent url('./images/live-value-cap-start-active.svg') no-repeat center center;
-	}
-}
-
-.editor-lv-end, .CodeMirror-matchingtag.editor-lv-end {
-	background: transparent url('./images/live-value-cap-end.svg') no-repeat 0 0;
-
-	&.editor-lv-active {
-		background: transparent url('./images/live-value-cap-end-active.svg') no-repeat 0 0;
 	}
 }
 

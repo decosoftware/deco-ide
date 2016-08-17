@@ -43,14 +43,17 @@ import 'codemirror/keymap/sublime'
 import '../../utils/decoParserMode'
 import '../../utils/editor/ShowInvisiblesPlugin'
 
-class CodeMirrorComponent extends Component {
+export default class CodeMirrorComponent extends Component {
 
-  constructor(props) {
-    super(props)
-    this.state = {}
+  static propTypes = {
+    value: PropTypes.any,
   }
 
-  //PRIVATE METHODS
+  static defaultProps = {
+    options: {},
+    doc: new CodeMirror.Doc('javascript'),
+    style: {},
+  }
 
   _attachEventListeners(cm, listeners) {
     _.each(listeners, (listener) => {
@@ -167,35 +170,17 @@ class CodeMirrorComponent extends Component {
     }
   }
 
-  //RENDER FUNCTIONS
   render() {
-    let className = 'ReactCodeMirror'
-    if (this.props.isFocused) {
-      className += ' ReactCodeMirror--focused'
-    }
-    className += ' ' + this.props.className
+    const {style, className} = this.props
 
-    //default document is empty
     return (
-      <div ref='container' className={className} style={this.props.style}>
-        <textarea ref='codemirror' autoComplete='off' defaultValue={''}>
-        </textarea>
+      <div style={style} className={className}>
+        <textarea
+          ref={'codemirror'}
+          autoComplete={'off'}
+          defaultValue={''}
+        />
       </div>
     )
   }
-
 }
-
-CodeMirrorComponent.propTypes = {
-  value: PropTypes.any,
-}
-
-CodeMirrorComponent.defaultProps = {
-  options: {},
-  style: {},
-  isFocused: false,
-  className: '',
-  doc: new CodeMirror.Doc('javascript'),
-}
-
-export default CodeMirrorComponent

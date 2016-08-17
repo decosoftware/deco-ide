@@ -62,9 +62,10 @@ class Editor extends Component {
         style={this.props.style}
         ref='codemirror'
         doc={this.props.decoDoc && this.props.decoDoc.cmDoc}
-        options={this.props.options}        
+        options={this.props.options}
         eventListeners={eventListeners}
-        className={this.props.className}/>
+        className={this.props.className}
+      />
     )
   }
 }

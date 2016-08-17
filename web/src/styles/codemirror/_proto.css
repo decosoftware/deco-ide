@@ -3,10 +3,11 @@
 .cm-s-proto.CodeMirror {
     background: rgb(35,36,38);
     color: #f8f8f2;
-    line-height: 21px;
-    font-family: "Roboto Mono", monospace;
-    font-weight: 700;
+    line-height: 1.5em;
+    font-family: "Menlo", "Roboto Mono", monospace;
+    font-weight: 600;
     font-size: 12px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .cm-s-proto div.CodeMirror-selected {
@@ -28,6 +29,7 @@
 .cm-s-proto .CodeMirror-gutters {
     background: rgb(35,36,38);
     border-right: 0px;
+    padding-right: 4px;
 }
 
 .cm-s-proto .CodeMirror-guttermarker {
@@ -40,9 +42,7 @@
 
 .cm-s-proto .CodeMirror-linenumber {
     color: #505050;
-    padding: 0 3px 0 3px;
-    font-size: 10px;
-    line-height: 22px;
+    font-weight: 100;
 }
 
 .cm-s-proto .CodeMirror-cursor {

@@ -113,24 +113,6 @@ class CodeMirrorDocWrapper {
 
     delete this._cmTextMarkers[id]
   }
-
-  _setCMRangeAtomic(id, atomic) {
-    if (! this._cmTextMarkers[id]) {
-      throw new Error(`Cannot enter/exit - CMRange ${id} not in CMDoc`)
-    }
-
-    const cmTextMarker = this._cmTextMarkers[id]
-    cmTextMarker.atomic = atomic
-  }
-
-  enterCMRange(id) {
-    this._setCMRangeAtomic(id, false)
-  }
-
-  exitCMRange(id) {
-    this._setCMRangeAtomic(id, true)
-  }
-
 }
 
 export default CodeMirrorDocWrapper
