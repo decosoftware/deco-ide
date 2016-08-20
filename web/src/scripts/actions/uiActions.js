@@ -20,7 +20,7 @@ import _ from 'lodash'
 import request from '../ipc/Request'
 import LocalStorage from '../persistence/LocalStorage'
 import { LAYOUT_KEY, LAYOUT_FIELDS } from '../constants/LayoutConstants'
-import {RESIZE} from 'shared/constants/ipc/WindowConstants'
+import {RESIZE, CONFIRM_DELETE_DIALOG} from 'shared/constants/ipc/WindowConstants'
 
 const _saveWindowBounds = (uiState) => {
   const data = {
@@ -196,5 +196,14 @@ export const upgradeStatus = (status) => {
     payload: {
       status,
     }
+  }
+}
+
+export const confirmDelete = (deletePath) => {
+  return (dispatch, getState) => {
+    return request({
+      type: CONFIRM_DELETE_DIALOG,
+      deletePath,      
+    })
   }
 }

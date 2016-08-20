@@ -22,6 +22,7 @@ import thunk from 'redux-thunk'
 import rootReducer from '../reducers'
 import loggingMiddleware from './loggingMiddleware'
 import ipcActionEmitter from '../ipc/ipcActionEmitter'
+import fileTreeActionEmitter from '../ipc/fileTreeActionEmitter'
 import preferencesActionEmitter from '../persistence/preferencesActionEmitter'
 import layoutActionEmitter from '../persistence/layoutActionEmitter'
 import moduleActionEmitter from '../persistence/moduleActionEmitter'
@@ -33,6 +34,7 @@ export default function configureStore() {
   const store = createStore(rootReducer, enhancer)
   applyActionEmitters(store)(
     ipcActionEmitter,
+    fileTreeActionEmitter,
     preferencesActionEmitter,
     layoutActionEmitter,
     moduleActionEmitter

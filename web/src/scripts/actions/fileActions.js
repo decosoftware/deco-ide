@@ -16,171 +16,95 @@
  */
 
 import request from '../ipc/Request'
+import { fileTreeController } from '../filetree'
+
 import FileConstants from 'shared/constants/ipc/FileConstants'
 import ProjectConstants from 'shared/constants/ipc/ProjectConstants'
 const {
-  CREATE_FILE,
-  CREATE_DIRECTORY,
-  RENAME,
-  DELETE,
-  SHOW_IN_FINDER,
-  FETCH_SUB_PATH,
   WATCH_PATH,
+  SHOW_IN_FINDER,
 } = FileConstants
 const {
   SHARE_SAVE_STATUS,
 } = ProjectConstants
-
-import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
-const {
-  RUN_PACKAGER,
-} = ProcessConstants
-
-import {routeActions} from 'react-router-redux'
-
-import _ from 'lodash'
 
 const path = Electron.remote.require('path')
 function getPathRoot(absolutePath) {
   return path.basename(absolutePath)
 }
 
-export const ADD_HIDDEN_FILE_ID = 'ADD_HIDDEN_FILE_ID'
-export const addHiddenFileId = (fileInfo) => {
+export const SET_TOP_DIR = 'SET_TOP_DIR'
+export const _setTopDir = (rootPath) => {
   return {
-    type: ADD_HIDDEN_FILE_ID,
-    fileInfo,
+    type: SET_TOP_DIR,
+    payload: {
+      rootPath: rootPath,
+      rootName: getPathRoot(rootPath),
+    }
   }
 }
 
 export const CLEAR_FILE_STATE = 'CLEAR_FILE_STATE'
 export const clearFileState = () => {
-  return {
-    type: CLEAR_FILE_STATE,
-  }
+  return { type: CLEAR_FILE_STATE }
 }
 
-export const REMOVE_SUB_PATH = 'REMOVE_SUB_PATH'
-export const removeSubPath = (payload) => {
-  return {
-    type: REMOVE_SUB_PATH,
-    id: payload.id,
-    fileInfo: {
-      id: payload.id,
-      absolutePath: payload.absolutePathArray,
-    },
-  }
-}
-
-export const REMOVE_SUB_PATH_BATCH = 'REMOVE_SUB_PATH_BATCH'
-export const removeSubPathBatch = (payloads) => {
-  return {
-    type: REMOVE_SUB_PATH_BATCH,
-    paths: _.map(payloads.batch, (payload) => {
-      return {
-        id: payload.id,
-        fileInfo: {
-          id: payload.id,
-          absolutePath: payload.absolutePathArray,
-        },
-      }
-    }),
-  }
-}
-
-export const ADD_SUB_PATH = 'ADD_SUB_PATH'
-export const addSubPath = (payload) => {
-  const isLeaf = payload.fileType == 'dir'
-  return {
-    type: ADD_SUB_PATH,
-    id: payload.id,
-    fileInfo: {
-      id: payload.id,
-      module: payload.baseName,
-      absolutePath: payload.absolutePathArray,
-      fileType: payload.fileType,
-      isLeaf: isLeaf,
-    },
-  }
-}
-
-export const BATCH_ADD_SUB_PATHS = 'BATCH_ADD_SUB_PATH'
-export const batchAddSubPaths = (payloads) => {
-  return {
-    type: BATCH_ADD_SUB_PATHS,
-    paths: _.map(payloads.batch, (payload) => {
-      const isLeaf = payload.fileType == 'dir'
-      return {
-        id: payload.id,
-        fileInfo: {
-          id: payload.id,
-          module: payload.baseName,
-          absolutePath: payload.absolutePathArray,
-          fileType: payload.fileType,
-          isLeaf: isLeaf,
-        },
-      }
-    }),
-  }
-}
-
-export const SET_TOP_DIR = 'SET_TOP_DIR'
-export const _setTopDir = (rootPath) => {
-  return {
-    type: SET_TOP_DIR,
-    rootPath: rootPath,
-    rootName: getPathRoot(rootPath),
-  }
-}
-
-function _watchPath(rootPath) {
-  return {
-    type: WATCH_PATH,
-    rootPath,
-  }
-}
 export function setTopDir(rootPath) {
   return (dispatch) => {
-    const setProject = () => {
-      dispatch(_setTopDir(rootPath))
-      dispatch(fetchSubPath({
-        absolutePath: rootPath
-      }))
+    dispatch(_setTopDir(rootPath))
+    const reset = true
+    fileTreeController.setRootPath(rootPath, reset)
+  }
+}
+
+const _registerPath = (filePath, info) => {
+  return {
+    type: REGISTER_PATH,
+    payload: {
+      [filePath]: info
     }
-
-    request(_watchPath(rootPath)).then(() => {
-      setProject()
-    }).catch(() => {
-      request(_watchPath(rootPath)).then(() => {
-        setProject()
-      })
-    })
+  }
+}
+export const REGISTER_PATH = 'REGISTER_PATH'
+export const registerPath = (filePath) => {
+  return (dispatch, getState) => {
+    const _attemptRegister = (attempts) => {
+      if (attempts > 3) {
+        return
+      }
+      const info = {
+        ...fileTreeController.tree.get(filePath),
+      }
+      if (Object.keys(info).length == 0) {
+        setTimeout(() => {
+          _attemptRegister(attempts + 1)
+        }, 500)
+      } else {
+        dispatch(_registerPath(filePath, info))
+      }
+    }
+    _attemptRegister(0)
   }
 }
 
-export const SET_COLLAPSE_ON_NODE = 'SET_COLLAPSE_ON_NODE'
-export const setCollapseOnNode = (node, collapsed) => {
+export const REMOVE_REGISTERED_PATH = 'REMOVE_REGISTERED_PATH'
+export const removeRegisteredPath = (filePath) => {
   return {
-    type: SET_COLLAPSE_ON_NODE,
-    id: node.id,
-    collapsed: collapsed,
+    type: REMOVE_REGISTERED_PATH,
+    filePath,
   }
 }
 
-export const SELECT_FILE = 'SELECT_FILE'
-export const selectFile = (id) => {
+export const UPDATE_FILE_TREE_VERSION = 'UPDATE_FILE_TREE_VERSION'
+export const updateFileTreeVersion = (version) => {
   return {
-    type: SELECT_FILE,
-    id,
+    type: UPDATE_FILE_TREE_VERSION,
+    payload: {
+      version,
+    }
   }
 }
 
-export const CLEAR_SELECTIONS = 'CLEAR_SELECTIONS'
-export const clearSelections = () => {
-  return {
-    type: CLEAR_SELECTIONS,
-  }
-}
 
 function _updateSaveStatus(id, status) {
   return {
@@ -190,12 +114,25 @@ function _updateSaveStatus(id, status) {
   }
 }
 
+const _getFileById = (state, id) => {
+  return state.directory.filesById[id]
+}
+
+const _flipDirty = (state, id, dirty) => {
+  return {
+    ..._getFileById(state, id),
+    dirty,
+  }
+}
+
 export const MARK_UNSAVED = 'MARK_UNSAVED'
 export const markUnsaved = (id) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch({
       type: MARK_UNSAVED,
-      id: id,
+      payload: {
+        id
+      }
     })
     request(_updateSaveStatus(id, true))
   }
@@ -203,128 +140,24 @@ export const markUnsaved = (id) => {
 
 export const MARK_SAVED = 'MARK_SAVED'
 export const markSaved = (id) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch({
       type: MARK_SAVED,
-      id: id,
+      id,
     })
     request(_updateSaveStatus(id, false))
   }
 }
 
-export const FILE_ID_CHANGE = 'FILE_ID_CHANGE'
-export const fileIdChange = (oldId, newId) => {
-  return {
-    type: FILE_ID_CHANGE,
-    oldId,
-    newId,
-  }
-}
-
-export const REPLACE_NODE = 'REPLACE_NODE'
-export const replaceNode = (oldNode, node) => {
-  return {
-    type: REPLACE_NODE,
-    node,
-    oldNode,
-  }
-}
-
-function _createFile(id, filename, data) {
-  return {
-    type: CREATE_FILE,
-    id,
-    filename,
-    data,
-  }
-}
-export function createFile(fileInfo, filename, data) {
-  return (dispatch) => {
-    return request(_createFile(fileInfo.id, filename, data))
-  }
-}
-
-function _createDirectory(id, dirname) {
-  return {
-    type: CREATE_DIRECTORY,
-    id,
-    dirname,
-  }
-}
-export function createDirectory(fileInfo, dirname) {
-  return (dispatch) => {
-    request(_createDirectory(fileInfo.id, dirname))
-  }
-}
-
-function _rename(id, newName) {
-  return {
-    type: RENAME,
-    id,
-    newName,
-  }
-}
-export function rename(fileInfo, newName) {
-  return (dispatch) => {
-    return request(_rename(fileInfo.id, newName))
-  }
-}
-
-function _delete(id, fileType) {
-  return {
-    type: DELETE,
-    id,
-    fileType,
-  }
-}
-export function deleteNode(fileInfo) {
-  return (dispatch) => {
-    request(_delete(fileInfo.id, fileInfo.fileType))
-  }
-}
-
-function _showInFinder(id, fileType) {
+function _showInFinder(filePath) {
   return {
     type: SHOW_IN_FINDER,
-    id,
-    fileType,
+    filePath,
   }
 }
-export function showInFinder(fileInfo) {
+
+export function showInFinder(filePath) {
   return (dispatch) => {
-    request(_showInFinder(fileInfo.id, fileInfo.fileType))
-  }
-}
-
-function _fetchSubPath(path) {
-  return {
-    type: FETCH_SUB_PATH,
-    path,
-  }
-}
-
-// How many paths to add at a time in a subdirectory?
-// For perf of opening massive directories
-const BATCH_CHUNK_SIZE = 100
-const BATCH_CHUNK_DELAY = 250
-
-// thunk to handle async send, response to Application
-export function fetchSubPath(fileInfo) {
-  return (dispatch) => {
-    request(_fetchSubPath(fileInfo.absolutePath)).then((resp) => {
-      const {batch, type} = resp
-
-      const handleNextChunk = (rest) => {
-        const chunk = rest.slice(0, BATCH_CHUNK_SIZE)
-        dispatch(batchAddSubPaths({type, batch: chunk}))
-        if (rest.length > BATCH_CHUNK_SIZE) {
-          setTimeout(() => {
-            handleNextChunk(rest.slice(BATCH_CHUNK_SIZE))
-          }, BATCH_CHUNK_DELAY)
-        }
-      }
-
-      handleNextChunk(batch)
-    })
+    request(_showInFinder(filePath))
   }
 }

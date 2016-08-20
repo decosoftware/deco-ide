@@ -32,6 +32,8 @@
     "babel-core": "^6.4.0",
     "fs-plus": "^2.8.1",
     "json-loader": "^0.5.4",
+    "file-tree-server": "0.0.4",
+    "file-tree-server-transport-electron": "0.0.1",
     "jsonfile": "^2.2.3",
     "lodash": "^4.0.0",
     "mkdirp": "^0.5.1",
