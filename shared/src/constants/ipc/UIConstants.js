@@ -22,4 +22,5 @@ export default _.mapKeys([
   'PROGRESS_UPDATE',
   'PROGRESS_END',
   'UPGRADE_STATUS',
+  'CONFIRM_DELETE',
 ])

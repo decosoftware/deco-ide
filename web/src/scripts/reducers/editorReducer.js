@@ -80,7 +80,6 @@ const editorReducer = (state = initialState, action) => {
           delete cache[key]
         }
       })
-      console.log('doc id change')
       return Object.assign({}, state, {
         docCache: cache,
         openDocId: openDocId,

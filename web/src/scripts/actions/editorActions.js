@@ -92,9 +92,10 @@ export function cacheDoc(payload) {
           dispatch(markSaved(payload.id))
         }
       }
+      return
     //nothing in the cache, we create the doc
     } else {
-      dispatch(loadMetadata(payload.id)).then((metadata) => {
+      return dispatch(loadMetadata(payload.id)).then((metadata) => {
         const {decoRanges, liveValueIds, liveValuesById} = metadata.liveValues
         dispatch(setLiveValues(payload.id, liveValueIds, liveValuesById))
         dispatch(_cacheDoc(payload, decoRanges))
@@ -383,22 +384,22 @@ export const docIdChange = (oldId, newId) => {
   }
 }
 
-function _getFileData(path) {
+function _getFileData(filePath) {
   return {
     type: GET_FILE_DATA,
-    path,
+    filePath,
   }
 }
-export function openDocument(fileInfo) {
+export function openDocument(filePath) {
   return (dispatch, getState) => {
     const state = getState()
-    if (state.editor && state.editor.docCache && state.editor.docCache[fileInfo.id]) {
-      dispatch(setCurrentDoc(fileInfo.id))
+    if (state.editor && state.editor.docCache && state.editor.docCache[filePath]) {
+      dispatch(setCurrentDoc(filePath))
       return Promise.resolve()
     } else {
-      return request(_getFileData(fileInfo.absolutePath)).then((payload) => {
+      return request(_getFileData(filePath)).then((payload) => {
         dispatch(cacheDoc(payload))
-        dispatch(setCurrentDoc(payload.id))
+        return dispatch(setCurrentDoc(filePath))
       })
     }
   }

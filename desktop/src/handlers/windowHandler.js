@@ -32,6 +32,7 @@ import {
   openProjectDialog,
   saveAsDialog,
   openPathChooserDialog,
+  confirmDeleteDialog,
 } from '../actions/windowActions'
 import {
   onSuccess,
@@ -43,7 +44,10 @@ const {
   SAVE_AS_DIALOG,
   RESIZE,
   OPEN_PATH_CHOOSER_DIALOG,
+  CONFIRM_DELETE_DIALOG,
 } = WindowConstants
+
+import { INFO, QUESTION, } from '../constants/DecoDialog'
 
 import Logger from '../log/logger'
 
@@ -53,6 +57,14 @@ class WindowHandler {
     bridge.on(SAVE_AS_DIALOG, this.saveAsDialog.bind(this))
     bridge.on(RESIZE, this.resizeWindow.bind(this))
     bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
+    bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
+    bridge.on(CONFIRM_DELETE_DIALOG, this.showDeleteDialog.bind(this))
+  }
+
+  showDeleteDialog(payload, respond) {
+    const { deletePath } = payload
+    const shouldDelete = dialog.showMessageBox(QUESTION.confirmDeleteDialog(deletePath)) == 0
+    respond(confirmDeleteDialog(shouldDelete))
   }
 
   openProjectDialog(payload, respond) {
