@@ -24,7 +24,7 @@ const fileIconStyle = {
   marginRight: 6,
   position: 'relative',
   alignSelf: 'center',
-  top: -2,
+  top: -1,
   flex: '0 0 auto',
 }
 
