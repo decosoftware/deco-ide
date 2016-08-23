@@ -30,14 +30,7 @@ const COMPONENT_CACHE_FOLDER = '/com.decosoftware.Deco/cache'
 const TEMP_PROJECT_FOLDER = '/.Deco/tmp/Project'
 const TEMP_PROJECT_FOLDER_TEMPLATE = '/.Deco/tmp/.template.Project'
 const LIB_PROJECT_FOLDER = '/com.decosoftware.Deco/libs/Project'
-
-let PUBLIC_FOLDER = null
-
-if (global.__DEV__) {
-  PUBLIC_FOLDER = path.join(__dirname, '../../public')
-} else {
-  PUBLIC_FOLDER = path.join(__dirname, '../public')
-}
+const PUBLIC_FOLDER = path.join(__dirname, '../../public')
 
 module.exports = {
   RelativePaths: {
