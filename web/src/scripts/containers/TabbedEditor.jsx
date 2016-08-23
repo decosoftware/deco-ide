@@ -102,10 +102,11 @@ class TabbedEditor extends Component {
     this.props.dispatch(importComponent(item)).then((payload) => {
       fetchTemplateAndImportDependencies(
         item.dependencies,
-        item.template.text,
-        item.template.metadata,
+        item.template && item.template.text,
+        item.template && item.template.metadata,
         this.props.rootPath,
         this.props.npmRegistry,
+        item
       ).then(({text, metadata}) => {
         const {decoDoc} = this.props
 
