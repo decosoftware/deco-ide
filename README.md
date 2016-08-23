@@ -1,5 +1,7 @@
 ![Deco IDE](https://camo.githubusercontent.com/310b468e29288459ca36b1a54b3b311cf9e31bd4/68747470733a2f2f73332d75732d776573742d322e616d617a6f6e6177732e636f6d2f696d686f73742f4465636f4944454c6f676f25343032782e706e67)
 
+[![Build Status](https://travis-ci.org/decosoftware/deco-ide.svg?branch=master)](https://travis-ci.org/decosoftware/deco-ide) [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=38081366)](https://www.bountysource.com/teams/decosoftware/issues?tracker_ids=38081366) [![Slack Status](http://decoslackin.herokuapp.com/badge.svg)](http://decoslackin.herokuapp.com/) 
+
 ### The all-in-one solution for building React Native applications.
 
 You can get started right away on your React Native project by installing Deco and creating a new project — it's fast and there's no manual setup needed. File scaffolding handles your boilerplate. Ready-made components drop right into your code. Properties are graphically editable through the property inspector. It's an entirely new way to write, tweak, and re-use code.
