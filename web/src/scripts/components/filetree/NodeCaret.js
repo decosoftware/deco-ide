@@ -8,7 +8,9 @@ const caretStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  marginRight: 6,
+  marginRight: 5,
+  position: 'relative',
+  top: -2,
 }
 
 export default class extends Component {
