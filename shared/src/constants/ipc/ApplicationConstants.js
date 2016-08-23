@@ -19,4 +19,6 @@ import _ from 'lodash'
 
 export default _.mapKeys([
   'APPLICATION_UPGRADING',
+  'BROADCAST_PREFERENCES',
+  'GET_SYSTEM_PATHS',
 ])

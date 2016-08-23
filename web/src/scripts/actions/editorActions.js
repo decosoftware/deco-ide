@@ -25,7 +25,6 @@ const {
 
 import DecoChangeFactory from '../factories/editor/DecoChangeFactory'
 import DecoRange from '../models/editor/DecoRange'
-import DecoChangeTransformer from '../utils/editor/DecoChangeTransformer'
 import DecoRangeUtils from '../utils/editor/DecoRangeUtils'
 import DecoComponentUtils from '../utils/editor/DecoComponentUtils'
 import LiveValueUtils from '../utils/metadata/LiveValueUtils'
@@ -36,7 +35,7 @@ import { createHistory, addToHistory, undoFromHistory, redoToHistory } from './h
 import { setLiveValueIds, createLiveValue, setLiveValues, importLiveValues } from './liveValueActions'
 import { loadMetadata } from './metadataActions'
 import { save, saveLive } from './applicationActions'
-import { CATEGORIES, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 export const CLEAR_EDITOR_STATE = 'CLEAR_EDITOR_STATE'
 export const clearEditorState = () => {
@@ -93,9 +92,10 @@ export function cacheDoc(payload) {
           dispatch(markSaved(payload.id))
         }
       }
+      return
     //nothing in the cache, we create the doc
     } else {
-      dispatch(loadMetadata(payload.id)).then((metadata) => {
+      return dispatch(loadMetadata(payload.id)).then((metadata) => {
         const {decoRanges, liveValueIds, liveValuesById} = metadata.liveValues
         dispatch(setLiveValues(payload.id, liveValueIds, liveValuesById))
         dispatch(_cacheDoc(payload, decoRanges))
@@ -170,15 +170,10 @@ export function edit(id, decoChange) {
     const state = getState()
     const decoDoc = getCachedDecoDoc(state.editor.docCache, id)
 
-    const transformedChange = DecoChangeTransformer.transformDecoChange(
-      decoChange,
-      decoDoc.decoRanges
-    )
-
     // Get the code for all ranges, pre-edit
     const initialCodeForRanges = decoDoc.getCodeForDecoRanges()
 
-    decoDoc.edit(transformedChange)
+    decoDoc.edit(decoChange)
 
     // Get the code for all ranges, post-edit, and see if types differ
     const updatedCodeForRanges = decoDoc.getCodeForDecoRanges()
@@ -200,13 +195,13 @@ export function edit(id, decoChange) {
 
       // Combine both the text change and the range removal into one change
       const combinedChange = DecoChangeFactory.createCompositeChange([
-        transformedChange,
+        decoChange,
         removeBrokenRanges,
       ])
 
       dispatch(addToHistory(id, combinedChange))
     } else {
-      dispatch(addToHistory(id, transformedChange))
+      dispatch(addToHistory(id, decoChange))
     }
 
     dispatch(setLiveValuesForDoc(id, decoDoc))
@@ -252,20 +247,6 @@ export function redo(id) {
   }
 }
 
-export const HIGHLIGHT_LITERAL_TOKENS = 'HIGHLIGHT_LITERAL_TOKENS'
-export const enableTokenHighlighting = () => {
-  return {
-    type: HIGHLIGHT_LITERAL_TOKENS,
-    payload: true,
-  }
-}
-export const disableTokenHighlighting = () => {
-  return {
-    type: HIGHLIGHT_LITERAL_TOKENS,
-    payload: false,
-  }
-}
-
 export const SET_TEXT_FOR_RANGE = 'SET_TEXT_FOR_RANGE'
 export const setTextForDecoRange = (fileId, decoRangeId, text) => {
   return (dispatch, getState) => {
@@ -273,7 +254,7 @@ export const setTextForDecoRange = (fileId, decoRangeId, text) => {
     const cache = state.editor.docCache
     const decoDoc = getCachedDecoDoc(cache, fileId)
 
-    const decoRange = decoDoc.getDecoRange(decoRangeId).withoutWhitespace()
+    const decoRange = decoDoc.getDecoRange(decoRangeId)
     const originalCode = decoDoc.getCodeForDecoRange(decoRangeId)
 
     const decoChange = DecoChangeFactory.createChangeToSetText(
@@ -361,7 +342,7 @@ export const ADD_DECO_RANGE = 'ADD_DECO_RANGE'
 export const addDecoRangeFromCMToken = (id, cmToken) => {
   return (dispatch, getState) => {
     const decoDoc = getCachedDecoDoc(getState().editor.docCache, id)
-    const existingDecoRange = decoDoc.getDecoRangeForCMPos(cmToken.from)
+    const existingDecoRange = decoDoc.getDecoRangeForCMPos(cmToken.from, true)
 
     let decoChange
 
@@ -387,13 +368,8 @@ export const addDecoRangeFromCMToken = (id, cmToken) => {
       dispatch(createLiveValue(id, decoRangeId, text, rangeName, cmToken.type))
     }
 
-    const transformedChange = DecoChangeTransformer.transformDecoChange(
-      decoChange,
-      decoDoc.decoRanges
-    )
-
-    decoDoc.edit(transformedChange)
-    dispatch(addToHistory(id, transformedChange))
+    decoDoc.edit(decoChange)
+    dispatch(addToHistory(id, decoChange))
 
     dispatch(setLiveValuesForDoc(id, decoDoc))
   }
@@ -408,22 +384,22 @@ export const docIdChange = (oldId, newId) => {
   }
 }
 
-function _getFileData(path) {
+function _getFileData(filePath) {
   return {
     type: GET_FILE_DATA,
-    path,
+    filePath,
   }
 }
-export function openDocument(fileInfo) {
+export function openDocument(filePath) {
   return (dispatch, getState) => {
     const state = getState()
-    if (state.editor && state.editor.docCache && state.editor.docCache[fileInfo.id]) {
-      dispatch(setCurrentDoc(fileInfo.id))
+    if (state.editor && state.editor.docCache && state.editor.docCache[filePath]) {
+      dispatch(setCurrentDoc(filePath))
       return Promise.resolve()
     } else {
-      return request(_getFileData(fileInfo.absolutePath)).then((payload) => {
+      return request(_getFileData(filePath)).then((payload) => {
         dispatch(cacheDoc(payload))
-        dispatch(setCurrentDoc(payload.id))
+        return dispatch(setCurrentDoc(filePath))
       })
     }
   }

@@ -20,12 +20,14 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 
+const remote = Electron.remote
+const path = remote.require('path')
+
 import { HotKeys } from 'react-hotkeys'
 
 import EditorDropTarget from '../components/editor/EditorDropTarget'
 import HistoryMiddleware from '../middleware/editor/HistoryMiddleware'
 import TokenMiddleware from '../middleware/editor/TokenMiddleware'
-import DecoRangeMiddleware from '../middleware/editor/DecoRangeMiddleware'
 import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
 import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
@@ -37,16 +39,17 @@ import SearchMenu from '../components/menu/SearchMenu'
 import ComponentMenuItem from '../components/menu/ComponentMenuItem'
 import TabContainer from '../components/layout/TabContainer'
 import Tab from '../components/buttons/Tab'
+import EditorToast from '../components/editor/EditorToast'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
+import { stopPackager, runPackager, clearConfigError } from '../actions/applicationActions'
 import { importComponent, loadComponent } from '../actions/componentActions'
-import { insertComponent, clearCurrentDoc, insertTemplate } from '../actions/editorActions'
+import { insertComponent, insertTemplate } from '../actions/editorActions'
+import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
-import { closeTab, clearFocusedTab } from '../actions/tabActions'
-import { clearSelections } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
-import { CATEGORIES, METADATA, PREFERENCES } from '../constants/PreferencesConstants'
+import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
@@ -154,11 +157,21 @@ class TabbedEditor extends Component {
       opacity: 0.8,
     }
 
-    const editorClassName = 'flex-variable editor ' +
-        (this.props.highlightLiteralTokens ? 'highlight' : '')
+    const editorClassName = 'flex-variable editor'
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = this.props.npmRegistry && this.props.npmRegistry !== DEFAULT_NPM_REGISTRY
+    const conditionallyRenderToast = () => {
+      if (this.props.configError != '') {
+        return (
+          <EditorToast message={this.props.configError} onClose={() => {
+              this.props.dispatch(clearConfigError())
+            }}/>
+        )
+      } else {
+        return null
+      }
+    }
 
     return (
       <HotKeys handlers={this.keyHandlers} keyMap={this.keyMap}
@@ -170,23 +183,14 @@ class TabbedEditor extends Component {
           <TabContainer style={tabBarStyle}
             focusedTabId={this.props.focusedTabId}
             onFocusTab={(tabId) => {
-              this.props.dispatch(openFile(this.props.filesByTabId[tabId]))
+              this.props.dispatch(openFile(this.props.filesByTabId[tabId].path))
             }}
-            onCloseTab={(tabId, tabToFocus) => {
-              this.props.dispatch(closeTab(CONTENT_PANES.CENTER, tabId))
-
-              // If there's another tab to open, open the file for it
-              if (tabToFocus) {
-                this.props.dispatch(openFile(this.props.filesByTabId[tabToFocus]))
-              } else {
-                this.props.dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
-                this.props.dispatch(clearCurrentDoc())
-                this.props.dispatch(clearSelections())
-              }
+            onCloseTab={(tabId) => {
+              this.props.dispatch(closeTabWindow(tabId))
             }}
             width={this.props.width}>
             {_.map(this.props.tabIds, (tabId) => {
-              const filename = this.props.filesByTabId[tabId].module
+              const filename = path.basename(tabId)
 
               return (
                 <Tab key={tabId}
@@ -195,13 +199,14 @@ class TabbedEditor extends Component {
               )
             })}
           </TabContainer>
+          {conditionallyRenderToast()}
           {
             this.props.decoDoc ? (
-              <EditorDropTarget className={editorClassName}
+              <EditorDropTarget
+                className={editorClassName}
                 ref='editor'
                 middleware={[
                   DragAndDropMiddleware(this.props.dispatch),
-                  DecoRangeMiddleware(this.props.dispatch),
                   HistoryMiddleware(this.props.dispatch),
                   TokenMiddleware(this.props.dispatch),
                   ClipboardMiddleware(this.props.dispatch, this.props.liveValuesById),
@@ -224,9 +229,17 @@ class TabbedEditor extends Component {
           }
           <Console consoleOpen={this.props.consoleVisible}
             packagerOutput={this.props.packagerOutput}
+            packagerStatus={this.props.packagerStatus}
             initialScrollHeight={this.props.savedScrollHeight}
             toggleConsole={() => {
               this.props.dispatch(setConsoleVisibility(!this.props.consoleVisible))
+            }}
+            togglePackager={(isRunning) => {
+              if (isRunning) {
+                this.props.dispatch(stopPackager())
+              } else {
+                this.props.dispatch(runPackager())
+              }
             }}
             saveScrollHeight={(scrollHeight) => {
               this.props.dispatch(setConsoleScrollHeight(scrollHeight))
@@ -298,6 +311,7 @@ const mapStateToProps = (state, ownProps) => {
     componentList: state.modules.modules,
     consoleVisible: state.ui.consoleVisible,
     packagerOutput: state.application.packagerOutput,
+    packagerStatus: state.application.packagerStatus,
     savedScrollHeight: state.ui.scrollHeight,
     liveValuesById: state.metadata.liveValues.liveValuesById,
     focusedTabId: _.get(state, `ui.tabs.${CONTENT_PANES.CENTER}.focusedTabId`),
@@ -306,6 +320,7 @@ const mapStateToProps = (state, ownProps) => {
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
     npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
+    configError: state.application.configError,
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],

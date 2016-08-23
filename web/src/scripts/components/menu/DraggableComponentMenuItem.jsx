@@ -17,7 +17,6 @@
 
 import React, { Component, } from 'react'
 import { DragSource } from 'react-dnd'
-import _ from 'lodash'
 
 import ComponentMenuItem from './ComponentMenuItem'
 

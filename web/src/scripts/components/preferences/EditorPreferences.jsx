@@ -25,7 +25,7 @@ import SliderInput from '../input/SliderInput'
 import CheckboxInput from '../input/CheckboxInput'
 import ColorInput from '../input/ColorInput'
 
-import { PREFERENCES, METADATA, CATEGORIES } from '../../constants/PreferencesConstants'
+import { PREFERENCES, METADATA, CATEGORIES } from 'shared/constants/PreferencesConstants'
 
 const style = {
   display: 'flex',

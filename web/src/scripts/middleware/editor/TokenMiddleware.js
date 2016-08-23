@@ -18,8 +18,6 @@
 import CodeMirror from 'codemirror'
 
 import {
-  enableTokenHighlighting,
-  disableTokenHighlighting,
   addDecoRangeFromCMToken,
 } from '../../actions/editorActions'
 
@@ -43,10 +41,7 @@ class TokenMiddleware extends Middleware {
     super()
 
     this._keyMap = {
-      [CodeMirrorEventTypes.keyUp]: this._keyUp.bind(this),
-      [CodeMirrorEventTypes.keyDown]: this._keyDown.bind(this),
-      [CodeMirrorEventTypes.blur]: this._blur.bind(this),
-      [CodeMirrorEventTypes.mouseDown]: this._mouseDown.bind(this),
+      [CodeMirrorEventTypes.mouseDown]: this.mouseDown.bind(this),
     }
   }
 
@@ -54,39 +49,25 @@ class TokenMiddleware extends Middleware {
     return this._keyMap
   }
 
-  _keyDown(cm, e) {
-    if (e.altKey) {
-      this.dispatch(enableTokenHighlighting())
-    }
-  }
-
-  _keyUp(cm, e) {
-    this.dispatch(disableTokenHighlighting())
-  }
-
-  _blur(cm, e) {
-    this.dispatch(disableTokenHighlighting())
-  }
-
-  _getTokenAt(cm, pos, precise = false) {
+  getTokenAt(cm, pos, precise = false) {
     const nativeToken = cm.getTokenAt(pos, precise)
     return CodeMirrorToken.fromNativeToken(nativeToken, pos.line)
   }
 
-  _findNearestLiteralToken(cm, pos) {
-    let token = this._getTokenAt(cm, pos)
+  findNearestLiteralToken(cm, pos) {
+    let token = this.getTokenAt(cm, pos)
 
     // Clicks on the left side of a char (xRel === 1) identify the previous token.
     // If the token at `pos` is not interesting, try the next char.
     if (pos.xRel === 1 && token.type === '') {
       const nextPos = new CodeMirror.Pos(pos.line, pos.ch + 1)
-      token = this._getTokenAt(cm, pos)
+      token = this.getTokenAt(cm, pos)
     }
 
     return token
   }
 
-  _mouseDown(cm, e) {
+  mouseDown(cm, e) {
     if (e.altKey) {
       e.stopPropagation()
       e.preventDefault()
@@ -97,7 +78,7 @@ class TokenMiddleware extends Middleware {
       }
 
       const clickPos = cm.coordsChar(clickCoords, 'page')
-      const token = this._findNearestLiteralToken(cm, clickPos)
+      const token = this.findNearestLiteralToken(cm, clickPos)
 
       if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
         // console.log('click token', clickPos, token)

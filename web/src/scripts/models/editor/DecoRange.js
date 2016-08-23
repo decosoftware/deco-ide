@@ -31,14 +31,6 @@ class DecoRange extends CodeMirrorRange {
     return this._id
   }
 
-  withoutWhitespace() {
-    return new DecoRange(
-      this.id,
-      new Pos(this.from.line, this.from.ch + 1),
-      new Pos(this.to.line, this.to.ch - 1)
-    )
-  }
-
   /*** SERIALIZATION ***/
 
   toCMRange() {

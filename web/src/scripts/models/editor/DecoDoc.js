@@ -40,8 +40,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
     this._lock = new Lock()
     this._activeDecoRangeId = null
 
-    // Expand decoRanges and add them to the doc
-    DecoRangeUtils.expandDecoRanges(this, decoRanges)
+    decoRanges.forEach(this._addDecoRange.bind(this))
   }
 
   set id(newId) {
@@ -57,7 +56,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
   }
 
   get code() {
-    return this.toJSON().code
+    return this.cmDoc.getValue()
   }
 
   set code(value) {
@@ -165,40 +164,9 @@ class DecoDoc extends CodeMirrorDocWrapper {
     })
   }
 
-  getActiveDecoRange() {
-    return this.getDecoRange(this._activeDecoRangeId)
-  }
-
-  enterDecoRange(decoRange) {
-    if (this._activeDecoRangeId) {
-      if (this._activeDecoRangeId === decoRange.id) {
-        return
-      }
-
-      this.exitDecoRange()
-    }
-
-    // console.log('enter', decoRange.id)
-
-    this._activeDecoRangeId = decoRange.id
-    this.enterCMRange(decoRange.id)
-  }
-
-  exitDecoRange() {
-    if (! this._activeDecoRangeId) {
-      return
-    }
-
-    // console.log('exit', this._activeDecoRangeId)
-
-    this.exitCMRange(this._activeDecoRangeId)
-    this._activeDecoRangeId = null
-  }
-
   getCodeForDecoRanges() {
     return _.map(this.decoRanges, (decoRange) => {
-      const innerRange = decoRange.withoutWhitespace()
-      const codeWithinDecoRange = this.cmDoc.getRange(innerRange.from, innerRange.to)
+      const codeWithinDecoRange = this.getCodeForDecoRange(decoRange.id)
 
       return {
         code: codeWithinDecoRange,
@@ -209,9 +177,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
 
   getCodeForDecoRange(id) {
     const decoRange = this.getDecoRange(id)
-    const innerRange = decoRange.withoutWhitespace()
-
-    return this.cmDoc.getRange(innerRange.from, innerRange.to)
+    return this.cmDoc.getRange(decoRange.from, decoRange.to)
   }
 
   /*** SERIALIZATION ***/

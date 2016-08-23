@@ -31,6 +31,8 @@ import bridge from '../bridge'
 import {
   openProjectDialog,
   saveAsDialog,
+  openPathChooserDialog,
+  confirmDeleteDialog,
 } from '../actions/windowActions'
 import {
   onSuccess,
@@ -41,7 +43,11 @@ const {
   OPEN_PROJECT_DIALOG,
   SAVE_AS_DIALOG,
   RESIZE,
+  OPEN_PATH_CHOOSER_DIALOG,
+  CONFIRM_DELETE_DIALOG,
 } = WindowConstants
+
+import { INFO, QUESTION, } from '../constants/DecoDialog'
 
 import Logger from '../log/logger'
 
@@ -50,6 +56,15 @@ class WindowHandler {
     bridge.on(OPEN_PROJECT_DIALOG, this.openProjectDialog.bind(this))
     bridge.on(SAVE_AS_DIALOG, this.saveAsDialog.bind(this))
     bridge.on(RESIZE, this.resizeWindow.bind(this))
+    bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
+    bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
+    bridge.on(CONFIRM_DELETE_DIALOG, this.showDeleteDialog.bind(this))
+  }
+
+  showDeleteDialog(payload, respond) {
+    const { deletePath } = payload
+    const shouldDelete = dialog.showMessageBox(QUESTION.confirmDeleteDialog(deletePath)) == 0
+    respond(confirmDeleteDialog(shouldDelete))
   }
 
   openProjectDialog(payload, respond) {
@@ -66,6 +81,23 @@ class WindowHandler {
     }
 
     respond(openProjectDialog(selectedPaths[0]))
+  }
+
+  openPathChooserDialog(payload, respond) {
+    if (!payload.propertyType) payload.propertyType = 'openDirectory'
+    var selectedPaths = dialog.showOpenDialog(BrowserWindow.getFocusedWindow(), {
+      title: payload.title || 'Select Path',
+      properties: [payload.propertyType],
+      filter: [
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    })
+
+    if (! selectedPaths || selectedPaths.length === 0) {
+      return
+    }
+
+    respond(openPathChooserDialog(selectedPaths[0]))
   }
 
   _cleanBuildDirectory(projectPath) {

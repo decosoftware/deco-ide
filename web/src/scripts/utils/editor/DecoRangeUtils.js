@@ -119,51 +119,6 @@ class DecoRangeUtils {
   }
 
   /**
-   * Given a list of decoRanges, add them to the current cmDoc, expanding
-   * them to include leading and trailing whitespace. Assumes the cmDoc has no
-   * ranges in it.
-   *
-   * @param  {DecoDoc} decoDoc
-   * @param  {DecoRange[]} decoRanges
-   */
-  static expandDecoRanges(decoDoc, decoRanges) {
-    if (decoRanges.length === 0) {
-      return
-    }
-
-    // Ensure ranges are sorted, or positions will be off
-    const sortedRanges = _.sortBy(decoRanges, DECO_RANGE_SORTBY)
-    const rangeCountPerLine = {}
-
-    _.each(sortedRanges, (decoRange) => {
-
-      // Offset positions by other whitespace added
-      const rangeCount = rangeCountPerLine[decoRange.from.line] || 0
-      rangeCountPerLine[decoRange.from.line] = rangeCount + 1
-
-      const offsetRange = new DecoRange(
-        decoRange.id,
-        new Pos(decoRange.from.line, decoRange.from.ch + rangeCount * 2),
-        new Pos(decoRange.to.line, decoRange.to.ch + rangeCount * 2),
-      )
-
-      // Add whitespace (in reverse order, so positions don't change)
-      decoDoc.cmDoc.replaceRange(' ', offsetRange.to)
-      decoDoc.cmDoc.replaceRange(' ', offsetRange.from)
-
-      // Expand the range to include whitespace
-      const expandedRange = new DecoRange(
-        decoRange.id,
-        new Pos(decoRange.from.line, decoRange.from.ch + rangeCount * 2),
-        new Pos(decoRange.to.line, decoRange.to.ch + 2 + rangeCount * 2),
-      )
-
-      // Add the expanded range to the doc
-      decoDoc._addDecoRange(expandedRange)
-    })
-  }
-
-  /**
    * Return the cmDoc's code as a string, with whitespace removed. DecoRanges
    * returned do not have whitespace.
    *
@@ -175,77 +130,22 @@ class DecoRangeUtils {
   static collapseWhitespace(decoDoc, from = Pos.MIN, to = Pos.MAX) {
     const decoRanges = decoDoc.getDecoRanges(from, to)
 
-    if (decoRanges.length === 0) {
-      return {
-        code: decoDoc.cmDoc.getRange(from, to),
-        decoRanges: [],
-      }
-    }
+    const includedCode = decoDoc.cmDoc.getRange(from, to)
+    const includedRanges = []
 
-    const codeBlocks = []
-    const rangesWithoutWhitespace = []
+    decoRanges.forEach((decoRange) => {
 
-    const docStart = new DecoRange('sentinel', from, from)
-    const docEnd = new DecoRange('sentinel', to, to)
-    const iterableRanges = [docStart].concat(decoRanges).concat([docEnd])
-
-    const spaceCountPerLine = {}
-
-    for (let i = 0; i < iterableRanges.length - 1; i++) {
-      const decoRange = iterableRanges[i]
-
-      // If the decoRange is not a sentinel
-      if (decoRange.id !== 'sentinel') {
-
-        // Get the range within the whitespace
-        const innerRange = decoRange.withoutWhitespace()
-
-        // Compare the range to the selection, and only include the range if
-        // it's entirely selected. Each boundary has 1 extra space
-        let innerFrom = innerRange.from
-        let innerTo = innerRange.to
-        let fullyContained = true
-        let spaces = 2
-
-        if (N(innerRange.from) <= N(from)) {
-          innerFrom = from
-          fullyContained = false
-          spaces--
-        }
-
-        if (N(innerRange.to) >= N(to)) {
-          innerTo = to
-          fullyContained = false
-          spaces--
-        }
-
-        // Add code within the DecoRange
-        const codeWithinDecoRange = decoDoc.cmDoc.getRange(innerFrom, innerTo)
-        codeBlocks.push(codeWithinDecoRange)
-
-        const spaceCount = spaceCountPerLine[innerRange.from.line] || 0
-        spaceCountPerLine[innerRange.from.line] = spaceCount + spaces
-
-        if (fullyContained) {
-
-          // Create a new DecoRange without whitespace, offset by other whitespace deleted
-          rangesWithoutWhitespace.push(new DecoRange(
-            decoRange.id,
-            new Pos(decoRange.from.line, decoRange.from.ch - spaceCount),
-            new Pos(decoRange.to.line, decoRange.to.ch - spaceCount - 2),
-          ))
-        }
+      // Don't include this range unless its fully contained
+      if (N(decoRange.from) < N(from) || N(decoRange.to) > N(to)) {
+        return
       }
 
-      // Add code after this DecoRange and before the next
-      const nextDecoRange = iterableRanges[i + 1]
-      const codeUntilNextDecoRange = decoDoc.cmDoc.getRange(decoRange.to, nextDecoRange.from)
-      codeBlocks.push(codeUntilNextDecoRange)
-    }
+      includedRanges.push(decoRange)
+    })
 
     return {
-      code: codeBlocks.join(''),
-      decoRanges: _.invokeMap(rangesWithoutWhitespace, 'toJSON'),
+      code: includedCode,
+      decoRanges: _.invokeMap(includedRanges, 'toJSON'),
     }
   }
 

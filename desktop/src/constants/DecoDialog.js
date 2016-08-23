@@ -54,4 +54,13 @@ export const QUESTION = {
     buttons: ['Quit', 'Cancel',],
     icon: DecoIcon,
   },
+  confirmDeleteDialog: (pathToDelete) => {
+    return {
+      type: 'question',
+      message: 'Are you sure you want to delete the selected item?',
+      detail: `You are deleting ${pathToDelete}`,
+      buttons: ['Move to Trash', 'Cancel'],
+      icon: DecoIcon,
+    }
+  },
 }

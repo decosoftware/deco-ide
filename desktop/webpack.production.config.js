@@ -33,6 +33,9 @@ module.exports = {
   plugins: [
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin(),
+    new webpack.ExternalsPlugin('commonjs', [
+     'electron',
+   ]),
   ],
   module: {
     loaders: [
@@ -46,17 +49,5 @@ module.exports = {
       }
     ]
   },
-  externals: [
-    (function () {
-      var IGNORES = [
-        'electron'
-      ];
-      return function (context, request, callback) {
-        if (IGNORES.indexOf(request) >= 0) {
-          return callback(null, "require('" + request + "')");
-        }
-        return callback();
-      };
-    })(),
-  ].concat(nodeModules)
+  externals: nodeModules
 }

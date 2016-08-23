@@ -21,6 +21,7 @@ import _ from 'lodash'
 import { EventEmitter, } from 'events'
 import requestEmitter from './requestEmitter'
 
+import ApplicationConstants from 'shared/constants/ipc/ApplicationConstants'
 import FileConstants from 'shared/constants/ipc/FileConstants'
 import ComponentConstants from 'shared/constants/ipc/ComponentConstants'
 import ProcessConstants from 'shared/constants/ipc/ProcessConstants'
@@ -33,9 +34,11 @@ const {
   ERROR,
 } = ErrorConstants
 
+
 import Logger from '../log/logger'
 
 const REQUEST_TYPES = [
+  ApplicationConstants,
   FileConstants,
   ComponentConstants,
   ProcessConstants,
@@ -44,20 +47,30 @@ const REQUEST_TYPES = [
   ModuleConstants,
 ]
 
-function sendToRenderer(channel, payload) {
+function sendToRenderer(channel, payload, windowId) {
   if (!channel) {
     Logger.error('Channel was found broken', channel)
     return
   }
-  for (var id in global.openWindows) {
-
-    //for the moment, we assume only one instance of the app is running
-    if (!payload) {
-      payload = {} // not sure if this will cause problems when undefined or null
-    }
-
-    global.openWindows[id].webContents.send(channel, payload)
+  //for the moment, we assume only one instance of the app is running
+  if (!payload) {
+    payload = {} // not sure if this will cause problems when undefined or null
   }
+
+  if (windowId == 'preferences') {
+    try {
+      if (!global.preferencesWindow) return
+      global.preferencesWindow.webContents.send(channel, payload)
+    } catch (e) {
+      //the preferences window may not be open...
+      Logger.info('Warning: ', e)
+    }
+  } else {
+    for (var id in global.openWindows) {
+      global.openWindows[id].webContents.send(channel, payload)
+    }
+  }
+
 }
 
 class Bridge extends EventEmitter {
@@ -84,8 +97,8 @@ class Bridge extends EventEmitter {
     })
   }
 
-  send(payload) {
-    this._send(payload.type, payload)
+  send(payload, windowId) {
+    this._send(payload.type, payload, windowId)
   }
 
 }

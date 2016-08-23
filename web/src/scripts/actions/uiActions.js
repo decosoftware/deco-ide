@@ -20,7 +20,7 @@ import _ from 'lodash'
 import request from '../ipc/Request'
 import LocalStorage from '../persistence/LocalStorage'
 import { LAYOUT_KEY, LAYOUT_FIELDS } from '../constants/LayoutConstants'
-import {RESIZE} from 'shared/constants/ipc/WindowConstants'
+import {RESIZE, CONFIRM_DELETE_DIALOG} from 'shared/constants/ipc/WindowConstants'
 
 const _saveWindowBounds = (uiState) => {
   const data = {
@@ -38,6 +38,7 @@ const _saveLayout = (uiState) => {
     [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
     [LAYOUT_FIELDS.CONSOLE_VISIBLE]: uiState[LAYOUT_FIELDS.CONSOLE_VISIBLE],
     [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: uiState[LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM],
   }
   const saved = LocalStorage.loadObject(LAYOUT_KEY)
   LocalStorage.saveObject(LAYOUT_KEY, Object.assign({}, saved, data))
@@ -72,6 +73,14 @@ export function resizeWindow(spec) {
     })
   }
 }
+
+export const SET_SIMULATOR_MENU_PLATFORM = 'SET_SIMULATOR_MENU_PLATFORM'
+export const setSimulatorMenuPlatform  = saveLayout((platform) => {
+  return {
+    type: SET_SIMULATOR_MENU_PLATFORM,
+    payload: platform,
+  }
+})
 
 export const SET_LEFT_SIDEBAR_VISIBILITY = 'SET_LEFT_SIDEBAR_VISIBILITY'
 export const setLeftSidebarVisibility = saveLayout((visible) => {
@@ -187,5 +196,14 @@ export const upgradeStatus = (status) => {
     payload: {
       status,
     }
+  }
+}
+
+export const confirmDelete = (deletePath) => {
+  return (dispatch, getState) => {
+    return request({
+      type: CONFIRM_DELETE_DIALOG,
+      deletePath,      
+    })
   }
 }

@@ -23,6 +23,7 @@ import windowHandler from '../handlers/windowHandler'
 import processHandler from '../handlers/processHandler'
 import componentHandler from '../handlers/componentHandler'
 import moduleHandler from '../handlers/moduleHandler'
+import preferenceHandler from '../handlers/preferenceHandler'
 
 const handlers = [
   projectHandler,
@@ -31,6 +32,7 @@ const handlers = [
   componentHandler,
   fileHandler,
   moduleHandler,
+  preferenceHandler,
 ]
 
 export const registerHandlers = () => {
