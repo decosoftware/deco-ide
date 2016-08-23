@@ -27,7 +27,7 @@ const initialState = {
 }
 
 const REGISTRY_KEY = '__REGISTRY'
-const SCHEMA_VERSIONS_SUPPORTED = '0.0.1 || 0.0.2'
+const SCHEMA_VERSIONS_SUPPORTED = '0.0.1 || 0.0.2 || 0.0.3'
 
 const moduleReducer = (state = initialState, action) => {
   switch(action.type) {
