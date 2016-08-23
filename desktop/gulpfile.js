@@ -53,8 +53,7 @@ gulp.task('setup-pack-folder', ['build'], function(callback) {
   packagePath = path.join(__dirname, 'package');
   child_process.execSync('rm -rf ' + packagePath + '/*');
   child_process.execSync('mkdir -p ' + packagePath);
-  child_process.execSync('mkdir -p ' + path.join(packagePath, 'build'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'build/app.js') + ' ' + path.join(packagePath, 'build'));
+  child_process.execSync('cp -rf ' + path.join(__dirname, 'build') + ' ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
   child_process.execSync('rm -rf ' + path.join(__dirname, 'public', 'bundle.js.map'));
