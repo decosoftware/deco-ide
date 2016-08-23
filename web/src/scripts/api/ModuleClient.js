@@ -17,6 +17,7 @@
 
 import _ from 'lodash'
 import request from '../ipc/Request'
+import { createJSX } from '../factories/module/TemplateFactory'
 import TemplateCache from '../persistence/TemplateCache'
 import RegistryCache from '../persistence/RegistryCache'
 import {CACHE_STALE} from '../constants/CacheConstants'
@@ -47,7 +48,7 @@ export const fetchTemplateMetadata = (url) => {
   return FetchUtils.fetchResource(url).then((result) => result.json())
 }
 
-export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, path, registry) => {
+export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, path, registry, mod) => {
 
   if (deps && ! _.isEmpty(deps) && path) {
 
@@ -57,6 +58,12 @@ export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, p
 
     // TODO: consider waiting for npm install to finish
     importModule(depName, depVersion, path, registry)
+  }
+
+  // Starting with schemaVersion 0.0.3, the template is generated.
+  // TODO: Figure out where this goes
+  if (mod.schemaVersion === '0.0.3') {
+    return Promise.resolve({text: createJSX(mod)})
   }
 
   const performFetch = () => {
