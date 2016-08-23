@@ -25,6 +25,7 @@ const fileIconStyle = {
   position: 'relative',
   alignSelf: 'center',
   top: -1,
+  flex: '0 0 auto',
 }
 
 const folderIconStyle = {
@@ -41,7 +42,8 @@ const folderIconStyle = {
   marginLeft: 6,
   alignSelf: 'center',
   position: 'relative',
-  top: -1,
+  top: -2,
+  flex: '0 0 auto',
 }
 
 export default class Node extends Component {

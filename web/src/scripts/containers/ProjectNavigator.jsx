@@ -91,6 +91,7 @@ class ProjectNavigator extends Component {
         style={this.props.style}>
         <PaneHeader text={'Project'} />
         <FileTree
+          nodeHeight={24}
           onSelect={(e, node, nodeMetadata, index) => {
             const { path: nodePath, type } = node
             if (type == 'file') {

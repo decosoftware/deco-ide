@@ -34,7 +34,6 @@ const styles = {
     minHeight: 0,
     minWidth: 0,
     overflow: 'hidden',
-    flexWrap: 'no-wrap',
     position: 'relative',
   },
   autoSizerWrapper: {
@@ -57,18 +56,17 @@ const styles = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'stretch',
+    alignItems: 'center',
     minHeight: 0,
     minWidth: 0,
-    marginLeft: 6,
     cursor: 'default',
   },
   nodeText: {
-    color: 'rgb(63,63,63)',
     fontSize: 13,
     fontFamily: 'proxima-nova, "Helvetica Neue", Helvetica, Arial, sans-serif',
-    lineHeight: '40px',
-    height: 40,
+    WebkitFontSmoothing: 'antialiased',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   caret: {
     flex: '0 0 auto',
@@ -84,10 +82,11 @@ const styles = {
 
 export const getPaddedStyle = memoize((depth, selected, hover) => {
   return {
-    paddingLeft: depth * 20,
+    paddingLeft: 5 + depth * 20,
     ...styles.nodeContent,
-    backgroundColor: selected ? 'rgba(200,200,200,0.5)' :
-        hover ? 'rgba(200,200,200,0.1)' : 'rgb(252,252,252)',
+    backgroundColor: selected ? 'rgba(200,200,200,0.8)' :
+        hover ? 'rgba(200,200,200,0.3)' : 'transparent',
+    color: selected ? 'black' : 'rgb(63,63,63)',
   }
 })
 
