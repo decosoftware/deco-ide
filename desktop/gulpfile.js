@@ -117,6 +117,9 @@ function transform(params) {
   const sharedPackageSrc = path.join(sharedSrc, '../package.json')
   const sharedPackageDest = path.join(sharedDest, 'package.json')
   child_process.execSync("cp " + sharedPackageSrc + ' ' + sharedPackageDest)
+
+  // Copy node_modules
+  child_process.execSync("cp -rf node_modules build/")
 }
 
 gulp.task("build", function(callback) {
