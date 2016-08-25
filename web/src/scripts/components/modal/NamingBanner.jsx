@@ -61,7 +61,9 @@ class NamingBanner extends Component {
   }
   render() {
     return (
-      <div style={styles.container}>
+      <div
+        id={'naming-banner'}
+        style={styles.container}>
         <div
           className={'hbox flex-fixed'}
           style={styles.banner}>

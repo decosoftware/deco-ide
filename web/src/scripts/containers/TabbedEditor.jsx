@@ -223,6 +223,7 @@ class TabbedEditor extends Component {
         className={'vbox flex-variable full-size-relative'}
         style={{outline: 'none'}}>
         <div className={'vbox flex-variable full-size-relative'}
+          id={'tabbed-editor'}
           ref='position'
           style={this.props.style}>
           <TabContainer style={tabBarStyle}

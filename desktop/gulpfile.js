@@ -10,6 +10,7 @@ var $ = require('gulp-load-plugins')();
 var open = require('gulp-open');
 var runSequence = require('run-sequence');
 var fse = require('fs-extra');
+var mocha = require('gulp-mocha');
 
 var BUILD_VERSION = "0.7.1";
 
@@ -265,3 +266,18 @@ gulp.task('pack', [
   'electron-pack',
   'modify-plist',
   'dist']);
+
+gulp.task('test-integration', function() {
+  return gulp.src(['tests/setup.js', 'tests/integration/*.test.js'], { read: false })
+    .pipe(mocha({
+      reporter: 'progress',
+      timeout: 10000
+    }))
+    .once('error', (e) => {
+      console.log(e);
+      process.exit(1);
+    })
+    .once('end', () => {
+      process.exit();
+    });
+});

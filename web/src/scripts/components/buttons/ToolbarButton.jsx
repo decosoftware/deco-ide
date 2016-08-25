@@ -291,6 +291,7 @@ class ToolbarButton extends Component {
 
     return (
       <span className={this.props.className + ' vbox'}
+        id={this.props.id}
         style={style}
         onClick={this.props.onClick}>
         <div style={{width: width, height: 23}}
@@ -318,6 +319,7 @@ ToolbarButton.propTypes = {
   groupPosition: PropTypes.number,
   buttonState: PropTypes.number,
   theme: PropTypes.number,
+  id: PropTypes.string,
 }
 
 ToolbarButton.defaultProps = {

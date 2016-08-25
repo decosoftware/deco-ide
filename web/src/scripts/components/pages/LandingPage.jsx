@@ -101,7 +101,9 @@ const LandingPage = ({ onOpen, onCreateNew, recentProjects }) => {
         </div>
       </div>
       <div style={bottomStyle}>
-        <LandingButton onClick={onCreateNew}>
+        <LandingButton
+          id={'new-project'}
+          onClick={onCreateNew}>
           <NewIcon />
           New Project
         </LandingButton>
