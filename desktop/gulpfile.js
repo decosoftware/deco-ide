@@ -48,7 +48,7 @@ gulp.task('dist', ['modify-plist'], function(callback) {
   });
 });
 
-gulp.task('setup-pack-folder', ['build'], function(callback) {
+gulp.task('setup-pack-folder', ['build', 'build-web'], function(callback) {
   var packagePath;
   packagePath = path.join(__dirname, 'package');
   child_process.execSync('rm -rf ' + packagePath + '/*');
@@ -56,7 +56,6 @@ gulp.task('setup-pack-folder', ['build'], function(callback) {
   child_process.execSync('cp -rf ' + path.join(__dirname, 'build') + ' ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
-  child_process.execSync('rm -rf ' + path.join(__dirname, 'public', 'bundle.js.map'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'assets') + ' ' + packagePath);
