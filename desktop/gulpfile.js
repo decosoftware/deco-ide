@@ -2,9 +2,6 @@ var gulp = require('gulp');
 var gutil = require('gulp-util');
 var gulpFail = require('gulp-fail');
 var path = require('path');
-var webpack = require("webpack");
-var webpackProductionConfig = require("./webpack.production.config.js");
-var webpackDevConfig = require("./webpack.config.js");
 var ElectronPackager = require('electron-packager');
 var child_process = require('child_process');
 var fs = require('fs');
@@ -51,16 +48,14 @@ gulp.task('dist', ['modify-plist'], function(callback) {
   });
 });
 
-gulp.task('setup-pack-folder', ['build'], function(callback) {
+gulp.task('setup-pack-folder', ['build', 'build-web'], function(callback) {
   var packagePath;
   packagePath = path.join(__dirname, 'package');
   child_process.execSync('rm -rf ' + packagePath + '/*');
   child_process.execSync('mkdir -p ' + packagePath);
-  child_process.execSync('mkdir -p ' + path.join(packagePath, 'build'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'build/app.js') + ' ' + path.join(packagePath, 'build'));
+  child_process.execSync('cp -rf ' + path.join(__dirname, 'build') + ' ' + path.join(packagePath, 'build'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
-  child_process.execSync('rm -rf ' + path.join(__dirname, 'public', 'bundle.js.map'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'assets') + ' ' + packagePath);
@@ -99,30 +94,43 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
   });
 });
 
+// Apply babel transformation
+function transform(params) {
+  const sourceMaps = params && params.dev ? ' -s inline' : ''
+
+  // Get babel-cli binary from node_modules
+  const bin = path.join(__dirname, 'node_modules/.bin', 'babel')
+
+  function createCommand(src, dest, presets) {
+    return bin + ' ' + src + ' -d ' + dest + ' --presets ' + presets.join(',') + sourceMaps
+  }
+
+  // Transform src -> build
+  child_process.execSync(createCommand('src', 'build', ['es2015', 'stage-1']))
+
+  // Transform ../shared/src -> node_modules/shared
+  const sharedSrc = path.join(__dirname, '../shared/src')
+  const sharedDest = path.join(__dirname, 'node_modules/shared')
+  child_process.execSync(createCommand(sharedSrc, sharedDest, ['es2015']))
+
+  // Copy shared package.json so npm doesn't warn on npm install
+  const sharedPackageSrc = path.join(sharedSrc, '../package.json')
+  const sharedPackageDest = path.join(sharedDest, 'package.json')
+  child_process.execSync("cp " + sharedPackageSrc + ' ' + sharedPackageDest)
+
+  // Copy node_modules
+  child_process.execSync("cp -rf node_modules build/")
+}
+
 gulp.task("build", function(callback) {
-  return webpack(webpackProductionConfig, function(err, stats) {
-    if (err) {
-      throw new gutil.PluginError("webpack:build", err);
-    }
-    gutil.log("[webpack:build]", stats.toString({
-      colors: true
-    }));
-    callback();
-  });
-});
+  transform()
+  return callback()
+})
 
 gulp.task("build-dev", function(callback) {
-  return webpack(webpackDevConfig, function(err, stats) {
-    if (err) {
-      throw new gutil.PluginError("webpack:build", err);
-    }
-    gutil.log("[webpack:build]", stats.toString({
-      colors: true
-    }));
-    callback();
-  });
-});
-
+  transform({dev: true})
+  return callback()
+})
 
 gulp.task('build-web', ['build', 'clean-pkg'], function(callback) {
   child_process.execSync('npm run build', {
