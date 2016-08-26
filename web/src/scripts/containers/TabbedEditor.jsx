@@ -211,7 +211,7 @@ class TabbedEditor extends Component {
                   HistoryMiddleware(this.props.dispatch),
                   TokenMiddleware(this.props.dispatch),
                   ClipboardMiddleware(this.props.dispatch, this.props.liveValuesById),
-                  AutocompleteMiddleware(this.props.dispatch),
+                  AutocompleteMiddleware(this.props.dispatch, this.props.focusedTabId),
                   IndentGuideMiddleware(this.props.dispatch),
                 ]}
                 onImportItem={this.onImportItem.bind(this)}

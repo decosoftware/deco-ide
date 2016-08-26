@@ -15,11 +15,12 @@
  *
  */
 
-import CodeMirror from 'codemirror'
-
+const FlowController = Electron.remote.require('./process/flowController.js')
 import Middleware from '../Middleware'
 import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
+
+let completionActive = false
 
 /**
  * Middleware for showing autocompletions while typing
@@ -38,10 +39,32 @@ class AutocompleteMiddleware extends Middleware {
     return this._keyMap
   }
 
+  showHint(pos, wordToComplete) {
+    const {_filename: filename, _decoDoc: decoDoc} = this
+
+    FlowController.startServer()
+
+    return FlowController.getCompletion(decoDoc.code, pos, filename)
+      .then(completion => {
+
+        // Create completion list, filtering irrelevant completions
+        const list = completion.result
+          .map(item => item.name)
+          .filter(item => item.startsWith(wordToComplete))
+
+        return {
+          list,
+          from: new Pos(pos.line, pos.ch - wordToComplete.length),
+          to: pos,
+        }
+      })
+      .catch(e => console.log('Autocomplete error', e))
+  }
+
   _changes(cm, changes) {
 
     // Do nothing if popup is already open
-    if (cm.state.completionActive) {
+    if (completionActive) {
       return
     }
 
@@ -58,16 +81,21 @@ class AutocompleteMiddleware extends Middleware {
     if (range.empty()) {
       const textBefore = cm.getRange(new Pos(from.line, 0), from)
 
-      // Show popup if the user has typed at least 2 characters
-      if (textBefore.match(/[\w$]{2,}$/)) {
+      // Show popup if the user has typed at least 1 characters
+      const match = textBefore.match(/[\w$]{1,}$/)
+
+      if (match) {
         cm.showHint({
           completeSingle: false,
+          shown: () => completionActive = true,
+          close: () => completionActive = false,
+          hint: () => this.showHint(from, match[0]),
         })
       }
     }
   }
 
-  attach(decoDoc) {
+  attach(decoDoc, filename) {
     if (!decoDoc) {
       return
     }
@@ -87,7 +115,8 @@ class AutocompleteMiddleware extends Middleware {
 
 const middleware = new AutocompleteMiddleware()
 
-export default (dispatch) => {
+export default (dispatch, filename) => {
+  middleware._filename = filename
   middleware.setDispatchFunction(dispatch)
   return middleware
 }
