@@ -68,15 +68,9 @@ export const saveAs = () => {
   }
 }
 
-export const openProjectSettings = (settingsPathInfo) => {
+export const openProjectSettings = (settingsPath) => {
   return {
     type: OPEN_PROJECT_SETTINGS,
-    settingsInfo: {
-      fileType: 'file',
-      id: settingsPathInfo.id,
-      module: settingsPathInfo.baseName,
-      absolutePath: settingsPathInfo.absolutePathArray,
-      isLeaf: true,
-    }
+    settingsPath,
   }
 }

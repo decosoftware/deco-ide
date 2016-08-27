@@ -19,6 +19,7 @@
 
 import path from 'path'
 import child_process from 'child_process'
+// import fs from 'fs'
 
 import Electron, {
   dialog,
@@ -26,7 +27,6 @@ import Electron, {
 } from 'electron'
 import fs from 'fs-plus'
 
-import FileSystem from '../fs/fileSystem'
 import bridge from '../bridge'
 import {
   openProjectDialog,
@@ -134,10 +134,32 @@ class WindowHandler {
         child_process.spawnSync('rm', ['-rf', projectPath])
       }
 
-      const child = child_process.spawnSync('cp', ['-rf', currentPath, projectPath,])
+      // Initialize a directory, so at least something is there to open
+      // TODO: otherwise the file-tree-server will crash :(
+      fs.makeTreeSync(projectPath)
+      fs.list(currentPath, (err, childPathList) => {
+        // move the current subdirs and subfiles to the new save location
+        // this is fast and performant, yay!
+        childPathList.forEach((childPath) => {
+          const name = path.basename(childPath)
+          const newChildPath = path.join(projectPath, name)
+          child_process.spawnSync('mv', [childPath, newChildPath])
+        })
 
-      // We should clean build directories cache, since the path names will have changed
-      this._cleanBuildDirectory(projectPath)
+        // Copy back newly saved files to the old path
+        // This is slow and shitty, but who cares? The user don't.
+        fs.list(projectPath, (err, childPathList) => {
+          childPathList.forEach((newChildPath) => {
+            const name = path.basename(newChildPath)
+            const oldChildPath = path.join(currentPath, name)
+            child_process.spawn('cp', ['-rf', newChildPath, oldChildPath])
+          })
+        })
+
+        // We should clean build directories cache, since the path names will have changed
+        // TODO: update the AppDelegate.m and AppRegistry.js to reflect new project name??
+        this._cleanBuildDirectory(projectPath)
+      })
 
       respond(saveAsDialog(projectPath))
     } catch (e) {

@@ -15,7 +15,9 @@
  *
  */
 
+
 import fs from 'fs'
+import fse from 'fs-extra'
 import path from 'path'
 import child_process from 'child_process'
 
@@ -25,6 +27,10 @@ import {
 
 import {
   APP_SUPPORT,
+  INTERNAL_LIB_FOLDER,
+  EXTERNAL_LIB_FOLDER,
+  LIB_PROJECT_FOLDER,
+  TEMP_PROJECT_FOLDER_TEMPLATE,
 } from '../constants/DecoPaths'
 import bridge from '../bridge'
 import {
@@ -33,9 +39,97 @@ import {
 
 import Logger from '../log/logger'
 
-const UPGRADE_FILE = global.__DEV__ ? path.join(__dirname, '../Scripts/postinstall') : path.join(__dirname, '../../app.asar.unpacked/Scripts/postinstall')
-const DECO_SUDO = path.join(APP_SUPPORT, '/libs/binaries/Deco')
+const UPGRADE_FILE = path.join(INTERNAL_LIB_FOLDER, './Scripts/postinstall')
 const VERSION_FILE_PATH = path.join(APP_SUPPORT, '.deco.version')
+
+const INTERNAL_PROJECT_PATH = path.join(INTERNAL_LIB_FOLDER, 'Project')
+const INTERNAL_MODULES_TAR_GZ = path.join(INTERNAL_LIB_FOLDER, 'modules.tar.gz')
+const EXTERNAL_MODULES_TAR_GZ = path.join(EXTERNAL_LIB_FOLDER, 'modules.tar.gz')
+
+function run(generatorFunction, resolve, reject) {
+    var generatorItr = generatorFunction(resolve, reject, resume);
+    function resume(callbackValue) {
+      if (callbackValue) {
+        generatorItr.throw(callbackValue)
+      } else {
+        generatorItr.next();
+      }
+    }
+    generatorItr.next()
+}
+
+function removeProjectLib(resume) {
+  try {
+    fse.remove(LIB_PROJECT_FOLDER, () => resume())
+  } catch (e) {
+    Logger.error('Did not find an external project lib to remove during update')
+  }
+}
+
+function copyInternalProjectToLib(resume) {
+  fse.copy(INTERNAL_PROJECT_PATH, LIB_PROJECT_FOLDER, {clobber:true}, (err) => resume(err))
+}
+
+function removeModulesLib(resume) {
+  try {
+    fse.remove(EXTERNAL_MODULES_TAR_GZ, () => resume())
+  } catch (e) {
+    Logger.error('Did not find an external modules.tar.gz to remove during update.')
+  }
+}
+
+function copyModulesToLib(resume) {
+  fse.copy(INTERNAL_MODULES_TAR_GZ, EXTERNAL_MODULES_TAR_GZ, (err) => resume(err))
+}
+
+function unpackModulesIntoProjectLib(resume) {
+  const child = child_process.spawn('tar', ['-zxf', EXTERNAL_MODULES_TAR_GZ, '-C', LIB_PROJECT_FOLDER])
+  child.on('close', (code) => {
+    let err = code != 0 ? 'unpack modules failed with non-zero exit code': null
+    resume(err)
+  })
+}
+
+function removeTempProject(resume) {
+  try {
+    fse.remove(TEMP_PROJECT_FOLDER_TEMPLATE, () => resume())
+  } catch (e) {
+    Logger.error('Did not find a temp project folder to remove during update.')
+  }
+}
+
+function copyProjectLibToTemp(resume) {
+  fse.copy(LIB_PROJECT_FOLDER, TEMP_PROJECT_FOLDER_TEMPLATE, {clobber: true}, (err) => resume(err))
+}
+
+function writeUpdatedVersionFile(resume) {
+  fs.writeFile(VERSION_FILE_PATH, app.getVersion(), (err) => resume(err))
+}
+
+const upgradeChain = [
+  removeProjectLib,
+  copyInternalProjectToLib,
+  removeModulesLib,
+  copyModulesToLib,
+  unpackModulesIntoProjectLib,
+  removeTempProject,
+  copyProjectLibToTemp,
+  writeUpdatedVersionFile,
+]
+
+function* asyncUpgrade(resolve, reject, resume) {
+  try {
+    for(const fn of upgradeChain) {
+      yield fn(resume)
+    }
+  } catch (e) {
+    Logger.error(`upgrade error: ${e}`)
+    bridge.send(upgradeStatus('failed'))
+    reject(e)
+  }
+  resolve()
+  bridge.send(upgradeStatus('success'))
+}
 
 class UpgradeHandler {
   needsUpgrade() {
@@ -48,30 +142,15 @@ class UpgradeHandler {
       return true
     }
   }
-  _upgrade(resolve, reject) {
-    const opts = global.__DEV__ ? `dev ${path.join(__dirname, '../deco_unpack_lib')}` : 'upgrade'
-    const command = `\"${UPGRADE_FILE}\" ${opts}`
-    const execString = `do shell script \\\"${command}\\\" with administrator privileges`
-    child_process.exec(`\"${DECO_SUDO}\" -e "${execString}"`, {env: process.env}, (err, stdout, stderr) => {
-      if (err !== null) {
-        Logger.error(`upgrade stderr: ${stderr}`)
-        Logger.error(`upgrade error: ${err}`)
-        bridge.send(upgradeStatus('failed'))
-        reject()
-        return
-      }
+
+  upgrade() {
+    return new Promise((resolve, reject) => {
       try {
-        bridge.send(upgradeStatus('success'))
-        resolve()
+        run(asyncUpgrade, resolve, reject)
       } catch (e) {
-        Logger.error(e)
-        bridge.send(upgradeStatus('failed'))
-        reject()
+        reject(e)
       }
     })
-  }
-  upgrade() {
-    return new Promise(this._upgrade.bind(this))
   }
 }
 
