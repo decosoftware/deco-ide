@@ -25,6 +25,7 @@ import {
 
 import {
   APP_SUPPORT,
+  UNPACK_FOLDER,
 } from '../constants/DecoPaths'
 import bridge from '../bridge'
 import {
@@ -33,8 +34,7 @@ import {
 
 import Logger from '../log/logger'
 
-const UPGRADE_FILE = global.__DEV__ ? path.join(__dirname, '../Scripts/postinstall') : path.join(__dirname, '../../app.asar.unpacked/Scripts/postinstall')
-const DECO_SUDO = path.join(APP_SUPPORT, '/libs/binaries/Deco')
+const UPGRADE_FILE = path.join(UNPACK_FOLDER, './Scripts/postinstall')
 const VERSION_FILE_PATH = path.join(APP_SUPPORT, '.deco.version')
 
 class UpgradeHandler {
@@ -49,26 +49,29 @@ class UpgradeHandler {
     }
   }
   _upgrade(resolve, reject) {
-    const opts = global.__DEV__ ? `dev ${path.join(__dirname, '../deco_unpack_lib')}` : 'upgrade'
-    const command = `\"${UPGRADE_FILE}\" ${opts}`
-    const execString = `do shell script \\\"${command}\\\" with administrator privileges`
-    child_process.exec(`\"${DECO_SUDO}\" -e "${execString}"`, {env: process.env}, (err, stdout, stderr) => {
-      if (err !== null) {
-        Logger.error(`upgrade stderr: ${stderr}`)
-        Logger.error(`upgrade error: ${err}`)
-        bridge.send(upgradeStatus('failed'))
-        reject()
-        return
-      }
-      try {
-        bridge.send(upgradeStatus('success'))
-        resolve()
-      } catch (e) {
-        Logger.error(e)
-        bridge.send(upgradeStatus('failed'))
-        reject()
-      }
-    })
+    //TODO: come back later and fix upgrade process
+    resolve()
+
+    // const opts = global.__DEV__ ? `dev ${path.join(__dirname, '../libs')}` : 'upgrade'
+    // const command = `\"${UPGRADE_FILE}\" ${opts}`
+    // const execString = `do shell script \\\"${command}\\\" with administrator privileges`
+    // child_process.exec(`\"${DECO_SUDO}\" -e "${execString}"`, {env: process.env}, (err, stdout, stderr) => {
+    //   if (err !== null) {
+    //     Logger.error(`upgrade stderr: ${stderr}`)
+    //     Logger.error(`upgrade error: ${err}`)
+    //     bridge.send(upgradeStatus('failed'))
+    //     reject()
+    //     return
+    //   }
+    //   try {
+    //     bridge.send(upgradeStatus('success'))
+    //     resolve()
+    //   } catch (e) {
+    //     Logger.error(e)
+    //     bridge.send(upgradeStatus('failed'))
+    //     reject()
+    //   }
+    // })
   }
   upgrade() {
     return new Promise(this._upgrade.bind(this))

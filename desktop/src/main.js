@@ -35,10 +35,10 @@ import os from 'os'
 import child_process from 'child_process'
 
 //DECO APP REQUIRES
-var WindowManager = require('./window/windowManager.js')
-var MenuHandler = require('./menu/menuHandler.js')
-var Model = require('./fs/model.js')
-var Logger = require('./log/logger.js')
+import WindowManager from './window/windowManager'
+import MenuHandler from './menu/menuHandler'
+import systemPathInitializer from './fs/systemPathInitializer'
+import Logger from './log/logger'
 
 import { registerHandlers, } from './handlers'
 
@@ -57,20 +57,20 @@ app.on('window-all-closed', function() {
 var conditionallyAddWatchmanToPath = function() {
   // conditionally switch on our custom watchman instance
   let foundWatchman = false
-  try {
-    const result = child_process.spawnSync('watchman', ['version'], {
-      env: process.env
-    })
-
-    if (result && result.stdout && result.stdout.toString().length > 0) {
-      foundWatchman = true
-    }
-  } catch (e) {
-    // something went wrong, so we'll fallback to our own
-  }
-  if (!foundWatchman) {
-    process.env.PATH = process.env.PATH + ":" + '/usr/local/Deco/watchman'
-  }
+  // try {
+  //   const result = child_process.spawnSync('watchman', ['version'], {
+  //     env: process.env
+  //   })
+  //
+  //   if (result && result.stdout && result.stdout.toString().length > 0) {
+  //     foundWatchman = true
+  //   }
+  // } catch (e) {
+  //   // something went wrong, so we'll fallback to our own
+  // }
+  // if (!foundWatchman) {
+  //   process.env.PATH = process.env.PATH + ":" + '/usr/local/Deco/watchman'
+  // }
 }
 
 // This method will be called when Electron has finished
@@ -85,7 +85,7 @@ app.on('ready', function() {
   Logger.info('Deco initializing...')
 
   //initialize & validate the app data directory on launch
-  Model.init()
+  systemPathInitializer.init()
   //listen for ipc calls from renderer engine
   registerHandlers()
 
@@ -112,7 +112,8 @@ app.on('ready', function() {
     } catch (e) {
       Logger.error(e)
     }
-  }).catch(() => {
-    app.exit(0)
+  }).catch((e) => {
+    Logger.error('Fatal Error', e)
+    app.exit(1)
   })
 })

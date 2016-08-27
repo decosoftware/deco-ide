@@ -66,16 +66,10 @@ export const shouldCloseTab = () => {
   }
 }
 
-export const openFile = (fileInfo) => {
+export const openFile = (filePath) => {
   return {
     type: OPEN_FILE,
-    fileInfo: {
-      fileType: 'file',
-      id: fileInfo.id,
-      module: fileInfo.baseName,
-      absolutePath: fileInfo.absolutePathArray,
-      isLeaf: true,
-    }
+    filePath,
   }
 }
 

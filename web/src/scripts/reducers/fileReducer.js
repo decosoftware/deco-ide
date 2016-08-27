@@ -41,11 +41,12 @@ const fileReducer = (state = initialState, action) => {
       delete newSavedState.unsaved[action.id]
       return newSavedState
     case MARK_UNSAVED:
+      console.log('marking unsaved', payload)
       return {
         ...state,
         unsaved: {
           ...state.unsaved,
-          ...payload,
+          [payload.id]: true,
         }
       }
     case REGISTER_PATH:

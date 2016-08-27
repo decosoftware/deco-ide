@@ -17,13 +17,20 @@
 
 'use strict'
 
-const path = require('path')
+import path from 'path'
+import { app } from 'electron'
 
-const FileSystem = require('../fs/fileSystem.js')
+const getPath = function(pathType, relativePath) {
+  const userPath = app.getPath(pathType)
+  return path.join(userPath, relativePath)
+}
+const getAppPath = getPath.bind(null, 'appData');
+const getTmpPath = getPath.bind(null, 'temp');
+const getHomePath = getPath.bind(null, 'home');
+
 const Logger = require('../log/logger')
 
 const ROOT_FOLDER = '/com.decosoftware.Deco'
-const PROJECT_ROOT_FOLDER = '/com.decosoftware.Deco/ProjectInfo'
 const LIB_FOLDER = '/com.decosoftware.Deco/libs'
 const BINARIES_FOLDER = '/com.decosoftware.Deco/libs/binaries'
 const COMPONENT_CACHE_FOLDER = '/com.decosoftware.Deco/cache'
@@ -31,22 +38,17 @@ const TEMP_PROJECT_FOLDER = '/.Deco/tmp/Project'
 const TEMP_PROJECT_FOLDER_TEMPLATE = '/.Deco/tmp/.template.Project'
 const LIB_PROJECT_FOLDER = '/com.decosoftware.Deco/libs/Project'
 const PUBLIC_FOLDER = path.join(__dirname, '../../public')
+const UNPACK_FOLDER = path.join(__dirname, '../../libs')
 
 module.exports = {
-  RelativePaths: {
-    ROOT_FOLDER: ROOT_FOLDER,
-    PROJECT_ROOT_FOLDER: PROJECT_ROOT_FOLDER,
-    LIB_FOLDER: LIB_FOLDER,
-    BINARIES_FOLDER: BINARIES_FOLDER,
-    COMPONENT_CACHE_FOLDER: COMPONENT_CACHE_FOLDER,
-  },
-  PUBLIC_FOLDER: PUBLIC_FOLDER,
-  APP_SUPPORT: FileSystem.getAppPath(ROOT_FOLDER),
-  LIB_FOLDER: FileSystem.getAppPath(LIB_FOLDER),
-  BINARIES_FOLDER: FileSystem.getAppPath(BINARIES_FOLDER),
-  TMP_FOLDER: FileSystem.getTmpPath(ROOT_FOLDER),
-  CACHE_FOLDER: FileSystem.getAppPath(COMPONENT_CACHE_FOLDER),
-  TEMP_PROJECT_FOLDER: FileSystem.getHomePath(TEMP_PROJECT_FOLDER),
-  LIB_PROJECT_FOLDER: FileSystem.getAppPath(LIB_PROJECT_FOLDER),
-  TEMP_PROJECT_FOLDER_TEMPLATE: FileSystem.getHomePath(TEMP_PROJECT_FOLDER_TEMPLATE),
+  PUBLIC_FOLDER,
+  UNPACK_FOLDER,
+  APP_SUPPORT: getAppPath(ROOT_FOLDER),
+  LIB_FOLDER: getAppPath(LIB_FOLDER),
+  BINARIES_FOLDER: path.join(UNPACK_FOLDER, '/binaries'),
+  TMP_FOLDER: getTmpPath(ROOT_FOLDER),
+  CACHE_FOLDER: getAppPath(COMPONENT_CACHE_FOLDER),
+  LIB_PROJECT_FOLDER: getAppPath(LIB_PROJECT_FOLDER),
+  TEMP_PROJECT_FOLDER: getHomePath(TEMP_PROJECT_FOLDER),
+  TEMP_PROJECT_FOLDER_TEMPLATE: getHomePath(TEMP_PROJECT_FOLDER_TEMPLATE),
 }
