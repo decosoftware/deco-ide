@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { spawn, } from 'child_process'
 import fileHandler from '../handlers/fileHandler'
+import BufferedProcess from './bufferedProcess'
 
 class FlowController {
 
@@ -60,7 +61,7 @@ class FlowController {
     return child
   }
 
-  async startServer() {
+  startServer() {
     const {server, currentDirectory} = this
     const root = fileHandler.getWatchedPath()
 
@@ -103,7 +104,27 @@ class FlowController {
     return path.join(root, 'node_modules/.bin/flow')
   }
 
-  executeCommand(command, input, pos, cwd, filename) {
+  getFlowConfigVersion() {
+    const root = fileHandler.getWatchedPath()
+    const configPath = path.join(root, '.flowconfig')
+    return new Promise((resolve, reject) => {
+      fs.readFile(configPath, (err, data) => {
+        if (err) {
+          reject(err)
+          return
+        }
+
+        const match = data.toString().match(/\[version\]\n(.*)\n/)
+        if (match) {
+          resolve(match[1])
+        } else {
+          resolve(null)
+        }
+      })
+    })
+  }
+
+  runFlowCommand(command, input, pos, cwd, filename) {
     const {ch, line} = pos
     const pathArgs = filename ? ['--path', filename] : []
 
@@ -127,15 +148,15 @@ class FlowController {
   }
 
   getType(input, pos, filename) {
-    return this.executeCommand('type-at-pos', input, pos, path.dirname(filename), filename)
+    return this.runFlowCommand('type-at-pos', input, pos, path.dirname(filename), filename)
   }
 
   getDefinition(input, pos, filename) {
-    return this.executeCommand('get-def', input, pos, path.dirname(filename), filename)
+    return this.runFlowCommand('get-def', input, pos, path.dirname(filename), filename)
   }
 
   getCompletion(input, pos, filename) {
-    return this.executeCommand('autocomplete', input, pos, path.dirname(filename))
+    return this.runFlowCommand('autocomplete', input, pos, path.dirname(filename))
   }
 }
 
