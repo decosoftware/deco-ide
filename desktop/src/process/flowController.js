@@ -16,14 +16,14 @@ class FlowController {
   runCommand({args, cwd, input, onData, onError, onComplete}) {
     const cmd = this.getBinaryPath()
     console.log('running cmd', cmd, args, {cwd})
-    let child
 
-    try {
-      child = spawn(cmd, args, cwd ? {cwd} : {})
-    } catch (e) {
-      console.log('Failed to spawn', e)
-      return
-    }
+    const child = spawn(cmd, args, cwd ? {cwd} : {})
+
+    // Listen to 'error' instead of try/catch
+    // https://nodejs.org/docs/latest/api/child_process.html#child_process_event_error
+    child.on('error', (e) => {
+      console.log('failed to spawn flow process', e)
+    })
 
     let output = ''
 

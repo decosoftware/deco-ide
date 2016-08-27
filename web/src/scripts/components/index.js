@@ -18,3 +18,6 @@
 export FilterableList from './menu/FilterableList'
 export ComponentMenuItem from './menu/ComponentMenuItem'
 export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
+
+// Editor
+export AutocompleteHint from './editor/AutocompleteHint'
