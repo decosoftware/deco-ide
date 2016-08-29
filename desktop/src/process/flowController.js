@@ -47,6 +47,27 @@ class FlowController {
     this.server.kill()
   }
 
+  runFlowCommand(command, input, pos, cwd, filename) {
+    const {ch, line} = pos
+    const pathArgs = filename ? ['--path', filename] : []
+    const args = [command, line + 1, ch + 1, '--json', ...pathArgs]
+
+    return bufferedProcess.run(this.getBinaryPath(), {cwd, args, input})
+      .then((data) => JSON.parse(data))
+  }
+
+  getType(input, pos, filename) {
+    return this.runFlowCommand('type-at-pos', input, pos, path.dirname(filename), filename)
+  }
+
+  getDefinition(input, pos, filename) {
+    return this.runFlowCommand('get-def', input, pos, path.dirname(filename), filename)
+  }
+
+  getCompletion(input, pos, filename) {
+    return this.runFlowCommand('autocomplete', input, pos, path.dirname(filename))
+  }
+
   getBinaryPath() {
     const root = fileHandler.getWatchedPath()
     return path.join(root, 'node_modules/.bin/flow')
@@ -70,27 +91,6 @@ class FlowController {
         }
       })
     })
-  }
-
-  runFlowCommand(command, input, pos, cwd, filename) {
-    const {ch, line} = pos
-    const pathArgs = filename ? ['--path', filename] : []
-    const args = [command, line + 1, ch + 1, '--json', ...pathArgs]
-
-    return bufferedProcess.run(this.getBinaryPath(), {cwd, args, input})
-      .then((data) => JSON.parse(data))
-  }
-
-  getType(input, pos, filename) {
-    return this.runFlowCommand('type-at-pos', input, pos, path.dirname(filename), filename)
-  }
-
-  getDefinition(input, pos, filename) {
-    return this.runFlowCommand('get-def', input, pos, path.dirname(filename), filename)
-  }
-
-  getCompletion(input, pos, filename) {
-    return this.runFlowCommand('autocomplete', input, pos, path.dirname(filename))
   }
 }
 
