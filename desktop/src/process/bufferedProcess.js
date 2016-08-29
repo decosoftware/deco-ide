@@ -19,7 +19,16 @@ class BufferedProcess {
 
     cwd = cwd || fileHandler.getWatchedPath()
 
-    console.log('running cmd', cmd, args, {cwd})
+    const spawnOptions = {
+      env: {
+        ...process.env,
+        PATH: [
+          process.env.PATH,
+          path.normalize('/usr/local/Deco/node/bin'),
+        ].join(':')
+      },
+      ...(cwd && {cwd})
+    }
 
     const child = spawn(cmd, args, cwd ? {cwd} : {})
 
