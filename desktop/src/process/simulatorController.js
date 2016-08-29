@@ -17,13 +17,16 @@
 
 'use strict'
 
-const child_process = require('child_process')
-const path = require('path')
+import child_process from 'child_process'
+import path from 'path'
 
-const Logger = require('../log/logger')
-const LIB_FOLDER = require('../fs/model').LIB_FOLDER
-const APP_WATCHER_FILE = path.join(LIB_FOLDER, '/Scripts/appWatcher.js')
-const SimulatorUtils = require('./utils/simulatorUtils')
+import Logger from '../log/logger'
+import {
+  INTERNAL_LIB_FOLDER,
+} from '../constants/DecoPaths'
+const APP_WATCHER_FILE = path.join(INTERNAL_LIB_FOLDER, '/Scripts/appWatcher.js')
+
+import SimulatorUtils from './utils/simulatorUtils'
 
 import TaskLauncher from './taskLauncher'
 import bridge from '../bridge'
