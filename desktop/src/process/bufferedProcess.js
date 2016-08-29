@@ -35,7 +35,7 @@ class BufferedProcess {
     // Listen to 'error' instead of try/catch
     // https://nodejs.org/docs/latest/api/child_process.html#child_process_event_error
     child.on('error', (e) => {
-      console.log('Failed to spawn process', e)
+      // Handle the error in the .on('close')
     })
 
     let outData = ''
@@ -55,7 +55,6 @@ class BufferedProcess {
 
     const promise = new Promise((resolve, reject) => {
       child.on('close', (code) => {
-        console.log("closed", code)
         if (code === 0) {
           resolve(outData)
         } else {
