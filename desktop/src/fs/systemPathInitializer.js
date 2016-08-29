@@ -48,28 +48,6 @@ class SystemPathInitializer {
         Logger.error('Could not make the component cache folder.', e)
       }
     }
-
-    // try {
-    //   fs.statSync(TEMP_PROJECT_FOLDER)
-    //   fs.statSync(path.join(TEMP_PROJECT_FOLDER, 'node_modules'))
-    //   fs.statSync(path.join(TEMP_PROJECT_FOLDER, '/ios'))
-    // } catch (e) {
-    //   Logger.error(e)
-    //   mkdirp(TEMP_PROJECT_FOLDER, function(err) {
-    //     if (err) {
-    //       Logger.error('Model failed to init', err)
-    //       return
-    //     }
-    //     var projectPath = path.join(LIB_FOLDER, 'Project/ios')
-    //     var modulePath = path.join(LIB_FOLDER, 'node_modules')
-    //     try {
-    //       child_process.spawnSync('cp', ['-rf', projectPath, TEMP_PROJECT_FOLDER])
-    //       child_process.spawnSync('cp', ['-rf', modulePath, TEMP_PROJECT_FOLDER])
-    //     } catch (e) {
-    //       Logger.error('Failed to copy modules')
-    //     }
-    //   })
-    // }
   }
 }
 

@@ -22,9 +22,9 @@ import path from 'path'
 
 import Logger from '../log/logger'
 import {
-  UNPACK_FOLDER,
+  INTERNAL_LIB_FOLDER,
 } from '../constants/DecoPaths'
-const APP_WATCHER_FILE = path.join(UNPACK_FOLDER, '/Scripts/appWatcher.js')
+const APP_WATCHER_FILE = path.join(INTERNAL_LIB_FOLDER, '/Scripts/appWatcher.js')
 
 import SimulatorUtils from './utils/simulatorUtils'
 

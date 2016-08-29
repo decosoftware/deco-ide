@@ -30,22 +30,31 @@ const getHomePath = getPath.bind(null, 'home');
 
 const Logger = require('../log/logger')
 
+// top dir of app data folder ~/Library/Application Support/
 const ROOT_FOLDER = '/com.decosoftware.Deco'
-const LIB_FOLDER = '/com.decosoftware.Deco/libs'
-const BINARIES_FOLDER = '/com.decosoftware.Deco/libs/binaries'
+// holds Project skeleton and modules.tar.gz
+const EXTERNAL_LIB_FOLDER = '/com.decosoftware.Deco/libs'
+// used by component handler
 const COMPONENT_CACHE_FOLDER = '/com.decosoftware.Deco/cache'
+// temp project that will be opened on create new
 const TEMP_PROJECT_FOLDER = '/.Deco/tmp/Project'
+// temp project template that will replace old temp project listed above
 const TEMP_PROJECT_FOLDER_TEMPLATE = '/.Deco/tmp/.template.Project'
+// external path to the Project template that is copied into temp dir
 const LIB_PROJECT_FOLDER = '/com.decosoftware.Deco/libs/Project'
+// public folder to load in bundled web src
 const PUBLIC_FOLDER = path.join(__dirname, '../../public')
-const UNPACK_FOLDER = path.join(__dirname, '../../libs')
+// internal libraries used by Deco (includes whatever is in the desktop/libs folder)
+const INTERNAL_LIB_FOLDER = path.join(__dirname, '../../libs')
+// node binaries to add into path
+const NODE_BINARIES = path.join(INTERNAL_LIB_FOLDER, 'node', 'bin')
 
 module.exports = {
   PUBLIC_FOLDER,
-  UNPACK_FOLDER,
+  INTERNAL_LIB_FOLDER,
+  NODE_BINARIES,
   APP_SUPPORT: getAppPath(ROOT_FOLDER),
-  LIB_FOLDER: getAppPath(LIB_FOLDER),
-  BINARIES_FOLDER: path.join(UNPACK_FOLDER, '/binaries'),
+  EXTERNAL_LIB_FOLDER: getAppPath(EXTERNAL_LIB_FOLDER),
   TMP_FOLDER: getTmpPath(ROOT_FOLDER),
   CACHE_FOLDER: getAppPath(COMPONENT_CACHE_FOLDER),
   LIB_PROJECT_FOLDER: getAppPath(LIB_PROJECT_FOLDER),

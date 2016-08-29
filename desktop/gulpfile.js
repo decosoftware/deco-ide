@@ -9,6 +9,7 @@ var plist = require('plist');
 var $ = require('gulp-load-plugins')();
 var open = require('gulp-open');
 var runSequence = require('run-sequence');
+var fse = require('fs-extra');
 
 var BUILD_VERSION = "0.7.1";
 
@@ -20,11 +21,9 @@ gulp.task('clean-dist', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist
 gulp.task('clean-app-folder', $.shell.task(["rm -rf " + (path.join(__dirname, '../app/*'))]));
 gulp.task('make-dist', $.shell.task(["mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
-// gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/libs', "cp -rf " + (path.join(__dirname, './package/libs/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/libs/'))]));
-
 gulp.task('dev-unpack-lib', function(callback) {
   var _child;
-  _child = child_process.execSync((path.join(__dirname, './Scripts/postinstall')) + " dev " + (path.join(__dirname, './libs')), {
+  _child = child_process.execSync((path.join(__dirname, './libs/Scripts/pkg/Scripts/postinstall')) + " dev " + (path.join(__dirname, './libs')), {
     cwd: __dirname
   });
   return callback();
@@ -61,13 +60,13 @@ gulp.task('setup-pack-folder', ['build', 'build-web'], function(callback) {
     cwd: path.join(packagePath, 'libs')
   });
   try {
-    fs.statSync(path.join(packagePath, 'libs/binaries/node'));
+    fs.statSync(path.join(packagePath, 'libs/node'));
+    fse.removeSync(path.join(packagePath, 'libs/node'))
   } catch (e) {
-    child_process.execSync('rm -rf ' + path.join(packagePath, 'libs/binaries/node'));
+    //move along
   }
-  child_process.execSync('mv ' + path.join(packagePath, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(packagePath, 'libs/binaries/node'));
-  child_process.execSync('rm -f', path.join(packagePath, 'libs/node-v5.7.0-darwin-x64.tar.gz'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'libs/Scripts/postinstall'));
+  child_process.execSync('mv ' + path.join(packagePath, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(packagePath, 'libs/node'));
+  fs.unlinkSync(path.join(packagePath, 'libs/node-v5.7.0-darwin-x64.tar.gz'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'assets') + ' ' + packagePath);
@@ -85,7 +84,6 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     version: '1.1.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
-    // ignore: /libs\/.*/g,
     out: path.join(__dirname, '../app/deco'),
     asar: false
   };
@@ -134,6 +132,18 @@ function transform(params) {
   child_process.execSync("cp -rf node_modules build/")
 }
 
+gulp.task("setup-node-binary", function(callback) {
+  try {
+    fs.statSync(path.join(__dirname, 'libs/node'))
+  } catch (e) {
+    child_process.execSync('tar -zxf node-v5.7.0-darwin-x64.tar.gz', {
+      cwd: path.join(__dirname, 'libs')
+    });
+    child_process.execSync('mv ' + path.join(__dirname, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(__dirname, 'libs/node'));
+  }
+  return callback()
+})
+
 gulp.task("build", function(callback) {
   transform()
   return callback()
@@ -152,7 +162,7 @@ gulp.task('build-web', ['build', 'clean-dist'], function(callback) {
   return callback();
 });
 
-gulp.task("start", ["build"], function(callback) {
+gulp.task("start", ["build", "setup-node-binary"], function(callback) {
   child = child_process.fork("" + (path.join(__dirname, './node_modules/.bin/electron')), [__dirname, "--dev-mode"], {
     cwd: __dirname,
     env: process.env
@@ -253,6 +263,5 @@ gulp.task('pack', [
   'build-web',
   'setup-pack-folder',
   'electron-pack',
-  // 'copy-libraries',
   'modify-plist',
   'dist']);

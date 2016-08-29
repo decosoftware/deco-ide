@@ -29,7 +29,7 @@ if [ "$SIGN_PACKAGE" = "true" ]; then
   codesign --deep --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" "$APP_PATH"
 fi
 
-pkgbuild --component "$APP_PATH" --ownership preserve --scripts "./Scripts" --identifier com.decosoftware.deco --version "$VERSION" --install-location /Applications "$RESULT_COMP_PATH"
+pkgbuild --component "$APP_PATH" --ownership preserve --scripts "./libs/Scripts/pkg/Scripts" --identifier com.decosoftware.deco --version "$VERSION" --install-location /Applications "$RESULT_COMP_PATH"
 
 if [ "$SIGN_PACKAGE" = "true" ]; then
   codesign --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" "$RESULT_COMP_PATH"

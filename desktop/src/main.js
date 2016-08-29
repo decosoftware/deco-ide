@@ -22,6 +22,9 @@ var Electron = require('electron')
 var app = Electron.app
 var _ = require('lodash')
 
+// Necessary for async functions
+import "babel-polyfill"
+
 //DEV MODE TOGGLE
 var options = process.argv
 var __DEV__ = options.length >= 3 && _.indexOf(options, '--dev-mode') != -1
@@ -54,33 +57,12 @@ app.on('window-all-closed', function() {
   // }
 })
 
-var conditionallyAddWatchmanToPath = function() {
-  // conditionally switch on our custom watchman instance
-  let foundWatchman = false
-  // try {
-  //   const result = child_process.spawnSync('watchman', ['version'], {
-  //     env: process.env
-  //   })
-  //
-  //   if (result && result.stdout && result.stdout.toString().length > 0) {
-  //     foundWatchman = true
-  //   }
-  // } catch (e) {
-  //   // something went wrong, so we'll fallback to our own
-  // }
-  // if (!foundWatchman) {
-  //   process.env.PATH = process.env.PATH + ":" + '/usr/local/Deco/watchman'
-  // }
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // THIS IS WHERE DECO APP FUNCTIONALITY SHOULD LIVE, EXERCISE CAUTION OUTSIDE THIS FUNCTION
 app.on('ready', function() {
   //setup environment variables
   app.commandLine.appendSwitch('js-flags', '--harmony')
-  conditionallyAddWatchmanToPath()
-
 
   Logger.info('Deco initializing...')
 

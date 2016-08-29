@@ -27,8 +27,8 @@ import _ from 'lodash'
 import xcodeUtils from '../process/utils/xcodeUtils'
 import findXcodeProject from '../process/utils/findXcodeProject'
 
-import { UNPACK_FOLDER } from '../constants/DecoPaths'
-const APP_WATCHER_FILE = path.join(UNPACK_FOLDER, '/Scripts/appWatcher.js')
+import { INTERNAL_LIB_FOLDER } from '../constants/DecoPaths'
+const APP_WATCHER_FILE = path.join(INTERNAL_LIB_FOLDER, '/Scripts/appWatcher.js')
 
 import bridge from '../bridge'
 import {

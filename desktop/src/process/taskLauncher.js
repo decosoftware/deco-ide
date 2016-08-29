@@ -33,8 +33,8 @@ import preferenceHandler from '../handlers/preferenceHandler'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 import {
-  UNPACK_FOLDER,
-  BINARIES_FOLDER,
+  INTERNAL_LIB_FOLDER,
+  NODE_BINARIES,
 } from '../constants/DecoPaths'
 
 const TASK_RUNNER = './Scripts/deco-tool/bin/deco-tool'
@@ -90,7 +90,7 @@ const injectOptionsFromPreferences = (options) => {
     options.env.USE_GENYMOTION = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION]
   }
 
-  options.env.PATH = `${options.env.PATH}:${path.join(BINARIES_FOLDER, 'node','bin')}`
+  options.env.PATH = `${options.env.PATH}:${NODE_BINARIES}`
 }
 
 class TaskLauncher {
@@ -118,7 +118,7 @@ class TaskLauncher {
 
     const PROJECT_PATH = fileHandler.getWatchedPath()
     const task = child_process.fork(FORK_TASK_RUNNER, [taskname, '-r', PROJECT_PATH].concat(args), Object.assign({} , options, {
-      cwd: UNPACK_FOLDER,
+      cwd: INTERNAL_LIB_FOLDER,
     }))
 
     taskList.push(task)
@@ -144,7 +144,7 @@ class TaskLauncher {
 
     const PROJECT_PATH = fileHandler.getWatchedPath()
     const task = child_process.spawn(TASK_RUNNER, [taskname, '-r', PROJECT_PATH].concat(args), Object.assign({} , options, {
-      cwd: UNPACK_FOLDER,
+      cwd: INTERNAL_LIB_FOLDER,
     }))
 
     let errors = ''

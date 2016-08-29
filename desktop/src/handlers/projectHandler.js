@@ -105,7 +105,7 @@ class ProjectHandler {
       fs.statSync(root)
     } catch(e) {
       // Trying to delete a project that does not exist eh?
-      Logger.error(e)
+      // That's ok, we'll swallow it since it's called by default
       return
     }
     try {
