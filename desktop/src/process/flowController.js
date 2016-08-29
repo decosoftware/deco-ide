@@ -7,11 +7,15 @@ import bufferedProcess from './bufferedProcess'
 class FlowController {
 
   constructor() {
-    this.server = null
-    this.currentDirectory = null
+    this.resetState()
 
     process.on('exit', () => this.stopServer())
     process.on('SIGINT', () => this.stopServer())
+  }
+
+  resetState() {
+    this.server = null
+    this.currentDirectory = null
   }
 
   startServer() {
@@ -20,31 +24,21 @@ class FlowController {
 
     if (server) {
 
-      // Server already running in this directory
+      // Server already running in this directory => do nothing
       if (currentDirectory === root) {
-        console.log('SERVER >> already running server')
         return
 
-      // Server running in a different directory
+      // Server running in a different directory => restart in this directory
       } else {
-        console.log('SERVER >> restarting server')
         this.stopServer()
       }
     }
 
-    try {
-      const cmd = this.getBinaryPath()
-      this.server = spawn(cmd, ['server', '--lib', 'lib'], {cwd: root})
+    this.server = spawn(this.getBinaryPath(), ['server', '--lib', 'lib'], {cwd: root})
+    this.currentDirectory = root
 
-      // Catch spawn errors
-      this.server.on('error', (e) => {})
-      this.currentDirectory = root
-      console.log("Started flow server")
-    } catch (e) {
-      this.server = null
-      this.currentDirectory = null
-      console.log("Failed to start flow server", e)
-    }
+    // Catch spawn errors (akin to try/catch)
+    this.server.on('error', this.resetState.bind(this))
   }
 
   stopServer() {
