@@ -1,6 +1,24 @@
 const bufferedProcess = Electron.remote.require('./process/bufferedProcess')
 
-// Sample output for `npm list package-name`:
+export const PACKAGE_ERROR = {
+
+  // Package is in package.json, but not installed
+  // => npm ERR! missing: flow-bin@0.31.1, required by Project@0.0.1
+  NOT_INSTALLED: 'NOT_INSTALLED',
+
+  // Package is in package.json, but a different version is installed
+  // => npm ERR! invalid: flow-bin@0.31.1 /Users/.../.Deco/tmp/Project/node_modules/flow-bin
+  VERSION_MISMATCH: 'VERSION_MISMATCH',
+
+  // Package is not in package.json, but it is installed
+  // => npm ERR! extraneous: flow-bin@0.31.1 /Users/.../.Deco/tmp/Project/node_modules/flow-bin
+  EXTRANEOUS_PACKAGE: 'EXTRANEOUS_PACKAGE',
+
+  // Package is not in package.json and not installed
+  MISSING: 'MISSING',
+}
+
+// Sample success output for `npm list flow-bin`:
 //
 // {
 //   "name": "Project",
@@ -15,17 +33,18 @@ const bufferedProcess = Electron.remote.require('./process/bufferedProcess')
 // }
 
 const errors = [
-  // Package is in package.json, but not installed
-  // => npm ERR! missing: flow-bin@0.31.1, required by Project@0.0.1
-  {type: 'missing', code: 'NOT_INSTALLED'},
-
-  // Package is in package.json, but a different version is installed
-  // => npm ERR! invalid: flow-bin@0.31.1 /Users/.../.Deco/tmp/Project/node_modules/flow-bin
-  {type: 'invalid', code: 'VERSION_MISMATCH'},
-
-  // Package is not in package.json, but it is installed
-  // => npm ERR! extraneous: flow-bin@0.31.1 /Users/.../.Deco/tmp/Project/node_modules/flow-bin
-  {type: 'extraneous', code: 'EXTRANEOUS_PACKAGE'},
+  {
+    type: 'missing',
+    code: PACKAGE_ERROR.NOT_INSTALLED,
+  },
+  {
+    type: 'invalid',
+    code: PACKAGE_ERROR.VERSION_MISMATCH,
+  },
+  {
+    type: 'extraneous',
+    code: PACKAGE_ERROR.EXTRANEOUS_PACKAGE,
+  },
 ]
 
 const getVersion = async (global, packageName) => {
@@ -43,14 +62,16 @@ const getVersion = async (global, packageName) => {
     const {output} = e
     console.log('out', output)
 
-    errors.forEach(({type, code}) => {
+    errors.forEach((error) => {
+      const {type} = error
       if (output.startsWith(`npm ERR! ${type}`)) {
-        throw ({code})
+        throw error
       }
     })
 
-    // Package is not in package.json and not installed
-    throw ({code: 'MISSING'})
+    throw ({
+      code: PACKAGE_ERROR.MISSING,
+    })
   }
 }
 

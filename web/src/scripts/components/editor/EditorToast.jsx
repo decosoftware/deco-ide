@@ -19,36 +19,33 @@ import React, { Component, PropTypes } from 'react'
 
 import SimpleButton from '../buttons/SimpleButton'
 
-const style = {
+const baseStyle = {
   width: '100%',
-  minHeight: 32,
-  backgroundColor: 'rgb(180,58,60)',
-  borderRight: '1px solid rgb(16,16,16)',
+  paddingTop: 4,
+  paddingBottom: 4,
+  paddingLeft: 10,
+  paddingRight: 10,
   position: 'relative',
-  color: 'rgba(255,255,255,0.8)',
+  color: 'white',
   cursor: 'default',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
 }
 
 const textStyle = {
   whiteSpace: 'pre-wrap',
-  width: '100%',
-  height: '100%',
-  padding: '0 10px',
-  display: 'flex',
   WebkitUserSelect: 'text',
-  flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 12,
+  fontSize: 14,
+  WebkitFontSmoothing: 'antialiased',
 }
 
 const closeStyle = {
-  width: 30,
-  height: 31,
   position: 'absolute',
   right: 0,
   top: 0,
-  backgroundColor: 'rgb(180,58,60)',
+  width: 30,
+  height: 31,
   display: 'flex',
   flex: 1,
   alignItems: 'center',
@@ -72,6 +69,18 @@ const closeTextActiveStyle = {
   opacity: 0.75,
 }
 
+const baseButtonStyle = {
+  backgroundColor: 'white',
+  borderRadius: 3,
+  padding: '2px 10px',
+  fontSize: 13,
+  fontWeight: 'bold',
+  WebkitFontSmoothing: 'antialiased',
+  marginTop: 6,
+  marginBottom: 6,
+  boxShadow: '0 2px 2px rgba(0,0,0,0.2)',
+}
+
 class EditorToast extends Component {
   constructor(props) {
     super(props)
@@ -79,21 +88,34 @@ class EditorToast extends Component {
   }
 
   render() {
+    const {type, message, onClose, onButtonClick, buttonText} = this.props
     const closeTextStyle = this.state.hover ?
         {...closeTextDefaultStyle, ...closeTextVisibleStyle} :
         closeTextDefaultStyle
+
+    const style = {
+      ...baseStyle,
+      backgroundColor: type === 'error' ? 'rgb(180,58,60)' : 'green',
+    }
+
+    const buttonStyle = {
+      ...baseButtonStyle,
+      color: type === 'error' ? 'rgb(180,58,60)' : 'green',
+    }
+
     return (
       <div style={style}
         onMouseEnter={() => this.setState({hover: true})}
-        onMouseLeave={() => this.setState({hover: false})}>
+        onMouseLeave={() => this.setState({hover: false})}
+      >
         <div style={textStyle}>
-          {this.props.message}
+          {message}
         </div>
         <div style={closeStyle}>
           <SimpleButton
             onClick={(e) => {
               e.stopPropagation()
-              this.props.onClose()
+              onClose()
             }}
             defaultStyle={closeTextStyle}
             activeStyle={{
@@ -108,6 +130,20 @@ class EditorToast extends Component {
             ×
           </SimpleButton>
         </div>
+        {buttonText && (
+          <SimpleButton
+            onClick={(e) => {
+              e.stopPropagation()
+              onButtonClick()
+            }}
+            defaultStyle={buttonStyle}
+            activeStyle={{...buttonStyle, opacity: 0.9}}
+            hoverStyle={{...buttonStyle, opacity: 0.8}}
+            innerStyle={{}}
+          >
+            {buttonText}
+          </SimpleButton>
+        )}
       </div>
     )
   }

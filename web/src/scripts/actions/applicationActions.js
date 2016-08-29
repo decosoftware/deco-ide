@@ -50,10 +50,13 @@ const {
   WRITE_FILE_DATA,
 } = FileConstants
 
+const FlowController = Electron.remote.require('./process/flowController.js')
 import { ProcessStatus, } from '../constants/ProcessStatus'
 import { mergeSystemPreferences, savePreferences } from './preferencesActions'
 import { saveMetadata } from './metadataActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
+import { getLocalVersion } from '../utils/PackageUtils'
+import { shouldPromptForFlowInstallation, didPromptForFlowInstallation } from '../utils/FlowUtils'
 
 import { PREFERENCES, CATEGORIES } from 'shared/constants/PreferencesConstants'
 
@@ -285,12 +288,38 @@ export const clearConfigError = () => {
   }
 }
 
+export const FLOW_ERROR = 'FLOW_ERROR'
+export const setFlowError = (e) => {
+  return {
+    type: FLOW_ERROR,
+    payload: e,
+  }
+}
+
+const checkAndPromptForFlow = (path) => (dispatch) => {
+
+  // For now, always prompt if in temp project folder.
+  // TODO Include flow in default project.
+  const inTempProjectFolder = path.match(/.Deco\/tmp/)
+
+  if (!inTempProjectFolder && !shouldPromptForFlowInstallation(path)) {
+    return dispatch(setFlowError(null))
+  }
+
+  didPromptForFlowInstallation(path)
+
+  return getLocalVersion('flow-bin')
+    .then(() => FlowController.startServer())
+    .catch((e) => dispatch(setFlowError(e)))
+}
+
 export const initializeProcessesForDir = (path) => {
   return function(dispatch, getState) {
     dispatch(setPackagerStatus(ProcessStatus.OFF))
     dispatch(getAvailableSimulators('ios'))
     dispatch(getAvailableSimulators('android'))
-  
+    dispatch(checkAndPromptForFlow(path))
+
     request({ type: GET_SYSTEM_PATHS }).then((response) => {
       dispatch(mergeSystemPreferences(response.payload)).then(() => {
         dispatch(savePreferences())
