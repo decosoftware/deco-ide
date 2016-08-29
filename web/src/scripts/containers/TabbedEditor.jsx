@@ -161,6 +161,7 @@ class TabbedEditor extends Component {
           FlowController.getFlowConfigVersion()
             .then(version => importModule('flow-bin', version, rootPath, npmRegistry))
             .catch(() => importModule('flow-bin', 'latest', rootPath, npmRegistry))
+            .then(() => FlowController.startServer())
         }}
       />
     )
