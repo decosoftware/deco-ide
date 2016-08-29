@@ -60,7 +60,6 @@ const getVersion = async (global, packageName) => {
     return parsed.dependencies[packageName].version
   } catch (e) {
     const {output} = e
-    console.log('out', output)
 
     errors.forEach((error) => {
       const {type} = error

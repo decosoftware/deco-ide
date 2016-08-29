@@ -24,7 +24,6 @@ const FLOW_KEY = 'FLOW'
 export default {
   shouldPromptForFlowInstallation(projectPath) {
     const {paths = []} = LocalStorage.loadObject(FLOW_KEY)
-    console.log('flow path prompt', paths)
     return paths.indexOf(projectPath) === -1
   },
   didPromptForFlowInstallation(projectPath) {
