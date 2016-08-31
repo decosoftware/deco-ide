@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set -e
+
+if [ $USER = "root" ]; then
+  echo $USER
+  exit 1
+fi
+
+DECO_VERSION=0.7.1
+
+rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/libs
+mkdir -p ~/Library/Application\ Support/com.decosoftware.Deco/libs
+
+if [ "$1" = "dev" ]; then
+  cp -r $2/Project ~/Library/Application\ Support/com.decosoftware.Deco/libs
+  cp -r $2/modules.tar.gz ~/Library/Application\ Support/com.decosoftware.Deco/libs
+else
+  pkgutil --expand "$PACKAGE_PATH" ~/Library/Application\ Support/com.decosoftware.Deco/pkg
+  tar -zxf ~/Library/Application\ Support/com.decosoftware.Deco/pkg/Deco.pkg/Payload -C ~/Library/Application\ Support/com.decosoftware.Deco/
+  cp -r ~/Library/Application\ Support/com.decosoftware.Deco/Deco.app/Contents/Resources/app/libs/Project ~/Library/Application\ Support/com.decosoftware.Deco/libs
+  cp -r ~/Library/Application\ Support/com.decosoftware.Deco/Deco.app/Contents/Resources/app/libs/modules.tar.gz ~/Library/Application\ Support/com.decosoftware.Deco/libs
+  rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/pkg
+  rm -rf ~/Library/Application\ Support/com.decosoftware.Deco/Deco.app
+fi
+
+chown -R $USER:staff ~/Library/Application\ Support/com.decosoftware.Deco
+
+CACHE_DIR=~/Library/Application\ Support/com.decosoftware.Deco/cache
+if [ ! -d "$CACHE_DIR" ]; then
+  mkdir -p ~/Library/Application\ Support/com.decosoftware.Deco/cache
+fi
+
+OLD_PROJ_DIR=~/.Deco/tmp/Project
+if [ -d "$OLD_PROJ_DIR" ]; then
+  chmod -R 755 ~/.Deco
+  chown -R $USER:staff ~/.Deco
+  rm -rf ~/.Deco/tmp/Project
+fi
+
+tar -zxf ~/Library/Application\ Support/com.decosoftware.Deco/libs/modules.tar.gz -C ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project
+HOME_DIR=~/.Deco/tmp
+if [ -d "$HOME_DIR" ]; then
+  rm -rf ~/.Deco/tmp
+fi
+
+mkdir -p ~/.Deco/tmp
+cp -rf ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project ~/.Deco/tmp/.template.Project
+chmod -R 755 ~/.Deco
+chown -R $USER:staff ~/.Deco
+
+DECO_VERSION_FILE=~/Library/Application\ Support/com.decosoftware.Deco/.deco.version
+if [ -f "$DECO_VERSION_FILE" ]; then
+  rm -f "$DECO_VERSION_FILE"
+fi
+printf $DECO_VERSION >> "$DECO_VERSION_FILE"
+chmod -R 755 "$DECO_VERSION_FILE"
+chown -R $USER:staff "$DECO_VERSION_FILE"
+
+exit

@@ -27,8 +27,8 @@ import _ from 'lodash'
 import xcodeUtils from '../process/utils/xcodeUtils'
 import findXcodeProject from '../process/utils/findXcodeProject'
 
-import { LIB_FOLDER } from '../fs/model'
-const APP_WATCHER_FILE = path.join(LIB_FOLDER, '/Scripts/appWatcher.js')
+import { INTERNAL_LIB_FOLDER } from '../constants/DecoPaths'
+const APP_WATCHER_FILE = path.join(INTERNAL_LIB_FOLDER, '/Scripts/appWatcher.js')
 
 import bridge from '../bridge'
 import {
@@ -199,7 +199,7 @@ class ProcessHandler {
   onResumeSimulator(payload, respond) {
     // Only relaunches simulator if the Simulator.app is running and the controller's state has been preserved
     if (SimulatorController.isSimulatorRunning() && SimulatorController.lastUsedArgs() != null) {
-      try {        
+      try {
         SimulatorController.runSimulator()
         respond(onSuccess(RESUME_SIMULATOR))
       } catch (e) {

@@ -32,7 +32,7 @@ import UpdateManager from '../updateManager'
 
 import windowHandler from '../handlers/windowHandler'
 import projectHandler from '../handlers/projectHandler'
-import fileHandler, { buildPathObjects } from '../handlers/fileHandler'
+import fileHandler from '../handlers/fileHandler'
 import processHandler from '../handlers/processHandler'
 
 import PackagerController from '../process/packagerController'
@@ -169,7 +169,7 @@ const TemplateBuilder = function(platform) {
         const task = taskLauncher.runTask('init-template')
         task.on('exit', () => {
           const root = fileHandler.getWatchedPath()
-          bridge.send(openFile(buildPathObjects(path.join(root, 'configure.deco.js'))))
+          bridge.send(openFile(path.join(root, 'configure.deco.js')))
         })
       },
     }, ],
@@ -255,7 +255,7 @@ const TemplateBuilder = function(platform) {
           projectHandler.createProjectSettingsTemplate(root)
             .then((settingsPath) => {
               //TODO make a call to web to open this file
-              bridge.send(openProjectSettings(buildPathObjects(settingsPath)))
+              bridge.send(openProjectSettings(settingsPath))
             })
         }
       }, {
