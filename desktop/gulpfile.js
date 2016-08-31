@@ -9,6 +9,7 @@ var plist = require('plist');
 var $ = require('gulp-load-plugins')();
 var open = require('gulp-open');
 var runSequence = require('run-sequence');
+var fse = require('fs-extra');
 
 var BUILD_VERSION = "0.7.1";
 
@@ -16,19 +17,19 @@ var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
 var child = null
 var debug_child = null
-gulp.task('clean-pkg', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist')), "mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
-
-gulp.task('copy-libraries', ['electron-pack'], $.shell.task(["mkdir " + '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked', "cp -rf " + (path.join(__dirname, './package/deco_unpack_lib/*')) + " " + (path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Resources/app.asar.unpacked/'))]));
+gulp.task('clean-dist', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist'))]));
+gulp.task('clean-app-folder', $.shell.task(["rm -rf " + (path.join(__dirname, '../app/*'))]));
+gulp.task('make-dist', $.shell.task(["mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
 gulp.task('dev-unpack-lib', function(callback) {
   var _child;
-  _child = child_process.execSync((path.join(__dirname, './Scripts/postinstall')) + " dev " + (path.join(__dirname, './deco_unpack_lib')), {
+  _child = child_process.execSync((path.join(__dirname, './libs/Scripts/pkg/Scripts/postinstall')) + " dev " + (path.join(__dirname, './libs')), {
     cwd: __dirname
   });
   return callback();
 });
 
-gulp.task('modify-plist', ['copy-libraries'], function(callback) {
+gulp.task('modify-plist', ['electron-pack'], function(callback) {
   var info, plistPath;
   plistPath = path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Info.plist');
   info = plist.parse(fs.readFileSync(plistPath, 'utf8'));
@@ -54,8 +55,18 @@ gulp.task('setup-pack-folder', ['build', 'build-web'], function(callback) {
   child_process.execSync('rm -rf ' + packagePath + '/*');
   child_process.execSync('mkdir -p ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'build') + ' ' + path.join(packagePath, 'build'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'deco_unpack_lib') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'Scripts/postinstall') + ' ' + path.join(packagePath, 'deco_unpack_lib/Scripts/postinstall'))
+  child_process.execSync('cp -rf ' + path.join(__dirname, 'libs') + ' ' + packagePath);
+  child_process.execSync('tar -zxf node-v5.7.0-darwin-x64.tar.gz', {
+    cwd: path.join(packagePath, 'libs')
+  });
+  try {
+    fs.statSync(path.join(packagePath, 'libs/node'));
+    fse.removeSync(path.join(packagePath, 'libs/node'))
+  } catch (e) {
+    //move along
+  }
+  child_process.execSync('mv ' + path.join(packagePath, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(packagePath, 'libs/node'));
+  fs.unlinkSync(path.join(packagePath, 'libs/node-v5.7.0-darwin-x64.tar.gz'));
   child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
   child_process.execSync('cp -rf ' + path.join(__dirname, 'assets') + ' ' + packagePath);
@@ -73,9 +84,8 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     version: '1.1.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
-    ignore: /deco_unpack_lib\/.*/g,
     out: path.join(__dirname, '../app/deco'),
-    asar: true
+    asar: false
   };
   if (SIGN_PACKAGE) {
     opts.sign = 'Developer ID Application: Deco Software Inc. (M5Y2HY4UM2)'
@@ -88,7 +98,6 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
       console.error(err);
       return gulpFail();
     } else {
-      console.log('finished, app written to ' + appPath);
       return callback();
     }
   });
@@ -122,6 +131,18 @@ function transform(params) {
   child_process.execSync("cp -rf node_modules build/")
 }
 
+gulp.task("setup-node-binary", function(callback) {
+  try {
+    fs.statSync(path.join(__dirname, 'libs/node'))
+  } catch (e) {
+    child_process.execSync('tar -zxf node-v5.7.0-darwin-x64.tar.gz', {
+      cwd: path.join(__dirname, 'libs')
+    });
+    child_process.execSync('mv ' + path.join(__dirname, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(__dirname, 'libs/node'));
+  }
+  return callback()
+})
+
 gulp.task("build", function(callback) {
   transform()
   return callback()
@@ -132,7 +153,7 @@ gulp.task("build-dev", function(callback) {
   return callback()
 })
 
-gulp.task('build-web', ['build', 'clean-pkg'], function(callback) {
+gulp.task('build-web', ['build', 'clean-dist'], function(callback) {
   child_process.execSync('npm run build', {
     cwd: path.join(__dirname, '../web')
   });
@@ -140,7 +161,7 @@ gulp.task('build-web', ['build', 'clean-pkg'], function(callback) {
   return callback();
 });
 
-gulp.task("start", ["build"], function(callback) {
+gulp.task("start", ["build", "setup-node-binary"], function(callback) {
   child = child_process.fork("" + (path.join(__dirname, './node_modules/.bin/electron')), [__dirname, "--dev-mode"], {
     cwd: __dirname,
     env: process.env
@@ -189,12 +210,12 @@ gulp.task('default', function() {
 });
 
 gulp.task('process-new-project-template', function(callback) {
-  var oldProjectPath = path.join(__dirname, 'deco_unpack_lib/Project');
+  var oldProjectPath = path.join(__dirname, 'libs/Project');
   var newProjectPath = gutil.env.projectPath;
-  var nodeModulesPath = path.join(__dirname, 'deco_unpack_lib/Project/node_modules');
-  var nodeModulesArchive = path.join(__dirname, 'deco_unpack_lib/modules.tar.gz');
-  var projectBinary = path.join(__dirname, 'deco_unpack_lib/Project/Project.app');
-  var binaryDestination = path.join(__dirname, 'deco_unpack_lib/Project/ios/build/Build/Products/Debug-iphonesimulator');
+  var nodeModulesPath = path.join(__dirname, 'libs/Project/node_modules');
+  var nodeModulesArchive = path.join(__dirname, 'libs/modules.tar.gz');
+  var projectBinary = path.join(__dirname, 'libs/Project/Project.app');
+  var binaryDestination = path.join(__dirname, 'libs/Project/ios/build/Build/Products/Debug-iphonesimulator');
 
   fs.stat(newProjectPath, function(err, stat) {
     if (err == null) {
@@ -234,11 +255,12 @@ gulp.task('upgrade-project-template', function() {
 });
 
 gulp.task('pack', [
-  'clean-pkg',
+  'clean-dist',
+  'clean-app-folder',
+  'make-dist',
   'build',
   'build-web',
   'setup-pack-folder',
   'electron-pack',
-  'copy-libraries',
   'modify-plist',
   'dist']);

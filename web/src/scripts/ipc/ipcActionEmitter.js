@@ -198,14 +198,14 @@ const ipcActionEmitter = (store) => {
     store.dispatch(saveAs())
   })
   ipc.on(OPEN_FILE, (evt, obj) => {
-    const { fileInfo } = obj
-    store.dispatch(openFile(fileInfo))
+    const { filePath } = obj
+    store.dispatch(openFile(filePath))
   })
   ipc.on(OPEN_PROJECT_SETTINGS, (evt, obj) => {
-    const { settingsInfo } = obj
+    const { settingsPath } = obj
     // TODO how to handle this meow?
     // store.dispatch(addHiddenFileId(settingsInfo))
-    store.dispatch(openFile(settingsInfo))
+    store.dispatch(openFile(settingsPath))
   })
 
   ipc.on(PROGRESS_START, (evt, obj) => {

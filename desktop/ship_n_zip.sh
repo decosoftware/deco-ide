@@ -29,17 +29,17 @@ if [ "$SIGN_PACKAGE" = "true" ]; then
   codesign --deep --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" "$APP_PATH"
 fi
 
-pkgbuild --component "$APP_PATH" --ownership preserve --scripts "./Scripts" --identifier com.decosoftware.deco --version "$VERSION" --install-location /Applications "$RESULT_COMP_PATH"
+pkgbuild --quiet --component "$APP_PATH" --ownership preserve --scripts "./libs/Scripts/pkg/Scripts" --identifier com.decosoftware.deco --version "$VERSION" --install-location /Applications "$RESULT_COMP_PATH"
 
 if [ "$SIGN_PACKAGE" = "true" ]; then
   codesign --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" "$RESULT_COMP_PATH"
-  productbuild --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --sign "$INSTALLER_KEY" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
+  productbuild --quiet --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --sign "$INSTALLER_KEY" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
 else
-  productbuild --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
+  productbuild --quiet --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
 fi
 
 pushd ../app/deco/Deco-darwin-x64
-zip -r $ZIP_FILE './Deco.app'
+zip --quiet -r $ZIP_FILE './Deco.app'
 mv $ZIP_FILE ../../../dist/osx
 popd
 
