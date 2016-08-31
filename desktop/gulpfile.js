@@ -98,7 +98,6 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
       console.error(err);
       return gulpFail();
     } else {
-      console.log('finished, app written to ' + appPath);
       return callback();
     }
   });
