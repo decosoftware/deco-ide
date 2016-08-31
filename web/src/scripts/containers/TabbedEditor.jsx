@@ -20,7 +20,7 @@ import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 
-const remote = Electron.remote
+const { shell, remote } = Electron
 const path = remote.require('path')
 
 import { HotKeys } from 'react-hotkeys'
@@ -42,13 +42,15 @@ import Tab from '../components/buttons/Tab'
 import EditorToast from '../components/editor/EditorToast'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
-import { stopPackager, runPackager, clearConfigError } from '../actions/applicationActions'
+import { stopPackager, runPackager, clearConfigError, setFlowError } from '../actions/applicationActions'
 import { importComponent, loadComponent } from '../actions/componentActions'
 import { insertComponent, insertTemplate } from '../actions/editorActions'
 import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
+import { installAndStartFlow } from '../utils/FlowUtils'
+import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
@@ -125,6 +127,42 @@ class TabbedEditor extends Component {
     })
   }
 
+  renderFlowInstallationToast() {
+    const linkStyle = {
+      textDecoration: 'underline',
+    }
+
+    return (
+      <EditorToast
+        type={'recommended'}
+        buttonText={'Yes, install flow-bin into node_modules'}
+        message={(
+          <div>
+            Use the Flow static type-checker{' '}
+            <a
+              style={linkStyle}
+              onClick={() => shell.openExternal("https://flowtype.org/")}
+            >
+              (https://flowtype.org/)
+            </a>
+            {' '}for enhanced autocompletion and prop detection? Many Deco features
+            rely on Flow for static analysis of your project's code,
+            so this is highly recommended.
+          </div>
+        )}
+        onClose={() => {
+          this.props.dispatch(setFlowError(null))
+        }}
+        onButtonClick={() => {
+          const {rootPath, npmRegistry} = this.props
+
+          this.props.dispatch(setFlowError(null))
+          installAndStartFlow(rootPath, npmRegistry)
+        }}
+      />
+    )
+  }
+
   render() {
     const tabBarHeight = 32
 
@@ -165,10 +203,16 @@ class TabbedEditor extends Component {
     const conditionallyRenderToast = () => {
       if (this.props.configError != '') {
         return (
-          <EditorToast message={this.props.configError} onClose={() => {
+          <EditorToast
+            type={'error'}
+            message={this.props.configError}
+            onClose={() => {
               this.props.dispatch(clearConfigError())
-            }}/>
+            }}
+          />
         )
+      } else if (this.props.flowError && this.props.flowError.code === PACKAGE_ERROR.MISSING) {
+        return this.renderFlowInstallationToast()
       } else {
         return null
       }
@@ -211,7 +255,7 @@ class TabbedEditor extends Component {
                   HistoryMiddleware(this.props.dispatch),
                   TokenMiddleware(this.props.dispatch),
                   ClipboardMiddleware(this.props.dispatch, this.props.liveValuesById),
-                  AutocompleteMiddleware(this.props.dispatch),
+                  AutocompleteMiddleware(this.props.dispatch, this.props.focusedTabId),
                   IndentGuideMiddleware(this.props.dispatch),
                 ]}
                 onImportItem={this.onImportItem.bind(this)}
@@ -322,6 +366,7 @@ const mapStateToProps = (state, ownProps) => {
     rootPath: getRootPath(state),
     npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
     configError: state.application.configError,
+    flowError: state.application.flowError,
     options: {
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],

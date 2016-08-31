@@ -110,12 +110,13 @@ function transform(params) {
   // Get babel-cli binary from node_modules
   const bin = path.join(__dirname, 'node_modules/.bin', 'babel')
 
-  function createCommand(src, dest, presets) {
-    return bin + ' ' + src + ' -d ' + dest + ' --presets ' + presets.join(',') + sourceMaps
+  function createCommand(src, dest, presets, plugins) {
+    return bin + ' ' + src + ' -d ' + dest + ' --presets ' + presets.join(',') + sourceMaps +
+        (plugins ? ' --plugins ' + plugins.join(',') : '')
   }
 
   // Transform src -> build
-  child_process.execSync(createCommand('src', 'build', ['es2015', 'stage-1']))
+  child_process.execSync(createCommand('src', 'build', ['es2015', 'stage-1'], ['transform-runtime']))
 
   // Transform ../shared/src -> node_modules/shared
   const sharedSrc = path.join(__dirname, '../shared/src')

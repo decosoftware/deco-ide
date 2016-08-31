@@ -22,9 +22,6 @@ var Electron = require('electron')
 var app = Electron.app
 var _ = require('lodash')
 
-// Necessary for async functions
-import "babel-polyfill"
-
 //DEV MODE TOGGLE
 var options = process.argv
 var __DEV__ = options.length >= 3 && _.indexOf(options, '--dev-mode') != -1

@@ -22,7 +22,8 @@ import {
   PACKAGER_STATUS,
   PACKAGER_OUTPUT,
   GET_AVAILABLE_SIMULATORS,
-  CONFIG_ERROR_MESSAGE
+  CONFIG_ERROR_MESSAGE,
+  FLOW_ERROR,
 } from '../actions/applicationActions'
 
 import { ProcessStatus, } from '../constants/ProcessStatus'
@@ -40,6 +41,7 @@ const initialState = {
     simList: [],
   },
   configError: '',
+  flowError: null,
 }
 
 const applicationReducer = (state = initialState, action) => {
@@ -86,6 +88,11 @@ const applicationReducer = (state = initialState, action) => {
       return {
         ...state,
         ...action.payload,
+      }
+    case FLOW_ERROR:
+      return {
+        ...state,
+        flowError: action.payload,
       }
     default:
       return state
