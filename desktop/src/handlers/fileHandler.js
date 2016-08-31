@@ -5,7 +5,7 @@ import mkdirp from 'mkdirp'
 import _ from 'lodash'
 
 import fs from 'fs-plus'
-import FileSystem from '../fs/fileSystem'
+import { writeFile } from '../fs/safeWriter'
 
 import FileTreeServer from 'file-tree-server'
 import transport from 'file-tree-server-transport-electron'
@@ -97,12 +97,12 @@ class FileHandler {
     try {
       verifyPayload(payload)
       const filePath = payload.filePath
-      FileSystem.readFile(filePath, {
-        success: (data) => {
-          respond(onFileData(filePath, data.toString('utf8')))
-        }, error: (err) => {
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
           respond(onError(err))
-        },
+        } else {
+          respond(onFileData(filePath, data.toString('utf8')))
+        }
       })
     } catch(e) {
       Logger.error(e)
@@ -124,15 +124,14 @@ class FileHandler {
       if (!payload.filePath) {
         respond(onError('incorrect payload format'))
       }
-      FileSystem.writeFile(payload.filePath, payload.data, {
-        success: () => {
-          respond(onSuccess(WRITE_FILE_DATA))
-          bridge.send(confirmSave(payload.filePath))
-        }, error: (err) => {
+      writeFile(payload.filePath, payload.data, (err) => {
+        if (err) {
           Logger.error(err)
           respond(onError(err))
           return
-        }
+        }        
+        respond(onSuccess(WRITE_FILE_DATA))
+        bridge.send(confirmSave(payload.filePath))
       })
     } catch(e) {
       Logger.error(e)
@@ -145,15 +144,14 @@ class FileHandler {
         respond(onError('incorrect payload format'))
       }
       const absolutePath = buildMetadataFilePath(payload.filePath, payload.rootPath)
-      FileSystem.writeFile(absolutePath, payload.metadata, {
-        success: () => {
-          respond(onSuccess(WRITE_FILE_METADATA))
-          bridge.send(confirmSave(payload.filePath))
-        }, error: (err) => {
+      writeFile(absolutePath, payload.metadata, (err) => {
+        if (err) {
           Logger.error(err)
           respond(onError(err))
           return
         }
+        respond(onSuccess(WRITE_FILE_METADATA))
+        bridge.send(confirmSave(payload.filePath))
       })
     } catch(e) {
       Logger.error(e)
@@ -166,13 +164,13 @@ class FileHandler {
         respond(onError('incorrect payload format'))
       }
       const absolutePath = buildMetadataFilePath(payload.filePath, payload.rootPath)
-      FileSystem.deleteFile(absolutePath, {
-        success: () => {
-          respond(onSuccess(DELETE_FILE_METADATA))
-        }, error: (err) => {
+      fs.unlink(absolutePath, (err) => {
+        if (err) {
           Logger.error(err)
           respond(onError(err))
+          return
         }
+        respond(onSuccess(DELETE_FILE_METADATA))
       })
     } catch(e) {
       Logger.error(e)
@@ -185,12 +183,12 @@ class FileHandler {
       payload.filePath = buildMetadataFilePath(payload.filePath, payload.rootPath)
       const filePath = payload.filePath
       if (!payload) return
-      FileSystem.readFile(filePath, {
-        success: (data) => {
-          respond(onFileMetadata(filePath, data.toString('utf8')))
-        }, error: (err) => {
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
           respond(onError(err))
-        },
+        } else {
+          respond(onFileMetadata(filePath, data.toString('utf8')))
+        }
       })
     } catch(e) {
       Logger.error(e)

@@ -22,8 +22,8 @@ import child_process from 'child_process'
 
 import _ from 'lodash'
 import fs from 'fs-plus'
+import _fs from 'fs'
 
-import FileSystem from '../fs/fileSystem'
 import bridge from '../bridge'
 import ComponentConstants from 'shared/constants/ipc/ComponentConstants'
 const {
@@ -44,7 +44,9 @@ import {
 
 import Logger from '../log/logger'
 
-const CACHE_FOLDER = require('../constants/DecoPaths').CACHE_FOLDER
+import {
+  CACHE_FOLDER,
+} from '../constants/DecoPaths'
 
 class ComponentHandler {
   register() {
@@ -65,10 +67,6 @@ class ComponentHandler {
       Logger.error(e)
       return null
     }
-  }
-
-  _readComponentMetadata(componentMetadataPath, callbacks) {
-    FileSystem.readFile(componentMetadataPath, callbacks)
   }
 
   importComponent(payload, respond) {
@@ -96,14 +94,14 @@ class ComponentHandler {
       const componentMetadataPath = path.join(componentFolder, componentName, componentName + '.js.deco')
       const requirePath = path.join(componentFolder, componentName, componentName).split('/')
       requirePath.shift() //get rid of leading slash
-      this._readComponentMetadata(componentMetadataPath, {
-        success: (data) => {
-          const metadata = JSON.parse(data.toString())
-          respond(onImportComponent(metadata, requirePath))
-        }, error: (err) => {
+      _fs.readFile(componentMetadataPath, (err, data) => {
+        if (err) {
           Logger.error(err)
           respond(onError('Could not get component metadata'))
+          return
         }
+        const metadata = JSON.parse(data.toString())
+        respond(onImportComponent(metadata, requirePath))
       })
     } catch (e) {
       Logger.error(e)

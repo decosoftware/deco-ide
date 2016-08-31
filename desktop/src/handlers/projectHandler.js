@@ -105,7 +105,7 @@ class ProjectHandler {
       fs.statSync(root)
     } catch(e) {
       // Trying to delete a project that does not exist eh?
-      Logger.error(e)
+      // That's ok, we'll swallow it since it's called by default
       return
     }
     try {
@@ -134,7 +134,7 @@ class ProjectHandler {
   _createTemplateFolder() {
     return new Promise((resolve, reject) => {
       try {
-        child_process.spawn('cp', ['-rf', path.join(LIB_PROJECT_FOLDER), TEMP_PROJECT_FOLDER_TEMPLATE])
+        child_process.spawn('cp', ['-rf', LIB_PROJECT_FOLDER, TEMP_PROJECT_FOLDER_TEMPLATE])
         .on('close', (code) => {
           if (code != 0) {
             Logger.error(`Project template creation exited with code: ${code}`)

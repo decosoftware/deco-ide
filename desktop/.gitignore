@@ -7,4 +7,5 @@ build/*
 public/*
 package/*
 !node_modules/react-native/local-cli/setup_env.sh
-!deco_unpack_lib/Scripts/deco-tool/node_modules
+!libs/Scripts/deco-tool/node_modules
+libs/node

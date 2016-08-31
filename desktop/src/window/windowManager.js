@@ -17,13 +17,15 @@
 
 "use strict";
 
-var fs = require('fs');
-var path = require('path');
+import fs from 'fs'
+import path from 'path'
 
-var BrowserWindow = require('electron').BrowserWindow; // Module to create native browser window.
-var dialog = require('electron').dialog;
-var nativeImage = require('electron').nativeImage;
-var app = require('electron').app;
+import {
+  BrowserWindow,
+  dialog,
+  nativeImage,
+  app
+} from 'electron'
 
 var Logger = require('../log/logger');
 
