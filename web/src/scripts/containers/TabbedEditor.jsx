@@ -22,7 +22,6 @@ import { connect } from 'react-redux'
 
 const { shell, remote } = Electron
 const path = remote.require('path')
-const FlowController = remote.require('./process/flowController.js')
 
 import { HotKeys } from 'react-hotkeys'
 
@@ -47,9 +46,10 @@ import { stopPackager, runPackager, clearConfigError, setFlowError } from '../ac
 import { importComponent, loadComponent } from '../actions/componentActions'
 import { insertComponent, insertTemplate } from '../actions/editorActions'
 import { closeTabWindow } from '../actions/compositeFileActions'
-import { fetchTemplateAndImportDependencies, importModule } from '../api/ModuleClient'
+import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { openFile } from '../actions/compositeFileActions'
 import { getRootPath } from '../utils/PathUtils'
+import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
@@ -157,11 +157,7 @@ class TabbedEditor extends Component {
           const {rootPath, npmRegistry} = this.props
 
           this.props.dispatch(setFlowError(null))
-
-          FlowController.getFlowConfigVersion()
-            .then(version => importModule('flow-bin', version, rootPath, npmRegistry))
-            .catch(() => importModule('flow-bin', 'latest', rootPath, npmRegistry))
-            .then(() => FlowController.startServer())
+          installAndStartFlow(rootPath, npmRegistry)
         }}
       />
     )

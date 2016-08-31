@@ -17,11 +17,19 @@
 
 import _ from 'lodash'
 
+const FlowController = Electron.remote.require('./process/flowController.js')
 import LocalStorage from '../persistence/LocalStorage'
+import { importModule } from '../api/ModuleClient'
 
 const FLOW_KEY = 'FLOW'
 
 export default {
+  installAndStartFlow(rootPath, npmRegistry) {
+    FlowController.getFlowConfigVersion()
+      .then(version => importModule('flow-bin', version, rootPath, npmRegistry))
+      .catch(() => importModule('flow-bin', 'latest', rootPath, npmRegistry))
+      .then(() => FlowController.startServer())
+  },
   shouldPromptForFlowInstallation(projectPath) {
     const {paths = []} = LocalStorage.loadObject(FLOW_KEY)
     return paths.indexOf(projectPath) === -1
