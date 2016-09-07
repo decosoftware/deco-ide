@@ -195,6 +195,7 @@ class WorkspaceToolbar extends Component {
           <ToolbarButton
             text={'Project'}
             icon={'project'}
+            id={'project-btn'}
             onClick={() => {
               const visibility = ! this.props.projectNavigatorVisible
               this.props.dispatch(setLeftSidebarVisibility(visibility))
@@ -203,6 +204,7 @@ class WorkspaceToolbar extends Component {
           <ToolbarButton
             text={'Console'}
             icon={'console'}
+            id={'console-btn'}
             onClick={() => {
               const visibility = ! this.props.consoleVisible
               this.props.dispatch(setConsoleVisibility(visibility))
@@ -252,6 +254,7 @@ class WorkspaceToolbar extends Component {
             renderContent={() => this._renderSimulatorMenu()}>
             <ToolbarButton
               text={'Simulator'}
+              id={'simulator-btn'}
               icon={'phone'}
               buttonState={simulatorButtonState}
               groupPosition={ToolbarButton.GROUP_POSITION.LEFT}
@@ -288,6 +291,7 @@ class WorkspaceToolbar extends Component {
           <ToolbarButton
             text={'Properties'}
             icon={'properties'}
+            id={'properties-btn'}
             onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PROPERTIES)}
             width={SIZE.BTN_LARGE} />
         </ToolbarButtonGroup>

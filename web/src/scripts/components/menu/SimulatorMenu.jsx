@@ -126,7 +126,9 @@ class SimulatorMenu extends Component {
   render() {
     const { ios, android, onClick, active = 'iOS', setActiveList, setAndroidEmulationOption, activeEmulationOption } = this.props
     return (
-      <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <div
+        id={'simulator-menu'}
+        style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
         <ToggleTab
           onClick={setActiveList}
           options={['iOS', 'Android']}

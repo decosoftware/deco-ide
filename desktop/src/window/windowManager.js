@@ -59,11 +59,13 @@ const intializeMainWindow = (browserWindow) => {
   var id = new Date().getTime().toString();
   global.openWindows[id] = browserWindow;
 
-  browserWindow.on('close', (e) => {
-    if (!WindowManager.userWantsToClose()) {
-      e.preventDefault()
-    }
-  })
+  if (process.env.NODE_ENV !== 'test') {
+    browserWindow.on('close', (e) => {
+      if (!WindowManager.userWantsToClose()) {
+        e.preventDefault()
+      }
+    })
+  }
 
   // Emitted when the window is closed.
   browserWindow.on('closed', () => {
@@ -103,7 +105,7 @@ var WindowManager = {
   },
   checkNeedsUpgrade: function(version) {
     return new Promise((resolve, reject) => {
-      if (upgradeHandler.needsUpgrade()) {
+      if (process.env.NODE_ENV !== 'test' && upgradeHandler.needsUpgrade()) {
         upgradeWindow = new BrowserWindow({
           width: 475,
           height: 178,
@@ -170,7 +172,6 @@ var WindowManager = {
     }
   },
   initializePreferencesWindow: function() {
-
     // Retain reference
     var preferencesWindow = new BrowserWindow({
       width: 450,

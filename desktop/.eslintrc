@@ -17,5 +17,6 @@
         "es6": true,
         "node": true,
         "commonjs": true,
+        "mocha": true,
     }
 }
