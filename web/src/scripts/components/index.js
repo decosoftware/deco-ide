@@ -58,7 +58,6 @@ export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
 // Publishing
 export PublishingSignIn from './publishing/PublishingSignIn'
 export PublishingBrowser from './publishing/PublishingBrowser'
-export PublishingMetadata from './publishing/PublishingMetadata'
 
 // User
 export UserDetailsBanner from './user/UserDetailsBanner'
