@@ -217,8 +217,6 @@ export default class {
       }
     })
 
-    // console.log('building element tree took:', Date.now() - startTime)
-    // console.log('root', root)
 
     return root
   }

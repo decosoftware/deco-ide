@@ -30,14 +30,12 @@ export const setElementTree = (filename, elementTree) => async (dispatch) => {
 export const selectElementFromPos = (filename, pos) => async (dispatch, getState) => {
   const elementTree = getState().elementTree.elementTreeForFile[filename]
 
-  // console.log('Element Tree >>', elementTree)
 
   if (elementTree) {
     const element = getElementByPos(elementTree, pos, 'inclusive')
 
     if (element) {
       const {elementPath} = element
-      // console.log('selected', elementPath, element)
 
       dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath}})
     }

@@ -21,8 +21,6 @@ import HTTPClient from './HTTPClient'
 import PopupUtils from '../utils/PopupUtils'
 
 const BASE = 'http://decowsstaging.herokuapp.com'
-// const BASE = 'http://localhost:8000'
-// const BASE = 'http://decows.deco.ngrok.io'
 const http = new HTTPClient(BASE)
 
 const defaultComponent = {

@@ -26,7 +26,6 @@ let styles = {
       cursor: 'default',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
-      // textOverflow: 'ellipsis',
       position: 'relative',
       backgroundColor: 'rgb(254,253,254)',
       display: 'flex',

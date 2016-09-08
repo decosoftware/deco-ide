@@ -58,9 +58,6 @@ const mapStateToProps = (state) => createSelector(
   ({components}) => components.list,
   (element, components) => ({
     element,
-    // component: element && _.find(components, {
-    //   tagName: element.name,
-    // }),
   })
 )
 
@@ -115,8 +112,6 @@ class ComponentProps extends Component {
         value={value}
         metadata={prop}
         onChange={this.handleValueChange.bind(this, prop)}
-        // onClickLabel={this.handleLabelClick.bind(this, prop, exists)}
-        // onSelectFile={this.props.onSelectFile}
         inset={15}
         width={width}
         exists={exists}
