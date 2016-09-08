@@ -35,7 +35,7 @@
     "react-dom": "15.2.0",
     "react-file-tree": "0.0.4",
     "react-hot-loader": "^1.1.7",
-    "react-hotkeys": "^0.8.0",
+    "react-hotkeys": "^0.9.0",
     "react-mixin": "^1.1.0",
     "react-redux": "^4.4.0",
     "react-router": "2.0.0",
