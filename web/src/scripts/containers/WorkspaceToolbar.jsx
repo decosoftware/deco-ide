@@ -279,21 +279,33 @@ class WorkspaceToolbar extends Component {
     }
 
     // Left & right must have equal width for best flexboxing
-    const spacer = SIZE.BTN_LARGE + SIZE.BTN_SMALL * 2 + SIZE.SEP_SMALL + SIZE.SEP_LARGE
+    const spacer = SIZE.BTN_LARGE + SIZE.BTN_SMALL * 2 + SIZE.SEP_SMALL +
+      (this.props.publishingFeature ? 0 : SIZE.SEP_LARGE)
 
     return (
       <div style={sectionStyle}>
         <div style={{width: spacer}}></div>
         <ToolbarButtonGroup
+          theme={this.props.publishingFeature ? ToolbarButtonGroup.THEME.DARK : ToolbarButtonGroup.THEME.LIGHT}
           activeIndexes={[
             this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PROPERTIES,
+            this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PUBLISHING,
           ]}>
           <ToolbarButton
             text={'Properties'}
             icon={'properties'}
             id={'properties-btn'}
             onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PROPERTIES)}
-            width={SIZE.BTN_LARGE} />
+            width={SIZE.BTN_LARGE}
+          />
+          {this.props.publishingFeature && (
+            <ToolbarButton
+              text={'Publishing'}
+              icon={'publish'}
+              onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PUBLISHING)}
+              width={SIZE.BTN_LARGE}
+            />
+          )}
         </ToolbarButtonGroup>
       </div>
     )
@@ -352,6 +364,7 @@ const mapStateToProps = (state) => {
     availableSimulatorsIOS: state.application.availableSimulatorsIOS,
     availableSimulatorsAndroid: state.application.availableSimulatorsAndroid,
     useGenymotion: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION],
+    publishingFeature: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
   }
 }
 

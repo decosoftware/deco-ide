@@ -25,12 +25,21 @@ const style = {
 }
 
 const inputStyle = {
+  width: '100%',
+  height: 45,
+  lineHeight: '45px',
+  paddingLeft: 15,
+  paddingRight: 15,
   outline: 'none',
-  width: 'calc(100% - 50px)',
-  padding: '12px 30px 11px 20px',
-  border: 'none',
-  fontSize: '12px',
-  borderBottom: '1px solid #ddd'
+  fontSize: 13,
+  letterSpacing: 0.3,
+  borderStyle: 'solid',
+  borderWidth: 0,
+  borderColor: '#E1E1E1',
+  borderTopWidth: 1,
+  borderBottomWidth: 1,
+  backgroundColor: '#F6F6F6',
+  boxSizing: 'border-box',
 }
 
 class FilterableInputList extends Component {
@@ -64,12 +73,12 @@ class FilterableInputList extends Component {
 
   render() {
     return (
-      <div className={this.props.className}
+      <div
         style={style}>
-        <input type='search'
-          ref='filterInput'
+        <input type={'search'}
+          ref={'filterInput'}
           style={inputStyle}
-          placeholder='Search all components'
+          placeholder={'Search Components'}
           value={this.props.searchText}
           onClick={this.handleClick.bind(this)}
           onChange={this.handleChange.bind(this)}/>

@@ -219,17 +219,23 @@ class ToolbarButton extends Component {
       display: 'inline-block',
     }, false)
 
-    if (this.props.theme === THEME.DARK &&
-        this.props.buttonState === BUTTON_STATE.ACTIVE) {
-      iconStyle = _.extend({}, iconStyle, {
-        background: 'white',
-      })
-    }
-
     if (this.state.pressed) {
       iconStyle = _.extend({}, iconStyle, {
         backgroundColor: 'rgb(60,60,60)',
       })
+    }
+
+    if (this.props.theme === THEME.DARK &&
+        this.props.buttonState === BUTTON_STATE.ACTIVE) {
+      if (this.state.pressed) {
+        iconStyle = _.extend({}, iconStyle, {
+          backgroundColor: 'rgb(180,180,180)',
+        })
+      } else {
+        iconStyle = _.extend({}, iconStyle, {
+          backgroundColor: 'white',
+        })
+      }
     }
 
     return iconStyle

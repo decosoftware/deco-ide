@@ -28,15 +28,17 @@ import {
   saveWindowBounds,
 } from '../actions/uiActions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS, LAYOUT_KEY } from '../constants/LayoutConstants'
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import LocalStorage from '../persistence/LocalStorage'
 
 import WorkspaceToolbar from './WorkspaceToolbar'
 import TabbedEditor from './TabbedEditor'
 import LiveValueInspector from './LiveValueInspector'
-import PublishingInspector from './PublishingInspector'
+import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentBrowser from './ComponentBrowser'
-import Pane from '../components/layout/Pane'
+import ComponentProps from './ComponentProps'
+import { Pane, InspectorPane } from '../components'
 
 class Workspace extends Component {
   constructor(props) {
@@ -102,14 +104,26 @@ class Workspace extends Component {
     switch (this.props.rightSidebarContent) {
       case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
         content = (
-          <LiveValueInspector
-            width={this.props.rightSidebarWidth}
-            decoDoc={this.props.decoDoc} />
+          <InspectorPane
+            title={'Properties'}
+          >
+            {this.props.publishingFeature ? (
+              <ComponentProps
+                width={this.props.rightSidebarWidth}
+                decoDoc={this.props.decoDoc}
+              />
+            ) : (
+              <LiveValueInspector
+                width={this.props.rightSidebarWidth}
+                decoDoc={this.props.decoDoc}
+              />
+            )}
+          </InspectorPane>
         )
       break
       case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
         content = (
-          <PublishingInspector
+          <Publishing
             width={this.props.rightSidebarWidth}
             decoDoc={this.props.decoDoc} />
         )
@@ -287,6 +301,7 @@ const mapStateToProps = (state, ownProps) => {
     leftSidebarBottomSectionHeight: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT],
     isTemp: ownProps.location.query && ownProps.location.query.temp,
     highlightLiteralTokens: state.editor.highlightLiteralTokens,
+    publishingFeature: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
   }
 
   props.centerPaneWidth = window.innerWidth -

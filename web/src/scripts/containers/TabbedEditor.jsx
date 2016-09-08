@@ -32,6 +32,7 @@ import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
 import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
+import ASTMiddleware from '../middleware/editor/ASTMiddleware'
 import NoContent from '../components/display/NoContent'
 import ProgressBar from '../components/display/ProgressBar'
 import Console from '../components/console/Console'
@@ -43,7 +44,6 @@ import EditorToast from '../components/editor/EditorToast'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
 import { stopPackager, runPackager, clearConfigError, setFlowError } from '../actions/applicationActions'
-import { importComponent, loadComponent } from '../actions/componentActions'
 import { insertComponent, insertTemplate } from '../actions/editorActions'
 import { closeTabWindow } from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
@@ -101,29 +101,28 @@ class TabbedEditor extends Component {
 
   onImportItem(item) {
     const {options} = this.props
-    this.props.dispatch(importComponent(item)).then((payload) => {
-      fetchTemplateAndImportDependencies(
-        item.dependencies,
-        item.template && item.template.text,
-        item.template && item.template.metadata,
-        this.props.rootPath,
-        this.props.npmRegistry,
-        item
-      ).then(({text, metadata}) => {
-        const {decoDoc} = this.props
 
-        if (! decoDoc) {
-          return
-        }
+    fetchTemplateAndImportDependencies(
+      item.dependencies,
+      item.template && item.template.text,
+      item.template && item.template.metadata,
+      this.props.rootPath,
+      this.props.npmRegistry,
+      item
+    ).then(({text, metadata}) => {
+      const {decoDoc} = this.props
 
-        this.props.dispatch(insertTemplate(
-          decoDoc,
-          text,
-          metadata,
-          item.imports,
-          _.get(item, 'inspector.group')
-        ))
-      })
+      if (! decoDoc) {
+        return
+      }
+
+      this.props.dispatch(insertTemplate(
+        decoDoc,
+        text,
+        metadata,
+        item.imports,
+        _.get(item, 'inspector.group')
+      ))
     })
   }
 
@@ -258,6 +257,7 @@ class TabbedEditor extends Component {
                   ClipboardMiddleware(this.props.dispatch, this.props.liveValuesById),
                   AutocompleteMiddleware(this.props.dispatch, this.props.focusedTabId),
                   IndentGuideMiddleware(this.props.dispatch),
+                  ASTMiddleware(this.props.dispatch, this.props.focusedTabId, this.props.publishingFeature),
                 ]}
                 onImportItem={this.onImportItem.bind(this)}
                 options={this.props.options}
@@ -300,32 +300,22 @@ class TabbedEditor extends Component {
             )
           }
           <SearchMenu
+            ItemComponent={ComponentMenuItem}
             items={this.props.componentList}
-            renderItem={(item, i) => {
-              return (
-                <ComponentMenuItem
-                  name={item.name}
-                  author={item.publisher}
-                  description={item.description}
-                  badges={item.tags || []}
-                  image={item.thumbnail}
-                  index={i} />
-              )
-            }}
             onItemClick={this.onImportItem.bind(this)}
             show={this.state.showMenu}
             anchorPosition={this.state.menuPosition}
             requestClose={() => {
-                //delay allows key events to finish first?
-                //TODO: move search menu to top level and take care of this on that refactor
-                setTimeout(() => {
-                  this.refs.editor.getDecoratedComponentInstance().focus()
-                }, 200)
-                this.setState({
-                  showMenu: false,
-                })
-              }
-            }/>
+              //delay allows key events to finish first?
+              //TODO: move search menu to top level and take care of this on that refactor
+              setTimeout(() => {
+                this.refs.editor.getDecoratedComponentInstance().focus()
+              }, 200)
+              this.setState({
+                showMenu: false,
+              })
+            }}
+          />
         </div>
       </HotKeys>
     )
@@ -351,10 +341,12 @@ const mapStateToProps = (state, ownProps) => {
     filesByTabId[tabId] = state.directory.filesById[tabId] || {}
   })
 
+  const publishingFeature = state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
+
   return {
     module: module,
     projectRoot: state.directory.rootPath,
-    componentList: state.modules.modules,
+    componentList: publishingFeature ? state.components.list : state.modules.modules,
     consoleVisible: state.ui.consoleVisible,
     packagerOutput: state.application.packagerOutput,
     packagerStatus: state.application.packagerStatus,
@@ -366,6 +358,7 @@ const mapStateToProps = (state, ownProps) => {
     progressBar: state.ui.progressBar,
     rootPath: getRootPath(state),
     npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
+    publishingFeature,
     configError: state.application.configError,
     flowError: state.application.flowError,
     options: {

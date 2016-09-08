@@ -17,11 +17,9 @@
 
 import { combineReducers, } from 'redux'
 import liveValueReducer from './liveValueReducer'
-import componentReducer from './componentReducer'
 
 const metadataReducer = combineReducers({
   liveValues: liveValueReducer,
-  components: componentReducer,
 })
 
 export default metadataReducer

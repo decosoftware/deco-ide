@@ -47,6 +47,26 @@ class ASTUtils {
     }
     return result
   }
+
+  static traverse(node, f) {
+    // Objects and arrays are traversed, potentially those
+    // that aren't nodes. Double check for a type property.
+    if (node.type) {
+      f(node)
+    }
+
+    _.each(node, (value, key) => {
+
+      // Assume anything with a type is a node
+      if (_.isObject(value) && value.type) {
+        this.traverse(value, f)
+      }
+
+      if (_.isArray(value)) {
+        this.traverse(value, f)
+      }
+    })
+  }
 }
 
 export default ASTUtils

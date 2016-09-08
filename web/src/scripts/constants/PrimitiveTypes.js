@@ -19,10 +19,18 @@ export default {
   STRING: 'string',
   NUMBER: 'number',
   BOOLEAN: 'boolean',
+  OBJECT: 'object',
+  ARRAY: 'array',
+  FUNCTION: 'function',
+  RAW: 'raw',
 }
 
 export const DISPLAY_NAMES = {
   STRING: 'String',
   NUMBER: 'Number',
   BOOLEAN: 'Boolean',
+  OBJECT: 'Object',
+  ARRAY: 'Array',
+  FUNCTION: 'Function',
+  RAW: 'Raw',
 }

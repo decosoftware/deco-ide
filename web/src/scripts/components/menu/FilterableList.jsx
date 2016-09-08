@@ -19,13 +19,36 @@ import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { HotKeys } from 'react-hotkeys'
+import { AutoSizer, VirtualScroll } from 'react-virtualized'
 
-import MenuItem from './MenuItem'
+import ComponentMenuItem from './ComponentMenuItem'
 import FilterableInputList from './FilterableInputList'
+
+const styles = {
+  main: {
+    outline: 'none',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    minHeight: 0,
+    minWidth: 0,
+  },
+  autoSizerWrapper: {
+    flex: '1 1 auto',
+    minHeight: 0,
+    minWidth: 0,
+    overflow: 'hidden',
+  },
+}
 
 class FilterableList extends Component {
   constructor(props) {
     super(props)
+
+    this.renderItem = this.renderItem.bind(this)
+    this.handleMouseLeave = this.handleMouseLeave.bind(this)
+
     this.state = {
       searchText: '',
       activeIndex: this.props.autoSelectFirst ? 0 : -1,
@@ -42,21 +65,31 @@ class FilterableList extends Component {
     this.keyHandlers = {
       moveUp: (e) => {
         e.preventDefault()
-        if (this.state.activeIndex > 0) {
+        const {activeIndex} = this.state
+        if (activeIndex > 0) {
+          const newIndex = activeIndex - 1
           this.setState({
-            activeIndex: this.state.activeIndex - 1,
+            activeIndex: newIndex,
             lastMoveTime: Date.now(),
           })
+          this._handleSelectItem(newIndex)
         }
       },
       moveDown: (e) => {
-        e.preventDefault();
-        const length = this.state.filteredListItems.length
-        if (this.state.activeIndex < length - 1) {
+        e.preventDefault()
+        const {items} = this.props
+        const {searchText, filteredListItems, activeIndex} = this.state
+        const list = searchText ? filteredListItems : items
+        const length = list.length
+        const isBeforeList = activeIndex === -1 && length > 0
+
+        if (isBeforeList || activeIndex < length - 1) {
+          const newIndex = activeIndex + 1
           this.setState({
-            activeIndex: this.state.activeIndex + 1,
+            activeIndex: newIndex,
             lastMoveTime: Date.now(),
           })
+          this._handleSelectItem(newIndex)
         }
       },
       select: (e) => {
@@ -82,11 +115,6 @@ class FilterableList extends Component {
   }
 
   componentDidUpdate() {
-    const activeIndex = this.state.activeIndex
-
-    if (this.refs[activeIndex]) {
-      React.findDOMNode(this.refs[activeIndex]).scrollIntoViewIfNeeded(false)
-    }
   }
 
   //TODO: move this somewhere else and make it more legit
@@ -94,13 +122,22 @@ class FilterableList extends Component {
     const filteredList = _.filter(list, (pkg) => {
       const escapedSearchText = searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
       const regExpPattern = "\\b" + escapedSearchText
-      return pkg.name.match(new RegExp(regExpPattern, 'gi'))
+
+      if (pkg.tags &&
+          pkg.tags.length > 0 &&
+          pkg.tags.indexOf(escapedSearchText) >= 0) {
+        return true
+      }
+
+      const name = pkg.displayName || pkg.name
+      return name.match(new RegExp(regExpPattern, 'gi'))
     })
 
     return _.orderBy(filteredList, [
       (pkg) => {
-        if (pkg.name) {
-          return pkg.name.toLowerCase()
+        const name = pkg.displayName || pkg.name
+        if (name) {
+          return name.toLowerCase()
         }
       },
       (pkg) => {
@@ -127,51 +164,102 @@ class FilterableList extends Component {
       activeIndex: newIndex,
       filteredListItems: filteredListItems,
     })
+    this._handleSelectItem(newIndex, searchText, filteredListItems)
   }
 
-  _onItemMouseOver(i) {
+  _onItemMouseEnter(i) {
     if (Date.now() - this.state.lastMoveTime > 200) {
       this.setState({
         activeIndex: i,
       })
+      this._handleSelectItem(i)
     }
   }
 
-  _renderListItems() {
-    const list = !this.state.searchText ? this.props.items : this.state.filteredListItems
-    const renderedListItems = _.map(list, (item, i) => {
-      return React.cloneElement(this.props.renderItem(item, i), {
-        key: item.name,
-        ref: i,
-        onClick: this.props.onItemClick.bind(this, item),
-        onMouseOver: this._onItemMouseOver.bind(this, i),
-        width: this.props.width,
-        active: i === this.state.activeIndex,
-      })
+  _handleSelectItem(index, searchText, filteredListItems) {
+    searchText = searchText || this.state.searchText
+    filteredListItems = filteredListItems || this.state.filteredListItems
+
+    const {onSelectItem, items} = this.props
+    const list = searchText ? filteredListItems : items
+
+    onSelectItem(list[index])
+  }
+
+  handleMouseLeave() {
+    this.setState({
+      activeIndex: -1,
     })
-    if (renderedListItems.length === 0) {
-      renderedListItems.push(
-        <MenuItem key={'nomatches'} name={'No matches'}/>
+    this._handleSelectItem(-1)
+  }
+
+  renderItem({index}) {
+    const {items, onItemClick, ItemComponent} = this.props
+    const {searchText, filteredListItems, activeIndex} = this.state
+    const list = searchText ? filteredListItems : items
+
+    if (list.length === 0) {
+      return (
+        <ItemComponent
+          key={'nomatches'}
+          name={'No Matches'}
+        />
       )
     }
-    return renderedListItems
+
+    const item = list[index]
+    const {name, displayName, tags} = item
+
+    return (
+      <ItemComponent
+        key={item.id}
+        ref={index}
+        onClick={onItemClick}
+        onMouseEnter={this._onItemMouseEnter.bind(this, index)}
+        active={index === activeIndex}
+        name={displayName || name}
+        tags={tags}
+        item={item}
+      />
+    )
   }
 
   render() {
-    const style = {
-      outline: 'none'
-    }
+    const {keyMap, keyHandlers, _onSearchTextChange} = this
+    const {items, onItemClick, ItemComponent} = this.props
+    const {searchText, filteredListItems, activeIndex} = this.state
+    const list = searchText ? filteredListItems : items
 
     return (
-      <HotKeys keyMap={this.keyMap} handlers={this.keyHandlers} style={style}>
-        <div className={this.props.className} style={this.props.style}>
-          <FilterableInputList
-            searchText={this.state.searchText}
-            handleSearchTextChange={this._onSearchTextChange.bind(this)}/>
-          <div className={'scrollbar-theme-light'}
-            style={this.props.innerStyle}>
-            {this._renderListItems()}
-          </div>
+      <HotKeys
+        keyMap={keyMap}
+        handlers={keyHandlers}
+        style={styles.main}
+      >
+        <FilterableInputList
+          searchText={searchText}
+          handleSearchTextChange={_onSearchTextChange.bind(this)}
+        />
+        <div
+          style={styles.autoSizerWrapper}
+          onMouseLeave={this.handleMouseLeave}
+        >
+          <AutoSizer>
+            {({width, height}) => (
+              <VirtualScroll
+                height={height}
+                overscanRowCount={3}
+                rowHeight={45}
+                rowRenderer={this.renderItem}
+                rowCount={list.length || 1}
+                width={width}
+                scrollToIndex={activeIndex}
+                // Force update
+                activeIndex={activeIndex}
+                hasContent={list.length > 0}
+              />
+            )}
+          </AutoSizer>
         </div>
       </HotKeys>
     )
@@ -179,10 +267,9 @@ class FilterableList extends Component {
 }
 
 FilterableList.defaultProps = {
-  className: '',
-  style: {},
   items: [],
   hideMenu: () => {},
+  onSelectItem: () => {},
 }
 
 export default FilterableList

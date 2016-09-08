@@ -28,15 +28,6 @@ import {toValue, toCode} from '../utils/Parser'
 import {setLiveValueCode, setLiveValueMetadataField} from '../actions/liveValueActions'
 
 const style = {
-  display: 'flex',
-  flex: '1 1 auto',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  overflow: 'hidden',
-  minHeight: 0,
-}
-
-const innerStyle = {
   paddingTop: 5,
   paddingBottom: 5,
   display: 'flex',
@@ -128,10 +119,7 @@ class LiveValueInspector extends Component {
   render() {
     return (
       <div style={style}>
-        <PaneHeader text={'Properties'} />
-        <div style={innerStyle}>
-          {this.renderContent()}
-        </div>
+        {this.renderContent()}
       </div>
     )
   }

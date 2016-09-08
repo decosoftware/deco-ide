@@ -17,26 +17,67 @@
 
 import React, { Component, PropTypes } from 'react'
 
-const style = {
-  backgroundColor: 'white',
-  height: 32,
-  width: '100%',
-  lineHeight: '32px',
-  textAlign: 'center',
-  color: 'rgb(103,103,103)',
-  fontSize: 12,
-  fontWeight: 500,
-  borderBottom: '1px solid rgb(224,224,224)'
+const styles = {
+  container: {
+    backgroundColor: 'white',
+    height: 32,
+    width: '100%',
+    lineHeight: '32px',
+    textAlign: 'center',
+    color: 'rgb(103,103,103)',
+    fontSize: 12,
+    fontWeight: 500,
+    borderBottom: '1px solid rgb(224,224,224)',
+    paddingLeft: 10,
+    paddingRight: 10,
+    cursor: 'default',
+  },
+  sideTitle: {
+    position: 'absolute',
+    color: '#198BFB',
+  },
+  rightTitle: {
+    right: 10,
+  },
+  leftTitle: {
+    left: 10,
+  },
 }
 
-const PaneHeader = ({text}) => {
-  return (
-    <div
-      className={'helvetica-smooth'}
-      style={style}>
-      {text}
-    </div>
-  )
-}
+export default class extends Component {
 
-export default PaneHeader
+  static propTypes = {}
+
+  static defaultProps = {
+    onClickLeftTitle: () => {},
+    onClickRightTitle: () => {},
+  }
+
+  constructor(props) {
+    super(props)
+
+    this.state = {}
+  }
+
+  render() {
+    const {text, leftTitle, rightTitle, onClickLeftTitle, onClickRightTitle} = this.props
+
+    return (
+      <div className={'helvetica-smooth'} style={styles.container}>
+        <span
+          style={{...styles.sideTitle, ...styles.leftTitle}}
+          onClick={onClickLeftTitle}
+        >
+          {leftTitle}
+        </span>
+        {text}
+        <span
+          style={{...styles.sideTitle, ...styles.rightTitle}}
+          onClick={onClickRightTitle}
+        >
+          {rightTitle}
+        </span>
+      </div>
+    )
+  }
+}

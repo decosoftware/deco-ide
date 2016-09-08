@@ -61,6 +61,7 @@ export const saveMetadata = (fileId) => {
     // If no metadata, delete the metadata file
     if (_.isEmpty(output)) {
       request(_deleteFileMetadata(fileId, rootPath))
+        .catch(() => console.log('failed to delete metadata for', fileId))
     // Else, write the metadata
     } else {
       request(_writeFileMetadata(fileId, rootPath, JSON.stringify(output, null, '\t')))

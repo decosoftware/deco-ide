@@ -34,8 +34,6 @@ const Logger = require('../log/logger')
 const ROOT_FOLDER = '/com.decosoftware.Deco'
 // holds Project skeleton and modules.tar.gz
 const EXTERNAL_LIB_FOLDER = '/com.decosoftware.Deco/libs'
-// used by component handler
-const COMPONENT_CACHE_FOLDER = '/com.decosoftware.Deco/cache'
 // temp project that will be opened on create new
 const TEMP_PROJECT_FOLDER = '/.Deco/tmp/Project'
 // temp project template that will replace old temp project listed above
@@ -56,7 +54,6 @@ module.exports = {
   APP_SUPPORT: getAppPath(ROOT_FOLDER),
   EXTERNAL_LIB_FOLDER: getAppPath(EXTERNAL_LIB_FOLDER),
   TMP_FOLDER: getTmpPath(ROOT_FOLDER),
-  CACHE_FOLDER: getAppPath(COMPONENT_CACHE_FOLDER),
   LIB_PROJECT_FOLDER: getAppPath(LIB_PROJECT_FOLDER),
   TEMP_PROJECT_FOLDER: getHomePath(TEMP_PROJECT_FOLDER),
   TEMP_PROJECT_FOLDER_TEMPLATE: getHomePath(TEMP_PROJECT_FOLDER_TEMPLATE),

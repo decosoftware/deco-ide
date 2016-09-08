@@ -17,6 +17,7 @@
 
 import React, { Component, } from 'react'
 import { DragSource } from 'react-dnd'
+import pureRender from 'pure-render-decorator'
 
 import ComponentMenuItem from './ComponentMenuItem'
 
@@ -53,6 +54,7 @@ const overlayStyle = {
   backgroundColor: 'rgba(255,255,255,0.85)',
 }
 
+@pureRender
 class DraggableComponentMenuItem extends Component {
   constructor(props) {
     super(props)
@@ -91,16 +93,12 @@ class DraggableComponentMenuItem extends Component {
       position: 'relative',
     }
     return connectDragSource(
-      <div style={style}
-        titile={'Drag me into your code!'}
-        onClick={this.handleClick.bind(this)}>
-          <ComponentMenuItem {...this.props} />
-          {
-            clicked && <div style={overlayStyle}>
-              <div>Drag me into your code!</div>
-              <div>Or use <b>cmd+i</b> to insert while typing</div>
-            </div>
-          }
+      <div
+        style={style}
+        title={'Drag me into your code!'}
+        onClick={this.handleClick.bind(this)}
+      >
+        <ComponentMenuItem {...this.props} />
       </div>,
       { dropEffect: 'copy' }
     )
