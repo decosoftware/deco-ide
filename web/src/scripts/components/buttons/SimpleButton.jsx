@@ -18,12 +18,7 @@
 import _ from 'lodash'
 import React, { Component, PropTypes, } from 'react'
 
-const REMOVE_PROPS = [
-  'defaultStyle',
-  'activeStyle',
-  'hoverStyle',
-  'innerStyle',
-]
+const OMIT_PROPS = ['defaultStyle', 'activeStyle', 'hoverStyle', 'innerStyle']
 
 class SimpleButton extends Component {
   constructor(props) {
@@ -63,8 +58,7 @@ class SimpleButton extends Component {
   render() {
     const buttonStyle = this.props[this.state.styleSelector]
 
-    // Omit non-standard props from being passed down to the underlying div
-    const props = _.omitBy(this.props, (value, key) => REMOVE_PROPS.includes(key))
+    const props = _.omitBy(this.props, (v, k) => OMIT_PROPS.includes(k))
 
     return (
       <div {...props}
