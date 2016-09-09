@@ -1,6 +1,10 @@
 import DecoClient from '../api/DecoClient'
 
 export const at = {
+  USER_COMPONENTS_FETCH_REQUEST_PENDING: 'USER_COMPONENTS_FETCH_REQUEST_PENDING',
+  USER_COMPONENTS_FETCH_REQUEST_SUCCESS: 'USER_COMPONENTS_FETCH_REQUEST_SUCCESS',
+  USER_COMPONENTS_FETCH_REQUEST_FAILURE: 'USER_COMPONENTS_FETCH_REQUEST_FAILURE',
+
   COMPONENTS_FETCH_REQUEST_PENDING: 'COMPONENTS_FETCH_REQUEST_PENDING',
   COMPONENTS_FETCH_REQUEST_SUCCESS: 'COMPONENTS_FETCH_REQUEST_SUCCESS',
   COMPONENTS_FETCH_REQUEST_FAILURE: 'COMPONENTS_FETCH_REQUEST_FAILURE',
@@ -16,6 +20,20 @@ export const at = {
   COMPONENT_DELETE_REQUEST_PENDING: 'COMPONENT_DELETE_REQUEST_PENDING',
   COMPONENT_DELETE_REQUEST_SUCCESS: 'COMPONENT_DELETE_REQUEST_SUCCESS',
   COMPONENT_DELETE_REQUEST_FAILURE: 'COMPONENT_DELETE_REQUEST_FAILURE',
+}
+
+export const fetchUserComponents = (id) => async (dispatch, getState) => {
+  dispatch({type: at.USER_COMPONENTS_FETCH_REQUEST_PENDING})
+
+  try {
+    const {token} = getState().user
+    const components = await DecoClient.getUserComponents(id, {access_token: token})
+    dispatch({type: at.USER_COMPONENTS_FETCH_REQUEST_SUCCESS, payload: components})
+    return components
+  } catch (e) {
+    dispatch({type: at.USER_COMPONENTS_FETCH_REQUEST_FAILURE})
+    throw e
+  }
 }
 
 export const fetchComponents = () => async (dispatch) => {

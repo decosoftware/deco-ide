@@ -20,6 +20,7 @@ import { getToken } from '../utils/AuthUtils'
 
 const initialState = {
   token: getToken(),
+  authorId: null,
   githubId: null,
   name: null,
   thumbnail: null,
@@ -56,8 +57,8 @@ export default (state = initialState, action) => {
     }
 
     case at.USER_INFO_SUCCESS: {
-      const {username} = payload.auth.github
-      return {...state, infoPending: false, githubId: username}
+      const {_id, auth: {github: {username}}} = payload
+      return {...state, infoPending: false, githubId: username, authorId: _id}
     }
 
     default: {
