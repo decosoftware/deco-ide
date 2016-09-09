@@ -15,9 +15,12 @@
  *
  */
 
+import _ from 'lodash'
 import React, { Component, } from 'react'
 
 import SimpleButton from './SimpleButton'
+
+const OMIT_PROPS = ['type', 'align']
 
 const styles = {
   base: {
@@ -114,9 +117,11 @@ export default class extends Component {
       active = styles.destructiveActive
     }
 
+    const props = _.omitBy(this.props, (v, k) => OMIT_PROPS.includes(k))
+
     return (
       <SimpleButton
-        {...this.props}
+        {...props}
         defaultStyle={base}
         activeStyle={{...base, ...active}}
         hoverStyle={{...base, ...hover}}

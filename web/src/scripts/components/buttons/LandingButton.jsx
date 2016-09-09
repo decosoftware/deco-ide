@@ -15,8 +15,10 @@
  *
  */
 
-import SimpleButton from './SimpleButton'
+import _ from 'lodash'
 import React, { Component } from 'react'
+
+import SimpleButton from './SimpleButton'
 
 const defaultStyle = {
   display: 'flex',
@@ -63,8 +65,10 @@ export default class LandingButton extends Component {
       def:    {...defaultStyle, ...alignStyle},
     }
 
+    const props = _.omitBy(this.props, (v, k) => k === 'align')
+
     return (
-      <SimpleButton {...this.props}
+      <SimpleButton {...props}
         defaultStyle={styles.def}
         activeStyle={styles.active}
         hoverStyle={styles.hover}

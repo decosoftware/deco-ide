@@ -15,7 +15,10 @@
  *
  */
 
+import _ from 'lodash'
 import React, { Component, PropTypes, } from 'react'
+
+const OMIT_PROPS = ['defaultStyle', 'activeStyle', 'hoverStyle', 'innerStyle']
 
 class SimpleButton extends Component {
   constructor(props) {
@@ -54,8 +57,11 @@ class SimpleButton extends Component {
 
   render() {
     const buttonStyle = this.props[this.state.styleSelector]
+
+    const props = _.omitBy(this.props, (v, k) => OMIT_PROPS.includes(k))
+
     return (
-      <div {...this.props}
+      <div {...props}
         style={buttonStyle}
         onMouseDown={this._onMouseDown}
         onMouseUp={this._onMouseUp}
