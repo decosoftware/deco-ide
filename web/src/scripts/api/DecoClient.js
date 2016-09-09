@@ -43,56 +43,51 @@ const defaultComponent = {
   },
 }
 
-const localToRemote = (local) => {
-  const remote = _.cloneDeep(local)
-  delete remote.id
-  return remote
-}
-
-const remoteToLocal = (remote) => {
-  return {
-    ...remote.payload,
-    id: remote._id,
-    componentId: remote.componentId
-  }
-}
-
 export default class {
-  static async getComponents() {
-    const components = await http.get('/components')
-    return components
-      .filter(c => c.componentId && c.payload)
-      .map(remoteToLocal)
+
+  /* COMPONENTS */
+
+  static getComponents() {
+    return http.get(`/components`)
   }
 
-  static async createComponent(component = defaultComponent, params) {
-    const created = await http.post('/components', params, localToRemote(component))
-    return remoteToLocal(created)
+  static getUserComponents(userId, params) {
+    return http.get(`/users/${userId}/components`, params)
+  }
+
+  static createComponent(component = defaultComponent, params) {
+    return http.post(`/components`, params, component)
+  }
+
+  static modifyComponent(method, component, params) {
+    const {id, revisionId} = component
+
+    if (!id) {
+      throw new Error(`Cannot ${method} component - missing id`)
+    }
+
+    if (!revisionId) {
+      throw new Error(`Cannot ${method} component - missing revisionId`)
+    }
+
+    return http[method](`/components/${id}/${revisionId}`, params, component)
   }
 
   static updateComponent(component, params) {
-    const {id} = component
-
-    if (!id) {
-      throw new Error('Cannot update component - missing id')
-    }
-
-    return http.put(`/components/${id}`, params, localToRemote(component))
+    return this.modifyComponent('put', component, params)
   }
 
   static deleteComponent(component, params) {
-    const {id} = component
-
-    if (!id) {
-      throw new Error('Cannot update component - missing id')
-    }
-
-    return http.delete(`/components/${id}`, params)
+    return this.modifyComponent('delete', component, params)
   }
 
-  static me(params) {
-    return http.get('/users/me', params)
+  /* USERS */
+
+  static getUser(id, params) {
+    return http.get(`/users/${id}`, params)
   }
+
+  /* AUTHENTICATION */
 
   static authenticate() {
     const url = http.createUrl('/credentials')

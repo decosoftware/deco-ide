@@ -38,25 +38,23 @@ const styles = {
 }
 
 const mapStateToProps = (state) => createSelector(
-  ({components}) => ({
-    components: components.list
-  }),
+  ({components}) => components.list,
+  ({user}) => !!user.token,
   ({user}) => ({
-    signedIn: !!user.token,
-    user: {
-      name: user.name,
-      thumbnail: user.thumbnail,
-      username: user.githubId,
-    },
+    authorId: user.authorId,
+    name: user.name,
+    thumbnail: user.thumbnail,
+    username: user.githubId,
   }),
   ({ui: {publishing}}) => ({
     currentComponentId: publishing.currentComponentId
   }),
-  (components, user, publishing) => ({
-    ...components,
-    ...user,
+  (components, signedIn, user, publishing) => ({
+    components: _.filter(components, ['authorId', user.authorId]),
+    signedIn,
+    user,
     currentComponent: publishing.currentComponentId ?
-      _.find(components.components, ['id', publishing.currentComponentId]) : null
+      _.find(components, ['id', publishing.currentComponentId]) : null
   })
 )
 
