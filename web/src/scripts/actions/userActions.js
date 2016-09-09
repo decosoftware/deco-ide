@@ -65,7 +65,7 @@ export const fetchUserInfo = () => async (dispatch, getState) => {
 
   try {
     const {token} = getState().user
-    const result = await DecoClient.me({access_token: token})
+    const result = await DecoClient.getUser('me', {access_token: token})
     dispatch({type: at.USER_INFO_SUCCESS, payload: result})
     return result
   } catch (e) {

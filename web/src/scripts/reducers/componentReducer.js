@@ -16,6 +16,7 @@
  */
 
 import { componentConstants as at } from '../actions'
+import ComponentUtils from '../utils/ComponentUtils'
 
 const initialState = {
   list: [],
@@ -23,18 +24,33 @@ const initialState = {
   createPending: false,
   updatePending: false,
   deletePending: false,
+  fetchMinePending: false,
 }
 
 export default (state = initialState, action) => {
   const {type, payload} = action
 
   switch(type) {
+    case at.USER_COMPONENTS_FETCH_REQUEST_PENDING: {
+      return {...state, fetchMinePending: true}
+    }
+
+    case at.USER_COMPONENTS_FETCH_REQUEST_SUCCESS: {
+      const list = ComponentUtils.removeDuplicates([...state.list, ...payload])
+      return {...state, fetchMinePending: false, list}
+    }
+
+    case at.USER_COMPONENTS_FETCH_REQUEST_FAILURE: {
+      return {...state, fetchMinePending: false}
+    }
+
     case at.COMPONENTS_FETCH_REQUEST_PENDING: {
       return {...state, fetchPending: true}
     }
 
     case at.COMPONENTS_FETCH_REQUEST_SUCCESS: {
-      return {...state, fetchPending: false, list: payload}
+      const list = ComponentUtils.removeDuplicates([...state.list, ...payload])
+      return {...state, fetchPending: false, list}
     }
 
     case at.COMPONENTS_FETCH_REQUEST_FAILURE: {
@@ -56,14 +72,8 @@ export default (state = initialState, action) => {
 
     // Once the update request is made, optimistically update the list
     case at.COMPONENT_UPDATE_REQUEST_PENDING: {
-      const {list} = state
-      const existingIndex = _.findIndex(list, ['id', payload.id])
-      const updatedList = existingIndex !== -1 ? [
-        ...list.slice(0, existingIndex),
-        payload,
-        ...list.slice(existingIndex + 1, list.length),
-      ] : list
-      return {...state, updatePending: true, list: updatedList}
+      const list = ComponentUtils.updateInList(state.list, payload)
+      return {...state, updatePending: true, list}
     }
 
     case at.COMPONENT_UPDATE_REQUEST_SUCCESS: {
@@ -76,13 +86,8 @@ export default (state = initialState, action) => {
 
     // Once the delete request is made, optimistically update the list
     case at.COMPONENT_DELETE_REQUEST_PENDING: {
-      const {list} = state
-      const existingIndex = _.findIndex(list, ['id', payload.id])
-      const updatedList = existingIndex !== -1 ? [
-        ...list.slice(0, existingIndex),
-        ...list.slice(existingIndex + 1, list.length),
-      ] : list
-      return {...state, deletePending: true, list: updatedList}
+      const list = ComponentUtils.deleteFromList(state.list, payload)
+      return {...state, deletePending: true, list}
     }
 
     case at.COMPONENT_DELETE_REQUEST_SUCCESS: {
