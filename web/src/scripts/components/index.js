@@ -27,6 +27,9 @@ export Callout from './display/Callout'
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'
 
+// File Tree
+export Node from './filetree/Node'
+
 // Forms
 export FormHeader from './forms/FormHeader'
 export FormHeaderPlusButton from './forms/FormHeaderPlusButton'
@@ -54,6 +57,9 @@ export TabContainer from './layout/TabContainer'
 export FilterableList from './menu/FilterableList'
 export ComponentMenuItem from './menu/ComponentMenuItem'
 export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
+
+// Modal
+export NamingBanner from './modal/NamingBanner'
 
 // Publishing
 export PublishingSignIn from './publishing/PublishingSignIn'

@@ -19,7 +19,7 @@ import CodeMirror from 'codemirror'
 
 import {edit, undo, redo, markDirty} from '../../actions/editorActions'
 import { markUnsaved } from '../../actions/fileActions'
-import { makeTabPermanent } from '../../actions/tabActions'
+import { tabActions } from '../../actions'
 import { CONTENT_PANES } from '../../constants/LayoutConstants'
 import Middleware from '../Middleware'
 import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
@@ -87,7 +87,7 @@ class HistoryMiddleware extends Middleware {
       this._changeId = this._decoDoc.changeGeneration()
       this.dispatch(markUnsaved(this._decoDoc.id))
       this.dispatch(markDirty(this._decoDoc.id))
-      this.dispatch(makeTabPermanent(CONTENT_PANES.CENTER))
+      this.dispatch(tabActions.makeTabPermanent(CONTENT_PANES.CENTER))
     }
   }
 
