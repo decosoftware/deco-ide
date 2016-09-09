@@ -47,16 +47,16 @@ export default class {
 
   /* COMPONENTS */
 
-  static async getComponents() {
-    return await http.get(`/components`)
+  static getComponents() {
+    return http.get(`/components`)
   }
 
-  static async getUserComponents(userId, params) {
-    return await http.get(`/users/${userId}/components`, params)
+  static getUserComponents(userId, params) {
+    return http.get(`/users/${userId}/components`, params)
   }
 
-  static async createComponent(component = defaultComponent, params) {
-    return await http.post(`/components`, params, component)
+  static createComponent(component = defaultComponent, params) {
+    return http.post(`/components`, params, component)
   }
 
   static modifyComponent(method, component, params) {
