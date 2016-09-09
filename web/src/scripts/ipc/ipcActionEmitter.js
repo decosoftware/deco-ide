@@ -54,9 +54,7 @@ import {
   upgradeStatus,
 } from '../actions/uiActions'
 
-import {
-  closeAllTabs,
-} from '../actions/tabActions'
+import { tabActions } from '../actions'
 
 import AcceleratorConstants from 'shared/constants/ipc/AcceleratorConstants'
 const {
@@ -124,7 +122,7 @@ const ipcActionEmitter = (store) => {
     }
     store.dispatch(clearFileState())
     store.dispatch(clearEditorState())
-    store.dispatch(closeAllTabs())
+    store.dispatch(tabActions.closeAllTabs())
     const state = store.getState()
     store.dispatch(routeActions.push({
       pathname: `/workspace/${rootPath}`,

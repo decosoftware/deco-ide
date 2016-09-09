@@ -15,45 +15,39 @@
  *
  */
 
-import {
-  addTab,
-  closeTab,
-  clearFocusedTab
-} from '../actions/tabActions'
-
-import {
-	clearCurrentDoc,
-} from '../actions/editorActions'
-
-import TabUtils from '../utils/TabUtils'
-
-import { openDocument } from '../actions/editorActions'
+import * as tabActions from '../actions/tabActions'
+import * as editorActions from '../actions/editorActions'
 import FileTreeActions from '../filetree/actions'
-
+import TabUtils from '../utils/TabUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
-export const openFile = (path) => (dispatch, getState) => {
-  dispatch(openDocument(path)).then(() => {
-    FileTreeActions.selectFile(path)
-    dispatch(addTab(CONTENT_PANES.CENTER, path))
-  }).catch(() => {
-    dispatch(addTab(CONTENT_PANES.CENTER, path))
-  })
+export const openFile = (path) => async (dispatch, getState) => {
+  try {
+    await dispatch(editorActions.openDocument(path))
+
+  // Attempt to show the tab even if opening the doc failed
+  } catch (e) {
+    dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
+    return
+  }
+
+  FileTreeActions.selectFile(path)
+  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
 }
 
-export const closeTabWindow = (closeTabId) => (dispatch, getState) => {
-  dispatch(closeTab(CONTENT_PANES.CENTER, closeTabId))
+export const closeTabWindow = (closeTabId) => async (dispatch, getState) => {
+  dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId))
 
 	const tabs = getState().ui.tabs
 	const tabToFocus = tabs.CENTER && TabUtils.determineTabToFocus(tabs.CENTER.tabIds, closeTabId, tabs.CENTER.focusedTabId)
 
 	// If there's another tab to open, open the file for it
-    if (tabToFocus) {
-      const filePath = getState().directory.filesById[tabToFocus].path
-      dispatch(openFile(filePath))
-    } else {
-      dispatch(clearFocusedTab(CONTENT_PANES.CENTER))
-      dispatch(clearCurrentDoc())
-      FileTreeActions.clearSelections()
-    }
+  if (tabToFocus) {
+    const filePath = getState().directory.filesById[tabToFocus].path
+    dispatch(openFile(filePath))
+  } else {
+    dispatch(tabActions.clearFocusedTab(CONTENT_PANES.CENTER))
+    dispatch(editorActions.clearCurrentDoc())
+    FileTreeActions.clearSelections()
+  }
 }

@@ -220,6 +220,14 @@ class Workspace extends Component {
   }
 }
 
+const getProjectNavigatorStyle = _.memoize((leftSidebarBottomSectionHeight) => ({
+  position: 'absolute',
+  top: 0,
+  height: `calc(100% - ${leftSidebarBottomSectionHeight}px)`,
+  display: 'flex',
+  flexDirection: 'column',
+}))
+
 function getStyles(props) {
   const {
     leftSidebarBottomSectionHeight,
@@ -270,13 +278,7 @@ function getStyles(props) {
       height: leftSidebarBottomSectionHeight,
       width: '100%',
     },
-    projectNavigatorStyle: {
-      position: 'absolute',
-      top: 0,
-      height: `calc(100% - ${leftSidebarBottomSectionHeight}px)`,
-      display: 'flex',
-      flexDirection: 'column',
-    },
+    projectNavigatorStyle: getProjectNavigatorStyle(leftSidebarBottomSectionHeight),
   }
 }
 

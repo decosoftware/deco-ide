@@ -15,106 +15,119 @@
  *
  */
 
+import _ from 'lodash'
 import React, { Component, PropTypes, } from 'react'
 import { connect } from 'react-redux'
-import _ from 'lodash'
-
-const remote = Electron.remote
-const path = remote.require('path')
-
-import PaneHeader from '../components/headers/PaneHeader'
+import { bindActionCreators } from 'redux'
+import { createSelector } from 'reselect'
 import FileTree from 'react-file-tree'
+import path from 'path'
+import pureRender from 'pure-render-decorator'
+
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-
-import {
-  addTab,
-  swapTab,
-  closeTab,
-  makeTabPermanent,
-} from '../actions/tabActions'
-import {
-  updateFileTreeVersion,
-  registerPath,
-  showInFinder,
-} from '../actions/fileActions'
-
-import { fileTreeController, Plugins } from '../filetree'
+import { tabActions } from '../actions'
+import * as fileActions from '../actions/fileActions'
+import * as fileTreeCompositeActions from '../actions/fileTreeCompositeActions'
+import * as compositeFileActions from '../actions/compositeFileActions'
+import * as uiActions from '../actions/uiActions'
+import { fileTreeController, PLUGINS } from '../filetree'
 import { showContextMenu } from '../filetree/contextMenu'
-import Node from '../components/filetree/Node'
-import {
-  createFile,
-} from '../actions/fileTreeCompositeActions'
-
-import { openFile } from '../actions/compositeFileActions'
-import { openDocument, docIdChange } from '../actions/editorActions'
-import { pushModal } from '../actions/uiActions'
-import { historyIdChange } from '../actions/historyActions'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
-import NamingBanner from '../components/modal/NamingBanner'
+import { PaneHeader, Node, NamingBanner } from '../components'
 
+const SCAFFOLDS = FileScaffoldFactory.getScaffolds()
+
+const mapStateToProps = (state) => ({})
+
+const mapDispatchToProps = (dispatch) => ({
+  tabActions: bindActionCreators(tabActions, dispatch),
+  fileActions: bindActionCreators(fileActions, dispatch),
+  fileTreeCompositeActions: bindActionCreators(fileTreeCompositeActions, dispatch),
+  compositeFileActions: bindActionCreators(compositeFileActions, dispatch),
+  uiActions: bindActionCreators(uiActions, dispatch),
+  dispatch,
+})
+
+@pureRender
 class ProjectNavigator extends Component {
-  constructor(props) {
-    super(props)
+
+  static defaultProps = {
+    className: '',
+    style: {},
   }
 
   componentWillMount() {
-    this._showContextMenu = showContextMenu.bind(this, this.props.dispatch)
+    this.showContextMenu = showContextMenu.bind(this, this.props.dispatch)
   }
 
-  renderNode(props) {
+  onSelectFile = (e, node, nodeMetadata, index) => {
+    const {path: filepath, type} = node
+
+    if (type == 'file') {
+      this.props.fileActions.registerPath(filepath)
+      this.props.compositeFileActions.openFile(filepath)
+    }
+  }
+
+  onDoubleSelectFile = () => {
+    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER)
+  }
+
+  onNameFile = (dirpath, scaffoldId, filename) => {
+    let text = ''
+
+    if (typeof scaffoldId !== 'undefined') {
+      filename = FileScaffoldFactory.updateFilename(scaffoldId, filename)
+      text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
+    }
+
+    this.props.fileTreeCompositeActions.createFile(path.join(dirpath, filename), text)
+  }
+
+  onCreateFile = (node, scaffoldId) => {
+    const {path: dirpath, name} = node
+
+    const banner = (
+      <NamingBanner
+        bannerText={`Create new file in ${name}`}
+        onTextDone={this.onNameFile.bind(this, dirpath, scaffoldId)}
+      />
+    )
+
+    this.props.uiActions.pushModal(banner, true)
+  }
+
+  renderNode = (props) => {
     return (
       <Node
         {...props}
-        scaffolds={FileScaffoldFactory.getScaffolds()}
-        createFileScaffold={(node, scaffoldId) => {
-          const { path: dirPath, name } = node
-          this.props.dispatch(pushModal(
-            <NamingBanner
-              bannerText={`Create new file in ${name}`}
-              onTextDone={(filename) => {
-                let text = ''
-                if (typeof scaffoldId !== 'undefined') {
-                  filename = FileScaffoldFactory.updateFilename(scaffoldId, filename)
-                  text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
-                }
-
-                const newFilePath = path.join(dirPath, filename)
-                this.props.dispatch(createFile(newFilePath, text))
-              }} />, true))
-           }} />
+        scaffolds={SCAFFOLDS}
+        createFileScaffold={this.onCreateFile}
+      />
     )
   }
 
   render() {
+    const {style, className} = this.props
+
     return (
-      <div className={'project-navigator vbox ' + this.props.className}
-        style={this.props.style}>
+      <div
+        className={'project-navigator vbox ' + className}
+        style={style}
+      >
         <PaneHeader text={'Project'} />
         <FileTree
           nodeHeight={24}
-          onSelect={(e, node, nodeMetadata, index) => {
-            const { path: nodePath, type } = node
-            if (type == 'file') {
-              this.props.dispatch(registerPath(nodePath))
-              this.props.dispatch(openFile(nodePath))
-            }
-          }}
-          onDoubleSelect={(e, node, nodeMetadata, index) => {
-            this.props.dispatch(makeTabPermanent(CONTENT_PANES.CENTER))
-          }}
-          onContext={this._showContextMenu}
-          renderNode={this.renderNode.bind(this)}
+          onSelect={this.onSelectFile}
+          onDoubleSelect={this.onDoubleSelectFile}
+          onContext={this.showContextMenu}
+          renderNode={this.renderNode}
           controller={fileTreeController}
-          plugins={_.map(Plugins, plugin => plugin)}
+          plugins={PLUGINS}
         />
       </div>
     )
   }
 }
 
-ProjectNavigator.defaultProps = {
-  className: '',
-  style: {},
-}
-
-export default connect()(ProjectNavigator)
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectNavigator)

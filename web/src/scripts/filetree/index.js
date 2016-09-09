@@ -8,8 +8,4 @@ import select from './plugins/select'
 import expand from './plugins/expand'
 import context from './plugins/context'
 
-export const Plugins = {
-  select,
-  expand,
-  context,
-}
+export const PLUGINS = [select, expand, context]

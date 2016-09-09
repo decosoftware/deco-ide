@@ -16,81 +16,64 @@
  */
 
 import _ from 'lodash'
+import update from 'react-addons-update'
 
-import {
-  ADD_TAB,
-  MOVE_TAB,
-  CLOSE_TAB,
-  CLOSE_ALL_TABS,
-  FOCUS_TAB,
-  SWAP_TAB,
-  MAKE_TAB_PERMANENT,
-} from '../actions/tabActions'
-
+import { tabConstants as at } from '../actions'
 import TabUtils from '../utils/TabUtils'
 
 const initialState = {}
 
 const tabReducer = (state = initialState, action) => {
-  switch(action.type) {
-    case ADD_TAB:
-    {
-      const {containerId, tabId, position} = action.payload
-      return Object.assign({}, state, {
-        [containerId]: TabUtils.addTab(state[containerId] || {}, tabId, position),
-      })
+  const {type, payload} = action
+
+  switch (type) {
+
+    case at.ADD_TAB: {
+      const {containerId, tabId, position} = payload
+      const container = TabUtils.addTab(state[containerId] || {}, tabId, position)
+      return update(state, {[containerId]: {$set: container}})
     }
-    break
-    case SWAP_TAB:
-    {
-      const {containerId, tabId, newTabId} = action.payload
-      return Object.assign({}, state, {
-        [containerId]: TabUtils.swapTab(state[containerId] || {}, tabId, newTabId),
-      })
+
+    case at.SWAP_TAB: {
+      const {containerId, tabId, newTabId} = payload
+      const container = {$set: TabUtils.swapTab(state[containerId] || {}, tabId, newTabId)}
+      return update(state, {[containerId]: {$set: container}})
     }
-    break
-    case CLOSE_TAB:
-    {
-      const {containerId, tabId} = action.payload
-      return Object.assign({}, state, {
-        [containerId]: TabUtils.closeTab(state[containerId] || {}, tabId),
-      })
+
+    case at.CLOSE_TAB: {
+      const {containerId, tabId} = payload
+      const container = TabUtils.closeTab(state[containerId] || {}, tabId)
+      return update(state, {[containerId]: {$set: container}})
     }
-    break
-    case FOCUS_TAB:
-    {
-      const {containerId, tabId} = action.payload
-      return Object.assign({}, state, {
-        [containerId]: TabUtils.focusTab(state[containerId] || {}, tabId),
-      })
+
+    case at.FOCUS_TAB: {
+      const {containerId, tabId} = payload
+      const container = TabUtils.focusTab(state[containerId] || {}, tabId)
+      return update(state, {[containerId]: {$set: container}})
     }
-    break
-    case MAKE_TAB_PERMANENT:
-    {
-      const {containerId} = action.payload
-      return Object.assign({}, state, {
-        [containerId]: TabUtils.makeTabPermanent(state[containerId] || {}),
-      })
+
+    case at.MAKE_TAB_PERMANENT: {
+      const {containerId} = payload
+      const container = TabUtils.makeTabPermanent(state[containerId] || {})
+      return update(state, {[containerId]: {$set: container}})
     }
-    break
-    case CLOSE_ALL_TABS:
-    {
-      const {containerId} = action.payload
+
+    case at.CLOSE_ALL_TABS: {
+      const {containerId} = payload
 
       // If a containerId is passed, close all its tabs
       if (containerId) {
-        return Object.assign({}, state, {
-          [containerId]: null,
-        })
+        return update(state, {[containerId]: {$set: null}})
+        
       // Else, close all tabs for all containers
       } else {
         return {}
       }
     }
-    break
-    default:
+
+    default: {
       return state
-    break
+    }
   }
 }
 
