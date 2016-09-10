@@ -22,6 +22,7 @@ import _ from 'lodash'
 import CodeMirror from 'codemirror'
 import TextUtils from '../../utils/editor/TextUtils'
 import ThemeUtils from '../../utils/editor/ThemeUtils'
+import StyleNode from '../../utils/StyleNode'
 
 CodeMirror.commands.indentMore = TextUtils.indent.bind(TextUtils)
 
@@ -54,6 +55,12 @@ export default class CodeMirrorComponent extends Component {
     options: {},
     doc: new CodeMirror.Doc('javascript'),
     style: {},
+  }
+
+  constructor() {
+    super()
+
+    this.styleNode = new StyleNode()
   }
 
   _attachEventListeners(cm, listeners) {
@@ -129,7 +136,23 @@ export default class CodeMirrorComponent extends Component {
 
   //LIFECYCLE METHODS
 
+  attachStyles(options) {
+    const {fontSize} = options
+
+    this.styleNode.setText(`
+      .CodeMirror {
+        font-size: ${fontSize}px !important;
+      }
+    `)
+    this.styleNode.attach()
+  }
+
+  detachStyles() {
+    this.styleNode.detach()
+  }
+
   componentDidMount() {
+    this.attachStyles(this.props.options)
     this._instantiateCodeMirror(this.props.options)
     this._attachEventListeners(this.codeMirror, this.props.eventListeners)
 
@@ -149,6 +172,8 @@ export default class CodeMirrorComponent extends Component {
       _.each(nextProps.options, (value, option) => {
         this.codeMirror && this.codeMirror.setOption(option, value)
       })
+      this.detachStyles()
+      this.attachStyles(nextProps.options)
     }
 
     this._attachEventListeners(this.codeMirror, nextProps.eventListeners)
@@ -161,6 +186,8 @@ export default class CodeMirrorComponent extends Component {
   }
 
   componentWillUnmount() {
+    this.detachStyles()
+
     if (this.codeMirror) {
       this._detachEventListeners(this.codeMirror, this.props.eventListeners)
 
