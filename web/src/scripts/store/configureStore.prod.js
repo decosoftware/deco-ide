@@ -19,6 +19,9 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { syncHistory } from 'react-router-redux'
 import { hashHistory } from 'react-router'
 import thunk from 'redux-thunk'
+import { batchedSubscribe, batchMiddleware } from 'redux-batched-subscribe'
+import { unstable_batchedUpdates as batchedUpdates } from 'react-dom'
+
 import rootReducer from '../reducers'
 import loggingMiddleware from './loggingMiddleware'
 import ipcActionEmitter from '../ipc/ipcActionEmitter'
@@ -28,7 +31,10 @@ import layoutActionEmitter from '../persistence/layoutActionEmitter'
 import moduleActionEmitter from '../persistence/moduleActionEmitter'
 import applyActionEmitters from './applyActionEmitters'
 
-const enhancer = applyMiddleware(thunk, syncHistory(hashHistory), loggingMiddleware)
+const enhancer = compose(
+  applyMiddleware(batchMiddleware, thunk, syncHistory(hashHistory), loggingMiddleware),
+  batchedSubscribe(batchedUpdates)
+)
 
 export default function configureStore() {
   const store = createStore(rootReducer, enhancer)

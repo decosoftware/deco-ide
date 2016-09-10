@@ -19,6 +19,9 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { syncHistory } from 'react-router-redux'
 import { hashHistory } from 'react-router'
 import thunk from 'redux-thunk'
+import { batchedSubscribe, batchMiddleware } from 'redux-batched-subscribe'
+import { unstable_batchedUpdates as batchedUpdates } from 'react-dom'
+
 import rootReducer from '../reducers'
 import loggingMiddleware from './loggingMiddleware'
 import ipcActionEmitter from '../ipc/ipcActionEmitter'
@@ -31,10 +34,10 @@ import applyActionEmitters from './applyActionEmitters'
 //DEV
 import DevTools from '../containers/DevTools'
 
-const reduxRouterMiddleware = syncHistory(hashHistory)
 const enhancer = compose(
-  applyMiddleware(thunk, reduxRouterMiddleware, loggingMiddleware),
-  DevTools.instrument()
+  applyMiddleware(batchMiddleware, thunk, syncHistory(hashHistory), loggingMiddleware),
+  DevTools.instrument(),
+  batchedSubscribe(batchedUpdates)
 )
 
 function getDebugSessionKey() {
