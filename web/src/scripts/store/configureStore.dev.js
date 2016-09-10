@@ -19,7 +19,7 @@ import { createStore, applyMiddleware, compose } from 'redux'
 import { syncHistory } from 'react-router-redux'
 import { hashHistory } from 'react-router'
 import thunk from 'redux-thunk'
-import { batchedSubscribe } from 'redux-batched-subscribe'
+import { batchedSubscribe, batchMiddleware } from 'redux-batched-subscribe'
 import { unstable_batchedUpdates as batchedUpdates } from 'react-dom'
 
 import rootReducer from '../reducers'
@@ -34,9 +34,8 @@ import applyActionEmitters from './applyActionEmitters'
 //DEV
 import DevTools from '../containers/DevTools'
 
-const reduxRouterMiddleware = syncHistory(hashHistory)
 const enhancer = compose(
-  applyMiddleware(thunk, reduxRouterMiddleware, loggingMiddleware),
+  applyMiddleware(batchMiddleware, thunk, syncHistory(hashHistory), loggingMiddleware),
   DevTools.instrument(),
   batchedSubscribe(batchedUpdates)
 )
