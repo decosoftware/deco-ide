@@ -126,14 +126,9 @@ const _flipDirty = (state, id, dirty) => {
 }
 
 export const MARK_UNSAVED = 'MARK_UNSAVED'
-export const markUnsaved = (id) => {
-  return (dispatch, getState) => {
-    dispatch({
-      type: MARK_UNSAVED,
-      payload: {
-        id
-      }
-    })
+export const markUnsaved = (id) => async (dispatch, getState) => {
+  if (!getState().directory.unsaved[id]) {
+    dispatch({type: MARK_UNSAVED, payload: {id}})
     request(_updateSaveStatus(id, true))
   }
 }

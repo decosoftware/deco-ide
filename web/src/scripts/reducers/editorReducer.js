@@ -33,7 +33,7 @@ import {
 
 const initialState = {
   highlightLiteralTokens: false,
-  dirtyMap: {},
+  dirtyList: {},
 }
 
 const editorReducer = (state = initialState, action) => {
