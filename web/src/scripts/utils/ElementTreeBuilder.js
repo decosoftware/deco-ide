@@ -22,6 +22,12 @@ import Pos from '../models/editor/CodeMirrorPos'
 import ASTUtils from './ASTUtils'
 import { insertInTree } from './ElementTreeUtils'
 
+const AST_TYPES = {
+  'BooleanLiteral': 'boolean',
+  'NumericLiteral': 'number',
+  'StringLiteral': 'string',
+}
+
 export default class {
 
   // CodeMirror lines are 0-offset, vs. AST's 1-offset
