@@ -19,7 +19,7 @@ import _ from 'lodash'
 import CodeMirror from 'codemirror'
 
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
 
 const MAX_GUIDE_DEPTH = 32
@@ -49,9 +49,9 @@ class IndentGuideMiddleware extends Middleware {
     this._deletionQueue = {}
 
     this._keyMap = {
-      [CodeMirrorEventTypes.viewportChange]: this._viewportChange.bind(this),
-      [CodeMirrorEventTypes.swapDoc]: this._swapDoc.bind(this),
-      [CodeMirrorEventTypes.changes]: this._changes.bind(this),
+      [EventTypes.viewportChange]: this._viewportChange.bind(this),
+      [EventTypes.swapDoc]: this._swapDoc.bind(this),
+      [EventTypes.changes]: this._changes.bind(this),
     }
   }
 

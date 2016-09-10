@@ -23,7 +23,7 @@ import { importLiveValues } from '../../actions/liveValueActions'
 import { edit } from '../../actions/editorActions'
 
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import N from '../../utils/simpleCodeMirrorPosition'
 import DecoRangeUtils from '../../utils/editor/DecoRangeUtils'
 import LiveValueUtils from '../../utils/metadata/LiveValueUtils'

@@ -22,7 +22,7 @@ import CodeMirror from 'codemirror'
 
 const FlowController = Electron.remote.require('./process/flowController.js')
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
 import { AutocompleteHint } from '../../components'
 
@@ -53,7 +53,7 @@ class AutocompleteMiddleware extends Middleware {
     this.cachedCompletions = {}
 
     this._keyMap = {
-      [CodeMirrorEventTypes.changes]: this._changes.bind(this),
+      [EventTypes.changes]: this._changes.bind(this),
     }
   }
 

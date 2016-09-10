@@ -21,6 +21,7 @@ import React, { Component, PropTypes, } from 'react'
 import _ from 'lodash'
 import CodeMirror from 'codemirror'
 import TextUtils from '../../utils/editor/TextUtils'
+import ThemeUtils from '../../utils/editor/ThemeUtils'
 
 CodeMirror.commands.indentMore = TextUtils.indent.bind(TextUtils)
 
@@ -74,7 +75,7 @@ export default class CodeMirrorComponent extends Component {
   _setDefaultOptions(options) {
     return _.defaults(_.clone(options), {
       mode: 'javascript',
-      theme: 'proto',
+      theme: 'deco', // pref
       indentUnit: 2,
       height: '100%',
       lineNumbers: true,

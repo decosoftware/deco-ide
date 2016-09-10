@@ -39,6 +39,7 @@ export const PREFERENCES = {
     'DEBOUNCE',
   ]),
   [CATEGORIES.EDITOR]: _.mapKeys([
+    'THEME',
     'VIM_MODE',
     'SHOW_INVISIBLES',
     'SHOW_INDENT_GUIDES',
@@ -77,6 +78,9 @@ export const METADATA = {
     },
   },
   [CATEGORIES.EDITOR]: {
+    [PREFERENCES[CATEGORIES.EDITOR].THEME]: {
+      defaultValue: 'deco',
+    },
     [PREFERENCES[CATEGORIES.EDITOR].VIM_MODE]: {
       defaultValue: false,
     },
