@@ -15,7 +15,7 @@
  *
  */
 
-export default {
+export const EventTypes = {
   viewportChange: 'viewportChange',
   swapDoc: 'swapDoc',
   beforeChange: 'beforeChange',

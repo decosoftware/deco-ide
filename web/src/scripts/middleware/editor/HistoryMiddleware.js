@@ -22,7 +22,7 @@ import { markUnsaved } from '../../actions/fileActions'
 import { tabActions } from '../../actions'
 import { CONTENT_PANES } from '../../constants/LayoutConstants'
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import DecoChangeFactory from '../../factories/editor/DecoChangeFactory'
 import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
 
@@ -35,8 +35,8 @@ class HistoryMiddleware extends Middleware {
   constructor() {
     super()
     this._keyMap = {
-      [CodeMirrorEventTypes.beforeChange]: this._onBeforeChange.bind(this),
-      [CodeMirrorEventTypes.changes]: this._onChanges.bind(this),
+      [EventTypes.beforeChange]: this._onBeforeChange.bind(this),
+      [EventTypes.changes]: this._onChanges.bind(this),
     }
   }
 

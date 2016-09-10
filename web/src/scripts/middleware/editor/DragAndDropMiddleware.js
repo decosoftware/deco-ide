@@ -19,7 +19,7 @@ import CodeMirror from 'codemirror'
 import _ from 'lodash'
 
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import CodeMirrorToken from '../../models/editor/CodeMirrorToken'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 
