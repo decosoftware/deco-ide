@@ -48,6 +48,7 @@ export default ({
   showIndentGuides,
   npmRegistry,
   theme,
+  fontSize,
 }) => {
   return (
     <div style={style}>
@@ -59,6 +60,27 @@ export default ({
           value={theme}
           options={THEMES}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.THEME)}
+        />
+      </FormRow>
+      <FormRow
+        label={'Font Size'}
+        labelWidth={LABEL_WIDTH}
+      >
+        <SliderInput
+          value={fontSize}
+          min={8}
+          max={32}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)}
+        />
+        <div
+          key={'Spacer'}
+          style={{marginRight: 10}}
+        />
+        <NumberInput
+          key={'NumberInput'}
+          value={fontSize}
+          width={40}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)} 
         />
       </FormRow>
       <FormRow

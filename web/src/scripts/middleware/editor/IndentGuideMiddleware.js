@@ -21,6 +21,7 @@ import CodeMirror from 'codemirror'
 import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
+import StyleNode from '../../utils/StyleNode'
 
 const MAX_GUIDE_DEPTH = 32
 const CHAR_WIDTH = 7.1875
@@ -35,9 +36,10 @@ class IndentGuideMiddleware extends Middleware {
   constructor() {
     super()
 
+    this.styleNode = new StyleNode()
+
     this._indentSize = 2
     this._showIndentGuides = false
-    this._appendStyles(this._indentSize)
 
     // ClassNames to add
     this._classQueue = {}
@@ -64,17 +66,17 @@ class IndentGuideMiddleware extends Middleware {
   }
 
   // Generate an indent guide
-  _getBackgroundStyles(i) {
+  _getBackgroundStyles(i, charWidth, textHeight) {
     return {
       ['background']: `linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1))`,
-      ['background-size']: `1px 21px`,
+      ['background-size']: `1px ${textHeight}px`,
       ['background-repeat']: `no-repeat`,
-      ['background-position']: `${LINE_PADDING + i * CHAR_WIDTH}px 0px`,
+      ['background-position']: `${LINE_PADDING + i * charWidth}px 0px`,
     }
   }
 
   // Use multiple backgrounds to make `n` indent guides
-  _getBackgroundStylesRepeated(n, indentSize) {
+  _getBackgroundStylesRepeated(n, indentSize, charWidth, textHeight) {
     const styles = {
       ['background']: [],
       ['background-size']: [],
@@ -87,7 +89,7 @@ class IndentGuideMiddleware extends Middleware {
         continue
       }
 
-      const style = this._getBackgroundStyles(i)
+      const style = this._getBackgroundStyles(i, charWidth, textHeight)
       styles['background'].push(style['background'])
       styles['background-size'].push(style['background-size'])
       styles['background-repeat'].push(style['background-repeat'])
@@ -102,16 +104,14 @@ class IndentGuideMiddleware extends Middleware {
     }
   }
 
-  _appendStyles(indentSize) {
-    const styleNode = document.createElement('style');
-
+  attachStyles(indentSize, charWidth, textHeight) {
     const rules = []
     for (let i = 0; i <= MAX_GUIDE_DEPTH; i++) {
       if (i % indentSize !== 0) {
         continue
       }
 
-      const styles = this._getBackgroundStylesRepeated(i - 1, indentSize)
+      const styles = this._getBackgroundStylesRepeated(i - 1, indentSize, charWidth, textHeight)
       rules.push(
         `.cm-indent-guide-${i}::before {
           position: absolute;
@@ -126,9 +126,12 @@ class IndentGuideMiddleware extends Middleware {
       )
     }
 
-    styleNode.textContent = rules.join('\n')
+    this.styleNode.setText(rules.join('\n'))
+    this.styleNode.attach()
+  }
 
-    document.head.appendChild(styleNode);
+  detachStyles() {
+    this.styleNode.detach()
   }
 
   // Add and remove classes from the DOM.
@@ -325,8 +328,20 @@ CodeMirror.defineOption('showIndentGuides', false, (cm, val, old) => {
 
   const prev = old && old != CodeMirror.Init;
   if (val && ! prev) {
+    const indentUnit = cm.getOption('indentUnit')
+
+    // Reset CodeMirror's cached character dimensions, since they may be stale
+    cm.display.cachedCharWidth = null
+    cm.display.cachedTextHeight = null
+
+    // Get character dimensions
+    const charWidth = cm.defaultCharWidth()
+    const textHeight = cm.defaultTextHeight()
+
+    middleware.attachStyles(indentUnit, charWidth, textHeight)
     middleware.enqueueViewportUpdate(cm)
   } else if (! val && prev) {
+    middleware.detachStyles()
     middleware.enqueueRemoveAllClasses(cm)
   }
 })
