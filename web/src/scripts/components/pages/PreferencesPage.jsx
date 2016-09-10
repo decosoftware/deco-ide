@@ -86,6 +86,7 @@ class PreferencesPage extends Component {
           <EditorPreferences
             onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.EDITOR)}
             theme={this.props.editor[PREFERENCES.EDITOR.THEME]}
+            fontSize={this.props.editor[PREFERENCES.EDITOR.FONT_SIZE]}
             vimMode={this.props.editor[PREFERENCES.EDITOR.VIM_MODE]}
             showInvisibles={this.props.editor[PREFERENCES.EDITOR.SHOW_INVISIBLES]}
             highlightActiveLine={this.props.editor[PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE]}

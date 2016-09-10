@@ -40,6 +40,7 @@ export const PREFERENCES = {
   ]),
   [CATEGORIES.EDITOR]: _.mapKeys([
     'THEME',
+    'FONT_SIZE',
     'VIM_MODE',
     'SHOW_INVISIBLES',
     'SHOW_INDENT_GUIDES',
@@ -80,6 +81,9 @@ export const METADATA = {
   [CATEGORIES.EDITOR]: {
     [PREFERENCES[CATEGORIES.EDITOR].THEME]: {
       defaultValue: 'deco',
+    },
+    [PREFERENCES[CATEGORIES.EDITOR].FONT_SIZE]: {
+      defaultValue: 12,
     },
     [PREFERENCES[CATEGORIES.EDITOR].VIM_MODE]: {
       defaultValue: false,
