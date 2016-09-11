@@ -15,6 +15,8 @@
  *
  */
 
+import _ from 'lodash'
+
 export const at = {
   ADD_TAB: 'ADD_TAB',
   MOVE_TAB: 'MOVE_TAB',
@@ -54,6 +56,10 @@ export const swapTab = (containerId, tabId, newTabId) => async (dispatch) => {
   dispatch({type: at.SWAP_TAB, payload: {containerId, tabId, newTabId}})
 }
 
-export const makeTabPermanent = (containerId) => async (dispatch) => {
-  dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId}})
+export const makeTabPermanent = (containerId, tabId) => async (dispatch, getState) => {
+  const ephemeralTabId = _.get(getState(), `ui.tabs.${containerId}.ephemeralTabId`)
+
+  if (ephemeralTabId && ephemeralTabId === tabId) {
+    dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId}})
+  }
 }
