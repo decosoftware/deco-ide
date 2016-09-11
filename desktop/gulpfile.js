@@ -156,9 +156,12 @@ gulp.task("build-dev", function(callback) {
 })
 
 gulp.task('build-web', ['build', 'clean-dist'], function(callback) {
+  console.log('exec build')
   child_process.execSync('npm run build', {
-    cwd: path.join(__dirname, '../web')
+    cwd: path.join(__dirname, '../web'),
+    stdio: 'inherit',
   });
+  console.log('exec build done')
   child_process.execSync("cp -r " + (path.join(__dirname, '../web/public')) + " " + (path.join(__dirname, './')));
   return callback();
 });
