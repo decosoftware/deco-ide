@@ -18,7 +18,7 @@
 import _ from 'lodash'
 import CodeMirror from 'codemirror'
 import { bindActionCreators } from 'redux'
-import { batchActions } from 'redux-batch-enhancer'
+import { batchActions } from 'redux-batched-subscribe'
 
 const FlowController = Electron.remote.require('./process/flowController.js')
 import Middleware from '../Middleware'

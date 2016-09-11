@@ -16,7 +16,7 @@
  */
 
 import CodeMirror from 'codemirror'
-import { batchActions } from 'redux-batch-enhancer'
+import { batchActions } from 'redux-batched-subscribe'
 
 import {edit, undo, redo, markDirty} from '../../actions/editorActions'
 import { markUnsaved } from '../../actions/fileActions'
