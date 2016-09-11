@@ -115,10 +115,9 @@ export function cacheDoc(payload) {
 
 //TODO actually use change generation correctly
 export const MARK_DIRTY = 'MARK_DIRTY'
-export const markDirty = (id) => {
-  return {
-    type: MARK_DIRTY,
-    id: id,
+export const markDirty = (id) => async (dispatch, getState) => {
+  if (!getState().editor.dirtyList[id]) {
+    dispatch({type: MARK_DIRTY, id: id})
   }
 }
 
@@ -204,7 +203,11 @@ export function edit(id, decoChange) {
       dispatch(addToHistory(id, decoChange))
     }
 
-    dispatch(setLiveValuesForDoc(id, decoDoc))
+    // Update live values if there are any, or if any have changed
+    if (initialCodeForRanges.length > 0 || rangesWithModifiedTokenTypes.length > 0) {
+      dispatch(setLiveValuesForDoc(id, decoDoc))
+    }
+
     conditionalSaveLive(dispatch, state.preferences[CATEGORIES.SAVING])
   }
 }

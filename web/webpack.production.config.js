@@ -10,6 +10,21 @@ var alias = {
 };
 
 module.exports = {
+  // It suppress error shown in console, so it has to be set to false.
+  quiet: false,
+  // It suppress everything except error, so it has to be set to false as well
+  // to see success build.
+  noInfo: false,
+  stats: {
+    // Config for minimal console.log mess.
+    assets: true,
+    colors: true,
+    version: true,
+    hash: true,
+    timings: true,
+    chunks: true,
+    chunkModules: true
+  },
   entry: {
     app: [
       './src/scripts/index'
@@ -33,18 +48,18 @@ module.exports = {
     new webpack.IgnorePlugin(/un~$/),
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin(),
-    function()
-    {
-        this.plugin("done", function(stats)
-        {
-            if (stats.compilation.errors && stats.compilation.errors.length)
-            {
-                console.log(stats.compilation.errors);
-                process.exit(1);
-            }
-            // ...
-        });
-    },
+    // function()
+    // {
+    //     this.plugin("done", function(stats)
+    //     {
+    //         if (stats.compilation.errors && stats.compilation.errors.length)
+    //         {
+    //             console.log(stats.compilation.errors);
+    //             process.exit(1);
+    //         }
+    //         // ...
+    //     });
+    // },
   ],
   resolve: {
     alias: alias,

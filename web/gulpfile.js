@@ -46,6 +46,10 @@ gulp.task('copy-assets', function(callback) {
 
 gulp.task("webpack:build", ['css'], function(callback) {
   return webpack(webpackProductionConfig, function(err, stats) {
+    console.log('DEVIN: build finished')
+    console.log('DEVIN: err', err)
+    console.log('DEVIN: stats', stats)
+
     if (err) {
       throw new gutil.PluginError("webpack:build", err);
     }
