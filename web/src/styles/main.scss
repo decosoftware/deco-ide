@@ -11,8 +11,7 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto+Mono:400,700,500,100,300);
 
 @import "./colorpicker";
-@import "../../node_modules/codemirror/lib/codemirror";
-@import "./codemirror/proto";
+@import "./codemirror/deco";
 
 .m-node {
 	.collapse {
@@ -178,13 +177,17 @@ $lv-bg: rgba(124, 217, 255, 0.11);
 }
 
 .CodeMirror {
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
-    font-smoothing: antialiased;
-    height: 100%;
+		-moz-osx-font-smoothing: grayscale;
+		-webkit-font-smoothing: antialiased;
+		font-smoothing: antialiased;
+		height: 100%;
 		width: 100%;
 		position: absolute;
 		overflow: hidden;
+		line-height: 1.5em;
+		font-family: "Menlo", "Roboto Mono", monospace;
+		font-weight: 600;
+		font-size: 12px;
 }
 
 .CodeMirror-matchingtag {
@@ -662,8 +665,6 @@ input[type=button] {
 		color: white;
 	}
 }
-
-
 
 @keyframes progress-bar-flicker {
   0%   { background-color: rgb(35,36,38); }

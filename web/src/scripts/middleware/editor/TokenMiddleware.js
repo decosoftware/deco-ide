@@ -22,7 +22,7 @@ import {
 } from '../../actions/editorActions'
 
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import CodeMirrorToken from '../../models/editor/CodeMirrorToken'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 
@@ -41,7 +41,7 @@ class TokenMiddleware extends Middleware {
     super()
 
     this._keyMap = {
-      [CodeMirrorEventTypes.mouseDown]: this.mouseDown.bind(this),
+      [EventTypes.mouseDown]: this.mouseDown.bind(this),
     }
   }
 

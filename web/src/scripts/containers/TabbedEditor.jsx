@@ -362,6 +362,8 @@ const mapStateToProps = (state, ownProps) => {
     configError: state.application.configError,
     flowError: state.application.flowError,
     options: {
+      theme: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.THEME],
+      fontSize: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.FONT_SIZE],
       keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
       showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
       styleActiveLine: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE],

@@ -22,7 +22,7 @@ import { batchActions } from 'redux-batch-enhancer'
 
 const FlowController = Electron.remote.require('./process/flowController.js')
 import Middleware from '../Middleware'
-import CodeMirrorEventTypes from '../../constants/CodeMirrorEventTypes'
+import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
 import ASTUtils from '../../utils/ASTUtils'
 import ElementTreeBuilder from '../../utils/ElementTreeBuilder'
@@ -37,9 +37,9 @@ class ASTMiddleware extends Middleware {
     super()
 
     this.keyMap = {
-      [CodeMirrorEventTypes.changes]: this.changes,
-      [CodeMirrorEventTypes.swapDoc]: this.changes,
-      [CodeMirrorEventTypes.cursorActivity]: this.cursorActivity,
+      [EventTypes.changes]: this.changes,
+      [EventTypes.swapDoc]: this.changes,
+      [EventTypes.cursorActivity]: this.cursorActivity,
     }
   }
 

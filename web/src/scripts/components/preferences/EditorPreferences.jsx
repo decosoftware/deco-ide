@@ -17,6 +17,7 @@
 
 import React, { Component, } from 'react'
 
+import { THEMES } from '../../utils/editor/ThemeUtils'
 import FormRow from '../forms/FormRow'
 import StringInput from '../input/StringInput'
 import SelectInput from '../input/SelectInput'
@@ -45,45 +46,88 @@ export default ({
   showInvisibles,
   highlightActiveLine,
   showIndentGuides,
-  npmRegistry
+  npmRegistry,
+  theme,
+  fontSize,
 }) => {
   return (
     <div style={style}>
       <FormRow
+        label={'Theme'}
+        labelWidth={LABEL_WIDTH}
+      >
+        <SelectInput
+          value={theme}
+          options={THEMES}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.THEME)}
+        />
+      </FormRow>
+      <FormRow
+        label={'Font Size'}
+        labelWidth={LABEL_WIDTH}
+      >
+        <SliderInput
+          value={fontSize}
+          min={8}
+          max={32}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)}
+        />
+        <div
+          key={'Spacer'}
+          style={{marginRight: 10}}
+        />
+        <NumberInput
+          key={'NumberInput'}
+          value={fontSize}
+          width={40}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)} 
+        />
+      </FormRow>
+      <FormRow
         label={'Vim Mode'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={vimMode}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.VIM_MODE)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.VIM_MODE)}
+        />
       </FormRow>
       <FormRow
         label={'Show Invisibles'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={showInvisibles}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_INVISIBLES)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_INVISIBLES)}
+        />
       </FormRow>
       <FormRow
         label={'Show Indent Guides'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={showIndentGuides}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_INDENT_GUIDES)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_INDENT_GUIDES)}
+        />
       </FormRow>
       <FormRow
         label={'Highlight Active Line'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={highlightActiveLine}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE)}
+        />
       </FormRow>
       <FormRow
         label={'NPM Registry'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <StringInput
           value={npmRegistry}
           placeholder={METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.NPM_REGISTRY)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.NPM_REGISTRY)}
+        />
       </FormRow>
     </div>
   )
