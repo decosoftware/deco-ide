@@ -18,6 +18,7 @@
 import _ from 'lodash'
 import CodeMirror from 'codemirror'
 import { bindActionCreators } from 'redux'
+import { batchActions } from 'redux-batched-subscribe'
 
 const FlowController = Electron.remote.require('./process/flowController.js')
 import Middleware from '../Middleware'
@@ -46,12 +47,6 @@ class ASTMiddleware extends Middleware {
     return this.keyMap
   }
 
-  setDispatchFunction(dispatch) {
-    super.setDispatchFunction(dispatch)
-    this.astActions = bindActionCreators(astActions, dispatch)
-    this.elementTreeActions = bindActionCreators(elementTreeActions, dispatch)
-  }
-
   cursorActivity = (cm) => {
     if (!this.enabled) return
 
@@ -61,7 +56,7 @@ class ASTMiddleware extends Middleware {
     const selection = selections[0]
 
     if (selections.length === 1 && selection.empty()) {
-      this.elementTreeActions.selectElementFromPos(filename, selection.from())
+      this.dispatch(elementTreeActions.selectElementFromPos(filename, selection.from()))
     }
   }
 
@@ -73,8 +68,10 @@ class ASTMiddleware extends Middleware {
     const ast = JSON.parse(raw)
     const elementTree = ElementTreeBuilder.elementTreeFromAST(ast)
 
-    this.astActions.setAST(filename, ast)
-    this.elementTreeActions.setElementTree(filename, elementTree)
+    this.dispatch(batchActions([
+      astActions.setAST(filename, ast),
+      elementTreeActions.setElementTree(filename, elementTree),
+    ]))
   }
 
   attach(decoDoc) {

@@ -16,6 +16,7 @@
  */
 
 import CodeMirror from 'codemirror'
+import { batchActions } from 'redux-batched-subscribe'
 
 import {edit, undo, redo, markDirty} from '../../actions/editorActions'
 import { markUnsaved } from '../../actions/fileActions'
@@ -84,10 +85,15 @@ class HistoryMiddleware extends Middleware {
   // A batched version of onChange, for performance
   _onChanges() {
     if (this._decoDoc.isClean() || !this._changeId) {
+      const {id} = this._decoDoc
+
       this._changeId = this._decoDoc.changeGeneration()
-      this.dispatch(markUnsaved(this._decoDoc.id))
-      this.dispatch(markDirty(this._decoDoc.id))
-      this.dispatch(tabActions.makeTabPermanent(CONTENT_PANES.CENTER))
+
+      this.dispatch(batchActions([
+        markUnsaved(id),
+        markDirty(id),
+        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, id),
+      ]))
     }
   }
 
