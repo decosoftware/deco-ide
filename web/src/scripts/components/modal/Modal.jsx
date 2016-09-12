@@ -57,12 +57,12 @@ class Modal extends Component {
   render() {
     const styles = getStyles(this.props)
     return (
-        <div style={styles.container}>
-          <div style={styles.appContainer} ref='appContainer' onMouseDown={this._hideModal.bind(this)}>
-            {this.props.children}
-          </div>
-          {this._renderModal(styles)}
+      <div style={styles.container}>
+        <div style={styles.appContainer} ref='appContainer' onMouseDown={this._hideModal.bind(this)}>
+          {this.props.children}
         </div>
+        {this._renderModal(styles)}
+      </div>
     )
   }
 }
@@ -77,7 +77,11 @@ const getStyles = (props) => {
       width: '100%',
       height: '100%',
       position: 'absolute',
-      backgroundColor: 'rgba(0,0,0,0)'
+      backgroundColor: 'rgba(0,0,0,0)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'stretch',
     },
     modalContainer: {
       width: '100%',

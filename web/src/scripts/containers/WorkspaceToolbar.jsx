@@ -312,7 +312,7 @@ class WorkspaceToolbar extends Component {
   }
 
   render() {
-    const {title, height, isTempProject} = this.props
+    const {style, title, height, isTempProject} = this.props
 
     const leftContainerStyle = {
       display: 'flex',
@@ -332,6 +332,7 @@ class WorkspaceToolbar extends Component {
 
     return (
       <Toolbar
+        style={style}
         title={title + (isTempProject ? ' (Temporary until saved)' : '')}
         height={height}>
         <span style={leftContainerStyle}>
@@ -354,6 +355,7 @@ WorkspaceToolbar.defaultProps = {
 
 const mapStateToProps = (state) => {
   return {
+    title: state.directory.rootName,
     consoleVisible: state.ui.consoleVisible,
     projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
     rightSidebarContent: state.ui.rightSidebarContent,

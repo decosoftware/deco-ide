@@ -23,12 +23,20 @@ import Router from './Router'
 //DEV
 import DevTools from '../DevTools'
 
+const styles = {
+  main: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+  },
+}
+
 export default class Root extends Component {
   render() {
     const { store, } = this.props
     return (
       <Provider store={store}>
-        <div className='vbox full-size-relative' style={{overflow: 'hidden',}}>
+        <div style={styles.main}>
           <Router store={store} />
           <DevTools />
         </div>
