@@ -35,16 +35,17 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
+    position: 'relative',
   }
 }
 
 export default class extends Component {
 
   render() {
-    const {children, title} = this.props
+    const {children, title, style} = this.props
 
     return (
-      <div style={styles.container}>
+      <div style={{...styles.container, ...style}}>
         <PaneHeader
           text={title}
         />
