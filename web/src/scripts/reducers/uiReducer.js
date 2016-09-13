@@ -24,9 +24,6 @@ import {
   SET_CONSOLE_SCROLL_HEIGHT,
   SET_LEFT_SIDEBAR_VISIBILITY,
   SET_RIGHT_SIDEBAR_CONTENT,
-  SET_RIGHT_SIDEBAR_WIDTH,
-  SET_LEFT_SIDEBAR_WIDTH,
-  SET_LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT,
   PUSH_MODAL,
   POP_MODAL,
   WINDOW_SIZE_CHANGED,
@@ -100,18 +97,6 @@ const uiReducer = (state = initialState, action) => {
     case SET_RIGHT_SIDEBAR_CONTENT:
       return Object.assign({}, state, {
         [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: action.payload,
-      })
-    case SET_RIGHT_SIDEBAR_WIDTH:
-      return Object.assign({}, state, {
-        [LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH]: action.payload,
-      })
-    case SET_LEFT_SIDEBAR_WIDTH:
-      return Object.assign({}, state, {
-        [LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH]: action.payload,
-      })
-    case SET_LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT:
-      return Object.assign({}, state, {
-        [LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT]: action.payload,
       })
     case SET_SIMULATOR_MENU_PLATFORM:
       return {

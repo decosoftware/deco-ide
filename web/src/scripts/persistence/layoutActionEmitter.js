@@ -19,23 +19,17 @@ import _ from 'lodash'
 
 import LocalStorage from './LocalStorage'
 import {
-  setRightSidebarWidth,
-  setLeftSidebarWidth,
   setRightSidebarContent,
   setConsoleVisibility,
   setLeftSidebarVisibility,
-  setLeftSidebarBottomSectionHeight,
   setSimulatorMenuPlatform,
 } from '../actions/uiActions'
 import { LAYOUT_KEY, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 
 const ACTION_MAP = {
-  [LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH]: setRightSidebarWidth,
-  [LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH]: setLeftSidebarWidth,
   [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: setRightSidebarContent,
   [LAYOUT_FIELDS.CONSOLE_VISIBLE]: setConsoleVisibility,
   [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: setLeftSidebarVisibility,
-  [LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT]: setLeftSidebarBottomSectionHeight,
   [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: setSimulatorMenuPlatform,
 }
 
