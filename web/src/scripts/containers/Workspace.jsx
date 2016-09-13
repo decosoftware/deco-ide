@@ -170,8 +170,6 @@ class Workspace extends Component {
       height: height || window.innerHeight,
     }
 
-    console.log('rendering workspace')
-
     return (
       <div style={containerStyle}>
         <WorkspaceToolbar

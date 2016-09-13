@@ -39,6 +39,7 @@ const titleStyle = {
 const Toolbar = ({children, title, height, style}) => {
   const newStyle = {
     ...style,
+    height,
     background: 'linear-gradient(rgb(238,237,238), rgb(231,230,231))',
     borderBottom: '1px solid rgb(224,224,226)',
     fontSize: 12,
