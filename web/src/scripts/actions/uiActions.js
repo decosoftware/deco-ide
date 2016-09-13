@@ -32,9 +32,6 @@ const _saveWindowBounds = (uiState) => {
 
 const _saveLayout = (uiState) => {
   const data = {
-    [LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH],
-    [LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH],
-    [LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT],
     [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
     [LAYOUT_FIELDS.CONSOLE_VISIBLE]: uiState[LAYOUT_FIELDS.CONSOLE_VISIBLE],
     [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
@@ -111,30 +108,6 @@ export const setRightSidebarContent = saveLayout((content) => {
   return {
     type: SET_RIGHT_SIDEBAR_CONTENT,
     payload: content,
-  }
-})
-
-export const SET_RIGHT_SIDEBAR_WIDTH = 'SET_RIGHT_SIDEBAR_WIDTH'
-export const setRightSidebarWidth = saveLayout((value) => {
-  return {
-    type: SET_RIGHT_SIDEBAR_WIDTH,
-    payload: value,
-  }
-})
-
-export const SET_LEFT_SIDEBAR_WIDTH = 'SET_LEFT_SIDEBAR_WIDTH'
-export const setLeftSidebarWidth = saveLayout((value) => {
-  return {
-    type: SET_LEFT_SIDEBAR_WIDTH,
-    payload: value,
-  }
-})
-
-export const SET_LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT = 'SET_LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT'
-export const setLeftSidebarBottomSectionHeight = saveLayout((value) => {
-  return {
-    type: SET_LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT,
-    payload: value,
   }
 })
 

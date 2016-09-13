@@ -25,19 +25,20 @@ import {
 } from '../components'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
-const style = {
-  flex: '1 1 auto',
-  display: 'flex',
-  alignItems: 'stretch',
-  backgroundColor: 'rgb(252,251,252)',
-  overflow: 'hidden',
-}
-
-const innerStyle = {
-  flex: '1 1 auto',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
+const styles = {
+  main: {
+    flex: '1 1 auto',
+    display: 'flex',
+    alignItems: 'stretch',
+    backgroundColor: 'rgb(252,251,252)',
+    overflow: 'hidden',
+  },
+  inner: {
+    flex: '1 1 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
 }
 
 const PANE_HEADER_HEIGHT = 32
@@ -45,13 +46,13 @@ const SEARCHBAR_HEIGHT = 38
 
 class ComponentBrowser extends Component {
   render() {
-    const {componentList} = this.props
+    const {componentList, style} = this.props
 
     return (
       <div className={'project-navigator vbox ' + this.props.className}
-        style={style}>
+        style={{...styles.main, ...style}}>
         <PaneHeader text={'Components'} />
-        <div style={innerStyle}>
+        <div style={styles.inner}>
           <FilterableList
             ItemComponent={DraggableComponentMenuItem}
             items={componentList}

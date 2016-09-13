@@ -34,10 +34,11 @@ import {
 const initialState = {
   highlightLiteralTokens: false,
   dirtyList: {},
+  docCache: {},
 }
 
 const editorReducer = (state = initialState, action) => {
-  let cache = state.docCache || {}
+  let cache = state.docCache
   let id
   let dirtyList = Object.assign({}, state.dirtyList)
 

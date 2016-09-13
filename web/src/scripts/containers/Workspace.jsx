@@ -18,19 +18,14 @@
 import React, { Component, } from 'react'
 import _ from 'lodash'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
+import { createSelector } from 'reselect'
+import WorkspaceEnhancer from 'react-workspace'
 
-import {
-  resizeWindow,
-  setWindowSize,
-  setRightSidebarWidth,
-  setLeftSidebarWidth,
-  setLeftSidebarBottomSectionHeight,
-  saveWindowBounds,
-} from '../actions/uiActions'
-import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS, LAYOUT_KEY } from '../constants/LayoutConstants'
+import * as uiActions from '../actions/uiActions'
+import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
-import LocalStorage from '../persistence/LocalStorage'
-
+import * as WindowSizeUtils from '../utils/WindowSizeUtils'
 import WorkspaceToolbar from './WorkspaceToolbar'
 import TabbedEditor from './TabbedEditor'
 import LiveValueInspector from './LiveValueInspector'
@@ -40,12 +35,76 @@ import ComponentBrowser from './ComponentBrowser'
 import ComponentProps from './ComponentProps'
 import { Pane, InspectorPane } from '../components'
 
-class Workspace extends Component {
-  constructor(props) {
-    super(props)
+const styles = {
+  container: {
+    flex: 1,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  },
+  toolbar: {
+    flex: 0,
+    height: 71,
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  leftPane: {
+    flex: 0,
+    minWidth: 170,
+    width: 290,
+    maxWidth: 400,
+    background: 'rgb(252,251,252)',
+  },
+  leftPaneTop: {
+    flex: 1,
+  },
+  leftPaneBottom: {
+    flex: 0,
+    minHeight: 100,
+    height: 300,
+    maxHeight: 600,
+    borderTop: '1px solid rgb(224,224,224)',
+  },
+  rightPane: {
+    flex: 0,
+    minWidth: 170,
+    width: 230,
+    maxWidth: 400,
+    background: 'rgb(252,251,252)',
+  },
+  rightPaneInner: {
+    flex: 1,
+  },
+  centerPane: {
+    flex: 1,
+  },
+}
 
-    this.onResize = this.onResize.bind(this)
-  }
+const mapStateToProps = (state) => createSelector(
+  ({editor: {openDocId, docCache}}) => openDocId ? docCache[openDocId] : null,
+  ({ui}) => ({
+    width: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].width,
+    height: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].height,
+  }),
+  ({ui}) => ({
+    projectNavigatorVisible: ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    rightSidebarContent: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
+  }),
+  ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
+  (decoDoc, windowBounds, ui, publishingFeature) => ({
+    decoDoc,
+    ...windowBounds,
+    ...ui,
+    publishingFeature,
+  })
+)
+
+const mapDispatchToProps = (dispatch) => ({
+  uiActions: bindActionCreators(uiActions, dispatch),
+})
+
+class Workspace extends Component {
 
   componentWillMount() {
     this.resize()
@@ -60,257 +119,87 @@ class Workspace extends Component {
   }
 
   resize() {
-
-    // Retrieve stored window bounds
-    const data = LocalStorage.loadObject(LAYOUT_KEY)
-
-    // Always set (x, y) to (0, 0) for now
-    // TODO: Handle window move event, store (x, y) to LocalStorage
-    let windowBounds = {
-      x: 0,
-      y: 0,
-    }
-
-    // If window bounds exist, restore them
-    if (data[LAYOUT_FIELDS.WINDOW_BOUNDS]) {
-      const {width, height} = data[LAYOUT_FIELDS.WINDOW_BOUNDS]
-
-      // Don't make the window larger than the screen
-      windowBounds.width = Math.min(width, window.screen.availWidth)
-      windowBounds.height = Math.min(height, window.screen.availHeight)
-
-    // Else, set to default bounds
-    } else {
-      windowBounds.width = window.screen.availWidth * 3 / 4
-      windowBounds.height = window.screen.availHeight
-    }
-
-    this.props.dispatch(resizeWindow(windowBounds))
+    const bounds = WindowSizeUtils.getSavedWindowBounds()
+    this.props.uiActions.resizeWindow(bounds)
   }
 
-  onResize() {
-    this.props.dispatch(setWindowSize({
-      x: window.screenX,
-      y: window.screenY,
-      width: window.innerWidth,
-      height: window.innerHeight,
-    }))
-    this.props.dispatch(saveWindowBounds())
+  onResize = () => {
+    const bounds = WindowSizeUtils.getCurrentWindowBounds()
+    this.props.uiActions.setWindowSize(bounds)
+    this.props.uiActions.saveWindowBounds()
   }
 
-  renderInspector(rightPaneStyle) {
-    let content = null
+  renderInspector() {
+    const {decoDoc, rightSidebarContent, publishingFeature} = this.props
 
-    switch (this.props.rightSidebarContent) {
+    switch (rightSidebarContent) {
+
+      case RIGHT_SIDEBAR_CONTENT.NONE:
+        return null
+
       case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
-        content = (
+        return (
           <InspectorPane
+            style={styles.rightPane}
             title={'Properties'}
           >
-            {this.props.publishingFeature ? (
-              <ComponentProps
-                width={this.props.rightSidebarWidth}
-                decoDoc={this.props.decoDoc}
-              />
+            {publishingFeature ? (
+              <ComponentProps decoDoc={decoDoc} />
             ) : (
-              <LiveValueInspector
-                width={this.props.rightSidebarWidth}
-                decoDoc={this.props.decoDoc}
-              />
+              <LiveValueInspector decoDoc={decoDoc} />
             )}
           </InspectorPane>
         )
-      break
-      case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
-        content = (
-          <Publishing
-            width={this.props.rightSidebarWidth}
-            decoDoc={this.props.decoDoc} />
-        )
-      break
-    }
 
-    return (
-      this.props.rightSidebarContent !== RIGHT_SIDEBAR_CONTENT.NONE && (
-        <Pane
-          className='subpixel-antialiased inspector'
-          style={rightPaneStyle}
-          size={this.props.rightSidebarWidth}
-          min={170}
-          max={400}
-          resizableEdge={Pane.RESIZABLE_EDGE.LEFT}
-          onResize={(value) => {
-            this.props.dispatch(setRightSidebarWidth(value))
-          }}>
-          {content}
-        </Pane>
-      )
-    )
+      case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
+        return (
+          <Publishing
+            style={styles.rightPane}
+            decoDoc={decoDoc}
+          />
+        )
+    }
   }
 
   render() {
-    const {
-      toolbarHeight,
-      toolbarStyle,
-      containerStyle,
-      leftPaneStyle,
-      rightPaneStyle,
-      centerPaneStyle,
-      leftPaneBottomSectionStyle,
-      leftPaneBottomSectionContainerStyle,
-      projectNavigatorStyle,
-    } = getStyles(this.props)
+    const {decoDoc, width, height, projectNavigatorVisible} = this.props
 
-    const {
-      leftSidebarBottomSectionHeight,
-    } = this.props
+    const containerStyle = {
+      ...styles.container,
+      width: width || window.innerWidth,
+      height: height || window.innerHeight,
+    }
 
     return (
-      <div className='vbox full-size-relative' style={{overflow: 'hidden',}}>
-        <WorkspaceToolbar className='toolbar'
-          height={toolbarHeight}
-          title={this.props.directory.rootName} />
-        <div className='flex-variable hbox' style={containerStyle}>
-          {
-            this.props.projectNavigatorVisible && (
-              <Pane
-                className='flex-fixed vbox'
-                style={leftPaneStyle}
-                size={this.props.leftSidebarWidth}
-                min={170}
-                max={400}
-                resizableEdge={Pane.RESIZABLE_EDGE.RIGHT}
-                onResize={(value) => {
-                  this.props.dispatch(setLeftSidebarWidth(value))
-                }}>
-                <ProjectNavigator className={'subpixel-antialiased helvetica-smooth full-size-relative'}
-                  style={projectNavigatorStyle}
-                  tree={this.props.directory.fileTree}
-                  version={this.props.directory.version}/>
-                <div
-                  style={leftPaneBottomSectionContainerStyle}>
-                  <Pane
-                    style={leftPaneBottomSectionStyle}
-                    size={leftSidebarBottomSectionHeight}
-                    min={100}
-                    max={600}
-                    resizableEdge={Pane.RESIZABLE_EDGE.TOP}
-                    onResize={(value) => {
-                      this.props.dispatch(setLeftSidebarBottomSectionHeight(value))
-                    }}>
-                    <ComponentBrowser
-                      className={'subpixel-antialiased'}
-                      width={this.props.leftSidebarWidth}
-                      height={leftSidebarBottomSectionHeight}
-                    />
-                  </Pane>
-                </div>
-              </Pane>
-            )
-          }
-          <TabbedEditor className='flex-variable'
-            width={this.props.centerPaneWidth}
-            highlightLiteralTokens={this.props.highlightLiteralTokens}
-            style={centerPaneStyle}
-            decoDoc={this.props.decoDoc} />
-          {this.renderInspector(rightPaneStyle)}
+      <div style={containerStyle}>
+        <WorkspaceToolbar
+          style={styles.toolbar}
+        />
+        <div style={styles.content} data-resizable>
+          {projectNavigatorVisible && (
+            <div style={styles.leftPane} data-resizable>
+              <ProjectNavigator
+                className={'subpixel-antialiased helvetica-smooth'}
+                style={styles.leftPaneTop}
+              />
+              <ComponentBrowser
+                className={'subpixel-antialiased'}
+                style={styles.leftPaneBottom}
+              />
+            </div>
+          )}
+          <TabbedEditor
+            key={'tabbed-editor'}
+            style={styles.centerPane}
+            decoDoc={decoDoc}
+          />
+          {this.renderInspector()}
         </div>
       </div>
     )
   }
 }
 
-const getProjectNavigatorStyle = _.memoize((leftSidebarBottomSectionHeight) => ({
-  position: 'absolute',
-  top: 0,
-  height: `calc(100% - ${leftSidebarBottomSectionHeight}px)`,
-  display: 'flex',
-  flexDirection: 'column',
-}))
-
-function getStyles(props) {
-  const {
-    leftSidebarBottomSectionHeight,
-  } = props
-  const toolbarHeight = 71
-  const fixedHeightStyle = {
-    height: '100%',
-    position: 'relative',
-    overflow: 'hidden',
-  }
-  return {
-    toolbarHeight: toolbarHeight,
-    containerStyle: {
-      height: `calc(100% - ${toolbarHeight}px)`,
-      overflow: 'hidden',
-    },
-    leftPaneStyle: _.extend({
-      background: 'rgb(252,251,252)',
-    }, fixedHeightStyle),
-    centerPaneStyle: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      overflow: 'hidden',
-    },
-    fixedHeightStyle: fixedHeightStyle,
-    rightPaneStyle: _.extend({
-      overflowY: 'auto',
-      overflowX: 'hidden',
-      background: 'rgb(252,251,252)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-    }, fixedHeightStyle),
-    leftPaneBottomSectionStyle: {
-      position: 'absolute',
-      flex: '1 1 auto',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch',
-      width: '100%',
-      height: '100%',
-    },
-    leftPaneBottomSectionContainerStyle: {
-      borderTop: '1px solid rgb(224,224,224)',
-      position: 'absolute',
-      bottom: 0,
-      height: leftSidebarBottomSectionHeight,
-      width: '100%',
-    },
-    projectNavigatorStyle: getProjectNavigatorStyle(leftSidebarBottomSectionHeight),
-  }
-}
-
-const mapStateToProps = (state, ownProps) => {
-  let doc = null
-  const docId = state.editor.openDocId
-  const docCache = state.editor.docCache
-  if (docId && docCache) {
-    if (docCache[docId]) {
-      doc = docCache[docId]
-    }
-  }
-
-  const props = {
-    directory: state.directory,
-    decoDoc: doc,
-    windowBounds: state.application[LAYOUT_FIELDS.WINDOW_BOUNDS],
-    projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
-    rightSidebarContent: state.ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
-    rightSidebarWidth: state.ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_WIDTH],
-    leftSidebarWidth: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_WIDTH],
-    leftSidebarBottomSectionHeight: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_BOTTOM_SECTION_HEIGHT],
-    isTemp: ownProps.location.query && ownProps.location.query.temp,
-    highlightLiteralTokens: state.editor.highlightLiteralTokens,
-    publishingFeature: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
-  }
-
-  props.centerPaneWidth = window.innerWidth -
-      (props.rightSidebarContent !== RIGHT_SIDEBAR_CONTENT.NONE ? props.rightSidebarWidth : 0) -
-      (props.projectNavigatorVisible ? props.leftSidebarWidth : 0)
-
-  return props
-}
-
-export default connect(mapStateToProps)(Workspace)
+export default connect(mapStateToProps, mapDispatchToProps)(
+  WorkspaceEnhancer(Workspace, 'main-workspace')
+)

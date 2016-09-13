@@ -22,7 +22,6 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import FileTree from 'react-file-tree'
 import path from 'path'
-import pureRender from 'pure-render-decorator'
 
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
 import { tabActions } from '../actions'
@@ -37,7 +36,10 @@ import { PaneHeader, Node, NamingBanner } from '../components'
 
 const SCAFFOLDS = FileScaffoldFactory.getScaffolds()
 
-const mapStateToProps = (state) => ({})
+const mapStateToProps = (state) => ({
+  tree: state.directory.fileTree,
+  version: state.directory.version,
+})
 
 const mapDispatchToProps = (dispatch) => ({
   tabActions: bindActionCreators(tabActions, dispatch),
@@ -48,7 +50,6 @@ const mapDispatchToProps = (dispatch) => ({
   dispatch,
 })
 
-@pureRender
 class ProjectNavigator extends Component {
 
   static defaultProps = {
@@ -110,7 +111,7 @@ class ProjectNavigator extends Component {
   }
 
   render() {
-    const {style, className} = this.props
+    const {style, className, tree, version} = this.props
 
     return (
       <div
@@ -126,6 +127,9 @@ class ProjectNavigator extends Component {
           renderNode={this.renderNode}
           controller={fileTreeController}
           plugins={PLUGINS}
+          // trigger re-render
+          tree={tree}
+          version={version}
         />
       </div>
     )

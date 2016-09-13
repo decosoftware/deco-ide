@@ -331,7 +331,6 @@ TabbedEditor.propTypes = {
   consoleVisible: PropTypes.bool.isRequired,
   packagerOutput: PropTypes.string.isRequired,
   savedScrollHeight: PropTypes.number.isRequired,
-  highlightLiteralTokens: PropTypes.bool.isRequired,
 }
 
 const mapStateToProps = (state, ownProps) => {

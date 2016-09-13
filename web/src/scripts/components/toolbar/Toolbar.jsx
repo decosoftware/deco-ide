@@ -36,24 +36,23 @@ const titleStyle = {
   paddingTop: 4,
 }
 
-const Toolbar = ({children, title, height}) => {
-  const style = {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: `0 0 ${height}px`,
-    width: '100%',
-    position: 'relative',
+const Toolbar = ({children, title, height, style}) => {
+  const newStyle = {
+    ...style,
+    height,
     background: 'linear-gradient(rgb(238,237,238), rgb(231,230,231))',
     borderBottom: '1px solid rgb(224,224,226)',
     fontSize: 12,
     WebkitAppRegion: 'drag',
+    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'stretch',
     justifyContent: 'space-between',
   }
 
   return (
     <div className={'helvetica-smooth'}
-      style={style}>
+      style={newStyle}>
       <div style={titleStyle}>
         {title}
       </div>
