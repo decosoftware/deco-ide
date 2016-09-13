@@ -173,7 +173,7 @@ class Workspace extends Component {
     console.log('rendering workspace')
 
     return (
-      <div style={containerStyle} data-resizable>
+      <div style={containerStyle}>
         <WorkspaceToolbar
           style={styles.toolbar}
         />
