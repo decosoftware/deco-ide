@@ -110,6 +110,8 @@ class ProjectNavigator extends Component {
     )
   }
 
+  getNodeHeight = ({index}) => index === 0 ? 36 : 24
+
   render() {
     const {style, className, tree, version} = this.props
 
@@ -119,7 +121,7 @@ class ProjectNavigator extends Component {
         style={style}
       >
         <FileTree
-          nodeHeight={24}
+          nodeHeight={this.getNodeHeight}
           onSelect={this.onSelectFile}
           onDoubleSelect={this.onDoubleSelectFile}
           onContext={this.showContextMenu}

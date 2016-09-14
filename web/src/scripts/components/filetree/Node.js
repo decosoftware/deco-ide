@@ -24,8 +24,8 @@ const stylesCreator = ({colors, fonts}) => {
         `url('./icons/icon-file@2x.png') 2x` +
       `)`,
       backgroundColor: colors.fileTree.icon,
-      marginLeft: 15,
-      marginRight: 6,
+      marginLeft: 16,
+      marginRight: 8,
       position: 'relative',
       alignSelf: 'center',
       top: -1,
@@ -41,8 +41,8 @@ const stylesCreator = ({colors, fonts}) => {
         `url('./icons/icon-folder@2x.png') 2x` +
       `)`,
       backgroundColor: colors.fileTree.icon,
-      marginRight: 6,
-      marginLeft: 6,
+      marginRight: 8,
+      marginLeft: 7,
       alignSelf: 'center',
       position: 'relative',
       top: -2,

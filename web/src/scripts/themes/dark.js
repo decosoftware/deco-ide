@@ -13,7 +13,7 @@ export const colors = {
   tabs: {
     background: 'rgb(29,30,36)',
     backgroundFocused: 'rgb(35,36,46)',
-    highlight: '#D8D8D8',
+    highlight: '#D8D8E3',
   },
   fileTree: {
     icon: '#CCCCDD',
