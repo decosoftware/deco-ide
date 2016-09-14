@@ -264,13 +264,12 @@ class TabbedEditor extends Component {
                 decoDoc={this.props.decoDoc}
                 style={editorStyle} />
             ) : (
-              <NoContent
-                theme={NoContent.THEME.DARK}>
-                  Welcome to Deco
-                  <br />
-                  <br />
-                  Open a file in the Project Browser on the left to get started.
-                </NoContent>
+              <NoContent>
+                Welcome to Deco
+                <br />
+                <br />
+                Open a file in the Project Browser on the left to get started.
+              </NoContent>
             )
           }
           <Console consoleOpen={this.props.consoleVisible}

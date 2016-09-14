@@ -30,7 +30,6 @@ const styles = {
     flex: '1 1 auto',
     display: 'flex',
     alignItems: 'stretch',
-    backgroundColor: 'rgb(252,251,252)',
     overflow: 'hidden',
   },
   inner: {

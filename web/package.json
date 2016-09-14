@@ -11,6 +11,7 @@
     "codemirror": "dabbott/CodeMirror#better-jsx-es6",
     "css-loader": "^0.9.1",
     "esprima": "^2.7.2",
+    "fast-memoize": "^2.0.2",
     "file-loader": "^0.8.5",
     "file-tree-client": "0.0.4",
     "file-tree-client-transport-electron": "0.0.1",

@@ -20,15 +20,15 @@ import 'babel-polyfill' //use es6 runtime for promises
 //for webpack hot reloader
 require('../../public/main.css')
 
-import Raven from 'raven-js';
-Raven.config('https://a1ba00d4bfe94b0586811f5ffb5d0596@app.getsentry.com/64868').install()
-
-function logException(ex, context) {
-  if (!Raven) return
-  Raven.captureException(ex, {
-    extra: context
-  });
-}
+// import Raven from 'raven-js';
+// Raven.config('https://a1ba00d4bfe94b0586811f5ffb5d0596@app.getsentry.com/64868').install()
+//
+// function logException(ex, context) {
+//   if (!Raven) return
+//   Raven.captureException(ex, {
+//     extra: context
+//   });
+// }
 
 import _ from 'lodash'
 

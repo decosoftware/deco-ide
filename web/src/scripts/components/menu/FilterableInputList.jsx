@@ -19,29 +19,35 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import InputClearButton from '../buttons/InputClearButton'
+import ThemeEnhancer from '../../themes/Enhancer'
 
-const style = {
-  position: 'relative',
+const stylesCreator = ({colors}) => {
+  return {
+    main: {
+      position: 'relative',
+    },
+    input: {
+      width: '100%',
+      height: 45,
+      lineHeight: '45px',
+      paddingLeft: 15,
+      paddingRight: 15,
+      outline: 'none',
+      fontSize: 13,
+      letterSpacing: 0.3,
+      borderStyle: 'solid',
+      borderWidth: 0,
+      borderColor: colors.divider,
+      // borderTopWidth: 1,
+      borderBottomWidth: 1,
+      // backgroundColor: '#F6F6F6',
+      backgroundColor: colors.background,
+      boxSizing: 'border-box',
+    }
+  }
 }
 
-const inputStyle = {
-  width: '100%',
-  height: 45,
-  lineHeight: '45px',
-  paddingLeft: 15,
-  paddingRight: 15,
-  outline: 'none',
-  fontSize: 13,
-  letterSpacing: 0.3,
-  borderStyle: 'solid',
-  borderWidth: 0,
-  borderColor: '#E1E1E1',
-  borderTopWidth: 1,
-  borderBottomWidth: 1,
-  backgroundColor: '#F6F6F6',
-  boxSizing: 'border-box',
-}
-
+@ThemeEnhancer(stylesCreator)
 class FilterableInputList extends Component {
 
   handleClick(e) {
@@ -72,12 +78,14 @@ class FilterableInputList extends Component {
   }
 
   render() {
+    const {styles} = this.props
+
     return (
       <div
-        style={style}>
+        style={styles.main}>
         <input type={'search'}
           ref={'filterInput'}
-          style={inputStyle}
+          style={styles.input}
           placeholder={'Search Components'}
           value={this.props.searchText}
           onClick={this.handleClick.bind(this)}

@@ -118,7 +118,6 @@ class ProjectNavigator extends Component {
         className={'project-navigator vbox ' + className}
         style={style}
       >
-        <PaneHeader text={'Project'} />
         <FileTree
           nodeHeight={24}
           onSelect={this.onSelectFile}
