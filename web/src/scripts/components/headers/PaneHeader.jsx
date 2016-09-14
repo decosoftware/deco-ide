@@ -29,7 +29,7 @@ const stylesCreator = ({colors}) => {
       color: colors.text,
       fontSize: 12,
       fontWeight: '500',
-      borderColor: colors.divider,
+      borderColor: colors.dividerInverted,
       borderStyle: 'solid',
       borderWidth: 0,
       borderBottomWidth: 1,

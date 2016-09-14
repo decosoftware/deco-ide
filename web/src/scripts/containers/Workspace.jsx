@@ -69,7 +69,7 @@ const stylesCreator = (theme) => {
       height: 300,
       maxHeight: 600,
       borderTopWidth: 1,
-      borderTopColor: colors.divider,
+      borderTopColor: colors.dividerInverted,
       borderTopStyle: 'solid',
     },
     rightPane: {

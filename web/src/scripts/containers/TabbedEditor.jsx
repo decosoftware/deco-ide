@@ -75,7 +75,7 @@ const stylesCreator = ({colors}) => {
       borderWidth: 1,
       borderTopWidth: 0,
       borderStyle: 'solid',
-      borderColor: colors.dividerStrong,
+      borderColor: colors.dividerInverted,
       borderBottomLeftRadius: 3,
       borderBottomRightRadius: 3,
     },

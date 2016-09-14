@@ -1,18 +1,22 @@
 export const colors = {
   background: 'rgb(29,30,36)',
   editorBackground: 'rgb(35,36,46)',
-  text: '#DDDDDD',
-  textSubtle: '#999999',
+  text: '#DDDDEC',
+  textSubtle: '#9999A2',
+  textVerySubtle: '#555560',
   divider: 'rgb(50,50,50)',
   dividerSubtle: 'rgb(35,36,46)',
-  dividerString: '#0b0b0b',
-  fileTree: {
-    icon: '#CCCCCC',
+  dividerInverted: '#0b0b0b',
+  input: {
+    background: 'rgb(35,36,46)',
   },
   tabs: {
     background: 'rgb(29,30,36)',
     backgroundFocused: 'rgb(35,36,46)',
     highlight: '#D8D8D8',
+  },
+  fileTree: {
+    icon: '#CCCCDD',
   },
 }
 

@@ -31,6 +31,8 @@ export default class {
     }
 
     document.head.appendChild(this.styleNode)
+
+    return this
   }
 
   detach() {
@@ -46,5 +48,7 @@ export default class {
     if (this.styleNode) {
       this.styleNode.textContent = text
     }
+
+    return this
   }
 }

@@ -20,11 +20,26 @@ import ReactDOM from 'react-dom'
 
 import InputClearButton from '../buttons/InputClearButton'
 import ThemeEnhancer from '../../themes/Enhancer'
+import StyleNode from '../../utils/StyleNode'
+
+const styleNode = new StyleNode()
+styleNode.attach()
 
 const stylesCreator = ({colors}) => {
+
+  styleNode.setText(`
+    .filter-input::-webkit-input-placeholder {
+      color: ${colors.textVerySubtle};
+    }
+  `)
+
   return {
     main: {
       position: 'relative',
+      borderStyle: 'solid',
+      borderWidth: 0,
+      borderColor: colors.dividerInverted,
+      borderBottomWidth: 1,
     },
     input: {
       width: '100%',
@@ -35,71 +50,53 @@ const stylesCreator = ({colors}) => {
       outline: 'none',
       fontSize: 13,
       letterSpacing: 0.3,
-      borderStyle: 'solid',
-      borderWidth: 0,
-      borderColor: colors.divider,
-      // borderTopWidth: 1,
-      borderBottomWidth: 1,
-      // backgroundColor: '#F6F6F6',
-      backgroundColor: colors.background,
+      border: 'none',
+      color: colors.text,
+      backgroundColor: colors.input.background,
       boxSizing: 'border-box',
     }
   }
 }
 
 @ThemeEnhancer(stylesCreator)
-class FilterableInputList extends Component {
-
-  handleClick(e) {
-    e.stopPropagation()
-  }
-
-  handleChange(e) {
-    this.props.handleSearchTextChange(e.target.value)
-  }
-
-  handleClearClick(e) {
-    e.stopPropagation()
-    this.props.handleSearchTextChange('')
-    ReactDOM.findDOMNode(this.refs.filterInput).focus()
-  }
+export default class extends Component {
 
   componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.filterInput).focus()
+    this.refs.filterInput.focus()
   }
 
-  _renderClearButton() {
-    if (this.props.searchText) {
-      return (
-        <InputClearButton onClick={this.handleClearClick.bind(this)}/>
-      )
-    }
-    return null
+  handleClick = (e) => e.stopPropagation()
+
+  handleChange = (e) => this.props.handleSearchTextChange(e.target.value)
+
+  handleClearClick = (e) => {
+    e.stopPropagation()
+    this.props.handleSearchTextChange('')
+    this.refs.filterInput.focus()
   }
 
   render() {
-    const {styles} = this.props
+    const {styles, searchText} = this.props
 
     return (
-      <div
-        style={styles.main}>
-        <input type={'search'}
+      <div style={styles.main}>
+        <input
+          className={'filter-input'}
+          type={'search'}
           ref={'filterInput'}
           style={styles.input}
           placeholder={'Search Components'}
-          value={this.props.searchText}
-          onClick={this.handleClick.bind(this)}
-          onChange={this.handleChange.bind(this)}/>
-        {this._renderClearButton()}
+          value={searchText}
+          onClick={this.handleClick}
+          onChange={this.handleChange}
+        />
+        {searchText && (
+          <InputClearButton
+            onClick={this.handleClearClick}
+          />
+        )}
       </div>
     )
   }
 
 }
-
-FilterableInputList.defaultProps = {
-  className: '',
-  style: {},
-}
-
-export default FilterableInputList
