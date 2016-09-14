@@ -44,7 +44,7 @@ const stylesCreator = ({colors, fonts}) => {
       flexDirection: 'row',
       alignItems: 'center',
     },
-    termTitleText: {...fonts.regular},
+    termTitleText: {...fonts.regularSubtle},
     iconBaseStyle: {
       width: 15,
       height: 15,

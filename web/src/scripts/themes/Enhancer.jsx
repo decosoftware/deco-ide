@@ -18,40 +18,43 @@
 import React, { Component, } from 'react'
 import memoize from 'fast-memoize'
 
-const createStyles = (stylesCreator, theme) => stylesCreator(theme)
+export default (stylesCreator) => {
 
-export default (stylesCreator) => (WrappedComponent) => class extends Component {
+  const createStyles = memoize(stylesCreator)
 
-  static contextTypes = {
-    theme: React.PropTypes.object,
-  }
+  return (WrappedComponent) => class extends Component {
 
-  constructor(props, context) {
-    super()
-    this.state = this.mapContextToState(context)
-  }
-
-  componentWillReceiveProps(nextProps, nextContext) {
-    if (nextContext.theme !== this.context.theme) {
-      this.setState(this.mapContextToState(nextContext))
+    static contextTypes = {
+      theme: React.PropTypes.object,
     }
 
-    // Update all styles on HMR regardless of theme change
-    if (module.hot) {
-      this.setState(this.mapContextToState(nextContext))
+    constructor(props, context) {
+      super()
+      this.state = this.mapContextToState(context)
     }
-  }
 
-  mapContextToState(context) {
-    const {theme} = context
-    return {styles: createStyles(stylesCreator, theme)}
-  }
+    componentWillReceiveProps(nextProps, nextContext) {
+      if (nextContext.theme !== this.context.theme) {
+        this.setState(this.mapContextToState(nextContext))
+      }
 
-  render() {
-    const {styles} = this.state
+      // Update all styles on HMR regardless of theme change
+      if (module.hot) {
+        this.setState(this.mapContextToState(nextContext))
+      }
+    }
 
-    return (
-      <WrappedComponent styles={styles} {...this.props} />
-    )
+    mapContextToState(context) {
+      const {theme} = context
+      return {styles: createStyles(theme)}
+    }
+
+    render() {
+      const {styles} = this.state
+
+      return (
+        <WrappedComponent styles={styles} {...this.props} />
+      )
+    }
   }
 }

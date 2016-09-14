@@ -32,7 +32,7 @@ const stylesCreator = ({fonts}) => {
     },
     termTitleText: {
       marginRight: 8,
-      ...fonts.regular,
+      ...fonts.regularSubtle,
     },
     inactiveLabel: {
       marginRight: 2,
