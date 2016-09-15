@@ -18,7 +18,7 @@
 import React, { Component } from 'react'
 import ToggleButton from 'react-toggle-button'
 
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = ({fonts}) => {
   return {
@@ -40,7 +40,7 @@ const stylesCreator = ({fonts}) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
   render() {
     const {styles, isRunning, onClick} = this.props

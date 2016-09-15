@@ -17,7 +17,7 @@
 
 import React, { Component, } from 'react'
 import Enum from '../../utils/Enum'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = ({colors}) => {
   return {
@@ -41,7 +41,7 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
 
   render() {

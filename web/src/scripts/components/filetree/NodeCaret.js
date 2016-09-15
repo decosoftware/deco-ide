@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 import styles from './styles'
 
@@ -19,7 +19,7 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
 
   static defaultProps = {

@@ -20,7 +20,7 @@ import React, { Component, PropTypes, } from 'react'
 import PackagerConsole from './PackagerConsole'
 import PackagerSwitch from './PackagerSwitch'
 import { ProcessStatus, } from '../../constants/ProcessStatus'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const tabBarHeight = 36
 
@@ -65,7 +65,7 @@ const stylesCreator = ({colors, fonts}) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 class Console extends Component {
 
   renderPackagerDisplay() {

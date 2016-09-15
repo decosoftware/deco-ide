@@ -6,7 +6,7 @@ import memoize from 'fast-memoize'
 import NodeCaret from './NodeCaret'
 import PlusButtonWithDropdown from './PlusButtonWithDropdown'
 import styles, { getPaddedStyle } from './styles'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const isDirectory = (type) => {
   return type === 'directory'
@@ -83,7 +83,7 @@ const stylesCreator = ({colors, fonts}) => {
   return styles
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class Node extends Component {
 
   state = {

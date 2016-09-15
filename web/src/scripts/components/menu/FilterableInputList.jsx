@@ -19,17 +19,17 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import InputClearButton from '../buttons/InputClearButton'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 import StyleNode from '../../utils/StyleNode'
 
 const styleNode = new StyleNode()
 styleNode.attach()
 
-const stylesCreator = ({colors}) => {
+const stylesCreator = ({colors}, transparentBackground) => {
 
   styleNode.setText(`
     .filter-input::-webkit-input-placeholder {
-      color: ${colors.textVerySubtle};
+      color: ${transparentBackground ? colors.textSubtle : colors.textVerySubtle};
     }
   `)
 
@@ -38,7 +38,7 @@ const stylesCreator = ({colors}) => {
       position: 'relative',
       borderStyle: 'solid',
       borderWidth: 0,
-      borderColor: colors.dividerInverted,
+      borderColor: transparentBackground ? colors.dividerVibrant : colors.dividerInverted,
       borderBottomWidth: 1,
     },
     input: {
@@ -52,13 +52,15 @@ const stylesCreator = ({colors}) => {
       letterSpacing: 0.3,
       border: 'none',
       color: colors.text,
-      backgroundColor: colors.input.background,
+      backgroundColor: transparentBackground ? 'transparent' : colors.input.background,
       boxSizing: 'border-box',
     }
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+const selectProps = ({transparentBackground}) => transparentBackground
+
+@StylesEnhancer(stylesCreator, selectProps)
 export default class extends Component {
 
   componentDidMount() {

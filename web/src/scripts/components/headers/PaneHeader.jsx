@@ -16,7 +16,7 @@
  */
 
 import React, { Component, PropTypes } from 'react'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = ({colors}) => {
   return {
@@ -50,7 +50,7 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
 
   static propTypes = {}

@@ -17,20 +17,13 @@
 
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
+import { StylesProvider } from 'react-styles-provider'
 
 import Modal from '../components/modal/Modal'
 import { popModal } from '../actions/uiActions'
 import * as theme from '../themes/dark'
 
 class App extends Component {
-
-  static childContextTypes = {
-    theme: React.PropTypes.object,
-  }
-
-  getChildContext() {
-    return {theme}
-  }
 
   _getModalSettings() {
     if (this.props.modalQueue.length == 0) {
@@ -45,6 +38,7 @@ class App extends Component {
       closeOnBlur: this.props.modalQueue[0].closeOnBlur,
     }
   }
+  
   render() {
     const modalSettings = this._getModalSettings()
     return (
@@ -55,7 +49,9 @@ class App extends Component {
         closeOnBlur={modalSettings.closeOnBlur}
         modalElement={modalSettings.element}
         visible={modalSettings.visible}>
-        {this.props.children}
+        <StylesProvider theme={theme}>
+          {this.props.children}
+        </StylesProvider>
       </Modal>
     )
   }

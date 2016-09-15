@@ -52,6 +52,7 @@ class SearchMenu extends Component {
         anchorPosition={anchorPosition}
         style={styles.menu}
         hideOnClick={true}
+        captureBackground={true}
       >
         <div style={{...styles.inner, width: anchorPosition.width}}>
           <FilterableList
@@ -60,6 +61,7 @@ class SearchMenu extends Component {
             onItemClick={onItemClick}
             autoSelectFirst={true}
             hideMenu={requestClose}
+            transparentBackground={true}
           />
         </div>
       </DropdownMenu>

@@ -19,9 +19,9 @@ import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import pureRender from 'pure-render-decorator'
 
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
-const stylesCreator = ({colors}) => {
+const stylesCreator = ({colors}, transparentBackground) => {
   let styles = {
     row: {
       normal: {
@@ -30,7 +30,6 @@ const stylesCreator = ({colors}) => {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: colors.background,
         display: 'flex',
         minWidth: 0,
         minHeight: 0,
@@ -47,7 +46,7 @@ const stylesCreator = ({colors}) => {
         minHeight: 0,
         borderWidth: 0,
         borderStyle: 'solid',
-        borderColor: colors.dividerSubtle,
+        borderColor: transparentBackground ? colors.dividerVibrant : colors.dividerSubtle,
         borderBottomWidth: 1,
         paddingRight: 15,
       },
@@ -119,7 +118,9 @@ const stylesCreator = ({colors}) => {
   return styles
 }
 
-@ThemeEnhancer(stylesCreator)
+const selectProps = ({transparentBackground}) => transparentBackground
+
+@StylesEnhancer(stylesCreator, selectProps)
 @pureRender
 export default class extends Component {
 

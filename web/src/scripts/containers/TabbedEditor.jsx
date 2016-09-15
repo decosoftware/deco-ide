@@ -41,7 +41,7 @@ import ComponentMenuItem from '../components/menu/ComponentMenuItem'
 import TabContainer from '../components/layout/TabContainer'
 import Tab from '../components/buttons/Tab'
 import EditorToast from '../components/editor/EditorToast'
-import ThemeEnhancer from '../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
 import { stopPackager, runPackager, clearConfigError, setFlowError } from '../actions/applicationActions'
@@ -145,7 +145,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 class TabbedEditor extends Component {
 
   static propTypes = {

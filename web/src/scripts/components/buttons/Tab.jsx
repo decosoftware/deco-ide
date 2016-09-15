@@ -18,7 +18,7 @@
 import React, { Component, PropTypes } from 'react'
 
 import SimpleButton from './SimpleButton'
-import ThemeEnhancer from '../../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = ({colors, fonts}) => {
   const styles = {
@@ -81,7 +81,7 @@ const stylesCreator = ({colors, fonts}) => {
   return styles
 }
 
-@ThemeEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
 
   state = {}

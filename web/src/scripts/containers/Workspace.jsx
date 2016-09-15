@@ -34,7 +34,7 @@ import ProjectNavigator from './ProjectNavigator'
 import ComponentBrowser from './ComponentBrowser'
 import ComponentProps from './ComponentProps'
 import { Pane, InspectorPane } from '../components'
-import ThemeEnhancer from '../themes/Enhancer'
+import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = (theme) => {
   const {colors} = theme
@@ -206,5 +206,5 @@ class Workspace extends Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  ThemeEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
+  StylesEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
 )
