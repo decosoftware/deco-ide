@@ -7,12 +7,11 @@ export const colors = {
   divider: 'rgb(50,50,50)',
   dividerSubtle: 'rgb(35,36,46)',
   dividerInverted: '#0b0b0b',
+  dividerVibrant: 'rgba(245,245,255,0.1)',
   input: {
     background: 'rgb(35,36,46)',
   },
   tabs: {
-    background: 'rgb(29,30,36)',
-    backgroundFocused: 'rgb(35,36,46)',
     highlight: '#D8D8E3',
   },
   fileTree: {

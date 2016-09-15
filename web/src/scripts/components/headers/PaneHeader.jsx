@@ -22,9 +22,9 @@ const stylesCreator = ({colors}) => {
   return {
     container: {
       backgroundColor: colors.background,
-      height: 32,
+      height: 36,
       width: '100%',
-      lineHeight: '32px',
+      lineHeight: '36px',
       textAlign: 'center',
       color: colors.text,
       fontSize: 12,

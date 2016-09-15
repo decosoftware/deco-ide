@@ -18,7 +18,7 @@
 import React, { Component, } from 'react'
 import memoize from 'fast-memoize'
 
-export default (stylesCreator) => {
+export default (stylesCreator, mapPropsToStyles) => {
 
   const createStyles = memoize(stylesCreator)
 
@@ -30,23 +30,28 @@ export default (stylesCreator) => {
 
     constructor(props, context) {
       super()
-      this.state = this.mapContextToState(context)
+      this.state = this.mapContextToState(props, context)
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
       if (nextContext.theme !== this.context.theme) {
-        this.setState(this.mapContextToState(nextContext))
+        this.setState(this.mapContextToState(nextProps, nextContext))
       }
 
       // Update all styles on HMR regardless of theme change
       if (module.hot) {
-        this.setState(this.mapContextToState(nextContext))
+        this.setState(this.mapContextToState(nextProps, nextContext))
       }
     }
 
-    mapContextToState(context) {
+    mapContextToState(props, context) {
       const {theme} = context
-      return {styles: createStyles(theme)}
+
+      if (mapPropsToStyles) {
+        return {styles: createStyles(theme, mapPropsToStyles(props))}
+      } else {
+        return {styles: createStyles(theme)}
+      }
     }
 
     render() {
