@@ -19,25 +19,41 @@ import _ from 'lodash'
 import React, { Component } from 'react'
 
 import Menu from './Menu'
+import { StylesEnhancer } from 'react-styles-provider'
 
-class DropdownMenu extends Component {
-  render() {
-    let style = {
-      background: 'rgb(252,251,252)',
+const stylesCreator = (theme) => {
+  const styles = {
+    transparent: {
       borderRadius: '3px',
       boxShadow: '0 2px 8px 1px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.1)',
       padding: '10px 0',
-    }
-    style = _.extend(style, _.cloneDeep(this.props.style))
+    },
+  }
+
+  styles.main = {
+    ...styles.transparent,
+    background: 'rgb(252,251,252)',
+  }
+
+  return styles
+}
+
+@StylesEnhancer(stylesCreator)
+export default class DropdownMenu extends Component {
+
+  static defaultProps = {
+    className: '',
+    style: {},
+  }
+  
+  render() {
+    const {styles, style, captureBackground} = this.props
+
     return (
-      <Menu {...this.props} style={style}/>
+      <Menu
+        {...this.props}
+        style={{...(captureBackground ? styles.transparent : styles.main), ...style}}
+      />
     )
   }
 }
-
-DropdownMenu.defaultProps = {
-  className: '',
-  style: {},
-}
-
-export default DropdownMenu
