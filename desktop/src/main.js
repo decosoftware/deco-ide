@@ -38,6 +38,7 @@ import child_process from 'child_process'
 import WindowManager from './window/windowManager'
 import MenuHandler from './menu/menuHandler'
 import Logger from './log/logger'
+import SyncServiceController from './process/SyncServiceController'
 
 import { registerHandlers, } from './handlers'
 import installDevTools from './utils/devTools'
@@ -72,6 +73,7 @@ app.on('ready', function() {
   //set the work area size for window manager
   global.workArea = size
   const version = app.getVersion()
+  SyncServiceController.start()
 
   installDevTools()
 
