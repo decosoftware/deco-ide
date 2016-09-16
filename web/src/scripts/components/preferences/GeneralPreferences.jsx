@@ -19,7 +19,9 @@ import React, { Component, } from 'react'
 
 import FormRow from '../forms/FormRow'
 import FileSelectorInput from '../input/FileSelectorInput'
+import SelectInput from '../input/SelectInput'
 import CheckboxInput from '../input/CheckboxInput'
+import themes from '../../themes'
 
 import { PREFERENCES, METADATA, CATEGORIES } from 'shared/constants/PreferencesConstants'
 
@@ -35,31 +37,47 @@ const style = {
 const LABEL_WIDTH = 140
 const INSET_LEVEL = 15
 
-export default ({onPreferenceChange, setSystemLocationPreference, androidHome, pathToGenymotionApp, useGenymotion, publishingFeature}) => {
+export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, androidHome, pathToGenymotionApp, useGenymotion, publishingFeature}) => {
   return (
     <div style={style}>
       <FormRow
+        label={'Deco UI Theme'}
+        labelWidth={LABEL_WIDTH}
+      >
+        <SelectInput
+          value={decoTheme}
+          options={themes.map(item => ({value: item.id, displayName: item.name}))}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.DECO_THEME)}
+        />
+      </FormRow>
+      <FormRow
         label={'Android SDK Location'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <FileSelectorInput
           value={androidHome}
           onClickButton={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.ANDROID_HOME, 'openDirectory', 'Choose Android SDK Location')}
-          placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME].defaultValue} />
+          placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME].defaultValue}
+        />
       </FormRow>
       <FormRow
         label={'Genymotion Install Location'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <FileSelectorInput
           value={pathToGenymotionApp}
           onClickButton={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.GENYMOTION_APP, 'openFile', 'Choose Genymotion Install Location')}
-          placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP].defaultValue} />
+          placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP].defaultValue}
+        />
       </FormRow>
       <FormRow
         label={'Enable Experimental Component Publishing'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={publishingFeature}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.PUBLISHING_FEATURE)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.PUBLISHING_FEATURE)}
+        />
       </FormRow>
     </div>
   )

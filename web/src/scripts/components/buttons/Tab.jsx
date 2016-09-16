@@ -18,94 +18,108 @@
 import React, { Component, PropTypes } from 'react'
 
 import SimpleButton from './SimpleButton'
+import { StylesEnhancer } from 'react-styles-provider'
 
-const style = {
-  width: '100%',
-  height: 31,
-  backgroundColor: 'rgb(27,28,29)',
-  borderRight: '1px solid rgb(16,16,16)',
-  position: 'relative',
-  color: 'rgba(255,255,255,0.3)',
-  cursor: 'default',
+const stylesCreator = ({colors, fonts}) => {
+  const styles = {
+    main: {
+      width: '100%',
+      height: 35,
+      position: 'relative',
+      ...fonts.regularSubtle,
+      color: 'rgba(255,255,255,0.3)',
+      cursor: 'default',
+      backgroundColor: colors.tabs.background,
+    },
+    text: {
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
+      padding: '0 10px',
+      whiteSpace: 'nowrap',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    close: {
+      width: 20,
+      height: 29,
+      position: 'absolute',
+      right: 0,
+      top: 0,
+      paddingTop: 5,
+      paddingLeft: 2,
+      backgroundColor: colors.tabs.background,
+      boxShadow: `-4px 0 4px ${colors.tabs.background}`,
+    },
+    closeText: {
+      opacity: 0,
+      transition: 'opacity 0.2s',
+    },
+    closeTextVisible: {
+      opacity: 1,
+    },
+    closeTextHover: {
+      opacity: 0.5,
+    },
+    closeTextActive: {
+      opacity: 0.75,
+    },
+  }
+
+  styles.mainFocused = {
+    ...styles.main,
+    color: 'rgba(255,255,255,0.7)',
+    boxShadow: `0 -2px ${colors.tabs.highlight} inset`,
+  }
+
+  styles.closeFocused = {
+    ...styles.close,
+    backgroundColor: colors.tabs.background,
+    boxShadow: `-4px 0 4px ${colors.tabs.background}`,
+  }
+
+  return styles
 }
 
-const focusedStyle = Object.assign({}, style, {
-  backgroundColor: 'rgb(35,36,38)',
-  color: 'rgba(255,255,255,0.7)',
-  boxShadow: '0 1px rgb(35,36,38), 2px 0 rgb(22,128,250) inset',
-})
+@StylesEnhancer(stylesCreator)
+export default class extends Component {
 
-const textStyle = {
-  width: '100%',
-  height: '100%',
-  overflow: 'hidden',
-  textAlign: 'center',
-  padding: '0 10px',
-  whiteSpace: 'nowrap',
-}
+  state = {}
 
-const closeStyle = {
-  width: 20,
-  height: 31,
-  position: 'absolute',
-  right: 0,
-  top: 0,
-  paddingLeft: 2,
-  backgroundColor: 'rgb(27,28,29)',
-  boxShadow: '-4px 0 4px rgb(27,28,29)',
-}
+  onMouseEnter = () => this.setState({hover: true})
 
-const focusedCloseStyle = Object.assign({}, closeStyle, {
-  backgroundColor: 'rgb(35,36,38)',
-  boxShadow: '-4px 0 4px rgb(35,36,38)',
-})
+  onMouseLeave = () => this.setState({hover: false})
 
-const closeTextDefaultStyle = {
-  opacity: 0,
-  transition: 'opacity 0.2s',
-}
+  onCloseClick = (e) => {
+    const {onClose} = this.props
 
-const closeTextVisibleStyle = {
-  opacity: 1,
-}
-
-const closeTextHoverStyle = {
-  opacity: 0.5,
-}
-
-const closeTextActiveStyle = {
-  opacity: 0.75,
-}
-
-class Tab extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
+    e.stopPropagation()
+    onClose()
   }
 
   render() {
-    const focused = this.props.focused
-    const closeTextStyle = this.state.hover ?
-        Object.assign({}, closeTextDefaultStyle, closeTextVisibleStyle) :
-        closeTextDefaultStyle
+    const {styles, focused, title, onFocus, children} = this.props
+    const {hover} = this.state
+    const closeTextStyle = hover ? {...styles.closeText, ...styles.closeTextVisible} : styles.closeText
+
     return (
-      <div style={focused ? focusedStyle : style}
-        title={this.props.title}
-        onMouseEnter={() => this.setState({hover: true})}
-        onMouseLeave={() => this.setState({hover: false})}
-        onClick={this.props.onFocus}>
-        <div style={textStyle}>
-          {this.props.children}
+      <div
+        style={focused ? styles.mainFocused : styles.main}
+        title={title}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
+        onClick={onFocus}
+      >
+        <div style={styles.text}>
+          {children}
         </div>
-        <div style={focused ? focusedCloseStyle : closeStyle}>
+        <div style={focused ? styles.closeFocused : styles.close}>
           <SimpleButton
-            onClick={(e) => {
-              e.stopPropagation()
-              this.props.onClose()
-            }}
+            onClick={this.onCloseClick}
             defaultStyle={closeTextStyle}
-            activeStyle={Object.assign({}, closeTextStyle, closeTextActiveStyle)}
-            hoverStyle={Object.assign({}, closeTextStyle, closeTextHoverStyle)}
+            activeStyle={{...closeTextStyle, ...styles.closeTextActive}}
+            hoverStyle={{...closeTextStyle, ...styles.closeTextHover}}
             innerStyle={{}}>
             ×
           </SimpleButton>
@@ -114,5 +128,3 @@ class Tab extends Component {
     )
   }
 }
-
-export default Tab

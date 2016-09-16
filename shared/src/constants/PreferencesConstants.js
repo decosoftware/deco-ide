@@ -31,6 +31,7 @@ export const PREFERENCES = {
     'GENYMOTION_APP',
     'USE_GENYMOTION',
     'PUBLISHING_FEATURE',
+    'DECO_THEME',
   ]),
   [CATEGORIES.SAVING]: _.mapKeys([
     'AUTOSAVE',
@@ -51,6 +52,9 @@ export const PREFERENCES = {
 
 export const METADATA = {
   [CATEGORIES.GENERAL]: {
+    [PREFERENCES[CATEGORIES.GENERAL].DECO_THEME]: {
+      defaultValue: 'light',
+    },
     [PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME]: {
       defaultValue: '',
     },

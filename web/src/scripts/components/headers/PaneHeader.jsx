@@ -16,34 +16,41 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
 
-const styles = {
-  container: {
-    backgroundColor: 'white',
-    height: 32,
-    width: '100%',
-    lineHeight: '32px',
-    textAlign: 'center',
-    color: 'rgb(103,103,103)',
-    fontSize: 12,
-    fontWeight: 500,
-    borderBottom: '1px solid rgb(224,224,224)',
-    paddingLeft: 10,
-    paddingRight: 10,
-    cursor: 'default',
-  },
-  sideTitle: {
-    position: 'absolute',
-    color: '#198BFB',
-  },
-  rightTitle: {
-    right: 10,
-  },
-  leftTitle: {
-    left: 10,
-  },
+const stylesCreator = ({colors}) => {
+  return {
+    container: {
+      backgroundColor: colors.background,
+      height: 36,
+      width: '100%',
+      lineHeight: '36px',
+      textAlign: 'center',
+      color: colors.text,
+      fontSize: 12,
+      fontWeight: '500',
+      borderColor: colors.dividerInverted,
+      borderStyle: 'solid',
+      borderWidth: 0,
+      borderBottomWidth: 1,
+      paddingLeft: 10,
+      paddingRight: 10,
+      cursor: 'default',
+    },
+    sideTitle: {
+      position: 'absolute',
+      color: '#198BFB',
+    },
+    rightTitle: {
+      right: 10,
+    },
+    leftTitle: {
+      left: 10,
+    },
+  }
 }
 
+@StylesEnhancer(stylesCreator)
 export default class extends Component {
 
   static propTypes = {}
@@ -60,7 +67,7 @@ export default class extends Component {
   }
 
   render() {
-    const {text, leftTitle, rightTitle, onClickLeftTitle, onClickRightTitle} = this.props
+    const {styles, text, leftTitle, rightTitle, onClickLeftTitle, onClickRightTitle} = this.props
 
     return (
       <div className={'helvetica-smooth'} style={styles.container}>

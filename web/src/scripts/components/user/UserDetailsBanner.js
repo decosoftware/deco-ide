@@ -3,7 +3,6 @@ import React, { Component, } from 'react'
 const styles = {
   container: {
     height: 53,
-    background: 'white',
     borderStyle: 'solid',
     borderWidth: 0,
     borderBottomWidth: 1,

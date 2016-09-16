@@ -16,58 +16,55 @@
  */
 
 import React, { Component } from 'react'
-
 import ToggleButton from 'react-toggle-button'
 
-const style = {
-  container: {
-    position: 'relative',
-    height: 30,
-    marginRight: 11,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  indicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-  },
-  termTitleText: {
-    marginRight: 7,
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.6)',
-    letterSpacing: 0.3,
-    fontFamily: "'Helvetica Neue', Helvetica, sans-serif",
-  },
+import { StylesEnhancer } from 'react-styles-provider'
+
+const stylesCreator = ({fonts}) => {
+  return {
+    container: {
+      position: 'relative',
+      height: 30,
+      marginRight: 11,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    termTitleText: {
+      marginRight: 8,
+      ...fonts.regularSubtle,
+    },
+    inactiveLabel: {
+      marginRight: 2,
+    },
+  }
 }
 
-class PackagerSwitch extends Component {
+@StylesEnhancer(stylesCreator)
+export default class extends Component {
   render() {
+    const {styles, isRunning, onClick} = this.props
+
     return (
-      <div style={style.container}>
-        <div style={style.termTitleText}>
-          {this.props.isRunning ? 'Packager running' : 'Run packager'}
+      <div style={styles.container}>
+        <div style={styles.termTitleText}>
+          {isRunning ? 'Packager running' : 'Run packager'}
         </div>
-        <div onMouseDown={this.props.onClick} onClick={(e) => {
+        <div
+          onMouseDown={onClick}
+          onClick={(e) => {
             e.stopPropagation()
-          }}>
+          }}
+        >
           <ToggleButton
-            value={this.props.isRunning}
+            value={isRunning}
             colors={{
-              active: {
-                base: 'rgb(18, 80, 146)',
-              }
+              active: {base: 'rgb(18, 80, 146)'},
             }}
-            inactiveLabelStyle={{
-              marginRight: 2,
-            }}
-            onToggle={() => { }} />
+            inactiveLabelStyle={styles.inactiveLabel}
+          />
         </div>
       </div>
     )
   }
 }
-
-export default PackagerSwitch

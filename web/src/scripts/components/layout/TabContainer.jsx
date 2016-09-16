@@ -16,33 +16,39 @@
  */
 
 import React, { Component, } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+
 import TabUtils from '../../utils/TabUtils'
 
 const TAB_CONTAINER_REF = 'container'
 
-const innerStyle = {
-  width: '100%',
-  height: '100%',
-  flexDirection: 'row',
-  alignItems: 'stretch',
-  display: 'flex',
-}
+const stylesCreator = ({colors}) => ({
+  inner: {
+    width: '100%',
+    height: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    display: 'flex',
+    backgroundColor: colors.tabs.background,
+  },
+  item: {
+    flex: '0 0 150px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    position: 'relative',
+  }
+})
 
-const itemStyle = {
-  flex: '0 0 150px',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'stretch',
-  position: 'relative',
-}
+@StylesEnhancer(stylesCreator)
+export default class TabContainer extends Component {
 
-class TabContainer extends Component {
-
-  constructor(props) {
-    super(props)
+  static defaultProps = {
+    focusedTabId: null,
   }
 
   render() {
+    const {styles} = this.props
     const count = React.Children.count(this.props.children) || 1
     const itemMax = this.props.width / count
     const itemWidth = Math.min(itemMax, 200)
@@ -59,7 +65,7 @@ class TabContainer extends Component {
         focused: tabIds[i] === this.props.focusedTabId,
       })
 
-      const itemStyleSized = Object.assign({}, itemStyle, {
+      const itemStyleSized = Object.assign({}, styles.item, {
         flex: `0 0 ${itemWidth}px`,
       })
 
@@ -73,7 +79,7 @@ class TabContainer extends Component {
 
     return (
       <div style={this.props.style}>
-        <div ref={TAB_CONTAINER_REF} style={innerStyle}>
+        <div ref={TAB_CONTAINER_REF} style={styles.inner}>
           {children}
         </div>
       </div>
@@ -81,9 +87,3 @@ class TabContainer extends Component {
   }
 
 }
-
-TabContainer.defaultProps = {
-  focusedTabId: null,
-}
-
-export default TabContainer

@@ -19,79 +19,86 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 
 import InputClearButton from '../buttons/InputClearButton'
+import { StylesEnhancer } from 'react-styles-provider'
+import StyleNode from '../../utils/StyleNode'
 
-const style = {
-  position: 'relative',
+const styleNode = new StyleNode()
+styleNode.attach()
+
+const stylesCreator = ({colors}, transparentBackground) => {
+
+  styleNode.setText(`
+    .filter-input::-webkit-input-placeholder {
+      color: ${transparentBackground ? colors.textSubtle : colors.textVerySubtle};
+    }
+  `)
+
+  return {
+    main: {
+      position: 'relative',
+      borderStyle: 'solid',
+      borderWidth: 0,
+      borderColor: transparentBackground ? colors.dividerVibrant : colors.dividerInverted,
+      borderBottomWidth: 1,
+    },
+    input: {
+      width: '100%',
+      height: 45,
+      lineHeight: '45px',
+      paddingLeft: 15,
+      paddingRight: 15,
+      outline: 'none',
+      fontSize: 13,
+      letterSpacing: 0.3,
+      border: 'none',
+      color: colors.text,
+      backgroundColor: transparentBackground ? 'transparent' : colors.input.background,
+      boxSizing: 'border-box',
+    }
+  }
 }
 
-const inputStyle = {
-  width: '100%',
-  height: 45,
-  lineHeight: '45px',
-  paddingLeft: 15,
-  paddingRight: 15,
-  outline: 'none',
-  fontSize: 13,
-  letterSpacing: 0.3,
-  borderStyle: 'solid',
-  borderWidth: 0,
-  borderColor: '#E1E1E1',
-  borderTopWidth: 1,
-  borderBottomWidth: 1,
-  backgroundColor: '#F6F6F6',
-  boxSizing: 'border-box',
-}
+const selectProps = ({transparentBackground}) => transparentBackground
 
-class FilterableInputList extends Component {
-
-  handleClick(e) {
-    e.stopPropagation()
-  }
-
-  handleChange(e) {
-    this.props.handleSearchTextChange(e.target.value)
-  }
-
-  handleClearClick(e) {
-    e.stopPropagation()
-    this.props.handleSearchTextChange('')
-    ReactDOM.findDOMNode(this.refs.filterInput).focus()
-  }
+@StylesEnhancer(stylesCreator, selectProps)
+export default class extends Component {
 
   componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.filterInput).focus()
+    this.refs.filterInput.focus()
   }
 
-  _renderClearButton() {
-    if (this.props.searchText) {
-      return (
-        <InputClearButton onClick={this.handleClearClick.bind(this)}/>
-      )
-    }
-    return null
+  handleClick = (e) => e.stopPropagation()
+
+  handleChange = (e) => this.props.handleSearchTextChange(e.target.value)
+
+  handleClearClick = (e) => {
+    e.stopPropagation()
+    this.props.handleSearchTextChange('')
+    this.refs.filterInput.focus()
   }
 
   render() {
+    const {styles, searchText} = this.props
+
     return (
-      <div
-        style={style}>
-        <input type={'search'}
+      <div style={styles.main}>
+        <input
+          className={'filter-input'}
+          type={'search'}
           ref={'filterInput'}
-          style={inputStyle}
+          style={styles.input}
           placeholder={'Search Components'}
-          value={this.props.searchText}
-          onClick={this.handleClick.bind(this)}
-          onChange={this.handleChange.bind(this)}/>
-        {this._renderClearButton()}
+          value={searchText}
+          onClick={this.handleClick}
+          onChange={this.handleChange}
+        />
+        {searchText && (
+          <InputClearButton
+            onClick={this.handleClearClick}
+          />
+        )}
       </div>
     )
   }
 
 }
-
-FilterableInputList.defaultProps = {
-  className: '',
-  style: {},
-}
-
-export default FilterableInputList

@@ -194,7 +194,7 @@ class FilterableList extends Component {
   }
 
   renderItem({index}) {
-    const {items, onItemClick, ItemComponent} = this.props
+    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -203,6 +203,7 @@ class FilterableList extends Component {
         <ItemComponent
           key={'nomatches'}
           name={'No Matches'}
+          transparentBackground={transparentBackground}
         />
       )
     }
@@ -220,13 +221,14 @@ class FilterableList extends Component {
         name={displayName || name}
         tags={tags}
         item={item}
+        transparentBackground={transparentBackground}
       />
     )
   }
 
   render() {
     const {keyMap, keyHandlers, _onSearchTextChange} = this
-    const {items, onItemClick, ItemComponent} = this.props
+    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -239,6 +241,7 @@ class FilterableList extends Component {
         <FilterableInputList
           searchText={searchText}
           handleSearchTextChange={_onSearchTextChange.bind(this)}
+          transparentBackground={transparentBackground}
         />
         <div
           style={styles.autoSizerWrapper}

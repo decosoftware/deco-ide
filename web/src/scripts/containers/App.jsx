@@ -17,11 +17,15 @@
 
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
+import { StylesProvider } from 'react-styles-provider'
 
 import Modal from '../components/modal/Modal'
 import { popModal } from '../actions/uiActions'
+import { getThemeById } from '../themes'
+import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 class App extends Component {
+
   _getModalSettings() {
     if (this.props.modalQueue.length == 0) {
       return {
@@ -35,17 +39,25 @@ class App extends Component {
       closeOnBlur: this.props.modalQueue[0].closeOnBlur,
     }
   }
+
+  setVisibility = (visible) => {
+    this.props.dispatch(popModal(visible))
+  }
+
   render() {
+    const {children, theme} = this.props
     const modalSettings = this._getModalSettings()
+
     return (
       <Modal
-        setVisibility={(visible) => {
-          this.props.dispatch(popModal(visible))
-        }}
+        setVisibility={this.setVisibility}
         closeOnBlur={modalSettings.closeOnBlur}
         modalElement={modalSettings.element}
-        visible={modalSettings.visible}>
-        {this.props.children}
+        visible={modalSettings.visible}
+      >
+        <StylesProvider theme={theme}>
+          {children}
+        </StylesProvider>
       </Modal>
     )
   }
@@ -54,6 +66,7 @@ class App extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     modalQueue: state.ui.modalQueue,
+    theme: getThemeById(state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.DECO_THEME]),
   }
 }
 

@@ -34,51 +34,57 @@ import ProjectNavigator from './ProjectNavigator'
 import ComponentBrowser from './ComponentBrowser'
 import ComponentProps from './ComponentProps'
 import { Pane, InspectorPane } from '../components'
+import { StylesEnhancer } from 'react-styles-provider'
 
-const styles = {
-  container: {
-    flex: 1,
-    width: window.innerWidth,
-    height: window.innerHeight,
-  },
-  toolbar: {
-    flex: 0,
-    height: 71,
-  },
-  content: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  leftPane: {
-    flex: 0,
-    minWidth: 170,
-    width: 290,
-    maxWidth: 400,
-    background: 'rgb(252,251,252)',
-  },
-  leftPaneTop: {
-    flex: 1,
-  },
-  leftPaneBottom: {
-    flex: 0,
-    minHeight: 100,
-    height: 300,
-    maxHeight: 600,
-    borderTop: '1px solid rgb(224,224,224)',
-  },
-  rightPane: {
-    flex: 0,
-    minWidth: 170,
-    width: 230,
-    maxWidth: 400,
-    background: 'rgb(252,251,252)',
-  },
-  rightPaneInner: {
-    flex: 1,
-  },
-  centerPane: {
-    flex: 1,
-  },
+const stylesCreator = (theme) => {
+  const {colors} = theme
+
+  return {
+    container: {
+      flex: 1,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    },
+    toolbar: {
+      flex: 0,
+      height: 71,
+    },
+    content: {
+      flex: 1,
+      flexDirection: 'row',
+      background: colors.background,
+    },
+    leftPane: {
+      flex: 0,
+      minWidth: 170,
+      width: 290,
+      maxWidth: 400,
+    },
+    leftPaneTop: {
+      flex: 1,
+    },
+    leftPaneBottom: {
+      flex: 0,
+      minHeight: 100,
+      height: 300,
+      maxHeight: 600,
+      borderTopWidth: 1,
+      borderTopColor: colors.dividerInverted,
+      borderTopStyle: 'solid',
+    },
+    rightPane: {
+      flex: 0,
+      minWidth: 170,
+      width: 230,
+      maxWidth: 400,
+    },
+    rightPaneInner: {
+      flex: 1,
+    },
+    centerPane: {
+      flex: 1,
+    },
+  }
 }
 
 const mapStateToProps = (state) => createSelector(
@@ -130,7 +136,7 @@ class Workspace extends Component {
   }
 
   renderInspector() {
-    const {decoDoc, rightSidebarContent, publishingFeature} = this.props
+    const {styles, decoDoc, rightSidebarContent, publishingFeature} = this.props
 
     switch (rightSidebarContent) {
 
@@ -138,17 +144,16 @@ class Workspace extends Component {
         return null
 
       case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
-        return (
-          <InspectorPane
+        return publishingFeature ? (
+          <ComponentProps
             style={styles.rightPane}
-            title={'Properties'}
-          >
-            {publishingFeature ? (
-              <ComponentProps decoDoc={decoDoc} />
-            ) : (
-              <LiveValueInspector decoDoc={decoDoc} />
-            )}
-          </InspectorPane>
+            decoDoc={decoDoc}
+          />
+        ) : (
+          <LiveValueInspector
+            style={styles.rightPane}
+            decoDoc={decoDoc}
+          />
         )
 
       case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
@@ -162,7 +167,7 @@ class Workspace extends Component {
   }
 
   render() {
-    const {decoDoc, width, height, projectNavigatorVisible} = this.props
+    const {styles, decoDoc, width, height, projectNavigatorVisible} = this.props
 
     const containerStyle = {
       ...styles.container,
@@ -201,5 +206,5 @@ class Workspace extends Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  WorkspaceEnhancer(Workspace, 'main-workspace')
+  StylesEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
 )

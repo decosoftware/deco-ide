@@ -19,100 +19,108 @@ import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import pureRender from 'pure-render-decorator'
 
-let styles = {
-  row: {
-    normal: {
-      height: 45,
-      cursor: 'default',
-      whiteSpace: 'nowrap',
+import { StylesEnhancer } from 'react-styles-provider'
+
+const stylesCreator = ({colors}, transparentBackground) => {
+  let styles = {
+    row: {
+      normal: {
+        height: 45,
+        cursor: 'default',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        position: 'relative',
+        display: 'flex',
+        minWidth: 0,
+        minHeight: 0,
+        paddingLeft: 15,
+      },
+    },
+    content: {
+      normal: {
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        minWidth: 0,
+        minHeight: 0,
+        borderWidth: 0,
+        borderStyle: 'solid',
+        borderColor: transparentBackground ? colors.dividerVibrant : colors.dividerSubtle,
+        borderBottomWidth: 1,
+        paddingRight: 15,
+      },
+    },
+    name: {
+      normal: {
+        flex: 1,
+        color: colors.textSubtle,
+        fontSize: 13,
+        fontWeight: 400,
+        letterSpacing: 0.3,
+      }
+    },
+    badge: {
+      normal: {
+        color: '#aaa',
+        backgroundColor: "rgba(239,239,239,1)",
+        display: 'inline-block',
+        fontSize: '9px',
+        lineHeight: '14px',
+        padding: '1px 8px 0px 8px',
+        borderRadius: '20px',
+        textTransform: 'uppercase',
+      },
+    },
+    badgeContainer: {
+      flex: '0 0 auto',
       overflow: 'hidden',
-      position: 'relative',
-      backgroundColor: 'rgb(254,253,254)',
-      display: 'flex',
-      minWidth: 0,
-      minHeight: 0,
-      paddingLeft: 15,
-    },
-  },
-  content: {
-    normal: {
-      flex: 1,
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      minWidth: 0,
-      minHeight: 0,
-      borderWidth: 0,
-      borderStyle: 'solid',
-      borderColor: 'rgb(224,224,224)',
-      borderBottomWidth: 1,
-      paddingRight: 15,
-    },
-  },
-  name: {
-    normal: {
-      flex: 1,
-      color: 'rgb(100,100,100)',
-      fontSize: 13,
-      fontWeight: 400,
-      letterSpacing: 0.3,
+      whiteSpace: 'normal',
+      lineHeight: '0px',
     }
-  },
-  badge: {
-    normal: {
-      color: '#aaa',
-      backgroundColor: "rgba(239,239,239,1)",
-      display: 'inline-block',
-      fontSize: '9px',
-      lineHeight: '14px',
-      padding: '1px 8px 0px 8px',
-      borderRadius: '20px',
-      textTransform: 'uppercase',
-    },
-  },
-  badgeContainer: {
-    flex: '0 0 auto',
-    overflow: 'hidden',
-    whiteSpace: 'normal',
-    lineHeight: '0px',
   }
+
+  styles = {
+    ...styles,
+    row: {
+      ...styles.row,
+      active: {
+        ...styles.row.normal,
+        backgroundColor: '#4A90E2',
+        color: 'white',
+        boxShadow: '0 0 0 1px #4A90E2',
+      },
+    },
+    name: {
+      ...styles.name,
+      active: {
+        ...styles.name.normal,
+        color: 'white',
+      },
+    },
+    content: {
+      ...styles.content,
+      active: {
+        ...styles.content.normal,
+        borderBottomWidth: 0,
+      },
+    },
+    badge: {
+      ...styles.badge,
+      active: {
+        ...styles.badge.normal,
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        color: '#fff',
+      },
+    },
+  }
+
+  return styles
 }
 
-styles = {
-  ...styles,
-  row: {
-    ...styles.row,
-    active: {
-      ...styles.row.normal,
-      backgroundColor: '#4A90E2',
-      color: 'white',
-      boxShadow: '0 0 0 1px #4A90E2',
-    },
-  },
-  name: {
-    ...styles.name,
-    active: {
-      ...styles.name.normal,
-      color: 'white',
-    },
-  },
-  content: {
-    ...styles.content,
-    active: {
-      ...styles.content.normal,
-      borderBottomWidth: 0,
-    },
-  },
-  badge: {
-    ...styles.badge,
-    active: {
-      ...styles.badge.normal,
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      color: '#fff',
-    },
-  },
-}
+const selectProps = ({transparentBackground}) => transparentBackground
 
+@StylesEnhancer(stylesCreator, selectProps)
 @pureRender
 export default class extends Component {
 
@@ -125,7 +133,7 @@ export default class extends Component {
   }
 
   render() {
-    const {name, tags, active, onClick, onMouseEnter, item} = this.props
+    const {styles, name, tags, active, onClick, onMouseEnter, item} = this.props
     const selector = active ? 'active' : 'normal'
 
     return (
