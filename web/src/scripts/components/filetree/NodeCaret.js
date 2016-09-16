@@ -30,7 +30,7 @@ export default class extends Component {
     return shallowCompare(this, nextProps, nextState)
   }
 
-  onMouseDown = () => (e) => e.stopPropagation()
+  onMouseDown = (e) => e.stopPropagation()
 
   render() {
     const {styles, expanded} = this.props
