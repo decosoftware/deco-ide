@@ -29,6 +29,7 @@ const stylesCreator = ({colors, fonts}) => {
       ...fonts.regularSubtle,
       color: 'rgba(255,255,255,0.3)',
       cursor: 'default',
+      backgroundColor: colors.tabs.background,
     },
     text: {
       width: '100%',
@@ -48,8 +49,8 @@ const stylesCreator = ({colors, fonts}) => {
       top: 0,
       paddingTop: 5,
       paddingLeft: 2,
-      backgroundColor: colors.background,
-      boxShadow: `-4px 0 4px ${colors.background}`,
+      backgroundColor: colors.tabs.background,
+      boxShadow: `-4px 0 4px ${colors.tabs.background}`,
     },
     closeText: {
       opacity: 0,
@@ -74,8 +75,8 @@ const stylesCreator = ({colors, fonts}) => {
 
   styles.closeFocused = {
     ...styles.close,
-    backgroundColor: colors.background,
-    boxShadow: `-4px 0 4px ${colors.background}`,
+    backgroundColor: colors.tabs.background,
+    boxShadow: `-4px 0 4px ${colors.tabs.background}`,
   }
 
   return styles

@@ -67,6 +67,7 @@ class PreferencesPage extends Component {
           <GeneralPreferences
             onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.GENERAL)}
             setSystemLocationPreference={this.props.setSystemLocationPreference.bind(null, CATEGORIES.GENERAL)}
+            decoTheme={this.props.general[PREFERENCES.GENERAL.DECO_THEME]} 
             androidHome={this.props.general[PREFERENCES.GENERAL.ANDROID_HOME]}
             pathToGenymotionApp={this.props.general[PREFERENCES.GENERAL.GENYMOTION_APP]}
             useGenymotion={this.props.general[PREFERENCES.GENERAL.USE_GENYMOTION]}

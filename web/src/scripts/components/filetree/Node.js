@@ -51,7 +51,6 @@ const stylesCreator = ({colors, fonts}) => {
     plusContainer: {
       display: 'flex',
       alignSelf: 'center',
-      marginBottom: 4,
     },
     nodeText: {
       ...fonts.regular,
@@ -74,9 +73,9 @@ const stylesCreator = ({colors, fonts}) => {
     return {
       ...styles.nodeContent,
       paddingLeft: 15 + depth * 20,
-      backgroundColor: selected ? 'rgba(255,255,255,0.05)' :
-          hover ? 'rgba(255,255,255,0.1)' : 'transparent',
-      color: selected ? 'black' : 'rgb(63,63,63)',
+      backgroundColor: selected ? colors.fileTree.backgroundSelected :
+          hover ? colors.fileTree.backgroundHover : colors.fileTree.background,
+      color: selected ? colors.fileTree.textSelected : colors.fileTree.text,
     }
   })
 

@@ -28,15 +28,15 @@ const stylesCreator = ({colors, fonts}) => {
   return {
     termContainer: {
       zIndex: '5',
-      backgroundColor: colors.background,
+      backgroundColor: colors.console.background,
       maxHeight: '300px',
       minHeight: tabBarHeight,
       overflow: 'hidden',
     },
     termBar: {
       height: tabBarHeight,
-      backgroundColor: colors.background,
-      paddingLeft: 8,
+      backgroundColor: colors.console.background,
+      paddingLeft: 10,
       cursor: 'pointer',
       overflow: 'hidden',
       display: 'flex',

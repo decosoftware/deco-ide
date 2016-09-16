@@ -36,7 +36,7 @@ const stylesCreator = ({colors}) => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: 20,
-      backgroundColor: colors.editorBackground,
+      backgroundColor: colors.editor.background,
     }
   }
 }

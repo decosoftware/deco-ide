@@ -48,7 +48,13 @@ const stylesCreator = ({colors}) => {
       WebkitFilter: 'blur(10px) saturate(220%) opacity(80%)',
       overflow: 'hidden',
       borderRadius: 4,
-    }
+    },
+    backdrop: {
+      backgroundColor: colors.menu.backdrop,
+    },
+    backdropSaturated: {
+      backgroundColor: colors.menu.backdropSaturated,
+    },
   }
 }
 
@@ -135,7 +141,7 @@ class MenuInner extends Component {
         ...styles.solidBackground,
         width: rect.width,
         height: rect.height,
-        backgroundColor: background ? 'rgb(59,60,63)' : 'rgb(41,40,54)',
+        ...(background ? styles.backdropSaturated : styles.backdrop),
       }
 
       elements.push(

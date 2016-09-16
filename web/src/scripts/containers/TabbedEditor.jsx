@@ -75,9 +75,7 @@ const stylesCreator = ({colors}) => {
       borderWidth: 1,
       borderTopWidth: 0,
       borderStyle: 'solid',
-      borderColor: colors.dividerInverted,
-      borderBottomLeftRadius: 3,
-      borderBottomRightRadius: 3,
+      borderColor: colors.editor.divider,
     },
     editor: {
       flex: '1 1 auto',
