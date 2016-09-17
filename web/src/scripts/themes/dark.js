@@ -41,6 +41,11 @@ export const colors = {
     backdrop: 'rgb(41,40,54)',
     backdropSaturated: 'rgb(59,60,63)',
   },
+  colorInput: {
+    background: '#444455',
+    shadow: 'rgba(0,0,0,1)',
+    shadowInner: 'rgba(0,0,0,0.3)',
+  },
 }
 
 export const fonts = {

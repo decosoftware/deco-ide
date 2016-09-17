@@ -41,6 +41,11 @@ export const colors = {
     backdrop: 'rgb(41,40,54)',
     backdropSaturated: 'rgb(59,60,63)',
   },
+  colorInput: {
+    background: 'white',
+    shadow: 'rgba(0,0,0,0.3)',
+    shadowInner: 'rgba(0,0,0,0.3)',
+  },
 }
 
 export const fonts = {
@@ -60,7 +65,8 @@ export const input = {
   regular: {
     height: 30,
     lineHeight: "30px",
-    fontSize: 11,
+    backgroundColor: 'transparent',
     borderWidth: 0,
+    ...fonts.regular,
   },
 }
