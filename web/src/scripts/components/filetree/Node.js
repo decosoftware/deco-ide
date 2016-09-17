@@ -102,6 +102,7 @@ export default class Node extends Component {
       <div style={styles.plusContainer}>
         <PlusButtonWithDropdown
           node={node}
+          menuType={'platform'}
           scaffolds={scaffolds}
           visible={menuVisible}
           createFileScaffold={createFileScaffold}

@@ -221,6 +221,7 @@ class WorkspaceToolbar extends Component {
         <ToolbarButtonGroup
           style={separatorSmallStyle}>
           <DropdownMenuButton
+            menuType={'platform'}
             offset={dropdownMenuOffset}
             onVisibilityChange={(visible) => this.setState({discussMenuOpen: visible})}
             renderContent={() => this._renderDropdownMenu(this.discussMenuOptions)}>
@@ -249,6 +250,7 @@ class WorkspaceToolbar extends Component {
             false,
           ]}>
           <DropdownMenuButton
+            menuType={'platform'}
             offset={dropdownMenuOffset}
             onVisibilityChange={(visible) => this.setState({simulatorMenuOpen: visible})}
             renderContent={() => this._renderSimulatorMenu()}>

@@ -22,14 +22,16 @@ import { StylesProvider, StylesEnhancer } from 'react-styles-provider'
 
 import * as ImageCaptureUtils from '../../utils/ImageCaptureUtils'
 
-const stylesCreator = ({colors}) => {
+const stylesCreator = ({colors}, {type}) => {
+  const caretColor = type === 'platform' ? 'rgb(252,251,252)' : colors.menu.backdrop
+
   return {
     caret: {
       width: 0,
       height: 0,
       borderStyle: 'solid',
       borderWidth: '0 10px 10px 10px',
-      borderColor: `transparent transparent ${colors.menu.backdrop} transparent`,
+      borderColor: `transparent transparent ${caretColor} transparent`,
       position: 'absolute',
       top: '-9px',
       zIndex: "10001",
@@ -63,7 +65,7 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({type}) => ({type}))
 class MenuInner extends Component {
 
   static defaultProps = {
@@ -337,6 +339,7 @@ class Menu extends Component {
           className={this.props.className}
           style={this.props.style}
           caret={this.props.caret}
+          type={this.props.type}
           caretPosition={this.state.caretPosition}
           onResize={this._onInnerContentResize.bind(this)}
           onClick={this._dismissOnClickChildren.bind(this)}
@@ -401,6 +404,7 @@ Menu.defaultProps = {
   anchorPosition: {x: 0, y: 0},
   caretOffset: {x: 0, y: 0},
   captureBackground: false,
+  type: 'regular',
 }
 
 export default Menu

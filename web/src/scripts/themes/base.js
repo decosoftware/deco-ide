@@ -22,13 +22,6 @@ export const fonts = {
     letterSpacing: 0.3,
     ...smoothing,
   },
-  h3: {
-    fontFamily: fontFamily.main,
-    fontSize: 12,
-    fontWeight: 500,
-    letterSpacing: 0.3,
-    ...smoothing,
-  },
 }
 
 export const input = {
