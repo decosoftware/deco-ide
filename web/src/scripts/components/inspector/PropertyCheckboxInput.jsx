@@ -16,36 +16,43 @@
  */
 
 import React, { Component } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-export default class CheckboxInput extends Component {
+import PropertyField from './PropertyField'
+import PropertyDivider from './PropertyDivider'
+import CheckboxInput from '../input/CheckboxInput'
 
-  static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.bool.isRequired,
-    disabled: React.PropTypes.bool,
-  }
+const stylesCreator = ({fonts}) => ({
+  checkbox: {
+    height: 30,
+  },
+})
+
+@StylesEnhancer(stylesCreator)
+@pureRender
+export default class PropertyCheckboxInput extends Component {
 
   static defaultProps = {
-    className: '',
-    style: {},
-    disabled: false,
+    title: '',
+    value: true,
   }
-
-  onInputChange = (e) => this.props.onChange(! this.props.value)
 
   render() {
-    const {className, disabled, value, onContextMenu} = this.props
+    const {styles, title, value, onChange} = this.props
 
     return (
-      <input
-        className={className}
-        type={'checkbox'}
-        disabled={disabled}
-        checked={value}
-        onChange={this.onInputChange}
-        onContextMenu={onContextMenu}
-      />
+      <PropertyField
+        title={title}
+      >
+        <div style={styles.checkbox}>
+          <CheckboxInput
+            value={value}
+            onChange={onChange}
+          />
+        </div>
+        <PropertyDivider />
+      </PropertyField>
     )
   }
-
 }

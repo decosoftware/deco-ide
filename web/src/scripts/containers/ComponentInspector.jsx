@@ -36,6 +36,7 @@ const stylesCreator = ({colors}) => ({
   properties: {
     paddingLeft: 15,
     paddingRight: 15,
+    overflowY: 'auto',
   },
 })
 

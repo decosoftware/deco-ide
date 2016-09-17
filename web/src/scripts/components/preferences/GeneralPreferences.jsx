@@ -76,6 +76,7 @@ export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, and
       >
         <CheckboxInput
           value={publishingFeature}
+          type={'platform'}
           onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.PUBLISHING_FEATURE)}
         />
       </FormRow>

@@ -60,7 +60,7 @@ export const input = {
   regular: {
     height: 30,
     lineHeight: "30px",
-    backgroundColor: colors.editor.background,
+    backgroundColor: 'transparent',
     borderWidth: 0,
     ...fonts.regular,
   },

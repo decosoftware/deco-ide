@@ -70,6 +70,7 @@ export default ({
           value={fontSize}
           min={8}
           max={32}
+          type={'platform'}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)}
         />
         <div
@@ -126,9 +127,9 @@ export default ({
       >
         <StringInput
           value={npmRegistry}
+          type={'platform'}
           placeholder={METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.NPM_REGISTRY)}
-          type={'platform'}
         />
       </FormRow>
     </div>

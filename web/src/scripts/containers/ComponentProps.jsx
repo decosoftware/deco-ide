@@ -28,6 +28,7 @@ import {
   PropertyField,
   PropertyStringInput,
   PropertyNumberInput,
+  PropertyCheckboxInput,
 } from '../components'
 
 import TextUtils from '../utils/editor/TextUtils'
@@ -137,6 +138,19 @@ class ComponentProps extends Component {
       case 'number': {
         elements.push(
           <PropertyNumberInput
+            key={name}
+            title={name}
+            value={value}
+            width={width}
+            onChange={this.handleValueChange.bind(this, prop)}
+          />
+        )
+
+        return elements
+      }
+      case 'boolean': {
+        elements.push(
+          <PropertyCheckboxInput
             key={name}
             title={name}
             value={value}
