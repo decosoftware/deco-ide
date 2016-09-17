@@ -21,7 +21,15 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
-import { SimpleButton, NoContent, LiveValue } from '../components'
+import {
+  SimpleButton,
+  NoContent,
+  LiveValue,
+  PropertyField,
+  PropertyStringInput,
+  PropertyNumberInput,
+} from '../components'
+
 import TextUtils from '../utils/editor/TextUtils'
 import { getElementByPath } from '../utils/ElementTreeUtils'
 import { elementTreeActions } from '../actions'
@@ -42,6 +50,9 @@ const styles = {
     overflowY: 'auto',
     minHeight: 0,
     minWidth: 0,
+  },
+  spacer: {
+    height: 30,
   },
 }
 
@@ -103,20 +114,56 @@ class ComponentProps extends Component {
 
   renderProp(prop, exists) {
     const {width} = this.props
-    const {name, value} = prop
+    const {name, value, type} = prop
 
-    return (
-      <LiveValue
-        key={name}
-        id={name}
-        value={value}
-        metadata={prop}
-        onChange={this.handleValueChange.bind(this, prop)}
-        inset={15}
-        width={width}
-        exists={exists}
-      />
-    )
+    const elements = [
+      <div key={name + '-spacer'} style={styles.spacer} />,
+    ]
+
+    switch (type) {
+      case 'string': {
+        elements.push(
+          <PropertyStringInput
+            key={name}
+            title={name}
+            value={value}
+            width={width}
+            onChange={this.handleValueChange.bind(this, prop)}
+          />
+        )
+
+        return elements
+      }
+      case 'number': {
+        elements.push(
+          <PropertyNumberInput
+            key={name}
+            title={name}
+            value={value}
+            width={width}
+            onChange={this.handleValueChange.bind(this, prop)}
+          />
+        )
+
+        return elements
+      }
+      default: {
+        return null
+      }
+    }
+
+    // return (
+    //   <LiveValue
+    //     key={name}
+    //     id={name}
+    //     value={value}
+    //     metadata={prop}
+    //     onChange={this.handleValueChange.bind(this, prop)}
+    //     inset={15}
+    //     width={width}
+    //     exists={exists}
+    //   />
+    // )
   }
 
   renderProps() {

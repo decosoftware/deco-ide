@@ -85,6 +85,7 @@ export default ({onPreferenceChange, autosave, propertyChange, textEdit, debounc
           key={'NumberInput'}
           value={debounce}
           width={40}
+          type={'platform'}
           onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.DEBOUNCE)} />
       </FormRow>
     </div>
