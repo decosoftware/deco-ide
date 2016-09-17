@@ -41,10 +41,9 @@ const stylesCreator = ({colors}) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
-  (state) => state,
-  (state) => ({
+  () => ({
     component: {
-      name: 'Test',
+      name: 'Component',
       item: null,
     },
   })
