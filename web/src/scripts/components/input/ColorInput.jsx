@@ -20,6 +20,7 @@ import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
 import Colr from 'colr'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 import Menu from '../menu/Menu'
 import ColorPicker from './ColorPicker'
@@ -41,6 +42,9 @@ const stylesCreator = ({colors}, {style, value}) => ({
     borderRadius: 2,
     position: 'relative',
   },
+  checkers: {
+    borderRadius: 3,
+  },
   color: {
     background: value,
     position: 'absolute',
@@ -54,6 +58,7 @@ const stylesCreator = ({colors}, {style, value}) => ({
 })
 
 @StylesEnhancer(stylesCreator, ({style, value}) => ({style, value}))
+@pureRender
 export default class ColorInput extends Component {
 
   static propTypes = {
@@ -113,7 +118,7 @@ export default class ColorInput extends Component {
         onContextMenu={onContextMenu}
       >
         <div style={styles.box}>
-          <div className={'transparency-checkers'} />
+          <div style={styles.checkers} className={'transparency-checkers'} />
           <div style={styles.color} />
         </div>
         <Menu
@@ -121,6 +126,7 @@ export default class ColorInput extends Component {
           caret={true}
           requestClose={this.requestClose}
           anchorPosition={menuPosition}
+          captureBackground={true}
         >
           {showMenu && (
             <ColorPicker

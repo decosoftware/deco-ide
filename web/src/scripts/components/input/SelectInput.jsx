@@ -18,6 +18,7 @@
 import _ from 'lodash'
 import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 const EMPTY_VALUE = "__DECO_EMPTY__"
 
@@ -31,6 +32,7 @@ const stylesCreator = (theme, {width}) => ({
 })
 
 @StylesEnhancer(stylesCreator, ({width}) => ({width}))
+@pureRender
 export default class SelectInput extends Component {
 
   static propTypes = {

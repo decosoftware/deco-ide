@@ -39,7 +39,6 @@ export const colors = {
   },
   menu: {
     backdrop: 'rgb(41,40,54)',
-    backdropSaturated: 'rgb(59,60,63)',
   },
   colorInput: {
     background: '#444455',

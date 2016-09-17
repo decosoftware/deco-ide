@@ -19,6 +19,7 @@ import _ from 'lodash'
 import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 const stylesCreator = ({input}, {type, width, disabled}) => {
   const styles = {
@@ -40,6 +41,7 @@ const stylesCreator = ({input}, {type, width, disabled}) => {
 }
 
 @StylesEnhancer(stylesCreator, ({type, width, disabled}) => ({type, width, disabled}))
+@pureRender
 export default class NumberInput extends Component {
 
   static propTypes = {

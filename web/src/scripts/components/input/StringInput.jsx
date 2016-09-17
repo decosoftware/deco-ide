@@ -18,6 +18,7 @@
 import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 const stylesCreator = ({input}, {type, width}) => ({
   input: {
@@ -29,6 +30,7 @@ const stylesCreator = ({input}, {type, width}) => ({
 })
 
 @StylesEnhancer(stylesCreator, ({type, width}) => ({type, width}))
+@pureRender
 export default class StringInput extends Component {
 
   static propTypes = {

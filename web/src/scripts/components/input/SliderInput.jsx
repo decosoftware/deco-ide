@@ -18,6 +18,7 @@
 import _ from 'lodash'
 import React, { Component, } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 let SLIDER_REF = 'slider'
 
@@ -80,7 +81,8 @@ const stylesCreator = ({input, colors}, {type, width, height, trackHeight, disab
   }
 }
 
-@StylesEnhancer(stylesCreator, (props) => props)
+@StylesEnhancer(stylesCreator, props => props)
+@pureRender
 export default class SliderInput extends Component {
 
   static propTypes = {

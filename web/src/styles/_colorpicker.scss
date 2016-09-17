@@ -146,6 +146,7 @@
       left: 0;
       bottom: 0;
       right: 0;
+      border-radius: 2px;
     }
 
     .background:after {
@@ -155,6 +156,7 @@
 
     .background:before {
       background: linear-gradient(to right, rgba(255,255,255,1) 0%,rgba(255,255,255,0) 100%);
+      border-bottom-left-radius: 3px;
     }
 
   }
@@ -276,6 +278,7 @@
     margin-top: 4px;
     width: 175px;
     height: 10px;
+    border-radius: 2px;
 
     @include checkered($size: 8px, $align-x: start, $align-y: center, $offset-y: 1px);
 
@@ -293,6 +296,7 @@
     height: 24px;
     margin-top: 4px;
     overflow: hidden;
+    border-radius: 3px;
 
     @include checkered($size: 8px, $align-x: start, $align-y: start);
 

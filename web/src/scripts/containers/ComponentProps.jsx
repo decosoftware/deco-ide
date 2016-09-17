@@ -29,6 +29,8 @@ import {
   PropertyStringInput,
   PropertyNumberInput,
   PropertyCheckboxInput,
+  PropertySelectInput,
+  PropertyColorInput,
 } from '../components'
 
 import TextUtils from '../utils/editor/TextUtils'
@@ -124,7 +126,7 @@ class ComponentProps extends Component {
     switch (type) {
       case 'string': {
         elements.push(
-          <PropertyStringInput
+          <PropertyColorInput
             key={name}
             title={name}
             value={value}
