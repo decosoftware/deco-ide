@@ -66,9 +66,11 @@ const initialState = {
 
 const uiReducer = (state = initialState, action) => {
 
-  state = _.cloneDeep(state)
-  state.tabs = tabReducer(state.tabs, action)
-  state.publishing = publishing(state.publishing, action)
+  state = {
+    ...state,
+    tabs: tabReducer(state.tabs, action),
+    publishing: publishing(state.publishing, action),
+  }
 
   switch(action.type) {
     case WINDOW_SIZE_CHANGED:

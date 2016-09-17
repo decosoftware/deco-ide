@@ -16,16 +16,23 @@
  */
 
 // Buttons
-export SimpleButton from './buttons/SimpleButton'
-export LoginButton from './buttons/LoginButton'
 export InspectorButton from './buttons/InspectorButton'
+export LoginButton from './buttons/LoginButton'
+export SimpleButton from './buttons/SimpleButton'
+export Tab from './buttons/Tab'
+
+// Console
+export Console from './console/Console'
 
 // Display
 export NoContent from './display/NoContent'
 export Callout from './display/Callout'
+export ProgressBar from './display/ProgressBar'
 
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'
+export EditorDropTarget from './editor/EditorDropTarget'
+export EditorToast from './editor/EditorToast'
 
 // File Tree
 export Node from './filetree/Node'
@@ -61,9 +68,10 @@ export Pane from './layout/Pane'
 export TabContainer from './layout/TabContainer'
 
 // Menu
-export FilterableList from './menu/FilterableList'
 export ComponentMenuItem from './menu/ComponentMenuItem'
 export DraggableComponentMenuItem from './menu/DraggableComponentMenuItem'
+export FilterableList from './menu/FilterableList'
+export SearchMenu from './menu/SearchMenu'
 
 // Modal
 export NamingBanner from './modal/NamingBanner'
