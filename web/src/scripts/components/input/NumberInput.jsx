@@ -18,15 +18,45 @@
 import _ from 'lodash'
 import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-import { STYLES } from '../../constants/InputConstants'
+const stylesCreator = ({input}, {type, width, disabled}) => {
+  const styles = {
+    input: {
+      ...(type === 'platform' ? input.platform : input.regular),
+      display: 'flex',
+      flex: width ? `0 0 ${width}px` : '1 0 0px',
+      width: width ? width : 0,
+    },
+  }
 
-const baseStyle = Object.assign({}, STYLES.INPUT, {
-  display: 'flex',
-  flex: '1 0 0px',
-})
+  styles.inputDisabled = {
+    ...styles.input,
+    background: 'rgb(250,250,250)',
+    color: 'rgb(154,154,154)',
+  }
 
-class NumberInput extends Component {
+  return styles
+}
+
+@StylesEnhancer(stylesCreator, ({type, width, disabled}) => ({type, width, disabled}))
+@pureRender
+export default class NumberInput extends Component {
+
+  static propTypes = {
+    onChange: React.PropTypes.func.isRequired,
+    onSubmit: React.PropTypes.func,
+    value: React.PropTypes.number.isRequired,
+    disabled: React.PropTypes.bool,
+  }
+
+  static defaultProps = {
+    className: '',
+    style: {},
+    disabled: false,
+    onSubmit: () => {},
+  }
 
   constructor(props) {
     super(props)
@@ -36,10 +66,6 @@ class NumberInput extends Component {
       valueIsStale: false,
       selection: null
     }
-
-    this._onBlur = this._onBlur.bind(this)
-    this._onKeyDown = this._onKeyDown.bind(this)
-    this._onInputChange = this._onInputChange.bind(this)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,15 +76,15 @@ class NumberInput extends Component {
     }
   }
 
-  _roundInput(value) {
+  roundInput(value) {
     return Math.round(value * 10) / 10
   }
 
-  _onInputChange(e) {
+  onInputChange = (e) => {
     const input = parseFloat(e.target.value)
 
     if (!_.isNaN(input)) {
-      this.props.onChange(this._roundInput(input))
+      this.props.onChange(this.roundInput(input))
       return this.setState({
         internalValue: input,
         valueIsStale: false
@@ -71,7 +97,7 @@ class NumberInput extends Component {
     }
   }
 
-  _onKeyDown(e) {
+  onKeyDown = (e) => {
     let stopPropagation = false
     let incrementBy = 0
 
@@ -124,7 +150,7 @@ class NumberInput extends Component {
       })
     }
 
-    value = this._roundInput(value)
+    value = this.roundInput(value)
 
     this.props.onChange(value)
 
@@ -134,7 +160,7 @@ class NumberInput extends Component {
     }
   }
 
-  _onBlur() {
+  onBlur = () => {
     this.setState({
       selection: null,
       internalValue: this.props.value,
@@ -142,59 +168,30 @@ class NumberInput extends Component {
   }
 
   componentDidUpdate() {
-    if (this.state.selection) {
+    const {selection} = this.state
+
+    if (selection) {
       const inputElement = ReactDOM.findDOMNode(this.refs.input)
-      const {start, end} = this.state.selection
+      const {start, end} = selection
+
       inputElement.setSelectionRange(start, end)
     }
   }
 
   render() {
-    let style = baseStyle
-    let width = this.props.width
-    if (width) {
-      style = Object.assign({}, style, {
-        width: width,
-        flex: `0 0 ${width}px`,
-      })
-    } else {
-      style = Object.assign({}, style, {
-        width: 0,
-      })
-    }
-    if (this.props.disabled) {
-      style = Object.assign({}, style, {
-        background: 'rgb(250,250,250)',
-        color: 'rgb(154,154,154)',
-      })
-    }
+    const {styles, disabled} = this.props
 
     return (
-      <input ref="input"
-        type="text"
-        style={style}
-        disabled={this.props.disabled}
+      <input
+        ref={"input"}
+        type={"text"}
+        style={disabled ? styles.inputDisabled : styles.input}
+        disabled={disabled}
         value={this.state.internalValue}
-        onChange={this._onInputChange}
-        onKeyDown={this._onKeyDown}
-        onBlur={this._onBlur} />
+        onChange={this.onInputChange}
+        onKeyDown={this.onKeyDown}
+        onBlur={this.onBlur}
+      />
     )
   }
-
 }
-
-NumberInput.propTypes = {
-  onChange: React.PropTypes.func.isRequired,
-  onSubmit: React.PropTypes.func,
-  value: React.PropTypes.number.isRequired,
-  disabled: React.PropTypes.bool,
-}
-
-NumberInput.defaultProps = {
-  className: '',
-  style: {},
-  disabled: false,
-  onSubmit: () => {},
-}
-
-export default NumberInput

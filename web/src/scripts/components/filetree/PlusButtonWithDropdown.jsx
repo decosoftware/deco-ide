@@ -24,7 +24,7 @@ import LandingButton from '../buttons/LandingButton'
 import NewIcon from '../display/NewIcon'
 
 export default ({
-  node, scaffolds, createFileScaffold, onVisibilityChange, visible,
+  node, scaffolds, createFileScaffold, onVisibilityChange, visible, menuType, captureBackground,
 }) => {
   const scaffoldOptions = scaffolds.map(({name, id}) => {
     return {
@@ -40,6 +40,8 @@ export default ({
 
   return (
     <DropdownMenuButton
+      menuType={menuType}
+      captureBackground={captureBackground}
       onVisibilityChange={onVisibilityChange}
       renderContent={() =>
         <div className={'helvetica-smooth'}>

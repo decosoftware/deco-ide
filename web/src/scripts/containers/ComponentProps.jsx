@@ -21,7 +21,12 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
-import { SimpleButton, NoContent, LiveValue } from '../components'
+import {
+  SimpleButton,
+  NoContent,
+  Property,
+} from '../components'
+
 import TextUtils from '../utils/editor/TextUtils'
 import { getElementByPath } from '../utils/ElementTreeUtils'
 import { elementTreeActions } from '../actions'
@@ -42,6 +47,9 @@ const styles = {
     overflowY: 'auto',
     minHeight: 0,
     minWidth: 0,
+  },
+  spacer: {
+    height: 30,
   },
 }
 
@@ -103,20 +111,33 @@ class ComponentProps extends Component {
 
   renderProp(prop, exists) {
     const {width} = this.props
-    const {name, value} = prop
+    const {name} = prop
 
     return (
-      <LiveValue
+      <Property
         key={name}
-        id={name}
-        value={value}
-        metadata={prop}
-        onChange={this.handleValueChange.bind(this, prop)}
-        inset={15}
-        width={width}
-        exists={exists}
+        prop={prop}
+        onValueChange={this.handleValueChange.bind(this, prop)}
       />
     )
+  }
+
+  renderPropList(existingProps = [], possibleProps = []) {
+    return [
+      ...existingProps.map(prop => this.renderProp(prop, true)),
+      ...possibleProps.map(prop => this.renderProp(prop, false)),
+    ].reduce((acc, element, i) => {
+
+      // Add a spacer between each element
+      const spacer = (
+        <div key={i} style={styles.spacer} />
+      )
+
+      acc.push(spacer)
+      acc.push(element)
+
+      return acc
+    }, [])
   }
 
   renderProps() {
@@ -129,9 +150,7 @@ class ComponentProps extends Component {
       if (element.props.length > 0) {
         return (
           <div style={innerStyle}>
-            {element.props.map(prop => {
-              return this.renderProp(prop, true)
-            })}
+            {this.renderPropList(element.props)}
           </div>
         )
       } else {
@@ -186,8 +205,7 @@ class ComponentProps extends Component {
       if (existingProps.length > 0 || possibleProps.length > 0) {
         return (
           <div style={innerStyle}>
-            {existingProps.map(prop => this.renderProp(prop, true))}
-            {possibleProps.map(prop => this.renderProp(prop, false))}
+            {this.renderPropList(existingProps, possibleProps)}
           </div>
         )
       } else {

@@ -48,6 +48,13 @@ export InspectorPane from './inspector/InspectorPane'
 export LiveValue from './inspector/LiveValue'
 export MetadataEditor from './inspector/MetadataEditor'
 export NameEditor from './inspector/NameEditor'
+export Property from './inspector/Property'
+export PropertyCheckboxInput from './inspector/PropertyCheckboxInput'
+export PropertyColorInput from './inspector/PropertyColorInput'
+export PropertyField from './inspector/PropertyField'
+export PropertyNumberInput from './inspector/PropertyNumberInput'
+export PropertySelectInput from './inspector/PropertySelectInput'
+export PropertyStringInput from './inspector/PropertyStringInput'
 
 // Layout
 export Pane from './layout/Pane'

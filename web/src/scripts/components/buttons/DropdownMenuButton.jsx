@@ -100,6 +100,8 @@ class DropdownMenuButton extends Component {
       children,
       renderContent,
       offset,
+      menuType,
+      captureBackground,
     } = this.props
 
     const {
@@ -120,8 +122,11 @@ class DropdownMenuButton extends Component {
           this.setMenuVisibility(! showMenu)
         }}>
         {children}
-        <DropdownMenu show={showMenu}
+        <DropdownMenu
+          show={showMenu}
           caret={true}
+          type={menuType}
+          captureBackground={captureBackground}
           positionX={'center'}
           hideOnClick={true}
           requestClose={this.setMenuVisibility.bind(null, false)}

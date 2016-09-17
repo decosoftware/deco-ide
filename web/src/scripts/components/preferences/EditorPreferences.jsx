@@ -70,6 +70,7 @@ export default ({
           value={fontSize}
           min={8}
           max={32}
+          type={'platform'}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)}
         />
         <div
@@ -80,7 +81,8 @@ export default ({
           key={'NumberInput'}
           value={fontSize}
           width={40}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)} 
+          type={'platform'}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.FONT_SIZE)}
         />
       </FormRow>
       <FormRow
@@ -125,6 +127,7 @@ export default ({
       >
         <StringInput
           value={npmRegistry}
+          type={'platform'}
           placeholder={METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.NPM_REGISTRY)}
         />

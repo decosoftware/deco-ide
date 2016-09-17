@@ -31,8 +31,8 @@ import TabbedEditor from './TabbedEditor'
 import LiveValueInspector from './LiveValueInspector'
 import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
+import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
-import ComponentProps from './ComponentProps'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 
@@ -145,7 +145,7 @@ class Workspace extends Component {
 
       case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
         return publishingFeature ? (
-          <ComponentProps
+          <ComponentInspector
             style={styles.rightPane}
             decoDoc={decoDoc}
           />

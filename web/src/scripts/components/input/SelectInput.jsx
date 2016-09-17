@@ -17,108 +17,95 @@
 
 import _ from 'lodash'
 import React, { Component } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 const EMPTY_VALUE = "__DECO_EMPTY__"
 
-const baseStyle = {
-  position: 'relative',
-  left: -1,
-  fontSize: 12,
-}
+const stylesCreator = (theme, {width}) => ({
+  select: {
+    position: 'relative',
+    left: -1,
+    fontSize: 12,
+    width: width ? width : 'initial',
+  },
+})
 
-class SelectInput extends Component {
+@StylesEnhancer(stylesCreator, ({width}) => ({width}))
+@pureRender
+export default class SelectInput extends Component {
 
-  constructor(props) {
-    super(props)
-    this.state = {}
-
-    this._renderOptions = this._renderOptions.bind(this)
-    this._buildOptions = this._buildOptions.bind(this)
-    this._onInputChange = this._onInputChange.bind(this)
-    this._normalizeValue = this._normalizeValue.bind(this)
+  static propTypes = {
+    onChange: React.PropTypes.func.isRequired,
+    value: React.PropTypes.string,
+    options: React.PropTypes.array.isRequired,
   }
 
-  /* Event handling */
-
-  _normalizeValue(value) {
-    if (value == null) {
-      return EMPTY_VALUE
-    }
-    return value
+  static defaultProps = {
+    className: '',
+    style: {},
+    showValueAsOption: false,
   }
 
-  _onInputChange(e) {
-    return this.props.onChange(e.target.value)
+  normalizeValue(value) {
+    return value == null ? EMPTY_VALUE : value
   }
 
-  _buildOptions() {
-    let options
-    if (this.props.showValueAsOption && this.props.options.indexOf(this.props.value) === -1) {
-      options = this.props.options.concat(this.props.value)
+  onInputChange = (e) => this.props.onChange(e.target.value)
+
+  buildOptions() {
+    const {value, options, showValueAsOption} = this.props
+
+    let normalized
+    if (showValueAsOption && !options.includes(value)) {
+      normalized = options.concat(value)
     } else {
-      options = this.props.options
+      normalized = options
     }
-    return _.map(options, (option) => {
+
+    return normalized.map((option) => {
       if (_.isString(option)) {
         return {
           displayName: option,
-          value: option
+          value: option,
         }
       } else if (option == null) {
         return {
           displayName: "None",
-          value: EMPTY_VALUE
+          value: EMPTY_VALUE,
         }
       }
       return option
     })
   }
 
-  _renderOptions() {
-    const options = this._buildOptions()
-    return _.map(options, (option) => {
+  renderOptions() {
+    const options = this.buildOptions()
+
+    return options.map(({value, displayName}) => {
       return (
-        <option value={this._normalizeValue(option.value)}
-          key={option.value}>
-          {option.displayName}
+        <option
+          key={value}
+          value={this.normalizeValue(value)}
+        >
+          {displayName}
         </option>
       )
     })
   }
 
-
-  /* Rendering */
-
   render() {
-    let style = baseStyle
-    if (this.props.width) {
-      style = Object.assign({}, baseStyle, {
-        width: this.props.width,
-      })
-    }
+    const {styles, className, value} = this.props
 
     return (
-      <select className={this.props.className}
-        style={style}
-        value={this._normalizeValue(this.props.value)}
-        onChange={this._onInputChange}>
-        {this._renderOptions()}
+      <select
+        className={className}
+        style={styles.select}
+        value={this.normalizeValue(value)}
+        onChange={this.onInputChange}
+      >
+        {this.renderOptions()}
       </select>
     )
   }
-
 }
-
-SelectInput.propTypes = {
-  onChange: React.PropTypes.func.isRequired,
-  value: React.PropTypes.string,
-  options: React.PropTypes.array.isRequired,
-}
-
-SelectInput.defaultProps = {
-  className: '',
-  style: {},
-  showValueAsOption: false,
-}
-
-export default SelectInput

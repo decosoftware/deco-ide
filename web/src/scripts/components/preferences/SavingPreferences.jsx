@@ -44,48 +44,57 @@ export default ({onPreferenceChange, autosave, propertyChange, textEdit, debounc
     <div style={style}>
       <FormRow
         label={'Autosave'}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={autosave}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.AUTOSAVE)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.AUTOSAVE)}
+        />
       </FormRow>
       <FormRow
         label={'On property change'}
         disabled={! autosave}
         inset={INSET_LEVEL}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={propertyChange}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.PROPERTY_CHANGE)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.PROPERTY_CHANGE)}
+        />
       </FormRow>
       <FormRow
         label={'On text edit'}
         disabled={! autosave}
         inset={INSET_LEVEL}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <CheckboxInput
           value={textEdit}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.TEXT_EDIT)} />
+          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.TEXT_EDIT)}
+        />
       </FormRow>
       <FormRow
         label={'Debounce (ms)'}
         disabled={! (autosave && textEdit)}
         inset={INSET_LEVEL * 2}
-        labelWidth={LABEL_WIDTH}>
+        labelWidth={LABEL_WIDTH}
+      >
         <SliderInput
           key={'SliderInput'}
           value={debounce}
           min={0}
           max={3000}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.DEBOUNCE)} />
-        <div
-          key={'Spacer'}
-          style={{marginRight: 10}} />
+          type={'platform'}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.DEBOUNCE)}
+        />
+        <div key={'Spacer'} style={{marginRight: 10}} />
         <NumberInput
           key={'NumberInput'}
           value={debounce}
           width={40}
-          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.DEBOUNCE)} />
+          type={'platform'}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.SAVING.DEBOUNCE)}
+        />
       </FormRow>
     </div>
   )

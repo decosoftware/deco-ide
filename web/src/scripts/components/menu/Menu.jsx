@@ -22,14 +22,16 @@ import { StylesProvider, StylesEnhancer } from 'react-styles-provider'
 
 import * as ImageCaptureUtils from '../../utils/ImageCaptureUtils'
 
-const stylesCreator = ({colors}) => {
+const stylesCreator = ({colors}, {type}) => {
+  const caretColor = type === 'platform' ? 'rgb(252,251,252)' : colors.menu.backdrop
+
   return {
     caret: {
       width: 0,
       height: 0,
       borderStyle: 'solid',
       borderWidth: '0 10px 10px 10px',
-      borderColor: 'transparent transparent rgb(252,251,252) transparent',
+      borderColor: `transparent transparent ${caretColor} transparent`,
       position: 'absolute',
       top: '-9px',
       zIndex: "10001",
@@ -41,13 +43,18 @@ const stylesCreator = ({colors}) => {
       border: `1px solid ${colors.dividerInverted}`,
       boxShadow: '0 0 45px rgba(0,0,0,0.3)',
       borderRadius: 4,
+      WebkitFilter: 'saturate(220%)',
+    },
+    imageBackgroundContainer: {
+      position: 'absolute',
+      overflow: 'hidden',
+      borderRadius: 4,
     },
     imageBackground: {
       position: 'absolute',
-      backgroundSize: 'cover',
-      WebkitFilter: 'blur(10px) saturate(220%) opacity(80%)',
-      overflow: 'hidden',
-      borderRadius: 4,
+      backgroundSize: '100%',
+      WebkitFilter: 'blur(10px) saturate(220%) opacity(40%)',
+      transform: 'scale(1.1)',
     },
     backdrop: {
       backgroundColor: colors.menu.backdrop,
@@ -58,7 +65,7 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({type}) => ({type}))
 class MenuInner extends Component {
 
   static defaultProps = {
@@ -141,7 +148,7 @@ class MenuInner extends Component {
         ...styles.solidBackground,
         width: rect.width,
         height: rect.height,
-        ...(background ? styles.backdropSaturated : styles.backdrop),
+        ...(styles.backdrop),
       }
 
       elements.push(
@@ -150,6 +157,12 @@ class MenuInner extends Component {
     }
 
     if (background) {
+      const imageBackgroundContainerStyle = {
+        ...styles.imageBackgroundContainer,
+        width: rect.width,
+        height: rect.height,
+      }
+
       const imageBackgroundStyle = {
         ...styles.imageBackground,
         width: rect.width,
@@ -158,7 +171,9 @@ class MenuInner extends Component {
       }
 
       elements.push(
-        <div key={'image-background'} style={imageBackgroundStyle} />
+        <div key={'image-background'} style={imageBackgroundContainerStyle}>
+          <div style={imageBackgroundStyle} />
+        </div>
       )
     }
 
@@ -324,6 +339,7 @@ class Menu extends Component {
           className={this.props.className}
           style={this.props.style}
           caret={this.props.caret}
+          type={this.props.type}
           caretPosition={this.state.caretPosition}
           onResize={this._onInnerContentResize.bind(this)}
           onClick={this._dismissOnClickChildren.bind(this)}
@@ -388,6 +404,7 @@ Menu.defaultProps = {
   anchorPosition: {x: 0, y: 0},
   caretOffset: {x: 0, y: 0},
   captureBackground: false,
+  type: 'regular',
 }
 
 export default Menu

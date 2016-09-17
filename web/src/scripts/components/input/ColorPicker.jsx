@@ -19,6 +19,7 @@ import _ from 'lodash'
 import React, { Component, } from 'react'
 import Colr from 'colr'
 import ReactColorPicker from 'react-colorpicker'
+import { StylesEnhancer } from 'react-styles-provider'
 
 import StringInput from './StringInput'
 import NumberInput from './NumberInput'
@@ -50,50 +51,54 @@ const DEFAULT_COLORS = [
   ],
 ]
 
-const numberInputAreaStyle = {
-  marginTop: '9px'
-}
-const containerStyle = {
-  width: "62px",
-  display: "inline-block"
-}
-const smallContainerStyle = {
-  width: "32px",
-  display: "inline-block",
-  marginLeft: '5px'
-}
-const inputLabelStyle = {
-  fontSize: "11px",
-  lineHeight: "16px",
-  textAlign: "center"
-}
-const draggableInputLabelStyle = {
-  fontSize: "11px",
-  lineHeight: "16px",
-  textAlign: "center",
-  cursor: "row-resize"
-}
-const subtreeContainerStyle = {
-  position: 'absolute',
-  padding: '10px',
-  paddingBottom: '5px',
-  background: 'rgb(252,251,252)',
-  borderRadius: '3px',
-  boxShadow: '0 2px 8px 1px rgba(0,0,0,0.3)',
-  border: '1px solid rgba(0,0,0,0.2)'
-}
-const colorBoxContainerStyle = {
-  borderTop: '1px solid #E8E8E8',
-  margin: '4px -10px',
-  padding: '2px 12px',
-}
-const colorBoxRowStyle = {
-  display: 'flex',
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 8,
-}
+const stylesCreator = ({colors}) => ({
+  numberInputArea: {
+    marginTop: 9,
+  },
+  container: {
+    width: 62,
+    display: "inline-block",
+  },
+  smallContainer: {
+    width: 32,
+    display: "inline-block",
+    marginLeft: 5,
+  },
+  inputLabel: {
+    fontSize: 11,
+    lineHeight: "16px",
+    textAlign: "center",
+    color: colors.textSubtle,
+  },
+  draggableInputLabel: {
+    fontSize: 11,
+    lineHeight: "16px",
+    textAlign: "center",
+    cursor: "row-resize",
+    color: colors.textSubtle,
+  },
+  subtreeContainer: {
+    position: 'absolute',
+    padding: 10,
+    paddingBottom: 5,
+    borderRadius: 3,
+    boxShadow: '0 2px 8px 1px rgba(0,0,0,0.3)',
+    border: '1px solid rgba(0,0,0,0.2)',
+  },
+  colorBoxContainer: {
+    borderTop: `1px solid ${colors.dividerVibrant}`,
+    margin: '4px -10px',
+    padding: '2px 12px',
+  },
+  colorBoxRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  }
+})
 
+@StylesEnhancer(stylesCreator)
 class ColorPicker extends Component {
 
   constructor(props) {
@@ -166,6 +171,7 @@ class ColorPicker extends Component {
   /* Rendering */
 
   render() {
+    const {styles} = this.props
     const {r, g, b} = this.state.color.toRgbObject()
     const hex = this.state.color.toHex()
     const rgbString = `rgb(${r},${g},${b})`
@@ -186,22 +192,22 @@ class ColorPicker extends Component {
     ]
 
     return (
-      <div style={subtreeContainerStyle}>
+      <div style={styles.subtreeContainer}>
         <ReactColorPicker
           color={hex}
           opacity={this.state.opacity}
           onChange={this.handleChange}
         />
         <div className='hbox'
-          style={numberInputAreaStyle}>
-          <div style={containerStyle}>
+          style={styles.numberInputArea}>
+          <div style={styles.container}>
             <StringInput
               width={62}
               value={hexWithoutHashtag}
               onChange={(value) => {
                 this.setHex(value)
               }} />
-            <div style={inputLabelStyle}>
+            <div style={styles.inputLabel}>
               {'Hex'}
             </div>
           </div>
@@ -212,13 +218,13 @@ class ColorPicker extends Component {
               }
               return (
                 <div key={name}
-                  style={smallContainerStyle}>
+                  style={styles.smallContainer}>
                   <NumberInput
                     width={32}
                     value={value}
                     onChange={onChange} />
                   <DragToChangeValue
-                    style={draggableInputLabelStyle}
+                    style={styles.draggableInputLabel}
                     value={value}
                     min={min}
                     max={max}
@@ -230,13 +236,13 @@ class ColorPicker extends Component {
             })
           }
         </div>
-        <div style={colorBoxContainerStyle}>
+        <div style={styles.colorBoxContainer}>
           {
             _.map(DEFAULT_COLORS, (colors, i) => {
               return (
                 <div
                   key={i}
-                  style={colorBoxRowStyle}>
+                  style={styles.colorBoxRow}>
                   {
                     _.map(colors, (color) => {
                       const colorBoxStyle = {

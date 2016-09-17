@@ -16,36 +16,25 @@
  */
 
 import React, { Component } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-export default class CheckboxInput extends Component {
+const stylesCreator = ({colors}) => ({
+  divider: {
+    flex: '1 1 auto',
+    height: 2,
+    backgroundColor: colors.divider,
+  },
+})
 
-  static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.bool.isRequired,
-    disabled: React.PropTypes.bool,
-  }
-
-  static defaultProps = {
-    className: '',
-    style: {},
-    disabled: false,
-  }
-
-  onInputChange = (e) => this.props.onChange(! this.props.value)
-
+@StylesEnhancer(stylesCreator)
+@pureRender
+export default class PropertyDivider extends Component {
   render() {
-    const {className, disabled, value, onContextMenu} = this.props
+    const {styles} = this.props
 
     return (
-      <input
-        className={className}
-        type={'checkbox'}
-        disabled={disabled}
-        checked={value}
-        onChange={this.onInputChange}
-        onContextMenu={onContextMenu}
-      />
+      <div style={styles.divider} />
     )
   }
-
 }

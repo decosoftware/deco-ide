@@ -19,56 +19,77 @@ import _ from 'lodash'
 import React, { Component, } from 'react'
 import ReactDOM from 'react-dom'
 import Colr from 'colr'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 import Menu from '../menu/Menu'
 import ColorPicker from './ColorPicker'
 
-class ColorInput extends Component {
+const stylesCreator = ({colors}, {style, value}) => ({
+  main: {
+    width: 32,
+    height: 21,
+    padding: 3,
+    display: 'inline-block',
+    background: colors.colorInput.background,
+    borderRadius: 2,
+    boxShadow: `0 0 1px 0px ${colors.colorInput.shadow}`,
+    cursor: 'pointer',
+    ...style,
+  },
+  box: {
+    height: 15,
+    borderRadius: 2,
+    position: 'relative',
+  },
+  checkers: {
+    borderRadius: 3,
+  },
+  color: {
+    background: value,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderRadius: 2,
+    boxShadow: `0 0 1px 1px ${colors.colorInput.shadowInner} inset`,
+  },
+})
 
-  constructor(props) {
-    super(props)
+@StylesEnhancer(stylesCreator, ({style, value}) => ({style, value}))
+@pureRender
+export default class ColorInput extends Component {
 
-    this.state = {
-      showMenu: false,
-      menuPosition: {
-        top: 0,
-        left: 0
-      }
-    }
-
-    this.componentWillUnmount = this.componentWillUnmount.bind(this)
-    this.componentDidUpdate = this.componentDidUpdate.bind(this)
-    this._calculatePosition = this._calculatePosition.bind(this)
-    this.onClickMenuButton = this.onClickMenuButton.bind(this)
-
-    this.setMenuVisibility = this.setMenuVisibility.bind(this)
-    this.setMenuVisibility = _.throttle(this.setMenuVisibility, 200, {
-      leading: true,
-      trailing: false
-    })
-
-    this.onChange = this.onChange.bind(this)
+  static propTypes = {
+    onChange: React.PropTypes.func.isRequired,
+    value: React.PropTypes.string.isRequired,
   }
 
-  setMenuVisibility(visible) {
-    this.setState({
-      showMenu: visible
-    })
+  static defaultProps = {
+    className: '',
+    style: {},
   }
 
-  onClickMenuButton() {
-    this.setMenuVisibility(! this.state.showMenu)
+  state = {
+    showMenu: false,
+    menuPosition: {top: 0, left: 0}
   }
 
-  /* Event handling */
+  // Throttle toggling the menu to prevent the close even from triggering it open
+  setMenuVisibility = _.throttle(
+    (visible) => this.setState({showMenu: visible}),
+    200,
+    {leading: true, trailing: false}
+  )
 
-  onChange(value) {
-    return this.props.onChange(value)
-  }
+  requestClose = () => this.setMenuVisibility(false)
 
-  /* Positioning */
+  onClickMenuButton = () => this.setMenuVisibility(! this.state.showMenu)
 
-  _calculatePosition() {
+  onChange = (value) => this.props.onChange(value)
+
+  calculatePosition() {
     const positionRect = ReactDOM.findDOMNode(this.refs.position).getBoundingClientRect()
     const position = {
       y: positionRect.bottom,
@@ -77,86 +98,45 @@ class ColorInput extends Component {
     return position
   }
 
-  /* Lifecycle */
-
   componentDidUpdate(prevProps, prevState) {
-    const position = this._calculatePosition()
+    const position = this.calculatePosition()
+
     if (!_.isEqual(this.state.menuPosition, position)) {
-      return this.setState({
-        menuPosition: position
-      })
+      this.setState({menuPosition: position})
     }
   }
-
-  componentWillUnmount() {
-    if (this._preventNextMenuButtonTimeout != null) {
-      return window.clearTimeout(this._preventNextMenuButtonTimeout)
-    }
-  }
-
-  /* Rendering */
 
   render() {
-    const style = _.defaults(_.clone(this.props.style), {
-      width: '32px',
-      height: '21px',
-      padding: '3px',
-      display: 'inline-block',
-      background: 'white',
-      borderRadius: '2px',
-      boxShadow: '0 0 1px 0px rgba(0,0,0,0.4)',
-      cursor: 'pointer',
-    })
-    const colorBoxInnerStyle = {
-      height: '15px',
-      borderRadius: '2px',
-      position: 'relative'
-    }
-    const colorStyle = {
-      background: this.props.value,
-      position: 'absolute',
-      top: '0',
-      bottom: '0',
-      left: '0',
-      right: '0',
-      borderRadius: '2px',
-      boxShadow: '0 0 1px 1px rgba(0,0,0,0.3) inset'
-    }
+    const {styles, value, onChange, onContextMenu} = this.props
+    const {showMenu, menuPosition} = this.state
 
     return (
-      <span ref={'position'}
-        style={style}
+      <span
+        ref={'position'}
+        style={styles.main}
         onClick={this.onClickMenuButton}
-        onContextMenu={this.props.onContextMenu}>
-        <div style={colorBoxInnerStyle}>
-          <div className='transparency-checkers' />
-          <div style={colorStyle} />
+        onContextMenu={onContextMenu}
+      >
+        <div style={styles.box}>
+          <div style={styles.checkers} className={'transparency-checkers'} />
+          <div style={styles.color} />
         </div>
-        <Menu show={this.state.showMenu}
+        <Menu
+          show={showMenu}
           caret={true}
-          requestClose={this.setMenuVisibility.bind(null, false)}
-          anchorPosition={this.state.menuPosition}>
-          {
-            this.state.showMenu && (
-              <ColorPicker value={this.props.value}
-                onChange={this.props.onChange} />
-            )
-          }
+          requestClose={this.requestClose}
+          anchorPosition={menuPosition}
+          captureBackground={true}
+        >
+          {showMenu && (
+            <ColorPicker
+              value={value}
+              onChange={onChange}
+            />
+          )}
         </Menu>
       </span>
     )
   }
 
 }
-
-ColorInput.propTypes = {
-  onChange: React.PropTypes.func.isRequired,
-  value: React.PropTypes.string.isRequired,
-}
-
-ColorInput.defaultProps = {
-  className: '',
-  style: {},
-}
-
-export default ColorInput

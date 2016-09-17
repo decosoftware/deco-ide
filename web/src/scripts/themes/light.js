@@ -1,4 +1,7 @@
-import { fonts as baseFonts } from './base'
+import {
+  fonts as baseFonts,
+  input as baseInput,
+} from './base'
 
 export const name = 'Light'
 export const id = 'light'
@@ -8,7 +11,7 @@ export const colors = {
   text: 'rgb(103,103,103)',
   textSubtle: '#777777',
   textVerySubtle: '#CCCCCC',
-  divider: 'rgb(50,50,50)',
+  divider: 'rgb(229,229,229)',
   dividerSubtle: 'rgb(234,234,234)',
   dividerInverted: 'rgb(224,224,224)',
   dividerVibrant: 'rgba(245,245,255,0.1)',
@@ -35,8 +38,12 @@ export const colors = {
     background: 'rgb(29,30,36)',
   },
   menu: {
-    backdrop: 'rgb(41,40,54)',
-    backdropSaturated: 'rgb(59,60,63)',
+    backdrop: 'rgb(241,240,254)',
+  },
+  colorInput: {
+    background: 'white',
+    shadow: 'rgba(0,0,0,0.3)',
+    shadowInner: 'rgba(0,0,0,0.3)',
   },
 }
 
@@ -50,4 +57,15 @@ export const fonts = {
     ...baseFonts.regularSubtle,
     color: colors.textSubtle,
   }
+}
+
+export const input = {
+  ...baseInput,
+  regular: {
+    height: 20,
+    lineHeight: "20px",
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    ...fonts.regular,
+  },
 }
