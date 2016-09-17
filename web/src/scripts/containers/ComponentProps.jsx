@@ -24,13 +24,7 @@ import { createSelector } from 'reselect'
 import {
   SimpleButton,
   NoContent,
-  LiveValue,
-  PropertyField,
-  PropertyStringInput,
-  PropertyNumberInput,
-  PropertyCheckboxInput,
-  PropertySelectInput,
-  PropertyColorInput,
+  Property,
 } from '../components'
 
 import TextUtils from '../utils/editor/TextUtils'
@@ -117,69 +111,33 @@ class ComponentProps extends Component {
 
   renderProp(prop, exists) {
     const {width} = this.props
-    const {name, value, type} = prop
+    const {name} = prop
 
-    const elements = [
-      <div key={name + '-spacer'} style={styles.spacer} />,
-    ]
+    return (
+      <Property
+        key={name}
+        prop={prop}
+        onValueChange={this.handleValueChange.bind(this, prop)}
+      />
+    )
+  }
 
-    switch (type) {
-      case 'string': {
-        elements.push(
-          <PropertyColorInput
-            key={name}
-            title={name}
-            value={value}
-            width={width}
-            onChange={this.handleValueChange.bind(this, prop)}
-          />
-        )
+  renderPropList(existingProps = [], possibleProps = []) {
+    return [
+      ...existingProps.map(prop => this.renderProp(prop, true)),
+      ...possibleProps.map(prop => this.renderProp(prop, false)),
+    ].reduce((acc, element, i) => {
 
-        return elements
-      }
-      case 'number': {
-        elements.push(
-          <PropertyNumberInput
-            key={name}
-            title={name}
-            value={value}
-            width={width}
-            onChange={this.handleValueChange.bind(this, prop)}
-          />
-        )
+      // Add a spacer between each element
+      const spacer = (
+        <div key={i} style={styles.spacer} />
+      )
 
-        return elements
-      }
-      case 'boolean': {
-        elements.push(
-          <PropertyCheckboxInput
-            key={name}
-            title={name}
-            value={value}
-            width={width}
-            onChange={this.handleValueChange.bind(this, prop)}
-          />
-        )
+      acc.push(spacer)
+      acc.push(element)
 
-        return elements
-      }
-      default: {
-        return null
-      }
-    }
-
-    // return (
-    //   <LiveValue
-    //     key={name}
-    //     id={name}
-    //     value={value}
-    //     metadata={prop}
-    //     onChange={this.handleValueChange.bind(this, prop)}
-    //     inset={15}
-    //     width={width}
-    //     exists={exists}
-    //   />
-    // )
+      return acc
+    }, [])
   }
 
   renderProps() {
@@ -192,9 +150,7 @@ class ComponentProps extends Component {
       if (element.props.length > 0) {
         return (
           <div style={innerStyle}>
-            {element.props.map(prop => {
-              return this.renderProp(prop, true)
-            })}
+            {this.renderPropList(element.props)}
           </div>
         )
       } else {
@@ -249,8 +205,7 @@ class ComponentProps extends Component {
       if (existingProps.length > 0 || possibleProps.length > 0) {
         return (
           <div style={innerStyle}>
-            {existingProps.map(prop => this.renderProp(prop, true))}
-            {possibleProps.map(prop => this.renderProp(prop, false))}
+            {this.renderPropList(existingProps, possibleProps)}
           </div>
         )
       } else {
