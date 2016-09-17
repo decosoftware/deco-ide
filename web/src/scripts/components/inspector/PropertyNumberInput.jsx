@@ -28,7 +28,9 @@ const stylesCreator = ({fonts}) => ({
   row: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     display: 'flex',
+    height: 30,
   },
   spacer: {
     width: 15,

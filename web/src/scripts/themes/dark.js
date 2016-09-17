@@ -62,8 +62,8 @@ export const fonts = {
 export const input = {
   ...baseInput,
   regular: {
-    height: 30,
-    lineHeight: "30px",
+    height: 20,
+    lineHeight: "20px",
     backgroundColor: 'transparent',
     borderWidth: 0,
     ...fonts.regular,

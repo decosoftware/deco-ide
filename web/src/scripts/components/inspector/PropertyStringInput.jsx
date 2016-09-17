@@ -23,7 +23,15 @@ import PropertyField from './PropertyField'
 import PropertyDivider from './PropertyDivider'
 import StringInput from '../input/StringInput'
 
-const stylesCreator = ({fonts}) => ({})
+const stylesCreator = ({fonts}) => ({
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    display: 'flex',
+    height: 30,
+  },
+})
 
 @StylesEnhancer(stylesCreator)
 @pureRender
@@ -41,11 +49,13 @@ export default class PropertyStringInput extends Component {
       <PropertyField
         title={title}
       >
-        <StringInput
-          value={value}
-          width={'100%'}
-          onChange={onChange}
-        />
+        <div style={styles.row}>
+          <StringInput
+            value={value}
+            width={'100%'}
+            onChange={onChange}
+          />
+        </div>
         <PropertyDivider />
       </PropertyField>
     )
