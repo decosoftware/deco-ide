@@ -17,7 +17,7 @@ describe('File tree', function() {
     return hoverOverElement('.project-navigator .Grid__cell div div', client)
       .then(() => expect(client.isExisting('.icon-plus')).to.eventually.be.true)
       .then(() => client.click('.icon-plus'))
-      .then(() => client.click('span=New File'))
+      .then(() => client.click('div=New File'))
       .then(() => expect(client.isExisting('#naming-banner')).to.eventually.be.true)
       .then(() => client.setValue('#naming-banner input', 'foo.js'))
       .then(() => client.submitForm('#naming-banner input'))
