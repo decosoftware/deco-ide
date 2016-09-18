@@ -354,8 +354,6 @@ class TabbedEditor extends Component {
     // Show npm registry only if it's not the default
     const showNpmRegistry = npmRegistry && npmRegistry !== DEFAULT_NPM_REGISTRY
 
-    console.log('>> render tabbed editor', this.props)
-
     return (
       <HotKeys
         handlers={this.keyHandlers}
