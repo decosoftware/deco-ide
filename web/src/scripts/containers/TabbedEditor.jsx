@@ -34,6 +34,16 @@ import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
+import * as selectors from '../selectors'
+import * as uiActions from '../actions/uiActions'
+import * as applicationActions from '../actions/applicationActions'
+import * as editorActions from '../actions/editorActions'
+import * as compositeFileActions from '../actions/compositeFileActions'
+import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
+import { installAndStartFlow } from '../utils/FlowUtils'
+import { PACKAGE_ERROR } from '../utils/PackageUtils'
+import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 import {
   EditorDropTarget,
@@ -46,16 +56,6 @@ import {
   Tab,
   EditorToast,
 } from '../components'
-
-import * as uiActions from '../actions/uiActions'
-import * as applicationActions from '../actions/applicationActions'
-import * as editorActions from '../actions/editorActions'
-import * as compositeFileActions from '../actions/compositeFileActions'
-import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
-import { installAndStartFlow } from '../utils/FlowUtils'
-import { PACKAGE_ERROR } from '../utils/PackageUtils'
-import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
-import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 
@@ -109,35 +109,15 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-const editorOptionsSelector = createSelector(
-  (state) => state.preferences,
-  (preferences) => ({
-    theme: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.THEME],
-    fontSize: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.FONT_SIZE],
-    keyMap: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
-    showInvisibles: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
-    styleActiveLine: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE],
-    showIndentGuides: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INDENT_GUIDES],
-  })
-)
-
-const emptyArray = []
-
-const filesByTabIdSelector = createSelector(
-  ({directory}) => directory.filesById,
-  ({ui: {tabs}}) => _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyArray),
-  (filesById, tabIds) => tabIds.reduce((acc, tabId) => {
-    acc[tabId] = filesById[tabId]
-    return acc
-  }, {})
-)
+const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  filesByTabIdSelector,
+  selectors.editorOptions,
+  selectors.filesByTabId,
   ({directory}) => directory.rootPath,
   ({ui: {tabs}}) => ({
     focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyArray),
+    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
   }),
   ({components, modules, preferences}) => {
     const publishingFeature = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
@@ -160,8 +140,8 @@ const mapStateToProps = (state) => createSelector(
     npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
     publishingFeature: preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
   }),
-  editorOptionsSelector,
-  (filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences, editorOptions) => ({
+  (editorOptions, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
+    options: editorOptions,
     filesByTabId,
     rootPath,
     ...tabs,
@@ -170,7 +150,6 @@ const mapStateToProps = (state) => createSelector(
     ...application,
     liveValuesById,
     ...preferences,
-    options: editorOptions,
   })
 )
 
