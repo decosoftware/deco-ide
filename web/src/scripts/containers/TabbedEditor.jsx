@@ -15,17 +15,18 @@
  *
  */
 
+const { shell } = Electron
+
 import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
-
-const { shell, remote } = Electron
-const path = remote.require('path')
-
+import { bindActionCreators } from 'redux'
+import { createSelector } from 'reselect'
+import { StylesEnhancer } from 'react-styles-provider'
 import { HotKeys } from 'react-hotkeys'
+import path from 'path'
 
-import EditorDropTarget from '../components/editor/EditorDropTarget'
 import HistoryMiddleware from '../middleware/editor/HistoryMiddleware'
 import TokenMiddleware from '../middleware/editor/TokenMiddleware'
 import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
@@ -33,26 +34,28 @@ import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
-import NoContent from '../components/display/NoContent'
-import ProgressBar from '../components/display/ProgressBar'
-import Console from '../components/console/Console'
-import SearchMenu from '../components/menu/SearchMenu'
-import ComponentMenuItem from '../components/menu/ComponentMenuItem'
-import TabContainer from '../components/layout/TabContainer'
-import Tab from '../components/buttons/Tab'
-import EditorToast from '../components/editor/EditorToast'
-import { StylesEnhancer } from 'react-styles-provider'
-
-import { setConsoleVisibility, setConsoleScrollHeight } from '../actions/uiActions'
-import { stopPackager, runPackager, clearConfigError, setFlowError } from '../actions/applicationActions'
-import { insertComponent, insertTemplate } from '../actions/editorActions'
-import { closeTabWindow } from '../actions/compositeFileActions'
+import * as selectors from '../selectors'
+import * as uiActions from '../actions/uiActions'
+import * as applicationActions from '../actions/applicationActions'
+import * as editorActions from '../actions/editorActions'
+import * as compositeFileActions from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
-import { openFile } from '../actions/compositeFileActions'
 import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+
+import {
+  EditorDropTarget,
+  NoContent,
+  ProgressBar,
+  Console,
+  SearchMenu,
+  ComponentMenuItem,
+  TabContainer,
+  Tab,
+  EditorToast,
+} from '../components'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 
@@ -106,42 +109,49 @@ const stylesCreator = ({colors}) => {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const tabIds = _.get(state, `ui.tabs.${CONTENT_PANES.CENTER}.tabIds`, [])
-  const filesByTabId = {}
-  _.each(tabIds, (tabId) => {
-    filesByTabId[tabId] = state.directory.filesById[tabId] || {}
-  })
+const emptyTabs = []
 
-  const publishingFeature = state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
+const mapStateToProps = (state) => createSelector(
+  selectors.editorOptions,
+  selectors.filesByTabId,
+  ({directory}) => directory.rootPath,
+  ({ui: {tabs}}) => ({
+    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
+    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
+  }),
+  ({components, modules, preferences}) => {
+    const publishingFeature = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
 
-  return {
-    module: module,
-    rootPath: state.directory.rootPath,
-    componentList: publishingFeature ? state.components.list : state.modules.modules,
-    consoleVisible: state.ui.consoleVisible,
-    packagerOutput: state.application.packagerOutput,
-    packagerStatus: state.application.packagerStatus,
-    savedScrollHeight: state.ui.scrollHeight,
-    liveValuesById: state.metadata.liveValues.liveValuesById,
-    focusedTabId: _.get(state, `ui.tabs.${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds,
+    return publishingFeature ? components.list : modules.modules
+  },
+  ({ui}) => ({
+    consoleVisible: ui.consoleVisible,
+    savedScrollHeight: ui.scrollHeight,
+    progressBar: ui.progressBar,
+  }),
+  ({application}) => ({
+    packagerOutput: application.packagerOutput,
+    packagerStatus: application.packagerStatus,
+    configError: application.configError,
+    flowError: application.flowError,
+  }),
+  ({metadata}) => metadata.liveValues.liveValuesById,
+  ({preferences}) => ({
+    npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
+    publishingFeature: preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
+  }),
+  (editorOptions, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
+    options: editorOptions,
     filesByTabId,
-    progressBar: state.ui.progressBar,
-    npmRegistry: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
-    publishingFeature,
-    configError: state.application.configError,
-    flowError: state.application.flowError,
-    options: {
-      theme: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.THEME],
-      fontSize: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.FONT_SIZE],
-      keyMap: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.VIM_MODE] ? 'vim' : 'sublime',
-      showInvisibles: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INVISIBLES],
-      styleActiveLine: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE],
-      showIndentGuides: state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_INDENT_GUIDES],
-    }
-  }
-}
+    rootPath,
+    ...tabs,
+    componentList,
+    ...ui,
+    ...application,
+    liveValuesById,
+    ...preferences,
+  })
+)
 
 @StylesEnhancer(stylesCreator)
 class TabbedEditor extends Component {
@@ -212,7 +222,7 @@ class TabbedEditor extends Component {
         return
       }
 
-      this.props.dispatch(insertTemplate(
+      this.props.dispatch(editorActions.insertTemplate(
         decoDoc,
         text,
         metadata,
@@ -222,36 +232,36 @@ class TabbedEditor extends Component {
     })
   }
 
-  onFocusTab = (tabId) => this.props.dispatch(openFile(this.props.filesByTabId[tabId].path))
+  onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
 
-  onCloseTab = (tabId) => this.props.dispatch(closeTabWindow(tabId))
+  onCloseTab = (tabId) => this.props.dispatch(compositeFileActions.closeTabWindow(tabId))
 
-  onCloseConfigErrorToast = () => this.props.dispatch(clearConfigError())
+  onCloseConfigErrorToast = () => this.props.dispatch(applicationActions.clearConfigError())
 
-  onCloseFlowErrorToast = () => this.props.dispatch(setFlowError(null))
+  onCloseFlowErrorToast = () => this.props.dispatch(applicationActions.setFlowError(null))
 
   onInstallFlow = () => {
     const {rootPath, npmRegistry} = this.props
 
-    this.props.dispatch(setFlowError(null))
+    this.props.dispatch(applicationActions.setFlowError(null))
     installAndStartFlow(rootPath, npmRegistry)
   }
 
   toggleConsole = () => {
     const {consoleVisible} = this.props
 
-    this.props.dispatch(setConsoleVisibility(!consoleVisible))
+    this.props.dispatch(uiActions.setConsoleVisibility(!consoleVisible))
   }
 
   togglePackager = (isRunning) => {
     if (isRunning) {
-      this.props.dispatch(stopPackager())
+      this.props.dispatch(applicationActions.stopPackager())
     } else {
-      this.props.dispatch(runPackager())
+      this.props.dispatch(applicationActions.runPackager())
     }
   }
 
-  saveScrollHeight = (scrollHeight) => this.props.dispatch(setConsoleScrollHeight(scrollHeight))
+  saveScrollHeight = (scrollHeight) => this.props.dispatch(uiActions.setConsoleScrollHeight(scrollHeight))
 
   // Delay allows key events to finish first?
   // TODO: move search menu to top level and take care of this on that refactor

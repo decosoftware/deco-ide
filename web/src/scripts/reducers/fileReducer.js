@@ -23,6 +23,8 @@ import {
   MARK_SAVED,
   MARK_UNSAVED,
   CLEAR_FILE_STATE,
+  UPDATE_FILE_TREE_VERSION,
+  SET_TOP_DIR,
 } from '../actions/fileActions'
 
 const initialState = {
@@ -67,11 +69,16 @@ const fileReducer = (state = initialState, action) => {
       return {
         ...initialState,
       }
-    default:
+    case UPDATE_FILE_TREE_VERSION:
       return {
         ...state,
-        ...payload,
+        version: payload.version,
       }
+    case SET_TOP_DIR:
+      const {rootPath, rootName} = payload
+      return {...state, rootPath, rootName}
+    default:
+      return state
   }
 }
 
