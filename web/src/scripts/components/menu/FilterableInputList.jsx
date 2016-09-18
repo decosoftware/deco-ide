@@ -22,13 +22,20 @@ import InputClearButton from '../buttons/InputClearButton'
 import { StylesEnhancer } from 'react-styles-provider'
 import StyleNode from '../../utils/StyleNode'
 
-const styleNode = new StyleNode()
-styleNode.attach()
+const styleNodes = {
+  regular: new StyleNode().attach(),
+  transparent: new StyleNode().attach(),
+}
+
+const getClassName = (transparentBackground) => {
+  return `filter-input${transparentBackground ? '-transparent' : ''}`
+}
 
 const stylesCreator = ({colors}, transparentBackground) => {
 
+  const styleNode = transparentBackground ? styleNodes.transparent : styleNodes.regular
   styleNode.setText(`
-    .filter-input::-webkit-input-placeholder {
+    .${getClassName(transparentBackground)}::-webkit-input-placeholder {
       color: ${transparentBackground ? colors.textSubtle : colors.textVerySubtle};
     }
   `)
@@ -78,12 +85,13 @@ export default class extends Component {
   }
 
   render() {
-    const {styles, searchText} = this.props
+    const {styles, searchText, transparentBackground} = this.props
+    const className = getClassName(transparentBackground)
 
     return (
       <div style={styles.main}>
         <input
-          className={'filter-input'}
+          className={className}
           type={'search'}
           ref={'filterInput'}
           style={styles.input}
@@ -100,5 +108,4 @@ export default class extends Component {
       </div>
     )
   }
-
 }

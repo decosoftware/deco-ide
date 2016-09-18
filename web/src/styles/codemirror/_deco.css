@@ -18,7 +18,7 @@
   padding-right: 20px;
 }
 
-.cm-s-deco .CodeMirror-guttermarker, .cm-s-deco .CodeMirror-guttermarker-subtle, .cm-s-deco .CodeMirror-linenumber { color: #39505b; font-weight: 400; }
+.cm-s-deco .CodeMirror-guttermarker, .cm-s-deco .CodeMirror-guttermarker-subtle, .cm-s-deco .CodeMirror-linenumber { color: #3b4a55; font-weight: 400; }
 .cm-s-deco .CodeMirror-cursor { border-left: 1px solid #f8f8f0; }
 .cm-s-deco div.CodeMirror-selected { background: rgba(255, 255, 255, 0.15); }
 .cm-s-deco.CodeMirror-focused div.CodeMirror-selected { background: rgba(255, 255, 255, 0.10); }
