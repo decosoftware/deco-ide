@@ -82,12 +82,13 @@ class AutocompleteMiddleware extends Middleware {
     // Join flow completions and basic completions
     const list = _.chain([...completion.result, ...basic])
 
+      // Filter irrelevant completions
+      .filter(item => item.name.startsWith(wordToComplete))
+
       // Remove duplicates
       .uniqBy('name')
       .sortBy('name')
 
-      // Filter irrelevant completions
-      .filter(item => item.name.startsWith(wordToComplete))
       .map(item => {
         return {
           text: item.name,
