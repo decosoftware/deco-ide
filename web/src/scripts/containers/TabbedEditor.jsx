@@ -388,7 +388,7 @@ class TabbedEditor extends Component {
                   ClipboardMiddleware(this.props.dispatch, liveValuesById),
                   AutocompleteMiddleware(this.props.dispatch, focusedTabId),
                   IndentGuideMiddleware(this.props.dispatch),
-                  ASTMiddleware(this.props.dispatch, focusedTabId, publishingFeature),
+                  ASTMiddleware(this.props.dispatch, publishingFeature),
                 ]}
                 onImportItem={this.onImportItem}
                 options={options}

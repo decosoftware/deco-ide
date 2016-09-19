@@ -15,6 +15,7 @@
  *
  */
 
+import { batchActions } from 'redux-batched-subscribe'
 import FileConstants from 'shared/constants/ipc/FileConstants'
 const { GET_FILE_DATA } = FileConstants
 
@@ -45,7 +46,7 @@ export const clearCurrentDoc = () => async (dispatch) => {
   dispatch({type: at.SET_CURRENT_DOC, payload: {id: null}})
 }
 
-export const cacheDoc = (id, code, decoRanges) => async (dispatch) => {
+export const cacheDoc = (id, code, decoRanges = []) => async (dispatch) => {
   dispatch({type: at.CACHE_DOC, payload: {id, code, decoRanges}})
 }
 
@@ -106,10 +107,10 @@ const loadMetadataAndCacheDoc = (id, code) => async (dispatch, getState) => {
     if (e.code === 'ENOENT') {
 
       // Cache the doc assuming no live values
-      return Promise.all([
-        dispatch(cacheDoc(id, code, [])),
-        dispatch(historyActions.createHistory(id)),
-      ])
+      return dispatch(batchActions([
+        cacheDoc(id, code),
+        historyActions.createHistory(id),
+      ]))
 
     } else {
       console.error(`Error reading metadata for ${id}`)
@@ -120,11 +121,11 @@ const loadMetadataAndCacheDoc = (id, code) => async (dispatch, getState) => {
   // Metadata loaded successfully
   const {decoRanges, liveValueIds, liveValuesById} = metadata.liveValues
 
-  return Promise.all([
-    dispatch(liveValueActions.setLiveValues(id, liveValueIds, liveValuesById)),
-    dispatch(cacheDoc(id, code, decoRanges)),
-    dispatch(historyActions.createHistory(id)),
-  ])
+  return dispatch(batchActions([
+    liveValueActions.setLiveValues(id, liveValueIds, liveValuesById),
+    cacheDoc(id, code, decoRanges),
+    historyActions.createHistory(id),
+  ]))
 }
 
 export const loadDoc = (payload) => async (dispatch, getState) => {
