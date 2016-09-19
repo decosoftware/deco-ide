@@ -30,110 +30,134 @@ import DecoComponentUtils from '../utils/editor/DecoComponentUtils'
 import LiveValueUtils from '../utils/metadata/LiveValueUtils'
 import LiveValueGroupUtils from '../utils/metadata/LiveValueGroupUtils'
 import uuid from '../utils/uuid'
-import { markSaved } from './fileActions'
-import { createHistory, addToHistory, undoFromHistory, redoToHistory } from './historyActions'
-import { setLiveValueIds, createLiveValue, setLiveValues, importLiveValues } from './liveValueActions'
-import { loadMetadata } from './metadataActions'
-import { save, saveLive } from './applicationActions'
+import * as fileActions from './fileActions'
+import * as historyActions from './historyActions'
+import * as liveValueActions from './liveValueActions'
+import * as metadataActions from './metadataActions'
+import * as applicationActions from './applicationActions'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
-export const CLEAR_EDITOR_STATE = 'CLEAR_EDITOR_STATE'
-export const clearEditorState = () => {
-  return {
-    type: CLEAR_EDITOR_STATE,
-  }
+export const at = {
+  CLEAR_EDITOR_STATE: 'CLEAR_EDITOR_STATE',
+  SET_CURRENT_DOC: 'SET_CURRENT_DOC',
+  CACHE_DOC: 'CACHE_DOC',
+  MARK_DIRTY: 'MARK_DIRTY',
+  MARK_CLEAN: 'MARK_CLEAN',
+  DOC_ID_CHANGE: 'DOC_ID_CHANGE',
 }
 
-export const SET_CURRENT_DOC = 'SET_CURRENT_DOC'
-export const setCurrentDoc = (id) => {
-  return {
-    type: SET_CURRENT_DOC,
-    id: id,
-  }
-}
-export const clearCurrentDoc = () => {
-  return {
-    type: SET_CURRENT_DOC,
-    id: null,
-  }
+export const clearEditorState = () => async (dispatch) => {
+  dispatch({type: at.CLEAR_EDITOR_STATE})
 }
 
-export const CACHE_DOC = 'CACHE_DOC'
-export const _cacheDoc = (payload, decoRanges) => {
-  return {
-    type: CACHE_DOC,
-    id: payload.id,
-    data: payload.utf8Data,
-    decoRanges,
-  }
+export const setCurrentDoc = (id) => async (dispatch) => {
+  dispatch({type: at.SET_CURRENT_DOC, payload: {id}})
 }
 
-//TODO switch onFileData to request format so we can move the action / dispatch chaining up to containers.
-//TODO these kinds of functions could possibly be removed into a separate action file
-export function cacheDoc(payload) {
-  return (dispatch, getState) => {
-    const cache = getState().editor.docCache
-    const dirtyList = getState().editor.dirtyList
-    if (_.has(cache, payload.id)) {
-      const decoDoc = cache[payload.id]
-
-      // TODO clear metadata and ranges, then re-add?
-      if (decoDoc.decoRanges.length > 0) {
-        return
-      }
-
-      // if this data is new
-      if (decoDoc.code !== payload.utf8Data) {
-        // if the document hasn't been edited since last save
-        if (!_.has(dirtyList, payload.id)) {
-          // overwrite
-          decoDoc.code = payload.utf8Data
-          dispatch(markClean(payload.id))
-          dispatch(markSaved(payload.id))
-        }
-      }
-      return
-    //nothing in the cache, we create the doc
-    } else {
-      return dispatch(loadMetadata(payload.id)).then((metadata) => {
-        const {decoRanges, liveValueIds, liveValuesById} = metadata.liveValues
-        dispatch(setLiveValues(payload.id, liveValueIds, liveValuesById))
-        dispatch(_cacheDoc(payload, decoRanges))
-        dispatch(createHistory(payload.id))
-      }).catch((err) => {
-        if (err.code === 'ENOENT') {
-          dispatch(_cacheDoc(payload, []))
-          dispatch(createHistory(payload.id))
-        } else {
-          console.error(`Error reading metadata for ${payload.id}`)
-        }
-      })
-    }
-  }
+export const clearCurrentDoc = () => async (dispatch) => {
+  dispatch({type: at.SET_CURRENT_DOC, payload: {id: null}})
 }
 
+export const cacheDoc = (id, code, decoRanges) => async (dispatch) => {
+  dispatch({type: at.CACHE_DOC, payload: {id, code, decoRanges}})
+}
+
+export const docIdChange = (oldId, newId) => async (dispatch) => {
+  dispatch({type: at.DOC_ID_CHANGE, payload: {oldId, newId}})
+}
+
+export const markClean = (id) => async (dispatch) => {
+  dispatch({type: at.MARK_CLEAN, payload: {id}})
+}
 
 //TODO actually use change generation correctly
-export const MARK_DIRTY = 'MARK_DIRTY'
 export const markDirty = (id) => async (dispatch, getState) => {
-  if (!getState().editor.dirtyList[id]) {
-    dispatch({type: MARK_DIRTY, id: id})
+  const {dirtyList} = getState().editor
+
+  // For performance, only dispatch if necessary
+  if (!dirtyList[id]) {
+    dispatch({type: at.MARK_DIRTY, payload: {id}})
   }
 }
 
-export const MARK_CLEAN = 'MARK_CLEAN'
-export const markClean = (id) => {
-  return {
-    type: MARK_CLEAN,
-    id: id,
+const updateCachedDoc = (id, code) => async (dispatch, getState) => {
+
+  const {docCache, dirtyList} = getState().editor
+  const decoDoc = docCache[id]
+
+  // If the doc has unsaved changes, return
+  if (dirtyList[id]) return
+
+  // If the doc is not cached, return
+  if (!decoDoc) return
+
+  // If this file has any live values, return.
+  // Live values prevent files from updating properly.
+  // Live values are deprecated, so no need to fix this.
+  if (decoDoc.decoRanges.length > 0) return
+
+  // If data hasn't changed, return
+  if (decoDoc.code === code) return
+
+  // Update the doc
+  decoDoc.code = code
+
+  return Promise.all([
+    dispatch(markClean(id)),
+    dispatch(fileActions.markSaved(id)),
+  ])
+}
+
+const loadMetadataAndCacheDoc = (id, code) => async (dispatch, getState) => {
+  let metadata
+
+  try {
+    metadata = await dispatch(metadataActions.loadMetadata(id))
+  } catch (e) {
+
+    // If the metadata file doesn't exist
+    if (e.code === 'ENOENT') {
+
+      // Cache the doc assuming no live values
+      return Promise.all([
+        dispatch(cacheDoc(id, code, [])),
+        dispatch(historyActions.createHistory(id)),
+      ])
+
+    } else {
+      console.error(`Error reading metadata for ${id}`)
+      return
+    }
+  }
+
+  // Metadata loaded successfully
+  const {decoRanges, liveValueIds, liveValuesById} = metadata.liveValues
+
+  return Promise.all([
+    dispatch(liveValueActions.setLiveValues(id, liveValueIds, liveValuesById)),
+    dispatch(cacheDoc(id, code, decoRanges)),
+    dispatch(historyActions.createHistory(id)),
+  ])
+}
+
+export const loadDoc = (payload) => async (dispatch, getState) => {
+  const {docCache} = getState().editor
+  const {id, utf8Data: code} = payload
+
+  if (docCache[id]) {
+    return dispatch(updateCachedDoc(id, code))
+  } else {
+    return dispatch(loadMetadataAndCacheDoc(id, code))
   }
 }
 
-const getCachedDecoDoc = (cache, id) => {
-  const decoDoc = cache[id]
-  if (! decoDoc) {
+const getCachedDecoDoc = (docCache, id) => {
+  const decoDoc = docCache[id]
+
+  if (!decoDoc) {
     throw new Error("Failed to operate on decoDoc, decoDoc wasn't in cache!")
   }
+
   return decoDoc
 }
 
@@ -143,7 +167,7 @@ const saveLiveDebounced = (dispatch, delay) => {
   if (delay !== _debounceDelay) {
     _debounceDelay = delay
     _saveLiveDebounced = _.debounce(() => {
-      dispatch(saveLive())
+      dispatch(applicationActions.saveLive())
     }, delay)
   }
 
@@ -160,7 +184,7 @@ const conditionalSaveLive = (dispatch, savingPreferences) => {
 
 function setLiveValuesForDoc(fileId, decoDoc) {
   const liveValueIds = _.map(decoDoc.decoRanges, 'id')
-  return setLiveValueIds(fileId, liveValueIds)
+  return liveValueActions.setLiveValueIds(fileId, liveValueIds)
 }
 
 export const OPERATION_EDIT = 'OPERATION_EDIT'
@@ -198,9 +222,9 @@ export function edit(id, decoChange) {
         removeBrokenRanges,
       ])
 
-      dispatch(addToHistory(id, combinedChange))
+      dispatch(historyActions.addToHistory(id, combinedChange))
     } else {
-      dispatch(addToHistory(id, decoChange))
+      dispatch(historyActions.addToHistory(id, decoChange))
     }
 
     // Update live values if there are any, or if any have changed
@@ -224,7 +248,7 @@ export function undo(id) {
 
       decoDoc.edit(invertedChange)
 
-      dispatch(undoFromHistory(id))
+      dispatch(historyActions.undoFromHistory(id))
       dispatch(setLiveValuesForDoc(id, decoDoc))
       conditionalSaveLive(dispatch, state.preferences[CATEGORIES.SAVING])
     }
@@ -243,7 +267,7 @@ export function redo(id) {
 
       decoDoc.edit(decoChange)
 
-      dispatch(redoToHistory(id))
+      dispatch(historyActions.redoToHistory(id))
       dispatch(setLiveValuesForDoc(id, decoDoc))
       conditionalSaveLive(dispatch, state.preferences[CATEGORIES.SAVING])
     }
@@ -271,7 +295,7 @@ export const setTextForDecoRange = (fileId, decoRangeId, text) => {
 
     if (state.preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.AUTOSAVE] &&
         state.preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.PROPERTY_CHANGE]) {
-      dispatch(saveLive())
+      dispatch(applicationActions.saveLive())
     }
   }
 }
@@ -289,7 +313,7 @@ export const insertComponent = (componentInfo, decoDoc) => {
     const metadata = _getComponentMetadata(componentInfo, getState())
     const {decoRanges, liveValuesById} = LiveValueUtils.normalizeLiveValueMetadata(metadata.liveValues)
 
-    dispatch(importLiveValues(decoDoc.id, liveValuesById))
+    dispatch(liveValueActions.importLiveValues(decoDoc.id, liveValuesById))
 
     const insertChange = DecoComponentUtils.createChangeToInsertComponent(
       componentInfo,
@@ -318,7 +342,7 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName)
 
   const {decoRanges, liveValuesById} = LiveValueUtils.normalizeLiveValueMetadata(liveValues)
 
-  dispatch(importLiveValues(decoDoc.id, liveValuesById))
+  dispatch(liveValueActions.importLiveValues(decoDoc.id, liveValuesById))
 
   const insertChange = DecoComponentUtils.createChangeToInsertTemplate(
     decoDoc,
@@ -368,22 +392,13 @@ export const addDecoRangeFromCMToken = (id, cmToken) => {
         eventValue: text,
       })
 
-      dispatch(createLiveValue(id, decoRangeId, text, rangeName, cmToken.type))
+      dispatch(liveValueActions.createLiveValue(id, decoRangeId, text, rangeName, cmToken.type))
     }
 
     decoDoc.edit(decoChange)
-    dispatch(addToHistory(id, decoChange))
+    dispatch(historyActions.addToHistory(id, decoChange))
 
     dispatch(setLiveValuesForDoc(id, decoDoc))
-  }
-}
-
-export const DOC_ID_CHANGE = 'DOC_ID_CHANGE'
-export const docIdChange = (oldId, newId) => {
-  return {
-    type: DOC_ID_CHANGE,
-    oldId,
-    newId,
   }
 }
 
@@ -401,7 +416,7 @@ export function openDocument(filePath) {
       return Promise.resolve()
     } else {
       return request(_getFileData(filePath)).then((payload) => {
-        dispatch(cacheDoc(payload))
+        dispatch(loadDoc(payload))
         return dispatch(setCurrentDoc(filePath))
       })
     }

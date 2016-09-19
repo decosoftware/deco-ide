@@ -36,7 +36,7 @@ const tabReducer = (state = initialState, action) => {
 
     case at.SWAP_TAB: {
       const {containerId, tabId, newTabId} = payload
-      const container = {$set: TabUtils.swapTab(state[containerId] || {}, tabId, newTabId)}
+      const container = TabUtils.swapTab(state[containerId] || {}, tabId, newTabId)
       return update(state, {[containerId]: {$set: container}})
     }
 
