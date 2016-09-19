@@ -29,40 +29,33 @@ import Logger from '../log/logger'
 
 const FORK_SYNC_SERVICE = 'Scripts/sync-service'
 
-let syncService = null
-const closeService = () => {
-  if (syncService) {
-    try {
-      if (!syncService.killed) {
-        syncService.kill('SIGINT')
+class SyncServiceController {
+  constructor() {
+    this.syncService = null
+    process.on('SIGINT', this.closeService)
+    process.on('close', this.closeService)
+    process.on('exit', this.closeService)
+  }
+  closeService = () => {
+    if (this.syncService) {
+      try {
+        if (!this.syncService.killed) {
+          this.syncService.kill('SIGINT')
+        }
+      } catch (e) {
+        this.syncService = null
       }
-    } catch (e) {
-      syncService = null
     }
   }
-}
-
-process.on('SIGINT', () => {
-  closeService()
-})
-process.on('close', () => {
-  closeService()
-})
-process.on('exit', () => {
-  closeService()
-})
-
-
-class SyncServiceController {
   start = () => {
-    syncService = child_process.fork('index', [], {
+    this.syncService = child_process.fork('index', [], {
       cwd: path.join(INTERNAL_LIB_FOLDER, FORK_SYNC_SERVICE),
       env: {
         ...process.env,
         PATH: `${process.env.PATH}:${NODE_BINARIES}`
       }
     })
-    syncService.on('error', (err) => {
+    this.syncService.on('error', (err) => {
       closeService()
       this.start()
     })

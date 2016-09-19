@@ -7,10 +7,11 @@ var server = require('http').createServer()
   , port = 4080;
 
 var io = require('socket.io')(4082)
-let onImage = () => {}
-let onLayout = () => {}
-let onActiveScene = () => {}
+let onImage, onLayout, onActiveScene
+let connected = false
+
 io.on('connection', (socket) => {
+  connected = true
   onImage = (image, sceneName) => {
     socket.emit('image', { sceneName, image })
   }
@@ -48,6 +49,7 @@ app.get('/layout/:sceneName', function (req, res) {
 // IMAGE DATA
 var wss = new WebSocketServer({ port: 4081 });
 
+//TODO: document binary protocol
 function getHeaderInfo(data) {
   const headerLength = data.readUInt32LE(0)
   const reqType = data.slice(4, 4 + headerLength).toString()
@@ -80,7 +82,7 @@ wss.on('connection', function connection(ws) {
           if (activeScene == null) {
             activeScene = imageScene
           }
-          if (onImage && imageScene == activeScene) {
+          if (connected && imageScene == activeScene) {
             onImage(imageForScene[imageScene], imageScene)
           }
           break;
@@ -92,7 +94,7 @@ wss.on('connection', function connection(ws) {
           if (activeScene == null) {
             activeScene = layoutScene
           }
-          if (onLayout && layoutScene == activeScene) {
+          if (connected && layoutScene == activeScene) {
             onLayout(layoutForScene[layoutScene], layoutScene)
           }
           break;
@@ -100,7 +102,9 @@ wss.on('connection', function connection(ws) {
         case 'activeScene': {
           const { sceneName: _activeScene } = getSceneName(buf)
           activeScene = _activeScene
-          onActiveScene(activeScene)
+          if (connected) {
+            onActiveScene(activeScene)
+          }
           break;
         }
         default:
