@@ -268,7 +268,7 @@ gulp.task('pack', [
   'dist']);
 
 gulp.task('test-integration', function() {
-  return gulp.src(['tests/setup.js', 'tests/integration/*.test.js'], { read: false })
+  return gulp.src(['tests/setup.js', 'tests/integration/**/*.test.js'], { read: false })
     .pipe(mocha({
       reporter: 'progress',
       timeout: 10000

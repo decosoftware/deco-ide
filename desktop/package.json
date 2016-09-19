@@ -21,10 +21,12 @@
     "gulp-open": "^2.0.0",
     "gulp-shell": "^0.3.0",
     "gulp-util": "^3.0.4",
+    "image-diff": "^1.6.3",
     "mocha": "^3.0.2",
     "node-inspector": "^0.12.8",
     "node-pre-gyp": "^0.6.29",
     "plist": "^1.2.0",
+    "rimraf": "^2.5.4",
     "run-sequence": "^1.2.1",
     "spectron": "^3.3.0"
   },

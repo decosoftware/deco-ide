@@ -4,3 +4,4 @@
 # Ignore project files
 /app
 /dist
+/desktop/tests/integration/snapshot/tmp
