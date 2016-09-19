@@ -18,7 +18,8 @@
 import CodeMirror from 'codemirror'
 import { batchActions } from 'redux-batched-subscribe'
 
-import {edit, undo, redo, markDirty} from '../../actions/editorActions'
+import * as editorActions from '../../actions/editorActions'
+import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 import { markUnsaved } from '../../actions/fileActions'
 import { tabActions } from '../../actions'
 import { CONTENT_PANES } from '../../constants/LayoutConstants'
@@ -75,11 +76,11 @@ class HistoryMiddleware extends Middleware {
   }
 
   _undo() {
-    this.dispatch(undo(this._decoDoc.id))
+    this.dispatch(textEditorCompositeActions.undo(this._decoDoc.id))
   }
 
   _redo() {
-    this.dispatch(redo(this._decoDoc.id))
+    this.dispatch(textEditorCompositeActions.redo(this._decoDoc.id))
   }
 
   // A batched version of onChange, for performance
@@ -91,7 +92,7 @@ class HistoryMiddleware extends Middleware {
 
       this.dispatch(batchActions([
         markUnsaved(id),
-        markDirty(id),
+        editorActions.markDirty(id),
         tabActions.makeTabPermanent(CONTENT_PANES.CENTER, id),
       ]))
     }
@@ -110,7 +111,7 @@ class HistoryMiddleware extends Middleware {
       )
 
       const decoChange = DecoChangeFactory.createChangeFromCMChange(cmChange)
-      this.dispatch(edit(this._decoDoc.id, decoChange))
+      this.dispatch(textEditorCompositeActions.edit(this._decoDoc.id, decoChange))
 
       return
     }

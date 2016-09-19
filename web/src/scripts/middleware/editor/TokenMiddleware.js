@@ -17,10 +17,7 @@
 
 import CodeMirror from 'codemirror'
 
-import {
-  addDecoRangeFromCMToken,
-} from '../../actions/editorActions'
-
+import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import CodeMirrorToken from '../../models/editor/CodeMirrorToken'
@@ -81,8 +78,7 @@ class TokenMiddleware extends Middleware {
       const token = this.findNearestLiteralToken(cm, clickPos)
 
       if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
-        // console.log('click token', clickPos, token)
-        this.dispatch(addDecoRangeFromCMToken(this._decoDoc.id, token))
+        this.dispatch(textEditorCompositeActions.addDecoRangeFromCMToken(this._decoDoc.id, token))
       }
 
     }
