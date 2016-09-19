@@ -4,6 +4,7 @@ installer/osx/mpkg/Deco.pkg
 installer/osx/InstallerPlugins/Pods
 installer/osx/InstallerPlugins/InstallerPlugins.xcworkspace
 build/*
+!libs/Project/ios/build/Build/Products/Debug-iphonesimulator/*
 public/*
 package/*
 !node_modules/react-native/local-cli/setup_env.sh
