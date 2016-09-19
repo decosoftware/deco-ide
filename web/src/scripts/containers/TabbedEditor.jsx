@@ -37,7 +37,7 @@ import ASTMiddleware from '../middleware/editor/ASTMiddleware'
 import * as selectors from '../selectors'
 import * as uiActions from '../actions/uiActions'
 import * as applicationActions from '../actions/applicationActions'
-import * as editorActions from '../actions/editorActions'
+import * as textEditorCompositeActions from '../actions/textEditorCompositeActions'
 import * as compositeFileActions from '../actions/compositeFileActions'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { installAndStartFlow } from '../utils/FlowUtils'
@@ -222,7 +222,7 @@ class TabbedEditor extends Component {
         return
       }
 
-      this.props.dispatch(editorActions.insertTemplate(
+      this.props.dispatch(textEditorCompositeActions.insertTemplate(
         decoDoc,
         text,
         metadata,
@@ -388,7 +388,7 @@ class TabbedEditor extends Component {
                   ClipboardMiddleware(this.props.dispatch, liveValuesById),
                   AutocompleteMiddleware(this.props.dispatch, focusedTabId),
                   IndentGuideMiddleware(this.props.dispatch),
-                  ASTMiddleware(this.props.dispatch, focusedTabId, publishingFeature),
+                  ASTMiddleware(this.props.dispatch, publishingFeature),
                 ]}
                 onImportItem={this.onImportItem}
                 options={options}
