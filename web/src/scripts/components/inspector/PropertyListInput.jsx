@@ -15,6 +15,7 @@
  *
  */
 
+import _ from 'lodash'
 import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
@@ -23,6 +24,8 @@ import update from 'react-addons-update'
 import PropertyField from './PropertyField'
 import PropertyDivider from './PropertyDivider'
 import Property from './Property'
+import ValueInput from '../input/ValueInput'
+import StringInput from '../input/StringInput'
 
 const stylesCreator = ({colors, fonts}) => ({
   content: {
@@ -34,8 +37,10 @@ const stylesCreator = ({colors, fonts}) => ({
     marginTop: 5,
     borderLeft: `2px solid ${colors.divider}`
   },
-  spacer: {
-    marginBottom: 30,
+  actions: {
+    flex: 0,
+    flexDirection: 'row',
+    display: 'flex',
   },
   actionText: {
     ...fonts.regular,
@@ -47,14 +52,22 @@ const stylesCreator = ({colors, fonts}) => ({
 export default class PropertyListInput extends Component {
 
   static defaultProps = {
-    title: '',
     value: [],
     template: (props) => ({
       name: 'hello',
       type: 'string',
       editWith: 'inputField',
       value: 'world',
-    })
+    }),
+    dividerType: 'none',
+  }
+
+  onKeyChange = (i, key, updated) => {
+    const {value} = this.props
+
+    this.onChange(i, update(value[i], {
+      [key]: {$set: updated}
+    }))
   }
 
   onChange = (i, prop) => {
@@ -79,41 +92,55 @@ export default class PropertyListInput extends Component {
   onRemove = (i) => {
     const {onChange, value} = this.props
 
-    const updated = update(value, {$splice: [[0, 1]]})
+    const updated = update(value, {$splice: [[i, 1]]})
 
     onChange(updated)
   }
 
+  getListActions = _.memoize(() => ({
+    add: this.onAdd,
+    change: this.onChange,
+  }))
+
+  getChildActions = _.memoize((i) => ({
+    remove: this.onRemove.bind(this, i),
+    changeKey: this.onKeyChange.bind(this, i),
+  }))
+
   renderPropertyList() {
-    const {styles, value} = this.props
-    const elements = []
+    const {styles, value, renderRow} = this.props
 
-    for (let i = 0; i < value.length; i++) {
-      const prop = value[i]
+    return value.map((prop, i) => {
+      const element = renderRow(prop, this.getChildActions(i), i)
 
-      i > 0 && elements.push(
-        <div style={styles.spacer} key={`spacer-${i}`} />
-      )
+      if (element.key) {
+        return element
+      } else {
+        // Key by index if the element doesn't have a key
+        return React.cloneElement(element, {key: i})
+      }
+    })
+  }
 
-      elements.push(
-        <Property
-          // Key by index, since name isn't guaranteed to be unique
-          key={i}
-          prop={prop}
-          onChange={this.onChange.bind(this, i)}
-          actions={(
-            <div
-              style={styles.actionText}
-              onClick={this.onRemove.bind(this, i)}
-            >
-              Remove
-            </div>
-          )}
-        />
-      )
+  renderActions() {
+    const {styles, renderActions} = this.props
+    const listActions = this.getListActions()
+
+    if (typeof renderActions === 'function') {
+      return renderActions(listActions)
+    } else if (typeof renderActions !== 'undefined' && !renderActions) {
+      return renderActions
     }
 
-    return elements
+    // Render default actions
+    return (
+      <div
+        style={styles.actionText}
+        onClick={listActions.add}
+      >
+        Add
+      </div>
+    )
   }
 
   render() {
@@ -122,15 +149,8 @@ export default class PropertyListInput extends Component {
     return (
       <PropertyField
         title={title}
-        dividerType={'none'}
-        actions={(
-          <div
-            style={styles.actionText}
-            onClick={this.onAdd}
-          >
-            Add Property
-          </div>
-        )}
+        dividerType={dividerType}
+        actions={this.renderActions()}
       >
         <div style={styles.content}>
           {this.renderPropertyList()}

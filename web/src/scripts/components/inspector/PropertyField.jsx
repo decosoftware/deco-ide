@@ -62,17 +62,29 @@ export default class PropertyField extends Component {
     }
   }
 
-  render() {
-    const {styles, children, title, actions} = this.props
+  renderHeader() {
+    const {styles, title, actions} = this.props
 
-    return (
-      <div style={styles.container}>
+    if (!title && !actions) {
+      return null
+    } else {
+      return (
         <div style={styles.header}>
           <div style={styles.headerText}>
-            {title.toUpperCase()}
+            {title && title.toUpperCase()}
           </div>
           {actions}
         </div>
+      )
+    }
+  }
+
+  render() {
+    const {styles, children} = this.props
+
+    return (
+      <div style={styles.container}>
+        {this.renderHeader()}
         <div style={styles.field}>
           {children}
         </div>

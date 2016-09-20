@@ -27,9 +27,11 @@ import { PaneHeader, PublishingSignIn, PublishingBrowser, PublishingMetadata } f
 const styles = {
   container: {
     display: 'flex',
-    flex: '1 0 auto',
+    flex: '1 1 auto',
     flexDirection: 'column',
     alignItems: 'stretch',
+    minWidth: 0,
+    minHeight: 0,
   },
   inner: {
     overflowY: 'auto',
