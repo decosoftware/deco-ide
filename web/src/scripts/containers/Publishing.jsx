@@ -22,7 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
 import { componentActions, userActions, publishingActions } from '../actions'
-import { PaneHeader, PublishingSignIn, PublishingBrowser } from '../components'
+import { PaneHeader, PublishingSignIn, PublishingBrowser, PublishingMetadata } from '../components'
 
 const styles = {
   container: {
@@ -120,7 +120,7 @@ class Publishing extends Component {
         />
         {signedIn ? (
           currentComponent ? (
-            <div // TODO should be PublishingMetadata, after cleanup
+            <PublishingMetadata
               user={user}
               component={currentComponent}
               width={width}

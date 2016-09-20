@@ -46,11 +46,13 @@ export default class PropertySelectInput extends Component {
   }
 
   render() {
-    const {styles, title, value, options, onChange} = this.props
+    const {styles, title, value, options, onChange, actions, dividerType} = this.props
 
     return (
       <PropertyField
         title={title}
+        actions={actions}
+        dividerType={dividerType}
       >
         <div style={styles.row}>
           <SelectInput
@@ -61,7 +63,6 @@ export default class PropertySelectInput extends Component {
             onChange={onChange}
           />
         </div>
-        <PropertyDivider />
       </PropertyField>
     )
   }

@@ -53,13 +53,14 @@ export default class Property extends Component {
   }
 
   render() {
-    const {styles, prop, onChange} = this.props
+    const {styles, prop, onChange, actions} = this.props
     const {name, value, type, editWith} = prop
 
     const inputProps = {
       value,
       title: name,
       onChange: this.onChange,
+      actions,
     }
 
     switch (type) {
