@@ -58,6 +58,7 @@ class LiveValueInspector extends Component {
   }
 
   handleLiveValueChange(id, value, updatedValue) {
+    const {decoDoc} = this.props
 
     // Prevent excessive changes
     if (value === updatedValue) {
@@ -65,7 +66,8 @@ class LiveValueInspector extends Component {
     }
 
     const code = toCode(updatedValue)
-    this.props.dispatch(setLiveValueCode(this.props.decoDoc.id, id, code))
+    const range = decoDoc.getDecoRange(id)
+    this.props.dispatch(setLiveValueCode(decoDoc.id, range, code))
   }
 
   handleLiveValueMetadataChange(id, metadata, fieldName, updatedValue) {

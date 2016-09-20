@@ -15,7 +15,7 @@
  *
  */
 
-import { getElementByPos } from '../utils/ElementTreeUtils'
+import * as ElementTreeUtils from '../utils/ElementTreeUtils'
 
 export const at = {
   SET_ELEMENT_TREE: 'SET_ELEMENT_TREE',
@@ -30,15 +30,27 @@ export const setElementTree = (filename, elementTree) => async (dispatch) => {
 export const selectElementFromPos = (filename, pos) => async (dispatch, getState) => {
   const elementTree = getState().elementTree.elementTreeForFile[filename]
 
-
   if (elementTree) {
-    const element = getElementByPos(elementTree, pos, 'inclusive')
+    const element = ElementTreeUtils.getElementByPos(elementTree, pos, 'inclusive')
 
     if (element) {
       const {elementPath} = element
 
       dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath}})
     }
+  }
+}
+
+export const updateProp = (filename, element, prop, value, text) => async (dispatch, getState) => {
+  const elementTree = getState().elementTree.elementTreeForFile[filename]
+
+  if (elementTree) {
+    const {elementPath} = element
+
+    // Manually update the elementTree so it doesn't get out of sync with the inspector
+    const newTree = ElementTreeUtils.deepUpdateProp(elementTree, elementPath, prop.name, value, text)
+
+    return dispatch(setElementTree(filename, newTree))
   }
 }
 

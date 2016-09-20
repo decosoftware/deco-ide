@@ -38,7 +38,7 @@ class ASTMiddleware extends Middleware {
 
     this.keyMap = {
       [EventTypes.changes]: this.changes,
-      [EventTypes.swapDoc]: this.changes,
+      [EventTypes.swapDoc]: this.swapDoc,
       [EventTypes.cursorActivity]: this.cursorActivity,
     }
   }
@@ -60,7 +60,20 @@ class ASTMiddleware extends Middleware {
     }
   }
 
-  changes = async (cm) => {
+  changes = (cm, changes) => {
+    const origin = changes[changes.length - 1].origin
+
+    // Don't rebuild the elementTree when changing a prop - we do this manually.
+    if (origin !== '+decoProp') {
+      this.analyze(cm, changes)
+    }
+  }
+
+  swapDoc = (cm) => {
+    this.analyze(cm)
+  }
+
+  analyze = async (cm) => {
     if (!this.enabled) return
 
     const {decoDoc, decoDoc: {id: filename}} = this

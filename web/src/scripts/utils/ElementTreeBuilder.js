@@ -223,7 +223,6 @@ export default class {
       }
     })
 
-
     return root
   }
 
