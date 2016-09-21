@@ -26,21 +26,30 @@ const http = new HTTPClient(BASE)
 const defaultComponent = {
   "name": "Untitled",
   "publisher": "dabbott",
-  "schemaVersion": "0.0.3",
+  "schemaVersion": "0.1.0",
   "tags": [],
   "thumbnail": "https://placehold.it/100/100",
   "description": "A React Native component",
   "packageName": "react-native-untitled",
   "tagName": "UntitledComponent",
   "props": [],
-  "imports": {
-    "react-native": [
-      "View"
-    ],
-  },
-  "dependencies": {
-    "react-native": "*"
-  },
+  "imports": [
+    {
+      name: 'react-native',
+      members: [
+        {name: 'default', alias: 'ReactNative'},
+        {name: '*', alias: 'Everything'},
+        {name: 'View'},
+        {name: 'Image'},
+      ],
+    },
+  ],
+  "dependencies": [
+    {
+      name: 'left-pad',
+      version: '*',
+    },
+  ],
 }
 
 export default class {

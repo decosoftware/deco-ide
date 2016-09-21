@@ -17,32 +17,44 @@
 
 import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
+import CheckboxInput from './CheckboxInput'
+import ColorInput from './ColorInput'
+import NumberInput from './NumberInput'
+import SelectInput from './SelectInput'
+import SliderInput from './SliderInput'
+import StringInput from './StringInput'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 import { EDIT_WITH, DROPDOWN_OPTIONS } from '../../constants/LiveValueConstants'
-import PropertyCheckboxInput from './PropertyCheckboxInput'
-import PropertyStringInput from './PropertyStringInput'
-import PropertyNumberInput from './PropertyNumberInput'
-import PropertySelectInput from './PropertySelectInput'
-import PropertyColorInput from './PropertyColorInput'
 
-const stylesCreator = () => ({})
+const stylesCreator = () => ({
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    display: 'flex',
+    height: 30,
+  },
+})
 
 @StylesEnhancer(stylesCreator)
-export default class Property extends Component {
+@pureRender
+export default class PropertyNumberInput extends Component {
+
+  static propTypes = {
+    value: React.PropTypes.any,
+    type: React.PropTypes.string.isRequired,
+    editWith: React.PropTypes.string,
+    onChange: React.PropTypes.func,
+    dropdownOptions: React.PropTypes.array,
+  }
 
   static defaultProps = {
-    prop: {},
     onChange: () => {},
-    onValueChange: () => {}
   }
 
-  onChange = (value) => {
-    const {prop, onChange, onValueChange} = this.props
-
-    onValueChange(value)
-    onChange({...prop, value})
-  }
+  onChange = (value) => this.props.onChange(value)
 
   getDropdownOptions(dropdownOptions) {
     if (typeof dropdownOptions === 'string') {
@@ -52,16 +64,9 @@ export default class Property extends Component {
     }
   }
 
-  render() {
-    const {styles, prop, onChange, actions} = this.props
-    const {name, value, type, editWith} = prop
-
-    const inputProps = {
-      value,
-      title: name,
-      onChange: this.onChange,
-      actions,
-    }
+  renderInput() {
+    const {value, type, editWith, dropdownOptions} = this.props
+    const inputProps = {value, onChange: this.onChange}
 
     switch (type) {
 
@@ -70,15 +75,15 @@ export default class Property extends Component {
 
           case EDIT_WITH.COLOR_PICKER: {
             return (
-              <PropertyColorInput {...inputProps} />
+              <ColorInput {...inputProps} />
             )
           }
 
           case EDIT_WITH.DROPDOWN: {
             return (
-              <PropertySelectInput
+              <SelectInput
                 {...inputProps}
-                options={this.getDropdownOptions(prop.dropdownOptions)}
+                options={this.getDropdownOptions(dropdownOptions)}
                 showValueAsOption={true}
               />
             )
@@ -87,7 +92,7 @@ export default class Property extends Component {
           case EDIT_WITH.INPUT_FIELD: // Fallthrough
           default: {
             return (
-              <PropertyStringInput {...inputProps} />
+              <StringInput {...inputProps} />
             )
           }
         }
@@ -95,13 +100,13 @@ export default class Property extends Component {
 
       case PrimitiveTypes.NUMBER: {
         return (
-          <PropertyNumberInput {...inputProps} />
+          <NumberInput {...inputProps} />
         )
       }
 
       case PrimitiveTypes.BOOLEAN: {
         return (
-          <PropertyCheckboxInput {...inputProps} />
+          <CheckboxInput {...inputProps} />
         )
       }
 
@@ -109,5 +114,15 @@ export default class Property extends Component {
         return null
       }
     }
+  }
+
+  render() {
+    const {styles} = this.props
+
+    return (
+      <div style={styles.row}>
+        {this.renderInput()}
+      </div>
+    )
   }
 }

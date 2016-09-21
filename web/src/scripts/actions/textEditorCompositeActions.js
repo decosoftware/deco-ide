@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash'
+import semver from 'semver'
 
 import request from '../ipc/Request'
 import DecoChangeFactory from '../factories/editor/DecoChangeFactory'
@@ -196,11 +197,45 @@ export const addDecoRangeFromCMToken = (id, cmToken) => {
   }
 }
 
-export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName) => (dispatch, getState) => {
+const insertImports = (decoDoc, imports, schemaVersion) => async (dispatch) => {
+
+  // Add each import separately, as each import will change the line numbers of
+  // subsequent imports. History events are merged based on timestamp, so they
+  // will still become one event.
+  if (
+    semver.valid(schemaVersion) &&
+    semver.satisfies(schemaVersion, '0.1.0')
+  ) {
+    imports.forEach(({name, members}) => {
+      const defaultMember = members.find(x => x.name === 'default')
+      const regularMembers = members.filter(x => x.name !== '*' && x.name !== 'default')
+
+      // This only handles the older cases of:
+      // - default import
+      // - multiple member imports
+      // TODO Use jscodeshift to handle all cases
+      if (defaultMember) {
+        const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, defaultMember.alias)
+        dispatch(edit(decoDoc.id, change))
+      } else if (regularMembers.length > 0) {
+        const memberNames = regularMembers.map(member => member.name)
+        const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, memberNames)
+        dispatch(edit(decoDoc.id, change))
+      }
+    })
+  // schemaVersion <= 0.1.0
+  } else {
+    _.each(imports, (importValue, importKey) => {
+      const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, importKey, importValue)
+      dispatch(edit(decoDoc.id, change))
+    })
+  }
+}
+
+export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName, schemaVersion) => async (dispatch, getState) => {
 
   let liveValues = metadata.liveValues || []
 
-  // TODO: Add groups better
   if (groupName) {
     liveValues = LiveValueGroupUtils.setLiveValueGroupsFromImportName(
       liveValues,
@@ -212,7 +247,9 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName)
 
   const {decoRanges, liveValuesById} = LiveValueUtils.normalizeLiveValueMetadata(liveValues)
 
-  dispatch(liveValueActions.importLiveValues(decoDoc.id, liveValuesById))
+  if (decoRanges.length > 0) {
+    dispatch(liveValueActions.importLiveValues(decoDoc.id, liveValuesById))
+  }
 
   const insertChange = DecoComponentUtils.createChangeToInsertTemplate(
     decoDoc,
@@ -221,16 +258,5 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName)
   )
 
   dispatch(edit(decoDoc.id, insertChange))
-
-  // Add each import separately, as each import will change the line numbers of
-  // subsequent imports. History events are merged based on timestamp, so they
-  // will still become one event.
-  _.each(imports, (importValue, importKey) => {
-    const importChange = DecoComponentUtils.createChangeToInsertImport(
-      decoDoc,
-      importKey,
-      importValue
-    )
-    dispatch(edit(decoDoc.id, importChange))
-  })
+  dispatch(insertImports(decoDoc, imports, schemaVersion))
 }

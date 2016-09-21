@@ -44,7 +44,7 @@
     "react-styles-provider": "^0.2.1",
     "react-toggle-button": "^2.1.0",
     "react-virtualized": "7.12.1",
-    "react-workspace": "^0.1.1",
+    "react-workspace": "^0.2.0",
     "redux": "^3.3.1",
     "redux-batched-subscribe": "dabbott/redux-batched-subscribe#batchActions-built",
     "redux-thunk": "^1.0.3",

@@ -19,8 +19,8 @@ const Clipboard = Electron.clipboard
 import CodeMirror from 'codemirror'
 import _ from 'lodash'
 
-import { importLiveValues } from '../../actions/liveValueActions'
-import { edit } from '../../actions/editorActions'
+import * as liveValueActions from '../../actions/liveValueActions'
+import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 
 import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
@@ -137,8 +137,8 @@ class ClipboardMiddleware extends Middleware {
         DecoChangeFactory.createChangeToAddDecoRanges(shiftedDecoRanges),
       ])
 
-      this.dispatch(importLiveValues(this._decoDoc.id, liveValuesById))
-      this.dispatch(edit(this._decoDoc.id, decoChange))
+      this.dispatch(liveValueActions.importLiveValues(this._decoDoc.id, liveValuesById))
+      this.dispatch(textEditorCompositeActions.edit(this._decoDoc.id, decoChange))
     }
 
     // Unpack custom deco json

@@ -31,6 +31,7 @@ export ProgressBar from './display/ProgressBar'
 
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'
+export CodeMirrorComponent from './editor/CodeMirrorComponent'
 export EditorDropTarget from './editor/EditorDropTarget'
 export EditorToast from './editor/EditorToast'
 
@@ -77,8 +78,9 @@ export SearchMenu from './menu/SearchMenu'
 export NamingBanner from './modal/NamingBanner'
 
 // Publishing
-export PublishingSignIn from './publishing/PublishingSignIn'
 export PublishingBrowser from './publishing/PublishingBrowser'
+export PublishingMetadata from './publishing/PublishingMetadata'
+export PublishingSignIn from './publishing/PublishingSignIn'
 
 // User
 export UserDetailsBanner from './user/UserDetailsBanner'

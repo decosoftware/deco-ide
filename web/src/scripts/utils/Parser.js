@@ -79,3 +79,32 @@ export const guessValueName = (text) => {
   const match = text.match(/(\w+)\s*[=:]\s*\{?\s*$/)
   return match ? match[1] : null
 }
+
+export const castType = (value, oldType, newType) => {
+  try {
+    switch (newType) {
+      case PrimitiveTypes.BOOLEAN: return !!value
+      case PrimitiveTypes.NUMBER: {
+        const parsed = parseFloat(value)
+        return isNaN(parsed) ? 0 : parsed
+      }
+      case PrimitiveTypes.STRING: return value.toString()
+      case PrimitiveTypes.OBJECT: return []
+      case PrimitiveTypes.ARRAY: return []
+      case PrimitiveTypes.FUNCTION: return value.toString()
+      case PrimitiveTypes.RAW: return value.toString()
+    }
+  } catch (e) {
+    switch (newType) {
+      case PrimitiveTypes.BOOLEAN: return false
+      case PrimitiveTypes.NUMBER: return 0
+      case PrimitiveTypes.STRING: return ''
+      case PrimitiveTypes.OBJECT: return []
+      case PrimitiveTypes.ARRAY: return []
+      case PrimitiveTypes.FUNCTION: return '() => {}'
+      case PrimitiveTypes.RAW: return ''
+    }
+  }
+
+  return null
+}
