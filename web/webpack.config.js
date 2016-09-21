@@ -6,6 +6,8 @@ var alias = {
   // react end up with the same instance of it.
   react: path.join(__dirname, 'node_modules/react'),
   shared: path.join(__dirname, '../shared/src'),
+  yops: path.join(__dirname, 'node_modules/yops'),
+  'react-dnd': path.join(__dirname, 'node_modules/react-dnd')
 };
 
 // Framer components can require other Framer components.
