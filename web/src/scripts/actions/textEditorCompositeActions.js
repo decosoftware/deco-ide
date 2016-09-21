@@ -145,28 +145,18 @@ export const redo = (id) => (dispatch, getState) => {
   }
 }
 
-export const setTextForDecoRange = (fileId, decoRangeId, text) => {
-  return (dispatch, getState) => {
-    const state = getState()
-    const cache = state.editor.docCache
-    const decoDoc = getCachedDecoDoc(cache, fileId)
+export const setTextForRange = (id, text, range) => (dispatch, getState) => {
+  const {editor: {docCache}, preferences} = getState()
+  const decoDoc = getCachedDecoDoc(docCache, id)
+  const decoChange = DecoChangeFactory.createChangeFromRange(decoDoc, range, text, '+decoProp')
 
-    const decoRange = decoDoc.getDecoRange(decoRangeId)
-    const originalCode = decoDoc.getCodeForDecoRange(decoRangeId)
+  dispatch(edit(id, decoChange))
 
-    const decoChange = DecoChangeFactory.createChangeToSetText(
-      decoRange.from,
-      decoRange.to,
-      text,
-      originalCode
-    )
-
-    dispatch(edit(fileId, decoChange))
-
-    if (state.preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.AUTOSAVE] &&
-        state.preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.PROPERTY_CHANGE]) {
-      dispatch(applicationActions.saveLive())
-    }
+  if (
+    preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.AUTOSAVE] &&
+    preferences[CATEGORIES.SAVING][PREFERENCES.SAVING.PROPERTY_CHANGE]
+  ) {
+    dispatch(applicationActions.saveLive())
   }
 }
 

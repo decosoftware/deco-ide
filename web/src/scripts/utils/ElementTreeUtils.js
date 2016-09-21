@@ -16,7 +16,63 @@
  */
 
 import _ from 'lodash'
+import t from 't'
 import N from './simpleCodeMirrorPosition'
+
+// Update the positions in the elementTree by `offset`, starting at `from`
+export const offsetTreePositions = (tree, from, offset) => {
+
+  // Update anything that looks like a position
+  const isPosition = (value) => _.isObject(value) && value.ch && value.line
+
+  const updatePosition = (position) => {
+
+    // If this position is after the change
+    // TODO offset contains multiple lines
+    if (position.line === from.line && position.ch > from.ch) {
+      position.ch += offset.ch
+    }
+  }
+
+  t.bfs(tree, (node) => {
+
+    // Update the element
+    _.each(node, (value, key) => {
+      if (isPosition(value)) {
+        updatePosition(value)
+      }
+    })
+
+    // Update all props
+    _.each(node.props, (prop) => {
+      _.each(prop, (value, key) => {
+        if (isPosition(value)) {
+          updatePosition(value)
+        }
+      })
+    })
+  })
+}
+
+export const deepUpdateProp = (tree, elementPath, propName, value, text) => {
+  const newTree = _.cloneDeep(tree)
+  const element = getElementByPath(newTree, elementPath)
+
+  const {props = []} = element
+  const prop = props.find(x => x.name === propName)
+
+  const oldLength = prop.valueEnd.ch - prop.valueStart.ch
+  const newLength = text.length
+
+  // Update the prop's value
+  prop.value = value
+
+  if (newLength !== oldLength) {
+    offsetTreePositions(newTree, prop.valueStart, {ch: newLength - oldLength})
+  }
+
+  return newTree
+}
 
 export const insertInTree = (element, parent, elementPath = '') => {
   const {start, end} = element
