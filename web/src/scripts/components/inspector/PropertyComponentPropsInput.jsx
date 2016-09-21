@@ -20,12 +20,15 @@ import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 import update from 'react-addons-update'
 
+import PropertySelectInput from './PropertySelectInput'
 import PropertyField from './PropertyField'
 import PropertyDivider from './PropertyDivider'
 import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
+import DropdownMenuButton from '../buttons/DropdownMenuButton'
+import { OPTIONS } from '../../constants/PrimitiveTypes'
 
 const stylesCreator = ({colors, fonts}) => ({
   row: {
@@ -44,6 +47,16 @@ const stylesCreator = ({colors, fonts}) => ({
   actionSpacer: {
     marginRight: 15,
   },
+  dropdownMenu: {
+    padding: 0,
+  },
+  dropdownMenuInner: {
+    width: 180,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    padding: 15,
+  },
 })
 
 @StylesEnhancer(stylesCreator)
@@ -61,16 +74,41 @@ export default class PropertyComponentPropsInput extends Component {
     })
   }
 
-  renderActions(actions) {
+  renderSettingsDropdown = (prop, actions) => {
+    const {styles} = this.props
+    const {type} = prop
+
+    return (
+      <div style={styles.dropdownMenuInner}>
+        <PropertySelectInput
+          title={'Type'}
+          value={type}
+          onChange={actions.changeKey.bind(this, 'type')}
+          options={OPTIONS}
+          showValueAsOption={false}
+          dividerType={'vibrant'}
+        />
+      </div>
+    )
+  }
+
+  renderActions(prop, actions) {
     const {styles} = this.props
 
     return (
       <div style={styles.actions}>
-        <div
-          style={styles.actionText}
+        <DropdownMenuButton
+          renderContent={this.renderSettingsDropdown.bind(this, prop, actions)}
+          captureBackground={true}
+          menuStyle={styles.dropdownMenu}
+          hideOnClick={false}
         >
-          Settings
-        </div>
+          <div
+            style={styles.actionText}
+          >
+            Settings
+          </div>
+        </DropdownMenuButton>
         <div style={styles.actionSpacer} />
         <div
           style={styles.actionText}
@@ -100,7 +138,7 @@ export default class PropertyComponentPropsInput extends Component {
           editWith={editWith}
           onChange={actions.changeKey.bind(this, 'value')}
         />
-        {this.renderActions(actions)}
+        {this.renderActions(prop, actions)}
       </div>
     )
   }

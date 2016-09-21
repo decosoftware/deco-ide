@@ -43,10 +43,11 @@ export default class PropertySelectInput extends Component {
     title: '',
     value: '',
     options: [],
+    showValueAsOption: true,
   }
 
   render() {
-    const {styles, title, value, options, onChange, actions, dividerType} = this.props
+    const {styles, title, value, options, showValueAsOption, onChange, actions, dividerType} = this.props
 
     return (
       <PropertyField
@@ -59,7 +60,7 @@ export default class PropertySelectInput extends Component {
             value={value}
             width={'100%'}
             options={options}
-            showValueAsOption={true}
+            showValueAsOption={showValueAsOption}
             onChange={onChange}
           />
         </div>

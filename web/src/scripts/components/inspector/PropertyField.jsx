@@ -55,8 +55,8 @@ export default class PropertyField extends Component {
   renderDivider() {
     const {dividerType} = this.props
 
-    if (dividerType === 'regular') {
-      return <PropertyDivider />
+    if (dividerType !== 'none') {
+      return <PropertyDivider type={dividerType} />
     } else {
       return null
     }
