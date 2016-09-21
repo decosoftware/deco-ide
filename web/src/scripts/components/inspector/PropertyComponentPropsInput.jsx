@@ -28,6 +28,7 @@ import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
+import * as Parser from '../../utils/Parser'
 import { OPTIONS } from '../../constants/PrimitiveTypes'
 
 const stylesCreator = ({colors, fonts}) => ({
@@ -74,6 +75,15 @@ export default class PropertyComponentPropsInput extends Component {
     })
   }
 
+  changePropType = (prop, actions, newType) => {
+    const {type: oldType, value} = prop
+
+    actions.change(update(prop, {
+      type: {$set: newType},
+      value: {$set: Parser.castType(value, oldType, newType)},
+    }))
+  }
+
   renderSettingsDropdown = (prop, actions) => {
     const {styles} = this.props
     const {type} = prop
@@ -83,7 +93,7 @@ export default class PropertyComponentPropsInput extends Component {
         <PropertySelectInput
           title={'Type'}
           value={type}
-          onChange={actions.changeKey.bind(this, 'type')}
+          onChange={this.changePropType.bind(this, prop, actions)}
           options={OPTIONS}
           showValueAsOption={false}
           dividerType={'vibrant'}

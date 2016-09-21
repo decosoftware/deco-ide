@@ -27,7 +27,6 @@ import SliderInput from './SliderInput'
 import StringInput from './StringInput'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 import { EDIT_WITH, DROPDOWN_OPTIONS } from '../../constants/LiveValueConstants'
-import * as Parser from '../../utils/Parser'
 
 const stylesCreator = () => ({
   row: {
@@ -40,6 +39,7 @@ const stylesCreator = () => ({
 })
 
 @StylesEnhancer(stylesCreator)
+@pureRender
 export default class PropertyNumberInput extends Component {
 
   static propTypes = {
@@ -54,15 +54,6 @@ export default class PropertyNumberInput extends Component {
     onChange: () => {},
   }
 
-  constructor(props) {
-    super()
-
-    this.state = {
-      value: props.value,
-      typeChangePending: false,
-    }
-  }
-
   onChange = (value) => this.props.onChange(value)
 
   getDropdownOptions(dropdownOptions) {
@@ -73,32 +64,8 @@ export default class PropertyNumberInput extends Component {
     }
   }
 
-  componentWillReceiveProps(prevProps) {
-    const {type: oldType, value: oldValue} = this.props
-    const {type: newType, value: newValue} = prevProps
-    const {value: oldInternalValue} = this.state
-
-    // Type changed, so cast the value to its new type
-    if (oldType !== newType) {
-      const newInternalValue = Parser.castType(oldInternalValue, oldType, newType)
-      this.setState({typeChangePending: true})
-      this.props.onChange(newInternalValue)
-    } else if (oldInternalValue !== newValue) {
-      this.setState({value: newValue, typeChangePending: false})
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.typeChangePending) {
-      return false
-    }
-
-    return true
-  }
-
   renderInput() {
-    const {type, editWith, dropdownOptions} = this.props
-    const {value} = this.state
+    const {value, type, editWith, dropdownOptions} = this.props
     const inputProps = {value, onChange: this.onChange}
 
     switch (type) {

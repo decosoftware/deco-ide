@@ -99,11 +99,11 @@ export default class PropertyListInput extends Component {
 
   getListActions = _.memoize(() => ({
     add: this.onAdd,
-    change: this.onChange,
   }))
 
   getChildActions = _.memoize((i) => ({
     remove: this.onRemove.bind(this, i),
+    change: this.onChange.bind(this, i),
     changeKey: this.onKeyChange.bind(this, i),
   }))
 
