@@ -19,6 +19,8 @@ import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
+import PropertyDivider from './PropertyDivider'
+
 const stylesCreator = ({fonts}) => ({
   container: {
     flex: 0,
@@ -28,6 +30,7 @@ const stylesCreator = ({fonts}) => ({
   header: {
     flex: 1,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     display: 'flex',
   },
   headerText: {
@@ -46,21 +49,46 @@ export default class PropertyField extends Component {
 
   static defaultProps = {
     title: '',
+    dividerType: 'regular',
+  }
+
+  renderDivider() {
+    const {dividerType} = this.props
+
+    if (dividerType === 'regular') {
+      return <PropertyDivider />
+    } else {
+      return null
+    }
+  }
+
+  renderHeader() {
+    const {styles, title, actions} = this.props
+
+    if (!title && !actions) {
+      return null
+    } else {
+      return (
+        <div style={styles.header}>
+          <div style={styles.headerText}>
+            {title && title.toUpperCase()}
+          </div>
+          {actions}
+        </div>
+      )
+    }
   }
 
   render() {
-    const {styles, children, title} = this.props
+    const {styles, children} = this.props
 
     return (
       <div style={styles.container}>
-        <div style={styles.header}>
-          <div style={styles.headerText}>
-            {title.toUpperCase()}
-          </div>
-        </div>
+        {this.renderHeader()}
         <div style={styles.field}>
           {children}
         </div>
+        {this.renderDivider()}
       </div>
     )
   }

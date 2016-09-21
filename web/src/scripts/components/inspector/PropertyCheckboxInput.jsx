@@ -39,11 +39,13 @@ export default class PropertyCheckboxInput extends Component {
   }
 
   render() {
-    const {styles, title, value, onChange} = this.props
+    const {styles, title, value, onChange, actions, dividerType} = this.props
 
     return (
       <PropertyField
         title={title}
+        actions={actions}
+        dividerType={dividerType}
       >
         <div style={styles.checkbox}>
           <CheckboxInput
@@ -51,7 +53,6 @@ export default class PropertyCheckboxInput extends Component {
             onChange={onChange}
           />
         </div>
-        <PropertyDivider />
       </PropertyField>
     )
   }

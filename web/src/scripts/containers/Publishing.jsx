@@ -22,14 +22,16 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
 import { componentActions, userActions, publishingActions } from '../actions'
-import { PaneHeader, PublishingSignIn, PublishingBrowser } from '../components'
+import { PaneHeader, PublishingSignIn, PublishingBrowser, PublishingMetadata } from '../components'
 
 const styles = {
   container: {
     display: 'flex',
-    flex: '1 0 auto',
+    flex: '1 1 auto',
     flexDirection: 'column',
     alignItems: 'stretch',
+    minWidth: 0,
+    minHeight: 0,
   },
   inner: {
     overflowY: 'auto',
@@ -120,7 +122,7 @@ class Publishing extends Component {
         />
         {signedIn ? (
           currentComponent ? (
-            <div // TODO should be PublishingMetadata, after cleanup
+            <PublishingMetadata
               user={user}
               component={currentComponent}
               width={width}
