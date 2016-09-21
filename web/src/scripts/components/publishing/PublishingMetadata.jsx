@@ -26,7 +26,7 @@ import PropertyStringInput from '../inspector/PropertyStringInput'
 import PropertyComponentPropsInput from '../inspector/PropertyComponentPropsInput'
 import PropertyDependenciesInput from '../inspector/PropertyDependenciesInput'
 import PropertyImportsInput from '../inspector/PropertyImportsInput'
-import ComponentCodePreview from '../inspector/ComponentCodePreview'
+import ComponentCodePreview from '../../containers/ComponentCodePreview'
 
 const stylesCreator = ({colors}) => ({
   container: {
@@ -83,7 +83,6 @@ export default class extends Component {
   }
 
   save(component) {
-    console.log('updating', component)
     const {onUpdateComponent} = this.props
 
     this.setState({component})

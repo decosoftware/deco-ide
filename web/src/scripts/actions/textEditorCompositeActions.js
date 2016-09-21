@@ -208,6 +208,10 @@ export const addDecoRangeFromCMToken = (id, cmToken) => {
 }
 
 const insertImports = (decoDoc, imports, schemaVersion) => async (dispatch) => {
+
+  // Add each import separately, as each import will change the line numbers of
+  // subsequent imports. History events are merged based on timestamp, so they
+  // will still become one event.
   if (
     semver.valid(schemaVersion) &&
     semver.satisfies(schemaVersion, '0.1.0')
@@ -220,21 +224,17 @@ const insertImports = (decoDoc, imports, schemaVersion) => async (dispatch) => {
       // - default import
       // - multiple member imports
       // TODO Use jscodeshift to handle all cases
-      let change
       if (defaultMember) {
-        change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, defaultMember.alias)
+        const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, defaultMember.alias)
+        dispatch(edit(decoDoc.id, change))
       } else if (regularMembers.length > 0) {
         const memberNames = regularMembers.map(member => member.name)
-        change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, memberNames)
+        const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, name, memberNames)
+        dispatch(edit(decoDoc.id, change))
       }
-
-      dispatch(edit(decoDoc.id, change))
     })
+  // schemaVersion <= 0.0.3
   } else {
-
-    // Add each import separately, as each import will change the line numbers of
-    // subsequent imports. History events are merged based on timestamp, so they
-    // will still become one event.
     _.each(imports, (importValue, importKey) => {
       const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, importKey, importValue)
       dispatch(edit(decoDoc.id, change))

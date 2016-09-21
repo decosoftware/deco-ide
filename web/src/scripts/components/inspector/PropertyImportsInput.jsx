@@ -39,7 +39,6 @@ const stylesCreator = ({colors, fonts}) => ({
     height: 30,
   },
   actions: {
-    // flex: 0,
     flexDirection: 'row',
     display: 'flex',
   },

@@ -17,12 +17,15 @@
 
 import _ from 'lodash'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 import CodeMirror from 'codemirror'
 
-import * as TemplateFactory from '../../factories/module/TemplateFactory'
-import CodeMirrorComponent from '../editor/CodeMirrorComponent'
+import * as TemplateFactory from '../factories/module/TemplateFactory'
+import * as selectors from '../selectors'
+import { CodeMirrorComponent } from '../components'
 
 const stylesCreator = ({colors}) => ({
   container: {
@@ -45,17 +48,21 @@ const stylesCreator = ({colors}) => ({
   }
 })
 
+const mapStateToProps = (state) => createSelector(
+  selectors.editorOptions,
+  (editorOptions) => ({
+    editorOptions: {
+      ...editorOptions,
+      readOnly: 'nocursor',
+      lineNumbers: false,
+      styleActiveLine: false,
+    },
+  })
+)
+
 @StylesEnhancer(stylesCreator)
 @pureRender
-export default class ComponentCodePreview extends Component {
-
-  editorOptions = {
-    readOnly: 'nocursor',
-    lineNumbers: false,
-    showInvisibles: false,
-    showIndentGuides: false,
-    styleActiveLine: false,
-  }
+class ComponentCodePreview extends Component {
 
   constructor() {
     super()
@@ -93,16 +100,18 @@ export default class ComponentCodePreview extends Component {
   }
 
   render() {
-    const {styles} = this.props
+    const {styles, editorOptions} = this.props
 
     return (
       <div style={styles.container}>
         <CodeMirrorComponent
           style={styles.editor}
           doc={this.doc}
-          options={this.editorOptions}
+          options={editorOptions}
         />
       </div>
     )
   }
 }
+
+export default connect(mapStateToProps)(ComponentCodePreview)

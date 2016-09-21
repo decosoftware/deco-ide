@@ -31,6 +31,7 @@ export ProgressBar from './display/ProgressBar'
 
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'
+export CodeMirrorComponent from './editor/CodeMirrorComponent'
 export EditorDropTarget from './editor/EditorDropTarget'
 export EditorToast from './editor/EditorToast'
 
