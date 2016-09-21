@@ -44,6 +44,7 @@
     "file-tree-server-transport-electron": "0.0.1",
     "fs-extra": "^0.30.0",
     "fs-plus": "^2.8.1",
+    "jscodeshift": "^0.3.28",
     "json-loader": "^0.5.4",
     "jsonfile": "^2.2.3",
     "lodash": "^4.0.0",

@@ -14,6 +14,10 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+import _ from 'lodash'
+
+import * as editorActions from '../actions/editorActions'
+import * as storyUtils from '../utils/storyboard'
 
 export const at = {
   ADD_SCENE: 'ADD_SCENE',
@@ -25,7 +29,31 @@ export const at = {
   OPEN_STORYBOARD: 'OPEN_STORYBOARD',
 }
 
-export const openStoryboard = (path) => async (dispatch) => {
+export const openStoryboard = (filepath) => async (dispatch, getState) => {
+  const storyboardDoc = getState().editor.docCache[filepath]
+  const storyboardCode = storyboardDoc.code
+  const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode)
+  const sceneInfo = storyUtils.getSceneInformationForStoryboardCode(storyboardCode)
+
+  //load in files from imports
+  await Promise.all(_.map(sceneImport, async (sceneImport, filepath) => {
+    await dispatch(editorActions.openDocument(filepath, { loadOnly:true }))
+  }))
+
+  //get scenes from storyboard code
+  const docCache = getState().editor.docCache
+
+  //get code from new files
+  //get connections for files
+  const sceneConnections = _.map(sceneImports, ({ sceneName, source }) => {
+    return {
+      connections: storyUtils.getConnectionsInCode(docCache[source].code),
+      sceneName,
+    }
+  })
+
+  // match source info to component layout info
+  // return storyboard object
   dispatch({type: at.OPEN_STORYBOARD})
 }
 

@@ -24,5 +24,11 @@ export default {
     return '' +
 `import { Navigational, Adapters, SceneManager } from 'deco-sdk'
 Navigational.registerAdapter(Adapters.${adapter})
+
+import Scene1 from './Scene1'
+
+SceneManager.registerScene(Scene1, 'Scene1')
+
+SceneManager.registerEntryScene('Scene1')
 ` }
 ,}

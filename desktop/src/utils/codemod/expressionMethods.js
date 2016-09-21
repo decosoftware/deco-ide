@@ -4,6 +4,13 @@ import _ from 'lodash'
 const getObject = (node) => _.get(node, 'expression.callee.object.name')
 const getProperty = (node) => _.get(node, 'expression.callee.property.name')
 const getArgs = (node) => _.get(node, 'expression.arguments')
+const getSourceLocation = (node) => {
+  const loc = _.get(node, 'expression.loc')
+  return {
+    start: loc.start,
+    end: loc.end,
+  }
+}
 const getSimilarity = (node, object, property, args = []) => {
   let sameArgs = args.length == 0
   args = args || []
@@ -145,12 +152,12 @@ export const removeFunctionCall = function(object, property, args) {
 /**
  * Gets a list of all function calls matching on 'object.property(..args)'
  * If args is undefined, it matches only on 'object.property'
- *
  * @param Same as addFunctionCall
  * @return {Array}  of type
  * [{
  * 	object: {String},
  * 	property: {String},
+ *  source: { start: { line, column }, end: { line, column }}
  * 	args: [{
  * 	  // Format for type MemberExpression
  * 		type: 'MemberExpression',
@@ -185,6 +192,7 @@ export const getAllMatchingFunctionCalls = function(object, property, args) {
       return {
         object: getObject(node),
         property: getProperty(node),
+        source: getSourceLocation(node),
         args: inversecreateArgumentNodes(getArgs(node)),
       }
     })

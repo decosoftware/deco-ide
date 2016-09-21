@@ -139,7 +139,7 @@ export const loadDoc = (payload) => async (dispatch, getState) => {
   }
 }
 
-export const openDocument = (filePath) => async (dispatch, getState) => {
+export const openDocument = (filePath, options = {}) => async (dispatch, getState) => {
   const {docCache} = getState().editor
 
   if (docCache[filePath]) {
@@ -149,7 +149,9 @@ export const openDocument = (filePath) => async (dispatch, getState) => {
 
     return Promise.all([
       dispatch(loadDoc(payload)),
-      dispatch(setCurrentDoc(filePath)),
+      (options.loadOnly ? Promise.resolve() : (
+        dispatch(setCurrentDoc(filePath))
+      )),
     ])
   }
 }

@@ -15,6 +15,10 @@ var alias = {
 // TODO: Move into gulpfile?
 
 module.exports = {
+  stats: {
+     // Configure the console output
+     errorDetails: true, //this does show errors
+  },
   entry: [
     "webpack-dev-server/client?http://0.0.0.0:8080",
     'webpack/hot/only-dev-server',
