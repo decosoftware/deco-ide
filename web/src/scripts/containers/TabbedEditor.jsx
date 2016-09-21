@@ -227,7 +227,8 @@ class TabbedEditor extends Component {
         text,
         metadata,
         item.imports,
-        _.get(item, 'inspector.group')
+        _.get(item, 'inspector.group'),
+        item.schemaVersion
       ))
     })
   }

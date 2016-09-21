@@ -16,6 +16,8 @@
  */
 
 import _ from 'lodash'
+import semver from 'semver'
+
 import request from '../ipc/Request'
 import { createJSX } from '../factories/module/TemplateFactory'
 import TemplateCache from '../persistence/TemplateCache'
@@ -60,9 +62,11 @@ export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, p
     importModule(depName, depVersion, path, registry)
   }
 
-  // Starting with schemaVersion 0.0.3, the template is generated.
-  // TODO: Figure out where this goes
-  if (mod.schemaVersion === '0.0.3') {
+  // Starting with schemaVersion 0.0.3, the JSX template is generated.
+  if (
+    semver.valid(mod.schemaVersion) &&
+    semver.satisfies(mod.schemaVersion, '>= 0.0.3')
+  ) {
     return Promise.resolve({text: createJSX(mod)})
   }
 
