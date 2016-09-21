@@ -17,6 +17,7 @@
 
 import * as tabActions from '../actions/tabActions'
 import * as editorActions from '../actions/editorActions'
+import * as storyboardActions from '../actions/storyboardActions'
 import FileTreeActions from '../filetree/actions'
 import TabUtils from '../utils/TabUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
@@ -33,6 +34,11 @@ export const openFile = (path) => async (dispatch, getState) => {
 
   FileTreeActions.selectFile(path)
   dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
+
+  //TODO: check if it's a storyboard, do some other sheezy
+  if (path.indexOf('.storyboard.js') != -1) {
+    dispatch(storyboardActions.openStoryboard(path))
+  }
 }
 
 export const closeTabWindow = (closeTabId) => async (dispatch, getState) => {

@@ -39,6 +39,7 @@ import * as uiActions from '../actions/uiActions'
 import * as applicationActions from '../actions/applicationActions'
 import * as textEditorCompositeActions from '../actions/textEditorCompositeActions'
 import * as compositeFileActions from '../actions/compositeFileActions'
+import Storyboard from './Storyboard'
 import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
@@ -274,6 +275,48 @@ class TabbedEditor extends Component {
     this.setState({showMenu: false})
   }
 
+  renderEditor = () => {
+    const {
+      styles,
+      focusedTabId,
+      options,
+      decoDoc,
+      liveValuesById,
+      publishingFeature,
+    } = this.props
+
+    return (
+      <EditorDropTarget
+        className={'flex-variable editor'}
+        ref={'editor'}
+        middleware={[
+          DragAndDropMiddleware(this.props.dispatch),
+          HistoryMiddleware(this.props.dispatch),
+          TokenMiddleware(this.props.dispatch),
+          ClipboardMiddleware(this.props.dispatch, liveValuesById),
+          AutocompleteMiddleware(this.props.dispatch, focusedTabId),
+          IndentGuideMiddleware(this.props.dispatch),
+          ASTMiddleware(this.props.dispatch, publishingFeature),
+        ]}
+        onImportItem={this.onImportItem}
+        options={options}
+        decoDoc={decoDoc}
+        style={styles.editor}
+      />
+    )
+  }
+
+  renderStoryboard = () => {
+    const { style } = this.props
+    const yopsStyle = {
+      width: '100%',
+      height: style.height,
+    }
+    return (
+      <Storyboard yopsStyle={yopsStyle}/>
+    )
+  }
+
   renderFlowInstallationToast() {
     const {styles} = this.props
 
@@ -348,6 +391,7 @@ class TabbedEditor extends Component {
       publishingFeature,
       progressBar,
       componentList,
+      storyboardOpen,
     } = this.props
 
     const {showMenu, menuPosition} = this.state
@@ -378,25 +422,9 @@ class TabbedEditor extends Component {
           </TabContainer>
           {this.renderToast()}
           <div style={styles.contentContainer}>
-            {decoDoc ? (
-              <EditorDropTarget
-                className={'flex-variable editor'}
-                ref={'editor'}
-                middleware={[
-                  DragAndDropMiddleware(this.props.dispatch),
-                  HistoryMiddleware(this.props.dispatch),
-                  TokenMiddleware(this.props.dispatch),
-                  ClipboardMiddleware(this.props.dispatch, liveValuesById),
-                  AutocompleteMiddleware(this.props.dispatch, focusedTabId),
-                  IndentGuideMiddleware(this.props.dispatch),
-                  ASTMiddleware(this.props.dispatch, publishingFeature),
-                ]}
-                onImportItem={this.onImportItem}
-                options={options}
-                decoDoc={decoDoc}
-                style={styles.editor}
-              />
-            ) : (
+            {decoDoc ? storyboardOpen ? (
+              this.renderStoryboard()
+            ) : (this.renderEditor()) : (
               <NoContent>
                 Welcome to Deco
                 <br />

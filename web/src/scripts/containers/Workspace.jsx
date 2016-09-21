@@ -35,7 +35,8 @@ import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
-import YOPS from 'yops';
+
+import YOPS from 'yops'
 
 const stylesCreator = (theme) => {
   const {colors} = theme
@@ -111,46 +112,8 @@ const mapDispatchToProps = (dispatch) => ({
   uiActions: bindActionCreators(uiActions, dispatch),
 })
 
-let newSceneCounter = 1
-
-class NewSceneButton extends Component {
-  static propTypes = {
-    onClick: PropTypes.func.isRequired,
-  }
-
-  render() {
-    const style = {
-      position: 'absolute',
-      background: 'black',
-      width: '30px',
-      height: '30px',
-      borderRadius: '25%',
-      top: '20px',
-      right: '20px',
-      zIndex: 1,
-      textAlign: 'center',
-      paddingTop: '3px',
-      color: 'white',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-    }
-
-    return (
-      <div style={style} onClick={this.props.onClick}>
-        +
-      </div>
-    )
-  }
-}
-
 class Workspace extends Component {
-
   state = {
-    scenes: {
-      'Fun': {id: 'Fun', name: 'FunName'},
-      // 'Bun': {id: 'Bun', name: 'BunName'},
-      // 'Sun': {id: 'Sun', name: 'SunName'},
-    },
     storyboardOpen: false,
   }
 
@@ -212,52 +175,16 @@ class Workspace extends Component {
     }
   }
 
-  createScene = () => {
-    const id = `NewScene${newSceneCounter}`
-    const name = `New Scene ${newSceneCounter}`
-    newSceneCounter++
-    const newScenes = {
-      ...this.state.scenes,
-      [id]: { id, name }
-    }
-    this.setState({scenes: newScenes})
-  }
-
-  handleDeleteScene = (id) => {
-    this.setState({
-      scenes: _.omit(this.state.scenes, id)
-    })
-  }
-
-  renderEditor = () => {
+  renderTabbedEditor = () => {
     const { decoDoc, styles } = this.props
+    const { storyboardOpen } = this.state
     return (
       <TabbedEditor
         key={'tabbed-editor'}
         style={styles.centerPane}
         decoDoc={decoDoc}
+        storyboardOpen={storyboardOpen}
       />
-    )
-  }
-
-  renderStoryboard = (yopsStyle) => {
-    const { styles } = this.props
-    const connections = {}
-    const syncServiceAddress = 'http://localhost:4082'
-    const onLayoutUpdate = () => {}
-
-    return (
-      <div style={styles.centerPane}>
-        <NewSceneButton onClick={this.createScene}/>
-        <YOPS
-          style={yopsStyle}
-          connections={connections}
-          scenes={this.state.scenes}
-          onDeleteScene={this.handleDeleteScene}
-          syncServiceAddress={syncServiceAddress}
-          onLayoutUpdate={onLayoutUpdate}
-        />
-      </div>
     )
   }
 
@@ -272,7 +199,6 @@ class Workspace extends Component {
     }
 
     const yopsStyle = {width: '100%', height: containerStyle.height}
-
     return (
       <div style={containerStyle}>
         <WorkspaceToolbar
@@ -292,11 +218,7 @@ class Workspace extends Component {
               />
             </div>
           )}
-          {
-            this.state.storyboardOpen ?
-              this.renderStoryboard(yopsStyle) :
-              this.renderEditor()
-          }
+          { this.renderTabbedEditor() }
           { this.renderInspector() }
         </div>
       </div>
