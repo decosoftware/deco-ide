@@ -233,7 +233,7 @@ const insertImports = (decoDoc, imports, schemaVersion) => async (dispatch) => {
         dispatch(edit(decoDoc.id, change))
       }
     })
-  // schemaVersion <= 0.0.3
+  // schemaVersion <= 0.1.0
   } else {
     _.each(imports, (importValue, importKey) => {
       const change = DecoComponentUtils.createChangeToInsertImport(decoDoc, importKey, importValue)

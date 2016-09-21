@@ -52,6 +52,21 @@ export const fetchTemplateMetadata = (url) => {
 
 export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, path, registry, mod) => {
 
+  // Starting with schemaVersion 0.1.0, the JSX template is generated.
+  if (
+    semver.valid(mod.schemaVersion) &&
+    semver.satisfies(mod.schemaVersion, '>= 0.1.0')
+  ) {
+
+    // TODO: multiple deps
+    if (deps.length > 0) {
+      const {name, version} = deps[0]
+      importModule(name, version, path, registry)
+    }
+
+    return Promise.resolve({text: createJSX(mod)})
+  }
+
   if (deps && ! _.isEmpty(deps) && path) {
 
     // TODO: multiple deps
@@ -60,14 +75,6 @@ export const fetchTemplateAndImportDependencies = (deps, textUrl, metadataUrl, p
 
     // TODO: consider waiting for npm install to finish
     importModule(depName, depVersion, path, registry)
-  }
-
-  // Starting with schemaVersion 0.0.3, the JSX template is generated.
-  if (
-    semver.valid(mod.schemaVersion) &&
-    semver.satisfies(mod.schemaVersion, '>= 0.0.3')
-  ) {
-    return Promise.resolve({text: createJSX(mod)})
   }
 
   const performFetch = () => {
