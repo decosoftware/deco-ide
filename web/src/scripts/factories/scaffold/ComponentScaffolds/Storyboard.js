@@ -20,8 +20,9 @@ import _ from 'lodash'
 export default {
   name: 'Storyboard',
   extname: '.storyboard.js',
-  generate: ({name}) => {
+  generate: ({name, adapter = "NavigatorIOSAdapter"}) => {
     return '' +
 `import { Navigational, Adapters, SceneManager } from 'deco-sdk'
-`
-}
+Navigational.registerAdapter(Adapters.${adapter})
+` }
+,}

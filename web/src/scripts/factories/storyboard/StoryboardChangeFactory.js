@@ -21,7 +21,7 @@ import DecoChangeFactory from '../editor/DecoChangeFactory'
 import CodeMod from '../utils/codemod'
 
 const createChange = (doc, mod) => (
-  DecoChangeFactory.createChangeToReplaceAllText(doc, mod.code)
+  DecoChangeFactory.createChangeToReplaceAllText(doc, mod.toSource())
 )
 
 class StoryboardChangeFactory {
@@ -54,12 +54,11 @@ class StoryboardChangeFactory {
     return createChange(doc, mod)
   }
 
-  static addEntryScene(doc, sceneName, projectName) {
+  static addEntryScene(doc, sceneName) {
     const mod = new CodeMod(doc.code).transform.addFunctionCall(
       'SceneManager',
-      'registerEntrySceneForProject',
+      'registerEntryScene',
       [
-        {type: 'Literal', value: projectName},
         {type: 'Literal', value: sceneName},
       ]
     )
@@ -69,17 +68,16 @@ class StoryboardChangeFactory {
   static removeEntryScene(doc, sceneName, projectName) {
     const mod = new CodeMod(doc.code).transform.removeFunctionCall(
       'SceneManager',
-      'registerEntrySceneForProject'
+      'registerEntryScene'
     )
     return createChange(doc, mod)
   }
 
-  static updateEntryScene(doc, sceneName, projectName) {
+  static updateEntryScene(doc, sceneName) {
     const mod = new CodeMod(doc.code).transform.updateFunctionCall(
       'SceneManager',
-      'registerEntrySceneForProject',
+      'registerEntryScene',
       [
-        {type: 'Literal', value: projectName},
         {type: 'Literal', value: sceneName},
       ]
     )

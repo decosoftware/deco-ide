@@ -4,8 +4,8 @@
   "version": "0.7.1",
   "author": "Deco Software <info@decosoftware.com>",
   "dependencies": {
-    "babel-core": "^6.14.0",
-    "babel-loader": "^6.2.5",
+    "babel-core": "^5.8.22",
+    "babel-loader": "^5.3.2",
     "babel-polyfill": "^6.5.0",
     "body-parser": "^1.13.3",
     "codemirror": "dabbott/CodeMirror#better-jsx-es6",
@@ -77,10 +77,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^5.0.0",
-    "babel-jest": "^15.0.0",
-    "babel-preset-latest": "^6.14.0",
-    "babel-preset-react": "^6.11.1",
-    "babel-preset-stage-0": "^6.5.0",
+    "babel-jest": "^15.0.0",    
     "del": "^2.1.0",
     "eslint": "^2.13.1",
     "eslint-plugin-react": "^3.16.1",

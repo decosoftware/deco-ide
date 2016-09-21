@@ -5,6 +5,7 @@ import memoize from 'fast-memoize'
 
 import NodeCaret from './NodeCaret'
 import PlusButtonWithDropdown from './PlusButtonWithDropdown'
+import PlayButton from './PlayButton'
 import styles, { getPaddedStyle } from './styles'
 import { StylesEnhancer } from 'react-styles-provider'
 
@@ -87,15 +88,30 @@ export default class Node extends Component {
 
   state = {
     menuVisible: false,
+    pinned: false,
   }
 
   renderButton() {
     const {node, scaffolds, createFileScaffold} = this.props
-    const {hover, menuVisible} = this.state
+    const {hover, menuVisible, pinned} = this.state
     const {type} = node
 
-    if (!(menuVisible || hover) || !isDirectory(type)) {
+    if (!(menuVisible || hover || pinned)) {
       return null
+    }
+
+
+    if (!isDirectory(type)) {
+      return (
+        <div style={styles.plusContainer}>
+          <PlayButton
+            node={node}
+            active={pinned}
+            onChange={(enabled) => {
+              this.setState({pinned: enabled})
+            }}/>
+        </div>
+      )
     }
 
     return (
