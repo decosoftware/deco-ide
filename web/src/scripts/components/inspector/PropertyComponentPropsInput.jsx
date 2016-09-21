@@ -29,13 +29,17 @@ import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
 import * as Parser from '../../utils/Parser'
-import { OPTIONS } from '../../constants/PrimitiveTypes'
+import PrimitiveTypes, { OPTIONS } from '../../constants/PrimitiveTypes'
 
 const stylesCreator = ({colors, fonts}) => ({
   row: {
     flexDirection: 'row',
     display: 'flex',
     alignItems: 'center',
+  },
+  column: {
+    flexDirection: 'column',
+    display: 'flex',
   },
   actions: {
     flex: 0,
@@ -102,8 +106,20 @@ export default class PropertyComponentPropsInput extends Component {
     )
   }
 
+  onAddSubProp = (subProps, onChangeSubProps) => {
+    const {template} = this.props
+
+    const subProp = template(subProps)
+    const updated = update(subProps, {$push: [subProp]})
+
+    onChangeSubProps(updated)
+  }
+
   renderActions(prop, actions) {
     const {styles} = this.props
+    const {type, value} = prop
+    const isObject = type === PrimitiveTypes.OBJECT
+    const onChangeSubProps = actions.changeKey.bind(this, 'value')
 
     return (
       <div style={styles.actions}>
@@ -126,6 +142,17 @@ export default class PropertyComponentPropsInput extends Component {
         >
           Remove
         </div>
+        {isObject && (
+          <div style={styles.actionSpacer} />
+        )}
+        {isObject && (
+          <div
+            style={styles.actionText}
+            onClick={this.onAddSubProp.bind(this, value, onChangeSubProps)}
+          >
+            Sub
+          </div>
+        )}
       </div>
     )
   }
@@ -133,6 +160,26 @@ export default class PropertyComponentPropsInput extends Component {
   renderRow = (prop, actions) => {
     const {styles} = this.props
     const {name, value, type, editWith} = prop
+
+    if (type === PrimitiveTypes.OBJECT) {
+      return (
+        <div style={styles.column}>
+          <div style={styles.row}>
+            <StringInput
+              value={name}
+              onChange={actions.changeKey.bind(this, 'name')}
+            />
+            {this.renderActions(prop, actions)}
+          </div>
+          <PropertyComponentPropsInput
+            title={null}
+            renderActions={null}
+            value={value}
+            onChange={actions.changeKey.bind(this, 'value')}
+          />
+        </div>
+      )
+    }
 
     return (
       <div style={styles.row}>
@@ -154,11 +201,12 @@ export default class PropertyComponentPropsInput extends Component {
   }
 
   render() {
-    const {title, value, template, renderRow, onChange} = this.props
+    const {title, renderActions, value, template, onChange} = this.props
 
     return (
       <PropertyListInput
         title={title}
+        renderActions={renderActions}
         value={value}
         template={template}
         renderRow={this.renderRow}

@@ -114,8 +114,9 @@ export default class PropertyComponentPropsInput extends Component {
     onChangeMembers(updated)
   }
 
-  renderActions(actions, members, onChangeMembers) {
+  renderActions(actions, members) {
     const {styles} = this.props
+    const onChangeMembers = actions.changeKey.bind(this, 'members')
 
     return (
       <div style={styles.actions}>
@@ -139,7 +140,6 @@ export default class PropertyComponentPropsInput extends Component {
   renderRow = (dependency, actions) => {
     const {styles} = this.props
     const {name, alias, members, memberTemplate} = dependency
-    const onChangeMembers = actions.changeKey.bind(this, 'members')
 
     return (
       <div style={styles.content}>
@@ -148,7 +148,7 @@ export default class PropertyComponentPropsInput extends Component {
             value={name}
             onChange={actions.changeKey.bind(this, 'name')}
           />
-          {this.renderActions(actions, members, onChangeMembers)}
+          {this.renderActions(actions, members)}
         </div>
         <PropertyListInput
           title={null}
@@ -156,7 +156,7 @@ export default class PropertyComponentPropsInput extends Component {
           dividerType={'none'}
           value={members}
           renderRow={this.renderMember}
-          onChange={onChangeMembers}
+          onChange={actions.changeKey.bind(this, 'members')}
           template={memberTemplate}
         />
       </div>
