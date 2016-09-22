@@ -16,6 +16,7 @@
  */
 
 // Buttons
+export DropdownMenuButton from './buttons/DropdownMenuButton'
 export InspectorButton from './buttons/InspectorButton'
 export LoginButton from './buttons/LoginButton'
 export SimpleButton from './buttons/SimpleButton'
