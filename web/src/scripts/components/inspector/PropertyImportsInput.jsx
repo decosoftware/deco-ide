@@ -26,6 +26,7 @@ import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
+import PropertyRemoveButton from './PropertyRemoveButton'
 
 const stylesCreator = ({colors, fonts}) => ({
   content: {
@@ -37,16 +38,6 @@ const stylesCreator = ({colors, fonts}) => ({
     display: 'flex',
     alignItems: 'center',
     height: 30,
-  },
-  actions: {
-    flexDirection: 'row',
-    display: 'flex',
-  },
-  actionText: {
-    ...fonts.regular,
-  },
-  actionSpacer: {
-    marginRight: 15,
   },
 })
 
@@ -71,21 +62,6 @@ export default class PropertyComponentPropsInput extends Component {
     }),
   }
 
-  renderMemberActions(actions) {
-    const {styles} = this.props
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
-          onClick={actions.remove}
-        >
-          Remove
-        </div>
-      </div>
-    )
-  }
-
   renderMember = (member, actions, i) => {
     const {styles} = this.props
     const {name, alias} = member
@@ -94,65 +70,40 @@ export default class PropertyComponentPropsInput extends Component {
       <div style={styles.row}>
         <StringInput
           value={name}
+          placeholder={'Name'}
           onChange={actions.changeKey.bind(this, 'name')}
         />
         <StringInput
           value={alias}
+          placeholder={'Alias'}
           onChange={actions.changeKey.bind(this, 'alias')}
         />
-        {this.renderMemberActions(actions)}
-      </div>
-    )
-  }
-
-  onAddMember = (members, onChangeMembers) => {
-    const {memberTemplate} = this.props
-
-    const member = memberTemplate(members)
-    const updated = update(members, {$push: [member]})
-
-    onChangeMembers(updated)
-  }
-
-  renderActions(actions, members) {
-    const {styles} = this.props
-    const onChangeMembers = actions.changeKey.bind(this, 'members')
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
-          onClick={this.onAddMember.bind(this, members, onChangeMembers)}
-        >
-          Add Member
-        </div>
-        <div style={styles.actionSpacer} />
-        <div
-          style={styles.actionText}
+        <PropertyRemoveButton
           onClick={actions.remove}
-        >
-          Remove
-        </div>
+        />
       </div>
     )
   }
 
   renderRow = (dependency, actions) => {
-    const {styles} = this.props
-    const {name, alias, members, memberTemplate} = dependency
+    const {styles, memberTemplate} = this.props
+    const {name, alias, members} = dependency
 
     return (
       <div style={styles.content}>
         <div style={styles.row}>
           <StringInput
             value={name}
+            placeholder={'Name'}
             onChange={actions.changeKey.bind(this, 'name')}
           />
-          {this.renderActions(actions, members)}
+          <PropertyRemoveButton
+            onClick={actions.remove}
+          />
         </div>
         <PropertyListInput
           title={null}
-          renderActions={null}
+          buttonText={'Add Member Import'}
           dividerType={'none'}
           value={members}
           renderRow={this.renderMember}
@@ -169,6 +120,7 @@ export default class PropertyComponentPropsInput extends Component {
     return (
       <PropertyListInput
         title={title}
+        buttonText={'Add Import'}
         value={value}
         template={template}
         renderRow={this.renderRow}

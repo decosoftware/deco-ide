@@ -26,24 +26,14 @@ import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
+import PropertyRemoveButton from './PropertyRemoveButton'
 
-const stylesCreator = ({colors, fonts}) => ({
+const stylesCreator = () => ({
   row: {
     flexDirection: 'row',
     display: 'flex',
     alignItems: 'center',
     height: 30,
-  },
-  actions: {
-    flex: 0,
-    flexDirection: 'row',
-    display: 'flex',
-  },
-  actionText: {
-    ...fonts.regular,
-  },
-  actionSpacer: {
-    marginRight: 15,
   },
 })
 
@@ -60,21 +50,6 @@ export default class PropertyComponentPropsInput extends Component {
     })
   }
 
-  renderActions(actions) {
-    const {styles} = this.props
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
-          onClick={actions.remove}
-        >
-          Remove
-        </div>
-      </div>
-    )
-  }
-
   renderRow = (dependency, actions) => {
     const {styles} = this.props
     const {name, version} = dependency
@@ -83,13 +58,17 @@ export default class PropertyComponentPropsInput extends Component {
       <div style={styles.row}>
         <StringInput
           value={name}
+          placeholder={'Name'}
           onChange={actions.changeKey.bind(this, 'name')}
         />
         <StringInput
           value={version}
+          placeholder={'Version'}
           onChange={actions.changeKey.bind(this, 'version')}
         />
-        {this.renderActions(actions)}
+        <PropertyRemoveButton
+          onClick={actions.remove}
+        />
       </div>
     )
   }
@@ -100,6 +79,7 @@ export default class PropertyComponentPropsInput extends Component {
     return (
       <PropertyListInput
         title={title}
+        buttonText={'Add Dependency'}
         value={value}
         template={template}
         renderRow={this.renderRow}
