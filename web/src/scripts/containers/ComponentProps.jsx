@@ -115,8 +115,32 @@ class ComponentProps extends Component {
     PropUtils.addProp(decoDoc, element, prop)
   }
 
+  renderPropActions(prop, exists) {
+    const {styles} = this.props
+
+    return (
+      <div style={styles.actions}>
+        {exists ? (
+          <div
+            style={styles.actionText}
+            onClick={this.removeProp.bind(this, prop)}
+          >
+            Remove Prop
+          </div>
+        ) : (
+          <div
+            style={styles.actionText}
+            onClick={this.addProp.bind(this, prop)}
+          >
+            Add Prop
+          </div>
+        )}
+      </div>
+    )
+  }
+
   renderProp(prop, exists) {
-    const {styles, width} = this.props
+    const {styles} = this.props
     const {name} = prop
 
     return (
@@ -125,25 +149,7 @@ class ComponentProps extends Component {
         prop={prop}
         disabled={!exists}
         onValueChange={this.handleValueChange.bind(this, prop)}
-        actions={(
-          <div style={styles.actions}>
-            {exists ? (
-              <div
-                style={styles.actionText}
-                onClick={this.removeProp.bind(this, prop)}
-              >
-                Remove Prop
-              </div>
-            ) : (
-              <div
-                style={styles.actionText}
-                onClick={this.addProp.bind(this, prop)}
-              >
-                Add Prop
-              </div>
-            )}
-          </div>
-        )}
+        actions={this.renderPropActions(prop, exists)}
       />
     )
   }
@@ -169,7 +175,7 @@ class ComponentProps extends Component {
   }
 
   renderProps() {
-    const {styles, component, element, width, scrollable} = this.props
+    const {styles, component, element, scrollable} = this.props
 
     const innerStyle = {...styles.inner, overflowY: scrollable ? 'auto' : 'hidden'}
 

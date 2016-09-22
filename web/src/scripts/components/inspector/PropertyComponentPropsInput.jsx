@@ -83,8 +83,10 @@ export default class PropertyComponentPropsInput extends Component {
     const {type: oldType, value} = prop
 
     actions.change(update(prop, {
-      type: {$set: newType},
-      value: {$set: Parser.castType(value, oldType, newType)},
+      $merge: {
+        type: newType,
+        value: Parser.castType(value, oldType, newType),
+      },
     }))
   }
 
