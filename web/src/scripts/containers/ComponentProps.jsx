@@ -16,7 +16,8 @@
  */
 
 import _ from 'lodash'
-import React, { Component, } from 'react'
+import React, { Component } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
@@ -28,12 +29,12 @@ import {
   Property,
 } from '../components'
 
+import * as selectors from '../selectors'
 import PropUtils from '../utils/PropUtils'
-import { getElementByPath } from '../utils/ElementTreeUtils'
 import { elementTreeActions, textEditorCompositeActions } from '../actions'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
-const styles = {
+const stylesCreator = ({fonts}) => ({
   main: {
     flex: '1 1 auto',
     display: 'flex',
@@ -52,21 +53,24 @@ const styles = {
   spacer: {
     height: 30,
   },
-}
+  actions: {
+    flexDirection: 'row',
+    display: 'flex',
+  },
+  actionText: {
+    ...fonts.regular,
+  },
+  actionSpacer: {
+    marginRight: 15,
+  },
+})
 
 const mapStateToProps = (state) => createSelector(
-  ({ui, elementTree}) => {
-    const filename = _.get(ui, `tabs.${CONTENT_PANES.CENTER}.focusedTabId`)
-    const tree = elementTree.elementTreeForFile[filename]
-    const elementPath = elementTree.selectedElementPathForFile[filename]
-
-    if (tree && elementPath) {
-      return getElementByPath(tree, elementPath)
-    }
-  },
-  ({components}) => components.list,
-  (element, components) => ({
+  selectors.selectedElement,
+  selectors.selectedComponent,
+  (element, component) => ({
     element,
+    component,
   })
 )
 
@@ -76,6 +80,7 @@ const mapDispatchToProps = (dispatch) => ({
   dispatch,
 })
 
+@StylesEnhancer(stylesCreator)
 class ComponentProps extends Component {
 
   static defaultProps = {
@@ -98,37 +103,54 @@ class ComponentProps extends Component {
     ]))
   }
 
-  handleLabelClick(prop, exists) {
-    const {decoDoc, element, dispatch} = this.props
+  removeProp = (prop) => {
+    const {decoDoc, element} = this.props
 
-    if (! decoDoc || ! element) {
-      return
-    }
+    PropUtils.removeProp(decoDoc, element, prop)
+  }
 
-    // If the prop exists, delete it
-    if (exists) {
-      PropUtils.removeProp(decoDoc, element, prop)
-    } else {
-      PropUtils.addProp(decoDoc, element, prop)
-    }
+  addProp = (prop) => {
+    const {decoDoc, element} = this.props
 
-    dispatch(selectComponent(decoDoc.id, element.elementPath))
+    PropUtils.addProp(decoDoc, element, prop)
   }
 
   renderProp(prop, exists) {
-    const {width} = this.props
+    const {styles, width} = this.props
     const {name} = prop
 
     return (
       <Property
         key={name}
         prop={prop}
+        disabled={!exists}
         onValueChange={this.handleValueChange.bind(this, prop)}
+        actions={(
+          <div style={styles.actions}>
+            {exists ? (
+              <div
+                style={styles.actionText}
+                onClick={this.removeProp.bind(this, prop)}
+              >
+                Remove Prop
+              </div>
+            ) : (
+              <div
+                style={styles.actionText}
+                onClick={this.addProp.bind(this, prop)}
+              >
+                Add Prop
+              </div>
+            )}
+          </div>
+        )}
       />
     )
   }
 
   renderPropList(existingProps = [], possibleProps = []) {
+    const {styles} = this.props
+
     return [
       ...existingProps.map(prop => this.renderProp(prop, true)),
       ...possibleProps.map(prop => this.renderProp(prop, false)),
@@ -147,12 +169,12 @@ class ComponentProps extends Component {
   }
 
   renderProps() {
-    const {component, element, width, scrollable} = this.props
+    const {styles, component, element, width, scrollable} = this.props
 
     const innerStyle = {...styles.inner, overflowY: scrollable ? 'auto' : 'hidden'}
 
     // We have an element, but couldn't match it to a component in the registry
-    if (element && ! component) {
+    if (element && !component) {
       if (element.props.length > 0) {
         return (
           <div style={innerStyle}>
@@ -221,7 +243,7 @@ class ComponentProps extends Component {
   }
 
   render() {
-    const {decoDoc} = this.props
+    const {styles, decoDoc} = this.props
 
     return (
       <div style={styles.main}>

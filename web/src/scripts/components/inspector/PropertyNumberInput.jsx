@@ -47,7 +47,7 @@ export default class PropertyNumberInput extends Component {
   }
 
   render() {
-    const {styles, title, value, onChange, actions, dividerType} = this.props
+    const {styles, title, value, onChange, actions, dividerType, disabled} = this.props
 
     return (
       <PropertyField
@@ -59,11 +59,13 @@ export default class PropertyNumberInput extends Component {
           <SliderInput
             value={value}
             onChange={onChange}
+            disabled={disabled}
           />
           <div style={styles.spacer} />
           <NumberInput
             value={value}
             onChange={onChange}
+            disabled={disabled}
           />
         </div>
       </PropertyField>

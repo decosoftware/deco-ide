@@ -105,18 +105,18 @@ export default class extends Component {
           />
           <div style={styles.spacer} />
           <PropertyStringInput
-            title={'JSX Tag'}
-            value={component.tagName}
-            onChange={(value) => this.save(update(component, {
-              tagName: {$set: value},
-            }))}
-          />
-          <div style={styles.spacer} />
-          <PropertyStringInput
             title={'Description'}
             value={component.description}
             onChange={(value) => this.save(update(component, {
               description: {$set: value},
+            }))}
+          />
+          <div style={styles.spacer} />
+          <PropertyStringInput
+            title={'JSX Tag'}
+            value={component.tagName}
+            onChange={(value) => this.save(update(component, {
+              tagName: {$set: value},
             }))}
           />
           <div style={styles.spacer} />

@@ -44,7 +44,7 @@ export default class PropertyColorInput extends Component {
   }
 
   render() {
-    const {styles, title, value, onChange, actions, dividerType} = this.props
+    const {styles, title, value, onChange, actions, dividerType, disabled} = this.props
 
     return (
       <PropertyField
@@ -56,6 +56,7 @@ export default class PropertyColorInput extends Component {
           <ColorInput
             value={value}
             onChange={onChange}
+            disabled={disabled}
           />
         </div>
       </PropertyField>

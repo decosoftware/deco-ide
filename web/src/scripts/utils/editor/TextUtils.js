@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash'
+import Pos from '../../models/editor/CodeMirrorPos'
 
 export default class {
 

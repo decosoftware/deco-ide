@@ -62,20 +62,15 @@ export default class {
     cmDoc.setSelection(openStart)
   }
 
-  static addProp(decoDoc, element, prop, value) {
+  static addProp(decoDoc, element, prop) {
     const {cmDoc} = decoDoc
-    const {name, defaultValue, template} = prop
+    const {name, value} = prop
     const {openStart, openEnd, selfClosing} = element
 
-    if (_.isUndefined(value)) {
-      value = this.computePropCode(prop, defaultValue)
-    } else {
-      value = this.computePropCode(prop, value)
-    }
-
+    const code = this.computePropCode(prop, value)
     const endLength = selfClosing ? 2 : 1
     const indentStart = _.repeat(' ', openStart.ch)
-    let text = `  ${name}={${value}}\n${indentStart}`
+    let text = `  ${name}={${code}}\n${indentStart}`
 
     // Single-line component, likely with no props
     if (openStart.line === openEnd.line) {
