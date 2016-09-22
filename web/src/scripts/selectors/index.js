@@ -68,10 +68,7 @@ export const selectedComponent = createSelector(
     if (!element) return null
 
     const componentsByTagName = _.keyBy(components, 'tagName')
-    const component = componentsByTagName[element.name]
 
-    console.log('component', componentsByTagName, element.name)
-
-    return component
+    return componentsByTagName[element.name]
   }
 )
