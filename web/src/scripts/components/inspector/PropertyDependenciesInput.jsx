@@ -83,10 +83,12 @@ export default class PropertyComponentPropsInput extends Component {
       <div style={styles.row}>
         <StringInput
           value={name}
+          placeholder={'Name'}
           onChange={actions.changeKey.bind(this, 'name')}
         />
         <StringInput
           value={version}
+          placeholder={'Version'}
           onChange={actions.changeKey.bind(this, 'version')}
         />
         {this.renderActions(actions)}
@@ -100,6 +102,7 @@ export default class PropertyComponentPropsInput extends Component {
     return (
       <PropertyListInput
         title={title}
+        buttonText={'Add Dependency'}
         value={value}
         template={template}
         renderRow={this.renderRow}
