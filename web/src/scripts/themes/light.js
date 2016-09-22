@@ -56,7 +56,11 @@ export const fonts = {
   regularSubtle: {
     ...baseFonts.regularSubtle,
     color: colors.textSubtle,
-  }
+  },
+  buttonSmall: {
+    ...baseFonts.buttonSmall,
+    color: colors.text,
+  },
 }
 
 export const input = {

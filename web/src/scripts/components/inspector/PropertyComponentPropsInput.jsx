@@ -28,6 +28,8 @@ import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
+import PropertyRemoveButton from './PropertyRemoveButton'
+import PropertySettingsButton from './PropertySettingsButton'
 import * as Parser from '../../utils/Parser'
 import PrimitiveTypes, { OPTIONS } from '../../constants/PrimitiveTypes'
 
@@ -36,6 +38,7 @@ const stylesCreator = ({colors, fonts}) => ({
     flexDirection: 'row',
     display: 'flex',
     alignItems: 'center',
+    height: 30,
   },
   column: {
     flexDirection: 'column',
@@ -46,11 +49,8 @@ const stylesCreator = ({colors, fonts}) => ({
     flexDirection: 'row',
     display: 'flex',
   },
-  actionText: {
-    ...fonts.regular,
-  },
   actionSpacer: {
-    marginRight: 15,
+    marginRight: 10,
   },
   dropdownMenu: {
     padding: 0,
@@ -122,19 +122,12 @@ export default class PropertyComponentPropsInput extends Component {
           menuStyle={styles.dropdownMenu}
           hideOnClick={false}
         >
-          <div
-            style={styles.actionText}
-          >
-            Settings
-          </div>
+          <PropertySettingsButton />
         </DropdownMenuButton>
         <div style={styles.actionSpacer} />
-        <div
-          style={styles.actionText}
+        <PropertyRemoveButton
           onClick={actions.remove}
-        >
-          Remove
-        </div>
+        />
       </div>
     )
   }

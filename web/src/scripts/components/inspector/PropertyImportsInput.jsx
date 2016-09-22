@@ -26,6 +26,7 @@ import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
+import PropertyRemoveButton from './PropertyRemoveButton'
 
 const stylesCreator = ({colors, fonts}) => ({
   content: {
@@ -37,16 +38,6 @@ const stylesCreator = ({colors, fonts}) => ({
     display: 'flex',
     alignItems: 'center',
     height: 30,
-  },
-  actions: {
-    flexDirection: 'row',
-    display: 'flex',
-  },
-  actionText: {
-    ...fonts.regular,
-  },
-  actionSpacer: {
-    marginRight: 15,
   },
 })
 
@@ -71,21 +62,6 @@ export default class PropertyComponentPropsInput extends Component {
     }),
   }
 
-  renderMemberActions(actions) {
-    const {styles} = this.props
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
-          onClick={actions.remove}
-        >
-          Remove
-        </div>
-      </div>
-    )
-  }
-
   renderMember = (member, actions, i) => {
     const {styles} = this.props
     const {name, alias} = member
@@ -102,22 +78,9 @@ export default class PropertyComponentPropsInput extends Component {
           placeholder={'Alias'}
           onChange={actions.changeKey.bind(this, 'alias')}
         />
-        {this.renderMemberActions(actions)}
-      </div>
-    )
-  }
-
-  renderActions(actions) {
-    const {styles} = this.props
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
+        <PropertyRemoveButton
           onClick={actions.remove}
-        >
-          Remove
-        </div>
+        />
       </div>
     )
   }
@@ -134,7 +97,9 @@ export default class PropertyComponentPropsInput extends Component {
             placeholder={'Name'}
             onChange={actions.changeKey.bind(this, 'name')}
           />
-          {this.renderActions(actions)}
+          <PropertyRemoveButton
+            onClick={actions.remove}
+          />
         </div>
         <PropertyListInput
           title={null}

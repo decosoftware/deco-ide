@@ -15,44 +15,40 @@
  *
  */
 
+import _ from 'lodash'
 import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
-import PropertyField from './PropertyField'
-import PropertyDivider from './PropertyDivider'
-import CheckboxInput from '../input/CheckboxInput'
+const OMIT_PROPS = ['styles', 'width', 'height', 'icon']
 
-const stylesCreator = ({colors, fonts}) => ({
-  button: {
-    alignSelf: 'flex-start',
-    paddingLeft: 10,
-    paddingRight: 10,
-    height: 30,
-    borderStyle: 'solid',
-    borderColor: colors.divider,
-    borderWidth: 2,
-    borderRadius: 4,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...fonts.buttonSmall,
-  }
+const stylesCreator = ({colors, fonts}, {width, height, icon}) => ({
+  icon: {
+    position: 'relative',
+    cursor: 'default',
+    width: width,
+    height: height,
+    WebkitMaskSize: `${width}px ${height}px`,
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskImage: `-webkit-image-set(` +
+      `url('./icons/${icon}.png') 1x, ` +
+      `url('./icons/${icon}@2x.png') 2x` +
+    `)`,
+    backgroundColor: 'rgb(180,180,180)',
+  },
 })
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({width, height, icon}) => ({width, height, icon}))
 @pureRender
-export default class PropertyButton extends Component {
-
+export default class extends Component {
   render() {
-    let {styles, children, onClick} = this.props
+    const {styles} = this.props
 
-    children = typeof children === 'string' ? children.toUpperCase() : children
+    const props = _.omitBy(this.props, (v, k) => OMIT_PROPS.includes(k))
 
     return (
-      <div style={styles.button} onClick={onClick}>
-        {children}
-      </div>
+      <div style={styles.icon} {...props} />
     )
   }
 }

@@ -35,8 +35,8 @@ const stylesCreator = ({colors, fonts}) => ({
     alignItems: 'stretch',
     display: 'flex',
     paddingLeft: 15,
-    marginTop: 5,
-    borderLeft: `2px solid ${colors.divider}`
+    borderLeft: `2px solid ${colors.divider}`,
+    marginBottom: 10,
   },
   actions: {
     flex: 0,

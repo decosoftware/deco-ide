@@ -26,24 +26,14 @@ import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
+import PropertyRemoveButton from './PropertyRemoveButton'
 
-const stylesCreator = ({colors, fonts}) => ({
+const stylesCreator = () => ({
   row: {
     flexDirection: 'row',
     display: 'flex',
     alignItems: 'center',
     height: 30,
-  },
-  actions: {
-    flex: 0,
-    flexDirection: 'row',
-    display: 'flex',
-  },
-  actionText: {
-    ...fonts.regular,
-  },
-  actionSpacer: {
-    marginRight: 15,
   },
 })
 
@@ -58,21 +48,6 @@ export default class PropertyComponentPropsInput extends Component {
       name: 'left-pad',
       version: '*',
     })
-  }
-
-  renderActions(actions) {
-    const {styles} = this.props
-
-    return (
-      <div style={styles.actions}>
-        <div
-          style={styles.actionText}
-          onClick={actions.remove}
-        >
-          Remove
-        </div>
-      </div>
-    )
   }
 
   renderRow = (dependency, actions) => {
@@ -91,7 +66,9 @@ export default class PropertyComponentPropsInput extends Component {
           placeholder={'Version'}
           onChange={actions.changeKey.bind(this, 'version')}
         />
-        {this.renderActions(actions)}
+        <PropertyRemoveButton
+          onClick={actions.remove}
+        />
       </div>
     )
   }
