@@ -50,6 +50,7 @@ export const openStoryboard = (filepath) => async (dispatch, getState) => {
   //get code from new files
   //get connections for files
   const sceneConnections = _.map(sceneImports, ({ sceneName, source }) => {
+    storyUtils.buildElementTree(docCache[source].code)
     return {
       connections: storyUtils.getConnectionsInCode(docCache[source].code),
       sceneName,

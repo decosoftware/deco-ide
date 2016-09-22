@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import ElementTreeBuilder from '../ElementTreeBuilder'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 const path = Electron.remote.require('path')
 
@@ -64,6 +65,11 @@ export const getConnectionsInCode = (code) => {
     pushes: connectionsTo,
     pops: connectionsPop
   }
+}
+
+export const buildElementTree = (code) => {
+  const elementTree = ElementTreeBuilder.elementTreeFromAST(CodeMod(code).nodes())
+  console.log(elementTree)
 }
 
 /**

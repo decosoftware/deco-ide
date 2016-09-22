@@ -1,14 +1,21 @@
 import j from 'jscodeshift'
 import _ from 'lodash'
 
-const getObject = (node) => _.get(node, 'callee.object.name')
-const getProperty = (node) => _.get(node, 'callee.property.name')
-const getArgs = (node) => _.get(node, 'arguments')
+const getObject = (node) => (
+  _.get(node, 'callee.object.name') || _.get(node, 'value.callee.object.name')
+)
+const getProperty = (node) => (
+  _.get(node, 'callee.property.name') || _.get(node, 'value.callee.property.name')
+)
+const getArgs = (node) => _.get(node, 'arguments') || _.get(node, 'value.arguments')
 const getSourceLocation = (node) => {
-  const loc = _.get(node, 'loc')
+  let loc = _.get(node, 'loc') || _.get(node, 'value.loc')
+  if (loc == null) {
+    loc = _.get(node, 'parentPath.value.loc')
+  }
   return {
-    start: loc.start,
-    end: loc.end,
+    start: loc && loc.start,
+    end: loc && loc.end,
   }
 }
 const getSimilarity = (node, object, property, args = []) => {
@@ -184,15 +191,15 @@ export const removeFunctionCall = function(object, property, args) {
 export const getAllMatchingFunctionCalls = function(object, property, args) {
   return this.find(j.CallExpression).paths().filter((node) => {
     const {sameObject, sameProperty, sameArgs, } = getSimilarity(
-      node.value, object, property, args
+      node, object, property, args
     )
     return (sameObject && sameProperty && sameArgs)
   }).map((node) => {
     return {
-      object: getObject(node.value),
-      property: getProperty(node.value),
-      source: getSourceLocation(node.value),
-      args: inversecreateArgumentNodes(getArgs(node.value)),
+      object: getObject(node),
+      property: getProperty(node),
+      source: getSourceLocation(node),
+      args: inversecreateArgumentNodes(getArgs(node)),
     }
   })
 }

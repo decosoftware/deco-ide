@@ -9,5 +9,8 @@
     "react": "^15.1.0",
     "react-native": "^0.33.0",
     "deco-sdk": "git+ssh://github.com/decosoftware/deco-sdk.git"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-react-jsx": "^6.8.0"
   }
 }

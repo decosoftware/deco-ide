@@ -135,3 +135,39 @@ test('test nested function calls in react syntax', () => {
     }
   }])
 })
+
+test('match a function inlined on export default', () => {
+  const mod = CodeMod(`import { SceneManager, Navigational, Adapters } from 'deco-sdk'
+  Navigational.registerAdapter(Adapters.NavigatorIOSAdapter)
+
+  import Scene1 from './Scene1'
+  SceneManager.registerScene('Scene1', Scene1)
+
+
+  export default SceneManager.registerEntryScene('Scene1')`)
+
+  const output = mod.getAllMatchingFunctionCalls(
+    'SceneManager',
+    'registerEntryScene'
+  )
+  expect(output).toEqual([{
+    "args": [
+      {
+        "type": "Literal",
+        "value": "Scene1"
+      }
+    ],
+    "object": "SceneManager",
+    "property": "registerEntryScene",
+    "source": {
+      "end": {
+        "column": 58,
+        "line": 8
+      },
+      "start": {
+        "column": 2,
+        "line": 8
+      }
+    }
+  }])
+})
