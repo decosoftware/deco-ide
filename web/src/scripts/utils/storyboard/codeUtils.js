@@ -1,5 +1,21 @@
 import _ from 'lodash'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
+const path = Electron.remote.require('path')
+
+const formatFilePaths = (filepath, options = {}) => {
+  let formedPath = filepath
+  if (formedPath.indexOf('./') != -1) {
+    formedPath = formedPath.slice(2)
+  }
+  if (formedPath.indexOf('.js') == -1) {
+    if (formedPath[formedPath.length - 1] == '/') {
+      formedPath = formedPath.slice(0, formedPath.length - 1)
+    }
+    formedPath += '.js'
+  }
+
+  return options.directoryPath ? path.join(options.directoryPath, formedPath) : formedPath
+}
 
 /**
  * Parses the imports and the specifiers in the storyboard file
@@ -7,15 +23,16 @@ const CodeMod = Electron.remote.require('./utils/codemod/index.js')
  * scene code
  *
  */
-export const getFilePathsFromStoryboardCode = (code) => {
+export const getFilePathsFromStoryboardCode = (code, options) => {
   const scenes = {}
   CodeMod(code).getAllImports()
     .filter((_import) => _import.source != 'deco-sdk')
     .forEach((sceneImport) => {
       const filepath = _.get(sceneImport, 'source')
-      scenes[filepath] = {
+      const formattedPath = formatFilePaths(filepath, options)
+      scenes[formattedPath] = {
         sceneName: _.get(sceneImport, 'identifiers[0].value'),
-        source: filepath,
+        source: formattedPath,
       }
     })
   return scenes
@@ -44,10 +61,8 @@ export const getConnectionsInCode = (code) => {
     source,
   }))
   return {
-    connections: {
-      pushes: connectionsTo,
-      pops: connectionsPop
-    }
+    pushes: connectionsTo,
+    pops: connectionsPop
   }
 }
 
@@ -65,7 +80,7 @@ export const getSceneInformationForStoryboardCode = (code) => {
   const entryScene = _.get(entryCall, '[0].args[0].value')
   const scenes = {}
   mod.getAllMatchingFunctionCalls(
-    'SceneManger',
+    'SceneManager',
     'registerScene'
   ).forEach((sceneCall) => {
     const sceneName = _.get(sceneCall, 'args[1].value')

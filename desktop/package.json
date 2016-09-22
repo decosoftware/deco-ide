@@ -22,6 +22,7 @@
     "gulp-shell": "^0.3.0",
     "gulp-util": "^3.0.4",
     "image-diff": "^1.6.3",
+    "jest": "^15.1.1",
     "mocha": "^3.0.2",
     "node-inspector": "^0.12.8",
     "node-pre-gyp": "^0.6.29",

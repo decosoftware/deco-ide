@@ -1,11 +1,11 @@
 import j from 'jscodeshift'
 import _ from 'lodash'
 
-const getObject = (node) => _.get(node, 'expression.callee.object.name')
-const getProperty = (node) => _.get(node, 'expression.callee.property.name')
-const getArgs = (node) => _.get(node, 'expression.arguments')
+const getObject = (node) => _.get(node, 'callee.object.name')
+const getProperty = (node) => _.get(node, 'callee.property.name')
+const getArgs = (node) => _.get(node, 'arguments')
 const getSourceLocation = (node) => {
-  const loc = _.get(node, 'expression.loc')
+  const loc = _.get(node, 'loc')
   return {
     start: loc.start,
     end: loc.end,
@@ -22,6 +22,10 @@ const getSimilarity = (node, object, property, args = []) => {
       return args.length > i ? nodeHasValue(node, args[i].value) : false
     }, true)
   }
+  const obj = getObject(node)
+  const prop = getProperty(node)
+  const argu = getArgs(node)
+
   return { sameObject, sameProperty, sameArgs, }
 }
 
@@ -116,7 +120,7 @@ export const updateFunctionCall = function(object, property, args) {
   if (program.body) {
     program.body.forEach((node) => {
       if (node.type == 'ExpressionStatement') {
-        const {sameObject, sameProperty,} = getSimilarity(node, object, property)
+        const {sameObject, sameProperty,} = getSimilarity(node.expression, object, property)
         if (sameObject && sameProperty) {
           _.set(node, 'expression.arguments', createArgumentNodes(args))
         }
@@ -139,7 +143,7 @@ export const removeFunctionCall = function(object, property, args) {
     program.body = program.body.filter((node) => {
       if (node.type == 'ExpressionStatement') {
         const { sameObject, sameProperty, sameArgs, } = getSimilarity(
-          node, object, property, args
+          node.expression, object, property, args
         )
         return (!sameObject || !sameProperty || !sameArgs)
       }
@@ -178,24 +182,17 @@ export const removeFunctionCall = function(object, property, args) {
  * }]
  */
 export const getAllMatchingFunctionCalls = function(object, property, args) {
-  const program = _.get(this.nodes(), '[0].program', {})
-  if (program.body) {
-    return program.body.filter((node) => {
-      if (node.type == 'ExpressionStatement') {
-        const {sameObject, sameProperty, sameArgs, } = getSimilarity(
-          node, object, property, args
-        )
-        return (sameObject && sameProperty && sameArgs)
-      }
-      return false
-    }).map((node) => {
-      return {
-        object: getObject(node),
-        property: getProperty(node),
-        source: getSourceLocation(node),
-        args: inversecreateArgumentNodes(getArgs(node)),
-      }
-    })
-  }
-  return this
+  return this.find(j.CallExpression).paths().filter((node) => {
+    const {sameObject, sameProperty, sameArgs, } = getSimilarity(
+      node.value, object, property, args
+    )
+    return (sameObject && sameProperty && sameArgs)
+  }).map((node) => {
+    return {
+      object: getObject(node.value),
+      property: getProperty(node.value),
+      source: getSourceLocation(node.value),
+      args: inversecreateArgumentNodes(getArgs(node.value)),
+    }
+  })
 }

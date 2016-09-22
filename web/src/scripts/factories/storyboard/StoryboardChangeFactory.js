@@ -18,7 +18,7 @@
 import _ from 'lodash'
 
 import DecoChangeFactory from '../editor/DecoChangeFactory'
-import CodeMod from '../utils/codemod'
+const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 
 const createChange = (doc, mod) => (
   DecoChangeFactory.createChangeToReplaceAllText(doc, mod.toSource())
@@ -27,7 +27,7 @@ const createChange = (doc, mod) => (
 class StoryboardChangeFactory {
 
   static addSceneToStoryboard(doc, sceneName, relativePath) {
-    const mod = new CodeMod(doc.code).transform
+    const mod = CodeMod(doc.code)
       .addImport(sceneName, [], relativePath)
       .addFunctionCall(
         'SceneManager',
@@ -41,7 +41,7 @@ class StoryboardChangeFactory {
   }
 
   static removeSceneFromStoryboard(doc, sceneName, relativePath) {
-    const mod = new CodeMod(doc.code).transform
+    const mod = CodeMod(doc.code)
       .removeImport(sceneName, [], relativePath)
       .removeFunctionCall(
         'SceneManager',
@@ -55,7 +55,7 @@ class StoryboardChangeFactory {
   }
 
   static addEntryScene(doc, sceneName) {
-    const mod = new CodeMod(doc.code).transform.addFunctionCall(
+    const mod = CodeMod(doc.code).addFunctionCall(
       'SceneManager',
       'registerEntryScene',
       [
@@ -66,7 +66,7 @@ class StoryboardChangeFactory {
   }
 
   static removeEntryScene(doc, sceneName, projectName) {
-    const mod = new CodeMod(doc.code).transform.removeFunctionCall(
+    const mod = CodeMod(doc.code).removeFunctionCall(
       'SceneManager',
       'registerEntryScene'
     )
@@ -74,7 +74,7 @@ class StoryboardChangeFactory {
   }
 
   static updateEntryScene(doc, sceneName) {
-    const mod = new CodeMod(doc.code).transform.updateFunctionCall(
+    const mod = CodeMod(doc.code).updateFunctionCall(
       'SceneManager',
       'registerEntryScene',
       [

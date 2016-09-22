@@ -142,7 +142,7 @@ export const loadDoc = (payload) => async (dispatch, getState) => {
 export const openDocument = (filePath, options = {}) => async (dispatch, getState) => {
   const {docCache} = getState().editor
 
-  if (docCache[filePath]) {
+  if (docCache[filePath] && !options.loadOnly) {
     return dispatch(setCurrentDoc(filePath))
   } else {
     const payload = await request({type: GET_FILE_DATA, filePath})

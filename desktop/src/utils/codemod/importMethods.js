@@ -133,7 +133,7 @@ export const updateImportSourceForRequire = function(identifier, importSource) {
 export const defaultImportForSource = function(importSource) {
   const node = getNodeForImport(this, importSource)
   if (node) {
-    return _.get(node, 'value.specifiers[0].local.name')
+    return _.get(node, 'value.specifiers[0].id.name')
   }
   return null
 }
@@ -204,7 +204,7 @@ export const getAllImports = function() {
           const kind = spec.type == 'ImportDefaultSpecifier' ? 'Default' : 'Named'
           return {
             kind,
-            value: _.get(spec, 'local.name'),
+            value: _.get(spec, 'id.name'),
           }
         })
         const source = _.get(node, 'source.value')

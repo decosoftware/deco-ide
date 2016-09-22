@@ -1,29 +1,29 @@
 import CodeMod from '../'
 
 test('add import to top of code', () => {
-  const mod = new CodeMod('')
-  const output = mod.transform.addImport('Navigator', [], 'testo-sdk').toSource()
+  const mod = CodeMod('')
+  const output = mod.addImport('Navigator', [], 'testo-sdk').toSource()
   expect(output).toBe('import Navigator from \"testo-sdk\";')
 })
 
 test('add namespace import and default import', () => {
-  const mod = new CodeMod('')
-  const result = mod.transform.addImport(
+  const mod = CodeMod('')
+  const result = mod.addImport(
     'Default', ['Name1', 'Name2'], 'testo-sdk'
   ).toSource()
   expect(result).toBe('import Default, {Name1, Name2} from \"testo-sdk\";')
 })
 
 test('remove import from top of code', () => {
-  const mod = new CodeMod(`
+  const mod = CodeMod(`
 import Navigator from 'testo-sdk'`)
-  const output = mod.transform.removeImport('testo-sdk').toSource()
+  const output = mod.removeImport('testo-sdk').toSource()
   expect(output).toBe('\n')
 })
 
 test('update import to include new named import', () => {
-  const mod = new CodeMod(`import Navigator, {Name1, Name2} from "testo-sdk"`)
-  const output = mod.transform.updateImport('Navigator', [
+  const mod = CodeMod(`import Navigator, {Name1, Name2} from "testo-sdk"`)
+  const output = mod.updateImport('Navigator', [
     'Name1', 'Name2', 'Name3',
   ], 'testo-sdk').toSource()
   expect(output).toBe(
@@ -32,26 +32,26 @@ test('update import to include new named import', () => {
 })
 
 test('update import source for require', () => {
-  const mod = new CodeMod(`
+  const mod = CodeMod(`
 let entry = require('./my-source-file')`)
-  const output = mod.transform
+  const output = mod
     .updateImportSourceForRequire('entry', './new-source').toSource()
   expect(output).toBe(`
 let entry = require("./new-source")`)
 })
 
 test('get default import for source', () => {
-  const mod = new CodeMod(`
+  const mod = CodeMod(`
 import Navigator from 'testo-sdk'`)
-  const output = mod.transform.defaultImportForSource('testo-sdk')
+  const output = mod.defaultImportForSource('testo-sdk')
   expect(output).toBe('Navigator')
 })
 
 test('get all requires from source', () => {
-  const mod = new CodeMod(`
+  const mod = CodeMod(`
 const React = require('whatup')
 const Doobie = require('shoobie')`)
-  const output = mod.transform.getAllRequires()
+  const output = mod.getAllRequires()
   expect(output).toEqual([
     {
       kind: 'const',
@@ -71,11 +71,11 @@ const Doobie = require('shoobie')`)
 })
 
 test('get all imports from source', () => {
-  const mod = new CodeMod(`
+  const mod = CodeMod(`
 import Navigator from 'testo-sdk'
 import React, { Component, PropTypes } from 'react'`)
 
-  const output = mod.transform.getAllImports()
+  const output = mod.getAllImports()
   expect(output).toEqual([
     {
       identifiers: [{

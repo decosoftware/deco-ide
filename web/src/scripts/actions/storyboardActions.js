@@ -31,12 +31,16 @@ export const at = {
 
 export const openStoryboard = (filepath) => async (dispatch, getState) => {
   const storyboardDoc = getState().editor.docCache[filepath]
+  const rootPath = getState().directory.rootPath
   const storyboardCode = storyboardDoc.code
-  const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode)
+  const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
+    directoryPath: rootPath,
+  })
   const sceneInfo = storyUtils.getSceneInformationForStoryboardCode(storyboardCode)
 
   //load in files from imports
-  await Promise.all(_.map(sceneImport, async (sceneImport, filepath) => {
+  await Promise.all(_.map(sceneImports, async (sceneImport, filepath) => {
+    //strip the ./
     await dispatch(editorActions.openDocument(filepath, { loadOnly:true }))
   }))
 
@@ -54,7 +58,11 @@ export const openStoryboard = (filepath) => async (dispatch, getState) => {
 
   // match source info to component layout info
   // return storyboard object
-  dispatch({type: at.OPEN_STORYBOARD})
+  dispatch({
+    type: at.OPEN_STORYBOARD,
+    connections: sceneConnections,
+    ...sceneInfo, // { scenes, entry }
+  })
 }
 
 export const addScene = () => async (dispatch) => {
