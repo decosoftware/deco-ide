@@ -18,15 +18,15 @@
 import _ from 'lodash'
 
 import DecoChangeFactory from '../editor/DecoChangeFactory'
-import CodeMod from '../utils/codemod'
+const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 
 class EntryFileChangeFactory {
-  static updateEntryRequire(doc, relativePath) {
+  static createChangeToUpdateEntryRequire(doc, relativePath) {
     const { code } = doc
-    const mod = new CodeMod(code).transform.updateImportSourceForRequire(
-      'entry', relativePath
+    const mod = CodeMod(code).updateImportSourceForRequire(
+      'Entry', relativePath
     )
-    const updatedCode = mod.transform.toSource()
+    const updatedCode = mod.toSource()
     return DecoChangeFactory.createChangeToReplaceAllText(doc, updatedCode)
   }
 }

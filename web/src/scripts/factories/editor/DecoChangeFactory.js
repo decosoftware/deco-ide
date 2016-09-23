@@ -73,9 +73,10 @@ class DecoChangeFactory {
   }
 
   static createChangeToReplaceAllText(doc, text) {
-    const from = { line: doc.firstLine(), ch: 0 }
-    const last = doc.lastLine()
-    const to = { line: last, ch: doc.getLine(last).length }
+    const {cmDoc} = doc
+    const from = { line: cmDoc.firstLine(), ch: 0 }
+    const last = cmDoc.lastLine()
+    const to = { line: last, ch: cmDoc.getLine(last).length }
     return DecoChangeFactory.createChangeToSetText(
       from, to, text, doc.code
     )

@@ -139,19 +139,20 @@ export const loadDoc = (payload) => async (dispatch, getState) => {
   }
 }
 
-export const openDocument = (filePath, options = {}) => async (dispatch, getState) => {
+export const openDocument = (filePath) => async (dispatch, getState) => {
+  await dispatch(getDocument(filePath))
+  return dispatch(setCurrentDoc(filePath))
+}
+
+export const getDocument = (filePath) => async (dispatch, getState) => {
   const {docCache} = getState().editor
 
-  if (docCache[filePath] && !options.loadOnly) {
-    return dispatch(setCurrentDoc(filePath))
-  } else {
-    const payload = await request({type: GET_FILE_DATA, filePath})
-
-    return Promise.all([
-      dispatch(loadDoc(payload)),
-      (options.loadOnly ? Promise.resolve() : (
-        dispatch(setCurrentDoc(filePath))
-      )),
-    ])
+  if (docCache[filePath]) {
+    return docCache[filePath]
   }
+
+  const payload = await request({type: GET_FILE_DATA, filePath})
+  await dispatch(loadDoc(payload))
+
+  return getState().editor.docCache[filePath]
 }

@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import nodePath from 'path'
 import memoize from 'fast-memoize'
 
 import NodeCaret from './NodeCaret'
@@ -91,8 +90,12 @@ export default class Node extends Component {
     pinned: false,
   }
 
+  stopPropagation = (e) => {
+    e.stopPropagation()
+  }
+
   renderButton() {
-    const {node, scaffolds, createFileScaffold} = this.props
+    const {node, scaffolds, createFileScaffold, onPreviewClick} = this.props
     const {hover, menuVisible, pinned} = this.state
     const {type} = node
 
@@ -100,14 +103,14 @@ export default class Node extends Component {
       return null
     }
 
-
     if (!isDirectory(type)) {
       return (
-        <div style={styles.plusContainer}>
+        <div style={styles.plusContainer} onClick={this.stopPropagation}>
           <PlayButton
             node={node}
             active={pinned}
             onChange={(enabled) => {
+              onPreviewClick()
               this.setState({pinned: enabled})
             }}/>
         </div>
