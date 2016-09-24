@@ -72,3 +72,15 @@ export const selectedComponent = createSelector(
     return componentsByTagName[element.name]
   }
 )
+
+export const componentList = createSelector(
+  ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
+  ({components}) => components.list,
+  ({modules}) => modules.modules,
+  (newList, components, modules) => newList ? components : modules
+)
+
+export const focusedTabId = createSelector(
+  ({ui: {tabs}}) => tabs,
+  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`)
+)

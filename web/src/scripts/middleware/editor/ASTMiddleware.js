@@ -27,6 +27,7 @@ import Pos from '../../models/editor/CodeMirrorPos'
 import ASTUtils from '../../utils/ASTUtils'
 import ElementTreeBuilder from '../../utils/ElementTreeBuilder'
 import { astActions, elementTreeActions } from '../../actions'
+import * as uiActions from '../../actions/uiActions'
 
 /**
  * Middleware for building an AST from the file
@@ -56,7 +57,10 @@ class ASTMiddleware extends Middleware {
     const selection = selections[0]
 
     if (selections.length === 1 && selection.empty()) {
-      this.dispatch(elementTreeActions.selectElementFromPos(filename, selection.from()))
+      this.dispatch(batchActions([
+        elementTreeActions.selectElementFromPos(filename, selection.from()),
+        uiActions.setSidebarContext(),
+      ]))
     }
   }
 

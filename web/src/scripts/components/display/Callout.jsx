@@ -16,8 +16,10 @@
  */
 
 import React, { Component, } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-const styles = {
+const stylesCreator = ({colors, fonts}) => ({
   base: {
     borderStyle: 'solid',
     borderWidth: 0,
@@ -26,17 +28,19 @@ const styles = {
     cursor: 'default',
   },
   info: {
-    background: 'rgb(245,245,245)',
-    borderColor: 'rgb(228,228,228)',
-    color: '#636363',
+    borderColor: colors.dividerInverted,
+    color: colors.text,
+    ...fonts.regular,
   },
   success: {
     background: '#BBE9AB',
     borderColor: '#A2CD93',
     color: '#357B1C',
   }
-}
+})
 
+@StylesEnhancer(stylesCreator)
+@pureRender
 export default class extends Component {
 
   static propTypes = {}
@@ -54,7 +58,7 @@ export default class extends Component {
   }
 
   render() {
-    const {children, type, isTop, isBottom} = this.props
+    const {styles, children, type, isTop, isBottom} = this.props
 
     const style = {
       ...styles.base,
