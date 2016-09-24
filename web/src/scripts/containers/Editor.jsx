@@ -139,13 +139,14 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 export default ConnectedClass
 
 export const registerLoader = () => {
-  ContentLoader.registerLoader(
-    'Text',
-    (uri) => uri && uri.startsWith('file://'),
-    (uri) => (
+  ContentLoader.registerLoader({
+    name: 'Text',
+    id: 'com.decosoftware.text',
+    filter: (uri) => uri && uri.startsWith('file://'),
+    renderContent: (uri) => (
       <ConnectedClass
         fileId={uri && URIUtils.withoutProtocol(uri)}
       />
-    )
-  )
+    ),
+  })
 }

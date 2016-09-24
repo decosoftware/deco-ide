@@ -22,19 +22,27 @@ export const storeEnhancer = (store) => {
   getState = store.getState
 }
 
-export const registerLoader = (name, filter, renderContent) => {
-  loaders.push({name, filter, renderContent})
+const REQUIRED_LOADER_KEYS = ['name', 'id', 'filter', 'renderContent']
+
+export const registerLoader = (loader) => {
+  REQUIRED_LOADER_KEYS.forEach(key => {
+    if (!loader[key]) {
+      throw new Error(`Registered loader ${loader.name || ''} missing key: ${key}`)
+    }
+  })
+
+  loaders.push(loader)
 }
 
 // Determine how to display content
-export const findLoader = (id) => {
+export const findLoader = (uri) => {
   const state = getState()
-  return loaders.find(loader => loader.filter(id, state))
+  return loaders.find(loader => loader.filter(uri, state))
 }
 
 // Used to give a list of all possible loaders, so the user can switch
 // between multiple views of the same file (e.g. Text Editor vs. Storyboard)
-export const filterLoaders = (id) => {
+export const filterLoaders = (uri) => {
   const state = getState()
-  return loaders.filter(loader => loader.filter(id, state))
+  return loaders.filter(loader => loader.filter(uri, state))
 }
