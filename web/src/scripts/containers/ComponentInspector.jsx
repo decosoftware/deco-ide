@@ -47,10 +47,10 @@ const stylesCreator = ({colors}, {style}) => ({
 const mapStateToProps = (state) => createSelector(
   selectors.selectedElement,
   selectors.selectedComponent,
-  selectors.focusedTabId,
-  (element, component, focusedTabId) => ({
+  selectors.focusedFileId,
+  (element, component, focusedFileId) => ({
     component: component || element,
-    focusedTabId,
+    focusedFileId,
   })
 )
 
@@ -63,9 +63,9 @@ const mapDispatchToProps = (dispatch) => ({
 class ComponentInspector extends Component {
 
   onBack = () => {
-    const {focusedTabId, elementTreeActions, uiActions} = this.props
+    const {focusedFileId, elementTreeActions, uiActions} = this.props
 
-    elementTreeActions.deselectElement(focusedTabId)
+    elementTreeActions.deselectElement(focusedFileId)
     uiActions.setSidebarContext()
   }
 

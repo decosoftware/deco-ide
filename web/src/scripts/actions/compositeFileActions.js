@@ -22,17 +22,8 @@ import TabUtils from '../utils/TabUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 export const openFile = (path) => async (dispatch, getState) => {
-  try {
-    await dispatch(editorActions.openDocument(path))
-
-  // Attempt to show the tab even if opening the doc failed
-  } catch (e) {
-    dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
-    return
-  }
-
+  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, 'file://' + path))
   FileTreeActions.selectFile(path)
-  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
 }
 
 export const closeTabWindow = (closeTabId) => async (dispatch, getState) => {

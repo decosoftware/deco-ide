@@ -18,7 +18,7 @@
 import {
   fetchModuleRegistry,
   DEFAULT_REGISTRY,
-} from '../api/ModuleClient'
+} from '../clients/ModuleClient'
 
 import {
   addModuleRegistry,

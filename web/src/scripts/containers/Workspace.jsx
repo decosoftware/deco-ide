@@ -230,12 +230,12 @@ class Workspace extends Component {
   }
 
   renderEditor = () => {
-    const { decoDoc, styles } = this.props
+    const {styles} = this.props
+    
     return (
       <TabbedEditor
         key={'tabbed-editor'}
         style={styles.centerPane}
-        decoDoc={decoDoc}
       />
     )
   }

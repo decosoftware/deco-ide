@@ -26,6 +26,7 @@ import DecoComponentUtils from '../utils/editor/DecoComponentUtils'
 import LiveValueUtils from '../utils/metadata/LiveValueUtils'
 import LiveValueGroupUtils from '../utils/metadata/LiveValueGroupUtils'
 import uuid from '../utils/uuid'
+import * as ModuleClient from '../clients/ModuleClient'
 import * as historyActions from './historyActions'
 import * as liveValueActions from './liveValueActions'
 import * as applicationActions from './applicationActions'
@@ -259,4 +260,29 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName,
 
   dispatch(edit(decoDoc.id, insertChange))
   dispatch(insertImports(decoDoc, imports, schemaVersion))
+}
+
+export const insertComponent = (fileId, component) => async (dispatch, getState) => {
+  const {editor, directory, preferences} = getState()
+  const decoDoc = getCachedDecoDoc(editor.docCache, fileId)
+  const {rootPath} = directory
+  const npmRegistry = preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY]
+
+  ModuleClient.fetchTemplateAndImportDependencies(
+    component.dependencies,
+    component.template && component.template.text,
+    component.template && component.template.metadata,
+    rootPath,
+    npmRegistry,
+    component
+  ).then(({text, metadata}) => {
+    dispatch(insertTemplate(
+      decoDoc,
+      text,
+      metadata,
+      component.imports,
+      _.get(component, 'inspector.group'),
+      component.schemaVersion
+    ))
+  })
 }
