@@ -19,7 +19,7 @@ import _ from 'lodash'
 
 const FlowController = Electron.remote.require('./process/flowController.js')
 import LocalStorage from '../persistence/LocalStorage'
-import { importModule } from '../api/ModuleClient'
+import { importModule } from '../clients/ModuleClient'
 
 const FLOW_KEY = 'FLOW'
 

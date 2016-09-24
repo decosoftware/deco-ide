@@ -73,14 +73,24 @@ export const selectedComponent = createSelector(
   }
 )
 
+export const publishingFeature = createSelector(
+  ({preferences}) => preferences,
+  (preferences) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
+)
+
 export const componentList = createSelector(
-  ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
+  publishingFeature,
   ({components}) => components.list,
   ({modules}) => modules.modules,
-  (newList, components, modules) => newList ? components : modules
+  (publishingFeature, components, modules) => publishingFeature ? components : modules
 )
 
 export const focusedTabId = createSelector(
   ({ui: {tabs}}) => tabs,
   (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`)
+)
+
+export const currentDoc = createSelector(
+  ({editor}) => editor,
+  ({openDocId, docCache}) => openDocId ? docCache[openDocId] : null,
 )

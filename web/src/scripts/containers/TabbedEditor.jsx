@@ -39,11 +39,11 @@ import * as uiActions from '../actions/uiActions'
 import * as applicationActions from '../actions/applicationActions'
 import * as textEditorCompositeActions from '../actions/textEditorCompositeActions'
 import * as compositeFileActions from '../actions/compositeFileActions'
-import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+import TabContent from './TabContent'
 
 import {
   EditorDropTarget,
@@ -112,18 +112,13 @@ const stylesCreator = ({colors}) => {
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  selectors.editorOptions,
   selectors.filesByTabId,
   ({directory}) => directory.rootPath,
   ({ui: {tabs}}) => ({
     focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
     tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
   }),
-  ({components, modules, preferences}) => {
-    const publishingFeature = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
-
-    return publishingFeature ? components.list : modules.modules
-  },
+  selectors.componentList,
   ({ui}) => ({
     consoleVisible: ui.consoleVisible,
     savedScrollHeight: ui.scrollHeight,
@@ -138,10 +133,8 @@ const mapStateToProps = (state) => createSelector(
   ({metadata}) => metadata.liveValues.liveValuesById,
   ({preferences}) => ({
     npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
-    publishingFeature: preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
   }),
-  (editorOptions, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
-    options: editorOptions,
+  (filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
     filesByTabId,
     rootPath,
     ...tabs,
@@ -205,32 +198,12 @@ class TabbedEditor extends Component {
     }
   }
 
-  onImportItem = (item) => {
-    const {options, rootPath, npmRegistry} = this.props
+  onImportItem = (component) => {
+    const {decoDoc} = this.props
 
-    fetchTemplateAndImportDependencies(
-      item.dependencies,
-      item.template && item.template.text,
-      item.template && item.template.metadata,
-      rootPath,
-      npmRegistry,
-      item
-    ).then(({text, metadata}) => {
-      const {decoDoc} = this.props
+    if (!decoDoc) return
 
-      if (! decoDoc) {
-        return
-      }
-
-      this.props.dispatch(textEditorCompositeActions.insertTemplate(
-        decoDoc,
-        text,
-        metadata,
-        item.imports,
-        _.get(item, 'inspector.group'),
-        item.schemaVersion
-      ))
-    })
+    this.props.dispatch(textEditorCompositeActions.insertComponent(decoDoc.id, component))
   }
 
   onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
@@ -264,12 +237,15 @@ class TabbedEditor extends Component {
 
   saveScrollHeight = (scrollHeight) => this.props.dispatch(uiActions.setConsoleScrollHeight(scrollHeight))
 
-  // Delay allows key events to finish first?
   // TODO: move search menu to top level and take care of this on that refactor
   onRequestCloseSearchMenu = () => {
-    setTimeout(() => {
-      this.refs.editor.getDecoratedComponentInstance().focus()
-    }, 200)
+    const {decoDoc} = this.props
+
+    if (decoDoc) {
+      const editor = decoDoc.cmDoc.getEditor()
+
+      editor && editor.focus()
+    }
 
     this.setState({showMenu: false})
   }
@@ -342,10 +318,8 @@ class TabbedEditor extends Component {
       npmRegistry,
       focusedTabId,
       width,
-      options,
       decoDoc,
       liveValuesById,
-      publishingFeature,
       progressBar,
       componentList,
     } = this.props
@@ -379,23 +353,7 @@ class TabbedEditor extends Component {
           {this.renderToast()}
           <div style={styles.contentContainer}>
             {decoDoc ? (
-              <EditorDropTarget
-                className={'flex-variable editor'}
-                ref={'editor'}
-                middleware={[
-                  DragAndDropMiddleware(this.props.dispatch),
-                  HistoryMiddleware(this.props.dispatch),
-                  TokenMiddleware(this.props.dispatch),
-                  ClipboardMiddleware(this.props.dispatch, liveValuesById),
-                  AutocompleteMiddleware(this.props.dispatch, focusedTabId),
-                  IndentGuideMiddleware(this.props.dispatch),
-                  ASTMiddleware(this.props.dispatch, publishingFeature),
-                ]}
-                onImportItem={this.onImportItem}
-                options={options}
-                decoDoc={decoDoc}
-                style={styles.editor}
-              />
+              <TabContent id={decoDoc.id} ref={'tab'} />
             ) : (
               <NoContent>
                 Welcome to Deco

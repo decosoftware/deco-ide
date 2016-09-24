@@ -15,7 +15,7 @@
  *
  */
 
-import DecoClient from '../api/DecoClient'
+import DecoClient from '../clients/DecoClient'
 import CookieUtils from '../utils/CookieUtils'
 import { saveToken, deleteToken } from '../utils/AuthUtils'
 

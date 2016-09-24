@@ -15,19 +15,26 @@
  *
  */
 
-import {
-  fetchModuleRegistry,
-  DEFAULT_REGISTRY,
-} from '../clients/ModuleClient'
+const loaders = []
+let getState
 
-import {
-  addModuleRegistry,
-} from '../actions/moduleActions'
-
-const moduleActionEmitter = (store) => {
-  fetchModuleRegistry(DEFAULT_REGISTRY).then((modules) => {
-    store.dispatch(addModuleRegistry(DEFAULT_REGISTRY, modules))
-  })
+export const storeEnhancer = (store) => {
+  getState = store.getState
 }
 
-export default moduleActionEmitter
+export const registerLoader = (name, filter, renderContent) => {
+  loaders.push({name, filter, renderContent})
+}
+
+// Determine how to display content
+export const findLoader = (id) => {
+  const state = getState()
+  return loaders.find(loader => loader.filter(id, state))
+}
+
+// Used to give a list of all possible loaders, so the user can switch
+// between multiple views of the same file (e.g. Text Editor vs. Storyboard)
+export const filterLoaders = (id) => {
+  const state = getState()
+  return loaders.filter(loader => loader.filter(id, state))
+}

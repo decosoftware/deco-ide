@@ -29,6 +29,7 @@ import fileTreeActionEmitter from '../ipc/fileTreeActionEmitter'
 import preferencesActionEmitter from '../persistence/preferencesActionEmitter'
 import layoutActionEmitter from '../persistence/layoutActionEmitter'
 import moduleActionEmitter from '../persistence/moduleActionEmitter'
+import { storeEnhancer as contentLoader } from '../api/ContentLoader'
 import applyActionEmitters from './applyActionEmitters'
 
 //DEV
@@ -53,7 +54,8 @@ export default function configureStore() {
     fileTreeActionEmitter,
     preferencesActionEmitter,
     layoutActionEmitter,
-    moduleActionEmitter
+    moduleActionEmitter,
+    contentLoader
   )
   reduxRouterMiddleware.listenForReplays(store)
 

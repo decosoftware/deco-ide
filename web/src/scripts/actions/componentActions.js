@@ -1,4 +1,4 @@
-import DecoClient from '../api/DecoClient'
+import DecoClient from '../clients/DecoClient'
 
 export const at = {
   USER_COMPONENTS_FETCH_REQUEST_PENDING: 'USER_COMPONENTS_FETCH_REQUEST_PENDING',
