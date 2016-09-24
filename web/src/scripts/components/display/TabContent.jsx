@@ -23,7 +23,7 @@ import NoContent from './NoContent'
 export default class TabContent extends Component {
 
   static propTypes = {
-    id: PropTypes.string.isRequired,
+    uri: PropTypes.string,
   }
 
   constructor(props) {
@@ -40,13 +40,13 @@ export default class TabContent extends Component {
   }
 
   findLoader(props) {
-    const {id} = props
-    return ContentLoader.findLoader(id)
+    const {uri} = props
+    return ContentLoader.findLoader(uri)
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-      this.props.id !== nextProps.id ||
+      this.props.uri !== nextProps.uri ||
       this.state.loader !== nextState.loader
     )
   }
@@ -56,7 +56,7 @@ export default class TabContent extends Component {
   }
 
   render() {
-    const {id} = this.props
+    const {uri} = this.props
     const {loader} = this.state
 
     if (!loader) {
@@ -70,7 +70,7 @@ export default class TabContent extends Component {
       )
     }
 
-    const element = loader.renderContent(id, loader)
+    const element = loader.renderContent(uri, loader)
 
     return React.cloneElement(element, {ref: 'wrappedInstance'})
   }

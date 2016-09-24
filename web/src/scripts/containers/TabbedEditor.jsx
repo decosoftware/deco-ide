@@ -78,6 +78,7 @@ const stylesCreator = ({colors}) => {
       borderTopWidth: 0,
       borderStyle: 'solid',
       borderColor: colors.editor.divider,
+      backgroundColor: colors.editor.background,
     },
     editor: {
       flex: '1 1 auto',
@@ -353,7 +354,7 @@ class TabbedEditor extends Component {
           </TabContainer>
           {this.renderToast()}
           <div style={styles.contentContainer}>
-            <TabContent id={focusedTabId} />
+            <TabContent uri={focusedTabId} />
           </div>
           <Console
             consoleOpen={this.props.consoleVisible}

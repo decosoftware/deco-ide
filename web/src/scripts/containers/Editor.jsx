@@ -47,18 +47,16 @@ const stylesCreator = () => ({
   },
 })
 
-const mapStateToProps = (state, ownProps) => createSelector(
-  (state, ownProps) => ownProps.id,
+const mapStateToProps = (state) => createSelector(
   selectors.currentDoc,
   selectors.editorOptions,
   selectors.publishingFeature,
   ({metadata}) => metadata.liveValues.liveValuesById,
-  (id, decoDoc, editorOptions, publishingFeature, liveValuesById) => ({
+  (decoDoc, editorOptions, publishingFeature, liveValuesById) => ({
     decoDoc,
     editorOptions,
     publishingFeature,
     liveValuesById,
-    fileId: id && URIUtils.withoutProtocol(id),
   })
 )
 
@@ -139,7 +137,11 @@ export default ConnectedClass
 export const registerLoader = () => {
   ContentLoader.registerLoader(
     'Text',
-    (id) => id && id.startsWith('file://'),
-    (id) => <ConnectedClass id={id} />
+    (uri) => uri && uri.startsWith('file://'),
+    (uri) => (
+      <ConnectedClass
+        fileId={uri && URIUtils.withoutProtocol(uri)}
+      />
+    )
   )
 }
