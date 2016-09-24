@@ -22,7 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
 import { componentActions, userActions, publishingActions } from '../actions'
-import { PaneHeader, PublishingSignIn, PublishingBrowser, PublishingMetadata } from '../components'
+import { PaneHeader, PublishingBrowser, PublishingMetadata } from '../components'
 
 const styles = {
   container: {
@@ -68,13 +68,13 @@ const mapDispatchToProps = (dispatch) => ({
 
 class Publishing extends Component {
 
-  constructor(props) {
-    super()
+  componentWillMount() {
+    const {componentActions, userActions, signedIn} = this.props
 
-    props.componentActions.fetchComponents()
+    componentActions.fetchComponents()
 
-    if (props.signedIn) {
-      props.userActions.fetchUserInfo()
+    if (signedIn) {
+      userActions.fetchUserInfo()
     }
   }
 
@@ -92,8 +92,8 @@ class Publishing extends Component {
     this.props.componentActions.deleteComponent(component)
   }
 
-  selectComponent = (currentComponentId) => {
-    this.props.publishingActions.setCurrentComponent(currentComponentId)
+  selectComponent = (component) => {
+    this.props.publishingActions.setCurrentComponent(component.id)
   }
 
   deselectCurrentComponent = () => {
@@ -113,33 +113,29 @@ class Publishing extends Component {
 
     return (
       <div style={styles.container}>
-        <PaneHeader
-          text={'Publishing'}
-          leftTitle={currentComponent ? 'Back' : null}
-          onClickLeftTitle={this.deselectCurrentComponent}
-          rightTitle={signedIn ? 'Sign out' : null}
-          onClickRightTitle={this.signOut}
-        />
-        {signedIn ? (
-          currentComponent ? (
-            <PublishingMetadata
-              user={user}
-              component={currentComponent}
-              width={width}
-              onUpdateComponent={this.updateComponent}
-              onDeleteComponent={this.deleteComponent}
-            />
-          ) : (
-            <PublishingBrowser
-              user={user}
-              components={components}
-              onSelectComponent={this.selectComponent}
-              onCreateComponent={this.createComponent}
-            />
-          )
+        {currentComponent && (
+          <PaneHeader
+            leftTitle={'Back'}
+            onClickLeftTitle={this.deselectCurrentComponent}
+          />
+        )}
+        {currentComponent ? (
+          <PublishingMetadata
+            user={user}
+            component={currentComponent}
+            width={width}
+            onUpdateComponent={this.updateComponent}
+            onDeleteComponent={this.deleteComponent}
+          />
         ) : (
-          <PublishingSignIn
-            onClickSignIn={this.signIn}
+          <PublishingBrowser
+            signedIn={signedIn}
+            user={user}
+            components={components}
+            onSignIn={this.signIn}
+            onSignOut={this.signOut}
+            onSelectComponent={this.selectComponent}
+            onCreateComponent={this.createComponent}
           />
         )}
       </div>

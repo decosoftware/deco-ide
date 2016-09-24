@@ -427,7 +427,7 @@ class TabbedEditor extends Component {
           <SearchMenu
             ItemComponent={ComponentMenuItem}
             items={componentList}
-            onItemClick={this.onImportItem.bind(this)}
+            onClickItem={this.onImportItem.bind(this)}
             show={showMenu}
             anchorPosition={menuPosition}
             requestClose={this.onRequestCloseSearchMenu}

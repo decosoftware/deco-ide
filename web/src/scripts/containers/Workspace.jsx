@@ -286,10 +286,6 @@ class Workspace extends Component {
                 className={'subpixel-antialiased helvetica-smooth'}
                 style={styles.leftPaneTop}
               />
-              <ComponentBrowser
-                className={'subpixel-antialiased'}
-                style={styles.leftPaneBottom}
-              />
             </div>
           )}
           {

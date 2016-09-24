@@ -22,6 +22,7 @@ const stylesCreator = ({colors}) => {
   return {
     container: {
       backgroundColor: colors.background,
+      flex: '0 0 36px',
       height: 36,
       width: '100%',
       lineHeight: '36px',
