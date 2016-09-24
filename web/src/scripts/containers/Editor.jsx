@@ -23,6 +23,7 @@ import { StylesEnhancer } from 'react-styles-provider'
 
 import * as selectors from '../selectors'
 import * as ContentLoader from '../api/ContentLoader'
+import * as URIUtils from '../utils/URIUtils'
 import HistoryMiddleware from '../middleware/editor/HistoryMiddleware'
 import TokenMiddleware from '../middleware/editor/TokenMiddleware'
 import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
@@ -30,7 +31,7 @@ import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
-import { textEditorCompositeActions } from '../actions'
+import { editorActions, textEditorCompositeActions } from '../actions'
 import { EditorDropTarget, EditorToast } from '../components'
 
 const stylesCreator = () => ({
@@ -46,16 +47,18 @@ const stylesCreator = () => ({
   },
 })
 
-const mapStateToProps = (state) => createSelector(
+const mapStateToProps = (state, ownProps) => createSelector(
+  (state, ownProps) => ownProps.id,
   selectors.currentDoc,
   selectors.editorOptions,
   selectors.publishingFeature,
   ({metadata}) => metadata.liveValues.liveValuesById,
-  (decoDoc, editorOptions, publishingFeature, liveValuesById) => ({
+  (id, decoDoc, editorOptions, publishingFeature, liveValuesById) => ({
     decoDoc,
     editorOptions,
     publishingFeature,
     liveValuesById,
+    fileId: id && URIUtils.withoutProtocol(id),
   })
 )
 
@@ -70,16 +73,29 @@ class Editor extends Component {
     }
   }
 
+  componentWillMount() {
+    this.ensureDoc(this.props)
+  }
+
   componentWillReceiveProps(nextProps) {
+    this.ensureDoc(nextProps)
     this.setState({
       middleware: this.getMiddleware(nextProps)
     })
   }
 
-  onImportComponent = (component) => {
-    const {dispatch, id} = this.props
+  ensureDoc(props) {
+    const {dispatch, decoDoc, fileId} = props
 
-    dispatch(textEditorCompositeActions.insertComponent(id, component))
+    if (!decoDoc) {
+      dispatch(editorActions.getDocument(fileId))
+    }
+  }
+
+  onImportComponent = (component) => {
+    const {dispatch, fileId} = this.props
+
+    dispatch(textEditorCompositeActions.insertComponent(fileId, component))
   }
 
   getMiddleware(props) {
@@ -97,7 +113,7 @@ class Editor extends Component {
   }
 
   render() {
-    const {styles, dispatch, id, decoDoc, editorOptions} = this.props
+    const {styles, decoDoc, editorOptions} = this.props
     const {middleware} = this.state
 
     if (!decoDoc) return null
@@ -123,7 +139,7 @@ export default ConnectedClass
 export const registerLoader = () => {
   ContentLoader.registerLoader(
     'Text',
-    (id) => true,
+    (id) => id && id.startsWith('file://'),
     (id) => <ConnectedClass id={id} />
   )
 }

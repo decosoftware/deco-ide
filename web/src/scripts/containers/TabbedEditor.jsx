@@ -43,17 +43,16 @@ import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
-import TabContent from './TabContent'
 
 import {
   EditorDropTarget,
-  NoContent,
   ProgressBar,
   Console,
   SearchMenu,
   ComponentMenuItem,
   TabContainer,
   Tab,
+  TabContent,
   EditorToast,
 } from '../components'
 
@@ -112,6 +111,7 @@ const stylesCreator = ({colors}) => {
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
+  selectors.currentDoc,
   selectors.filesByTabId,
   ({directory}) => directory.rootPath,
   ({ui: {tabs}}) => ({
@@ -134,7 +134,8 @@ const mapStateToProps = (state) => createSelector(
   ({preferences}) => ({
     npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
   }),
-  (filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
+  (decoDoc, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
+    decoDoc,
     filesByTabId,
     rootPath,
     ...tabs,
@@ -352,16 +353,7 @@ class TabbedEditor extends Component {
           </TabContainer>
           {this.renderToast()}
           <div style={styles.contentContainer}>
-            {decoDoc ? (
-              <TabContent id={decoDoc.id} ref={'tab'} />
-            ) : (
-              <NoContent>
-                Welcome to Deco
-                <br />
-                <br />
-                Open a file in the Project Browser on the left to get started.
-              </NoContent>
-            )}
+            <TabContent id={focusedTabId} />
           </div>
           <Console
             consoleOpen={this.props.consoleVisible}

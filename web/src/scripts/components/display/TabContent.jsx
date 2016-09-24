@@ -17,7 +17,8 @@
 
 import React, { Component, PropTypes } from 'react'
 
-import * as ContentLoader from '../api/ContentLoader'
+import * as ContentLoader from '../../api/ContentLoader'
+import NoContent from './NoContent'
 
 export default class TabContent extends Component {
 
@@ -45,7 +46,7 @@ export default class TabContent extends Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
-      this.props.id !== nextProps.id &&
+      this.props.id !== nextProps.id ||
       this.state.loader !== nextState.loader
     )
   }
@@ -59,7 +60,14 @@ export default class TabContent extends Component {
     const {loader} = this.state
 
     if (!loader) {
-      return <div>Failed to load content</div>
+      return (
+        <NoContent>
+          Welcome to Deco
+          <br />
+          <br />
+          Open a file in the Project Browser on the left to get started.
+        </NoContent>
+      )
     }
 
     const element = loader.renderContent(id, loader)

@@ -18,7 +18,8 @@
 import _ from 'lodash'
 import { createSelector } from 'reselect'
 
-import { getElementByPath } from '../utils/ElementTreeUtils'
+import * as URIUtils from '../utils/URIUtils'
+import * as ElementTreeUtils from '../utils/ElementTreeUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
@@ -54,7 +55,7 @@ export const selectedElement = createSelector(
     const elementPath = elementTree.selectedElementPathForFile[filename]
 
     if (tree && elementPath) {
-      return getElementByPath(tree, elementPath)
+      return ElementTreeUtils.getElementByPath(tree, elementPath)
     } else {
       return null
     }
@@ -91,6 +92,7 @@ export const focusedTabId = createSelector(
 )
 
 export const currentDoc = createSelector(
-  ({editor}) => editor,
-  ({openDocId, docCache}) => openDocId ? docCache[openDocId] : null,
+  ({editor: {docCache}}) => docCache,
+  focusedTabId,
+  (docCache, tabId) => tabId ? docCache[URIUtils.withoutProtocol(tabId)] : null
 )
