@@ -27,6 +27,10 @@ export const setElementTree = (filename, elementTree) => async (dispatch) => {
   dispatch({type: at.SET_ELEMENT_TREE, payload: {filename, elementTree}})
 }
 
+export const deselectElement = (filename) => async (dispatch, getState) => {
+  return dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath: null}})
+}
+
 export const selectElementFromPos = (filename, pos) => async (dispatch, getState) => {
   const elementTree = getState().elementTree.elementTreeForFile[filename]
 
@@ -36,9 +40,11 @@ export const selectElementFromPos = (filename, pos) => async (dispatch, getState
     if (element) {
       const {elementPath} = element
 
-      dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath}})
+      return dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath}})
     }
   }
+
+  return dispatch(deselectElement(filename))
 }
 
 export const updateProp = (filename, element, prop, value, text) => async (dispatch, getState) => {

@@ -23,11 +23,15 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 
-import { ComponentMenuItem } from '../components'
+import { elementTreeActions } from '../actions'
+import * as uiActions from '../actions/uiActions'
+import * as selectors from '../selectors'
+import { ComponentMenuItem, PaneHeader } from '../components'
 import ComponentProps from './ComponentProps'
 
-const stylesCreator = ({colors}) => ({
+const stylesCreator = ({colors}, {style}) => ({
   container: {
+    ...style,
     display: 'flex',
     flex: '1 0 auto',
     flexDirection: 'column',
@@ -41,25 +45,45 @@ const stylesCreator = ({colors}) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
-  () => ({
-    component: {
-      name: 'Component',
-      item: null,
-    },
+  selectors.selectedElement,
+  selectors.selectedComponent,
+  selectors.focusedTabId,
+  (element, component, focusedTabId) => ({
+    component: component || element,
+    focusedTabId,
   })
 )
 
-@StylesEnhancer(stylesCreator)
+const mapDispatchToProps = (dispatch) => ({
+  elementTreeActions: bindActionCreators(elementTreeActions, dispatch),
+  uiActions: bindActionCreators(uiActions, dispatch),
+})
+
+@StylesEnhancer(stylesCreator, ({style}) => ({style}))
 class ComponentInspector extends Component {
+
+  onBack = () => {
+    const {focusedTabId, elementTreeActions, uiActions} = this.props
+
+    elementTreeActions.deselectElement(focusedTabId)
+    uiActions.setSidebarContext()
+  }
+
   render() {
-    const {style, styles, width, decoDoc, component} = this.props
+    const {style, styles, width, decoDoc, component, elementTreeActions} = this.props
 
     return (
-      <div style={{...style, ...styles.container}}>
-        <ComponentMenuItem
-          name={component.name}
-          item={component.item}
+      <div style={styles.container}>
+        <PaneHeader
+          leftTitle={'Back'}
+          onClickLeftTitle={this.onBack}
         />
+        {component && (
+          <ComponentMenuItem
+            name={component.name}
+            item={component}
+          />
+        )}
         <div style={styles.properties}>
           <ComponentProps
             decoDoc={decoDoc}
@@ -71,4 +95,4 @@ class ComponentInspector extends Component {
   }
 }
 
-export default connect(mapStateToProps)(ComponentInspector)
+export default connect(mapStateToProps, mapDispatchToProps)(ComponentInspector)

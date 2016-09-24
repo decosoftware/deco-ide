@@ -42,16 +42,21 @@ const styles = {
   },
 }
 
-class FilterableList extends Component {
-  constructor(props) {
-    super(props)
+export default class FilterableList extends Component {
 
-    this.renderItem = this.renderItem.bind(this)
-    this.handleMouseLeave = this.handleMouseLeave.bind(this)
+  static defaultProps = {
+    items: [],
+    hideMenu: () => {},
+    onClickItem: () => {},
+    onSelectItem: () => {},
+  }
+
+  constructor(props) {
+    super()
 
     this.state = {
       searchText: '',
-      activeIndex: this.props.autoSelectFirst ? 0 : -1,
+      activeIndex: props.autoSelectFirst ? 0 : -1,
       filteredListItems: props.items,
       lastMoveTime: Date.now(),
     }
@@ -103,7 +108,7 @@ class FilterableList extends Component {
         if (pkg.onClick) {
           pkg.onClick()
         } else {
-          this.props.onItemClick(pkg)
+          this.props.onClickItem(pkg)
         }
       },
       escape: (e) => {
@@ -186,15 +191,15 @@ class FilterableList extends Component {
     onSelectItem(list[index])
   }
 
-  handleMouseLeave() {
+  handleMouseLeave = () => {
     this.setState({
       activeIndex: -1,
     })
     this._handleSelectItem(-1)
   }
 
-  renderItem({index}) {
-    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
+  renderItem = ({index}) => {
+    const {items, onClickItem, ItemComponent, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -215,7 +220,7 @@ class FilterableList extends Component {
       <ItemComponent
         key={item.id}
         ref={index}
-        onClick={onItemClick}
+        onClick={onClickItem}
         onMouseEnter={this._onItemMouseEnter.bind(this, index)}
         active={index === activeIndex}
         name={displayName || name}
@@ -228,7 +233,7 @@ class FilterableList extends Component {
 
   render() {
     const {keyMap, keyHandlers, _onSearchTextChange} = this
-    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
+    const {items, onClickItem, ItemComponent, autoFocus, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -239,6 +244,7 @@ class FilterableList extends Component {
         style={styles.main}
       >
         <FilterableInputList
+          autoFocus={autoFocus}
           searchText={searchText}
           handleSearchTextChange={_onSearchTextChange.bind(this)}
           transparentBackground={transparentBackground}
@@ -268,11 +274,3 @@ class FilterableList extends Component {
     )
   }
 }
-
-FilterableList.defaultProps = {
-  items: [],
-  hideMenu: () => {},
-  onSelectItem: () => {},
-}
-
-export default FilterableList
