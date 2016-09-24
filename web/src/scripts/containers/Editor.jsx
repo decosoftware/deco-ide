@@ -60,6 +60,12 @@ const mapStateToProps = (state) => createSelector(
   })
 )
 
+const mapDispatchToProps = (dispatch) => ({
+  editorActions: bindActionCreators(editorActions, dispatch),
+  textEditorCompositeActions: bindActionCreators(textEditorCompositeActions, dispatch),
+  dispatch,
+})
+
 @StylesEnhancer(stylesCreator)
 class Editor extends Component {
 
@@ -83,17 +89,17 @@ class Editor extends Component {
   }
 
   ensureDoc(props) {
-    const {dispatch, decoDoc, fileId} = props
+    const {decoDoc, fileId, editorActions} = props
 
     if (!decoDoc) {
-      dispatch(editorActions.getDocument(fileId))
+      editorActions.getDocument(fileId)
     }
   }
 
   onImportComponent = (component) => {
-    const {dispatch, fileId} = this.props
+    const {fileId, textEditorCompositeActions} = this.props
 
-    dispatch(textEditorCompositeActions.insertComponent(fileId, component))
+    textEditorCompositeActions.insertComponent(fileId, component)
   }
 
   getMiddleware(props) {
@@ -128,9 +134,7 @@ class Editor extends Component {
   }
 }
 
-const ConnectedClass = connect(
-  mapStateToProps, undefined, undefined, {withRef: true}
-)(Editor)
+const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 
 export default ConnectedClass
 
