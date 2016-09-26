@@ -35,33 +35,19 @@ import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
  */
 export default class ClipboardMiddleware extends Middleware {
 
-  constructor() {
-    super()
+  handleCopy = (...args) => this.copy(false, ...args)
 
-    this._keyMap = {}
+  handleCut = (...args) => this.copy(true, ...args)
 
-    this._handleCopy = this._copy.bind(this, false)
-    this._handleCut = this._copy.bind(this, true)
-    this._handlePaste = this._handlePaste.bind(this)
-  }
-
-  get eventListeners() {
-    return this._keyMap
-  }
-
-  _isCodeMirrorChildElement(element) {
-    return this._decoDoc.cmDoc.cm.getWrapperElement().contains(element)
-  }
-
-  _copy(shouldDeleteSelection, e) {
-    if (! this._isCodeMirrorChildElement(e.target)) {
+  copy = (shouldDeleteSelection, e) => {
+    if (! this.isCodeMirrorChildElement(e.target)) {
       return
     }
 
     // Get code and ranges for the current selection
-    const copyRanges = _.map(this._decoDoc.cmDoc.listSelections(), (nativeRange) => {
+    const copyRanges = _.map(this.linkedDoc.listSelections(), (nativeRange) => {
       const {code, decoRanges} = DecoRangeUtils.collapseWhitespace(
-        this._decoDoc,
+        this.decoDoc,
         nativeRange.from(),
         nativeRange.to()
       )
@@ -76,7 +62,7 @@ export default class ClipboardMiddleware extends Middleware {
       // Get live value data for ranges
       const liveValues = LiveValueUtils.denormalizeLiveValueMetadata(
         shiftedDecoRanges,
-        this._liveValuesById
+        this.liveValuesById
       )
 
       // Create custom deco json
@@ -90,23 +76,21 @@ export default class ClipboardMiddleware extends Middleware {
     e.preventDefault()
 
     if (shouldDeleteSelection) {
-      _.each(this._decoDoc.cmDoc.listSelections(), (nativeRange) => {
-        this._decoDoc.cmDoc.replaceRange("", nativeRange.from(), nativeRange.to())
+      _.each(this.linkedDoc.listSelections(), (nativeRange) => {
+        this.linkedDoc.replaceRange("", nativeRange.from(), nativeRange.to())
       })
     }
   }
 
-  _handlePaste(e) {
-    if (! this._isCodeMirrorChildElement(e.target)) {
-      return
-    }
+  handlePaste = (e) => {
+    if (! this.isCodeMirrorChildElement(e.target)) return
 
     const rawData = e.clipboardData.getData('application/deco')
 
     // Only handle paste manually if we're pasting deco content
-    if (! rawData) {
-      return
-    }
+    if (! rawData) return
+
+    const {decoDoc: {id: fileId}} = this
 
     const performPaste = ({code, liveValues}, nativeRange) => {
 
@@ -121,7 +105,7 @@ export default class ClipboardMiddleware extends Middleware {
       } = LiveValueUtils.normalizeLiveValueMetadata(liveValues)
 
       // Replace original text with new text
-      const originalText = this._decoDoc.cmDoc.getRange(from, to)
+      const originalText = this.linkedDoc.getRange(from, to)
       const textChange = DecoChangeFactory.createChangeToSetText(from, to, code, originalText)
 
       // Shift ranges from Pos(0,0) to location of insertion
@@ -137,13 +121,13 @@ export default class ClipboardMiddleware extends Middleware {
         DecoChangeFactory.createChangeToAddDecoRanges(shiftedDecoRanges),
       ])
 
-      this.dispatch(liveValueActions.importLiveValues(this._decoDoc.id, liveValuesById))
-      this.dispatch(textEditorCompositeActions.edit(this._decoDoc.id, decoChange))
+      this.dispatch(liveValueActions.importLiveValues(fileId, liveValuesById))
+      this.dispatch(textEditorCompositeActions.edit(fileId, decoChange))
     }
 
     // Unpack custom deco json
     const copyRanges = JSON.parse(rawData).ranges
-    const selections = this._decoDoc.cmDoc.listSelections()
+    const selections = this.linkedDoc.listSelections()
 
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i]
@@ -166,32 +150,36 @@ export default class ClipboardMiddleware extends Middleware {
     return false
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
+  attach(decoDoc, linkedDoc) {
+    if (!decoDoc) return
 
-    document.addEventListener('copy', this._handleCopy)
-    document.addEventListener('cut', this._handleCut)
-    document.addEventListener('paste', this._handlePaste, true)
+    super.attach(decoDoc, linkedDoc)
 
-    this._decoDoc = decoDoc
+    document.addEventListener('copy', this.handleCopy)
+    document.addEventListener('cut', this.handleCut)
+    document.addEventListener('paste', this.handlePaste, true)
   }
 
   detach() {
-    if (!this._decoDoc) {
-      return
-    }
+    if (!this.decoDoc) return
 
-    document.removeEventListener('copy', this._handleCopy)
-    document.removeEventListener('cut', this._handleCut)
-    document.removeEventListener('paste', this._handlePaste)
+    super.detach()
 
-    this._decoDoc = null
+    document.removeEventListener('copy', this.handleCopy)
+    document.removeEventListener('cut', this.handleCut)
+    document.removeEventListener('paste', this.handlePaste)
   }
 
   setLiveValuesById(liveValuesById) {
-    this._liveValuesById = liveValuesById
+    this.liveValuesById = liveValuesById
+
+    return this
+  }
+
+  isCodeMirrorChildElement(element) {
+    if (!this.linkedDoc) return false
+
+    return this.linkedDoc.cm.getWrapperElement().contains(element)
   }
 
 }

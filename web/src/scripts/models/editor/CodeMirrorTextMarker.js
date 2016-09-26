@@ -62,7 +62,9 @@ class CodeMirrorTextMarker {
       throw new Error(`Can't get nativeId - native marker not attached`)
     }
 
-    return this._nativeMarker.id
+    // Markers have an id. Shared markers don't have an id, but are linked to a
+    // primary marker, so use that id.
+    return this._nativeMarker.id || this._nativeMarker.primary.id
   }
 
   attachToNativeDocAtRange(cmDoc, cmRange) {

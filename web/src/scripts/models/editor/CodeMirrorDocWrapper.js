@@ -66,7 +66,7 @@ class CodeMirrorDocWrapper {
     }
 
     return _.chain(nativeMarks)
-      .map((nativeMark) => nativeIds[nativeMark.id])
+      .map((nativeMark) => nativeIds[nativeMark.id || nativeMark.primary.id])
       .filter()
       .filter((cmTextMarker) => {
         const {from: markerFrom, to: markerTo} = cmTextMarker.cmRange

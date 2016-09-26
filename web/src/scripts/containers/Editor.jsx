@@ -105,9 +105,8 @@ class Editor extends Component {
   getMiddleware(props) {
     const {dispatch, liveValuesById, publishingFeature} = props
 
-    // const clipboardMiddleware = new ClipboardMiddleware()
-    // clipboardMiddleware.setLiveValuesById(liveValuesById)
-    //
+
+
     // const astMiddleware = new ASTMiddleware()
     // astMiddleware.enabled = publishingFeature
 
@@ -117,7 +116,7 @@ class Editor extends Component {
       new DragAndDropMiddleware(),
       new HistoryMiddleware(),
       new TokenMiddleware(),
-      // clipboardMiddleware,
+      new ClipboardMiddleware().setLiveValuesById(liveValuesById),
       // new AutocompleteMiddleware(),
       // new IndentGuideMiddleware(),
       // astMiddleware,
