@@ -6,13 +6,16 @@ import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
 
+import * as ContentLoader from '../api/ContentLoader'
+import * as URIUtils from '../utils/URIUtils'
 import { storyboardActions } from '../actions'
 
 const stylesCreator = (theme) => {
   const {colors} = theme
   return {
     container: {
-      // backgroundColor: colors.editor.background,
+      backgroundColor: 'white',
+      flex: '1 1 auto',
     }
   }
 }
@@ -65,6 +68,11 @@ class NewSceneButton extends Component {
 @StylesEnhancer(stylesCreator)
 class Storyboard extends Component {
 
+  componentWillMount() {
+    const { fileId, storyboardActions } = this.props
+    storyboardActions.openStoryboard(fileId)
+  }
+
   render() {
     const {
       connections,
@@ -93,4 +101,19 @@ class Storyboard extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Storyboard)
+const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Storyboard)
+
+export default ConnectedClass
+
+export const registerLoader = () => {
+  ContentLoader.registerLoader({
+    name: 'Storyboard',
+    id: 'com.decosoftware.storyboard',
+    filter: (uri) => uri && uri.startsWith('file://') && uri.endsWith('.storyboard.js'),
+    renderContent: (uri) => (
+      <ConnectedClass
+        fileId={uri && URIUtils.withoutProtocol(uri)}
+      />
+    ),
+  })
+}

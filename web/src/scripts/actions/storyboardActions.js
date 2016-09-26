@@ -35,7 +35,7 @@ export const at = {
 }
 
 export const openStoryboard = (filepath) => async (dispatch, getState) => {
-  const storyboardDoc = getState().editor.docCache[filepath]
+  const storyboardDoc = await dispatch(editorActions.getDocument(filepath))
   const rootPath = getState().directory.rootPath
   const storyboardCode = storyboardDoc.code
   const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
