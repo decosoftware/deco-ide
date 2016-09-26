@@ -38,7 +38,7 @@ import { AutocompleteHint } from '../../components'
  *
  * In the case that flow doesn't exist, we show only basic completions.
  */
-class AutocompleteMiddleware extends Middleware {
+export default class AutocompleteMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -193,11 +193,4 @@ class AutocompleteMiddleware extends Middleware {
     this._decoDoc = null
   }
 
-}
-
-const middleware = new AutocompleteMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

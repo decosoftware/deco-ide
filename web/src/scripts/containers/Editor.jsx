@@ -105,15 +105,25 @@ class Editor extends Component {
   getMiddleware(props) {
     const {dispatch, liveValuesById, publishingFeature} = props
 
-    return [
-      DragAndDropMiddleware(dispatch),
-      HistoryMiddleware(dispatch),
-      TokenMiddleware(dispatch),
-      ClipboardMiddleware(dispatch, liveValuesById),
-      AutocompleteMiddleware(dispatch),
-      IndentGuideMiddleware(dispatch),
-      ASTMiddleware(dispatch, publishingFeature),
+    const clipboardMiddleware = new ClipboardMiddleware()
+    clipboardMiddleware.setLiveValuesById(liveValuesById)
+
+    const astMiddleware = new ASTMiddleware()
+    astMiddleware.enabled = publishingFeature
+
+    const middleware = [
+      new DragAndDropMiddleware(),
+      new HistoryMiddleware(),
+      new TokenMiddleware(),
+      clipboardMiddleware,
+      new AutocompleteMiddleware(),
+      // new IndentGuideMiddleware(),
+      astMiddleware,
     ]
+
+    middleware.forEach(m => m.setDispatchFunction(dispatch))
+
+    return middleware
   }
 
   render() {

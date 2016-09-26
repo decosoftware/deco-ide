@@ -26,7 +26,7 @@ import PrimitiveTypes from '../../constants/PrimitiveTypes'
 /**
  * Middleware for highlighting and clicking specific token types
  */
-class DragAndDropMiddleware extends Middleware {
+export default class DragAndDropMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -99,11 +99,4 @@ class DragAndDropMiddleware extends Middleware {
     this._decoDoc = null
   }
 
-}
-
-const middleware = new DragAndDropMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

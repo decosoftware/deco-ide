@@ -32,7 +32,7 @@ import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
 /**
  * Middleware for custom history management
  */
-class HistoryMiddleware extends Middleware {
+export default class HistoryMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -117,11 +117,4 @@ class HistoryMiddleware extends Middleware {
     }
   }
 
-}
-
-const middleware = new HistoryMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

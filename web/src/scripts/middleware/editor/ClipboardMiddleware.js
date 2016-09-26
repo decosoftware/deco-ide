@@ -33,7 +33,7 @@ import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
 /**
  * Middleware for handling copy and paste with DecoRanges
  */
-class ClipboardMiddleware extends Middleware {
+export default class ClipboardMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -194,12 +194,4 @@ class ClipboardMiddleware extends Middleware {
     this._liveValuesById = liveValuesById
   }
 
-}
-
-const middleware = new ClipboardMiddleware()
-
-export default (dispatch, liveValuesById) => {
-  middleware.setDispatchFunction(dispatch, liveValuesById)
-  middleware.setLiveValuesById(liveValuesById)
-  return middleware
 }

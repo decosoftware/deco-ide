@@ -32,7 +32,7 @@ const TOKEN_TYPES = [
 /**
  * Middleware for highlighting and clicking specific token types
  */
-class TokenMiddleware extends Middleware {
+export default class TokenMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -100,11 +100,4 @@ class TokenMiddleware extends Middleware {
     this._decoDoc = null
   }
 
-}
-
-const middleware = new TokenMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

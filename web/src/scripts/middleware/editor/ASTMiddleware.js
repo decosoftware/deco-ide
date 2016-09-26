@@ -32,7 +32,7 @@ import * as uiActions from '../../actions/uiActions'
 /**
  * Middleware for building an AST from the file
  */
-class ASTMiddleware extends Middleware {
+export default class ASTMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -108,12 +108,4 @@ class ASTMiddleware extends Middleware {
     this.decoDoc = null
   }
 
-}
-
-const middleware = new ASTMiddleware()
-
-export default (dispatch, enabled) => {
-  middleware.setDispatchFunction(dispatch)
-  middleware.enabled = enabled
-  return middleware
 }

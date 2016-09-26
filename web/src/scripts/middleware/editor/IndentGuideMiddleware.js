@@ -31,7 +31,7 @@ const WORK_PER_FRAME = 2
 /**
  * Middleware for showing indent guides
  */
-class IndentGuideMiddleware extends Middleware {
+export default class IndentGuideMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -321,32 +321,25 @@ class IndentGuideMiddleware extends Middleware {
 
 }
 
-const middleware = new IndentGuideMiddleware()
-
-CodeMirror.defineOption('showIndentGuides', false, (cm, val, old) => {
-  middleware.setIndentGuides(val)
-
-  const prev = old && old != CodeMirror.Init;
-  if (val && ! prev) {
-    const indentUnit = cm.getOption('indentUnit')
-
-    // Reset CodeMirror's cached character dimensions, since they may be stale
-    cm.display.cachedCharWidth = null
-    cm.display.cachedTextHeight = null
-
-    // Get character dimensions
-    const charWidth = cm.defaultCharWidth()
-    const textHeight = cm.defaultTextHeight()
-
-    middleware.attachStyles(indentUnit, charWidth, textHeight)
-    middleware.enqueueViewportUpdate(cm)
-  } else if (! val && prev) {
-    middleware.detachStyles()
-    middleware.enqueueRemoveAllClasses(cm)
-  }
-})
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
-}
+// CodeMirror.defineOption('showIndentGuides', false, (cm, val, old) => {
+//   middleware.setIndentGuides(val)
+//
+//   const prev = old && old != CodeMirror.Init;
+//   if (val && ! prev) {
+//     const indentUnit = cm.getOption('indentUnit')
+//
+//     // Reset CodeMirror's cached character dimensions, since they may be stale
+//     cm.display.cachedCharWidth = null
+//     cm.display.cachedTextHeight = null
+//
+//     // Get character dimensions
+//     const charWidth = cm.defaultCharWidth()
+//     const textHeight = cm.defaultTextHeight()
+//
+//     middleware.attachStyles(indentUnit, charWidth, textHeight)
+//     middleware.enqueueViewportUpdate(cm)
+//   } else if (! val && prev) {
+//     middleware.detachStyles()
+//     middleware.enqueueRemoveAllClasses(cm)
+//   }
+// })
