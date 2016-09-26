@@ -76,19 +76,26 @@ export const openStoryboard = (filepath) => async (dispatch, getState) => {
 }
 
 export const addScene = () => async (dispatch, getState) => {
-  const scaffoldId = 0 // Component
+  const scaffoldId = 0 // id corresponds to Component
   const {rootPath} = getState().directory
   const {openDocId} = getState().editor
+  // Should decide how to name new scenes
   const newSceneName = `newScene${Math.floor(Math.random()*1000)}`
 
+  // Scaffold new component for scene and write to file
   const filename = FileScaffoldFactory.updateFilename(scaffoldId, newSceneName)
   const text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
   const filePath = path.join(rootPath, filename)
   await dispatch(fileTreeCompositeActions.createFile(filePath, text))
 
+  // Update the .storyboard.js file with new lines:
+  // import NewScene from 'NewScene'
+  // SceneManager.registerScene("NewScene", NewScene)
   const decoDoc = await dispatch(editorActions.getDocument(openDocId))
   const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, newSceneName, `./${filename}`)
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+
+  // Update redux state of app so Storyboard component picks up changes
   dispatch({
     type: at.ADD_SCENE,
     payload: {
@@ -108,10 +115,18 @@ export const deleteScene = (sceneId) => async (dispatch, getState) => {
   }
   const {filePath, id, name} = scenes[sceneId]
   const {openDocId} = getState().editor
+
+  // Delete the file corresponding to the removed scene
   dispatch(fileTreeCompositeActions.deleteFile(filePath))
+
+  // Remove scene references from .storyboard.js file:
+  // import NewScene from 'NewScene'
+  // SceneManager.registerScene("NewScene", NewScene)
   const decoDoc = await dispatch(editorActions.getDocument(openDocId))
   const decoChange = StoryboardChangeFactory.removeSceneFromStoryboard(decoDoc, name, `./${name}`)
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+
+  // Update redux state of app so Storyboard component picks up changes
   dispatch({
     type: at.DELETE_SCENE,
     payload: id
