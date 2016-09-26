@@ -69,6 +69,7 @@ export PropertyStringInput from './inspector/PropertyStringInput'
 // Layout
 export Pane from './layout/Pane'
 export TabContainer from './layout/TabContainer'
+export Splitter from './layout/Splitter'
 
 // Menu
 export ComponentMenuItem from './menu/ComponentMenuItem'

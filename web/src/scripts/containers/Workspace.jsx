@@ -33,6 +33,7 @@ import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
+import TabSplitter from './TabSplitter'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops';
@@ -143,7 +144,10 @@ class NewSceneButton extends Component {
   }
 }
 
-class Workspace extends Component {
+@connect(mapStateToProps, mapDispatchToProps)
+@StylesEnhancer(stylesCreator)
+@WorkspaceEnhancer('main-workspace')
+export default class Workspace extends Component {
 
   state = {
     scenes: {
@@ -231,9 +235,9 @@ class Workspace extends Component {
 
   renderEditor = () => {
     const {styles} = this.props
-    
+
     return (
-      <TabbedEditor
+      <TabSplitter
         key={'tabbed-editor'}
         style={styles.centerPane}
       />
@@ -299,7 +303,3 @@ class Workspace extends Component {
     )
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  StylesEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
-)

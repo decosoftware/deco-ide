@@ -19,7 +19,6 @@ const { shell } = Electron
 
 import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
-import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
@@ -45,7 +44,6 @@ import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesC
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 import {
-  EditorDropTarget,
   ProgressBar,
   Console,
   SearchMenu,

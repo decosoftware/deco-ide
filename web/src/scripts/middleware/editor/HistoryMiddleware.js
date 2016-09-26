@@ -93,7 +93,7 @@ class HistoryMiddleware extends Middleware {
       this.dispatch(batchActions([
         markUnsaved(id),
         editorActions.markDirty(id),
-        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, id),
+        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, 'file://' + id),
       ]))
     }
   }
