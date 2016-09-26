@@ -31,17 +31,10 @@ export default class DragAndDropMiddleware extends Middleware {
   constructor() {
     super()
 
-    this._markers = []
-    this._keyMap = {}
-
-    this.setHover = _.throttle(this.setHover.bind(this), 100)
+    this.markers = []
   }
 
-  get eventListeners() {
-    return this._keyMap
-  }
-
-  _createBookmark(cmDoc, pos) {
+  createBookmark(linkedDoc, pos) {
     const widget = document.createElement('span')
 
     const widgetStyle = `
@@ -55,48 +48,31 @@ export default class DragAndDropMiddleware extends Middleware {
 
     widget.setAttribute('style', widgetStyle)
 
-    return cmDoc.setBookmark(pos, {widget})
+    return linkedDoc.setBookmark(pos, {widget})
   }
 
-  _markDocument(positions = []) {
-    const cmDoc = this._decoDoc.cmDoc
-    this._markers.forEach(marker => marker.clear())
-    this._markers.length = 0
+  markDocument(positions = []) {
+    const {linkedDoc, markers} = this
 
-    _.each(positions, (pos) => {
-      this._markers.push(this._createBookmark(cmDoc, pos))
+    markers.forEach(marker => marker.clear())
+    markers.length = 0
+
+    positions.forEach((pos) => {
+      markers.push(this.createBookmark(linkedDoc, pos))
     })
   }
 
-  setHover(isOver, offset) {
-    if (! this._decoDoc) {
-      return
-    }
+  setHover = _.throttle((isOver, offset) => {
+    if (!this.linkedDoc) return
 
     if (isOver) {
-      const cm = this._decoDoc.cmDoc.getEditor()
+      const cm = this.linkedDoc.getEditor()
       const pos = cm.coordsChar(offset, 'page')
       cm.setCursor(pos)
-      this._markDocument([pos])
+      this.markDocument([pos])
     } else {
-      this._markDocument()
+      this.markDocument()
     }
-  }
-
-  attach(decoDoc) {
-    if (! decoDoc) {
-      return
-    }
-
-    this._decoDoc = decoDoc
-  }
-
-  detach() {
-    if (! this._decoDoc) {
-      return
-    }
-
-    this._decoDoc = null
-  }
+  }, 100)
 
 }

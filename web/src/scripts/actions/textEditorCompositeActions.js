@@ -233,7 +233,7 @@ const insertImports = (decoDoc, imports, schemaVersion) => async (dispatch) => {
   }
 }
 
-export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName, schemaVersion) => async (dispatch, getState) => {
+export const insertTemplate = (decoDoc, linkedDocId, text, metadata = {}, imports, groupName, schemaVersion) => async (dispatch, getState) => {
 
   let liveValues = metadata.liveValues || []
 
@@ -254,6 +254,7 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName,
 
   const insertChange = DecoComponentUtils.createChangeToInsertTemplate(
     decoDoc,
+    linkedDocId,
     text,
     decoRanges
   )
@@ -262,7 +263,7 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName,
   dispatch(insertImports(decoDoc, imports, schemaVersion))
 }
 
-export const insertComponent = (fileId, component) => async (dispatch, getState) => {
+export const insertComponent = (fileId, linkedDocId, component) => async (dispatch, getState) => {
   const {editor, directory, preferences} = getState()
   const decoDoc = getCachedDecoDoc(editor.docCache, fileId)
   const {rootPath} = directory
@@ -278,6 +279,7 @@ export const insertComponent = (fileId, component) => async (dispatch, getState)
   ).then(({text, metadata}) => {
     dispatch(insertTemplate(
       decoDoc,
+      linkedDocId,
       text,
       metadata,
       component.imports,

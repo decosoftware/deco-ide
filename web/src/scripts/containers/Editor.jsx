@@ -96,29 +96,31 @@ class Editor extends Component {
     }
   }
 
-  onImportComponent = (component) => {
+  onImportComponent = (component, linkedDocId) => {
     const {fileId, textEditorCompositeActions} = this.props
 
-    textEditorCompositeActions.insertComponent(fileId, component)
+    textEditorCompositeActions.insertComponent(fileId, linkedDocId, component)
   }
 
   getMiddleware(props) {
     const {dispatch, liveValuesById, publishingFeature} = props
 
-    const clipboardMiddleware = new ClipboardMiddleware()
-    clipboardMiddleware.setLiveValuesById(liveValuesById)
+    // const clipboardMiddleware = new ClipboardMiddleware()
+    // clipboardMiddleware.setLiveValuesById(liveValuesById)
+    //
+    // const astMiddleware = new ASTMiddleware()
+    // astMiddleware.enabled = publishingFeature
 
-    const astMiddleware = new ASTMiddleware()
-    astMiddleware.enabled = publishingFeature
+    console.log('get middleware')
 
     const middleware = [
       new DragAndDropMiddleware(),
       new HistoryMiddleware(),
-      new TokenMiddleware(),
-      clipboardMiddleware,
-      new AutocompleteMiddleware(),
+      // new TokenMiddleware(),
+      // clipboardMiddleware,
+      // new AutocompleteMiddleware(),
       // new IndentGuideMiddleware(),
-      astMiddleware,
+      // astMiddleware,
     ]
 
     middleware.forEach(m => m.setDispatchFunction(dispatch))

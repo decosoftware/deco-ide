@@ -26,10 +26,11 @@ class Editor extends Component {
   constructor(props) {
     super(props)
 
-    this.attachMiddleware(props.middleware, props.decoDoc)
     this.state = {
       linkedDoc: this.getLinkedDoc(props.decoDoc)
     }
+
+    this.attachMiddleware(props.middleware, props.decoDoc, this.state.linkedDoc)
   }
 
   getLinkedDoc(decoDoc) {
@@ -45,42 +46,46 @@ class Editor extends Component {
   }
 
   focus() {
-    if (this.props.decoDoc && this.props.decoDoc.cmDoc) {
-      this.props.decoDoc.cmDoc.cm.focus()
+    const {linkedDoc} = this.state
+
+    if (linkedDoc) {
+      linkedDoc.cm.focus()
     } else {
       ReactDOM.findDOMNode(this.refs.codemirror.refs.codemirror).focus()
     }
   }
 
+  getCurrentDoc() {
+    return this.state.linkedDoc
+  }
+
   componentWillReceiveProps(nextProps) {
     const {decoDoc: prevDoc} = this.props
     const {decoDoc: nextDoc} = nextProps
-
-    this.detachMiddleware(this.props.middleware)
-    this.attachMiddleware(nextProps.middleware, nextDoc)
+    let {linkedDoc} = this.state
 
     if (nextDoc !== prevDoc) {
       if (prevDoc) {
         this.releaseLinkedDoc(prevDoc, this.state.linkedDoc)
-        this.setState({
-          linkedDoc: undefined
-        })
       }
 
       if (nextDoc) {
-        this.setState({
-          linkedDoc: this.getLinkedDoc(nextDoc)
-        })
+        linkedDoc = this.getLinkedDoc(nextDoc)
       }
+
+      this.setState({linkedDoc})
     }
+
+    this.detachMiddleware(this.props.middleware)
+    this.attachMiddleware(nextProps.middleware, nextDoc, linkedDoc)
   }
 
   componentWillUnmount() {
     this.detachMiddleware(this.props.middleware)
   }
 
-  attachMiddleware(middleware, decoDoc) {
-    _.invokeMap(middleware, 'attach', decoDoc)
+  attachMiddleware(middleware, decoDoc, linkedDoc) {
+    _.invokeMap(middleware, 'attach', decoDoc, linkedDoc)
   }
 
   detachMiddleware(middleware) {
@@ -90,9 +95,9 @@ class Editor extends Component {
   //RENDER METHODS
   render() {
     const {className, style, middleware, decoDoc, options} = this.props
+    const {linkedDoc} = this.state
 
     const eventListeners = _.map(middleware, 'eventListeners')
-    const linkedDoc = decoDoc && decoDoc.getLinkedDoc()
 
     return (
       <CodeMirrorComponent

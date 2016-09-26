@@ -73,6 +73,18 @@ class DecoDoc extends CodeMirrorDocWrapper {
     this.cmDoc.unlinkDoc(cmDoc)
   }
 
+  findLinkedDocById(id) {
+    let found = null
+
+    this.cmDoc.iterLinkedDocs(doc => {
+      if (id === doc.id) {
+        found = doc
+      }
+    })
+
+    return found
+  }
+
   edit(decoChange) {
 
     // _nativeDoc.cm will only exist if the document has been loaded into a CM editor.
@@ -90,7 +102,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
       this._edit(decoChange)
     }
   }
-  
+
   _edit(decoChange) {
     switch (decoChange.type) {
       case CHANGE_TYPE.TEXT:
