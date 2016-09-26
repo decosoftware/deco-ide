@@ -15,9 +15,11 @@
  *
  */
 
- import React, { Component, PropTypes, } from 'react'
+import React, { Component, PropTypes, } from 'react'
+import pureRender from 'pure-render-decorator'
 
- export default class NewSceneButton extends Component {
+@pureRender
+export default class NewSceneButton extends Component {
   static propTypes = {
     onClick: PropTypes.func.isRequired,
   }
