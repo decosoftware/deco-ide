@@ -36,6 +36,7 @@ import React from 'react'
 import { render, } from 'react-dom'
 
 import configureStore from './store/configureStore'
+import './containers'
 import Root from './containers/Root/Root'
 
 import HTML5Backend from 'react-dnd-html5-backend'

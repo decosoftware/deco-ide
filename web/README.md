@@ -22,7 +22,7 @@ These are the actions in your standard Redux pattern. Redux-thunk and `ipc/reque
 to abstract dispatched actions that call to the main process when they need to handle something (eg. opening a file). Action Types for
 requests to the main process are taken from `shared/src/constants` files.
 ##### Api
-The `api/ModuleClient.js` class is used to communicate with the component registry. At the moment the component registry is very simple — a github project.
+The `clients/ModuleClient.js` class is used to communicate with the component registry. At the moment the component registry is very simple — a github project.
 For more information on the registry, visit the  [Deco component registry github project.](https://github.com/decosoftware/deco-components)
 ##### Containers
 All action calls and/or use of `mapStateToProps` should be handled by a container. If any child component needs to make an action call then it should

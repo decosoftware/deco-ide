@@ -17,61 +17,46 @@
 
 import React, { Component, PropTypes, } from 'react'
 import { connect } from 'react-redux'
+import { createSelector } from 'reselect'
 
+import * as selectors from '../selectors'
 import PaneHeader from '../components/headers/PaneHeader'
-import {
-  FilterableList,
-  DraggableComponentMenuItem,
-} from '../components'
+import { FilterableList, DraggableComponentMenuItem } from '../components'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 
 const styles = {
   main: {
     flex: '1 1 auto',
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'stretch',
     overflow: 'hidden',
   },
-  inner: {
-    flex: '1 1 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-  },
 }
 
-const PANE_HEADER_HEIGHT = 32
-const SEARCHBAR_HEIGHT = 38
+const mapStateToProps = (state) => createSelector(
+  selectors.componentList,
+  (componentList) => ({
+    componentList,
+  })
+)
 
 class ComponentBrowser extends Component {
   render() {
-    const {componentList, style} = this.props
+    const {componentList, style, onSelectItem, onClickItem} = this.props
 
     return (
-      <div className={'project-navigator vbox ' + this.props.className}
-        style={{...styles.main, ...style}}>
-        <PaneHeader text={'Components'} />
-        <div style={styles.inner}>
-          <FilterableList
-            ItemComponent={DraggableComponentMenuItem}
-            items={componentList}
-            onSelectItem={(item) => {console.log('select item', item)}}
-            autoSelectFirst={false}
-          />
-        </div>
+      <div style={styles.main}>
+        <FilterableList
+          ItemComponent={DraggableComponentMenuItem}
+          items={componentList}
+          onClickItem={onClickItem}
+          onSelectItem={onSelectItem}
+          autoSelectFirst={false}
+        />
       </div>
     )
   }
 }
-
-ComponentBrowser.defaultProps = {
-  className: '',
-  style: {},
-}
-
-const mapStateToProps = (state) => ({
-  componentList: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE] ?
-    state.components.list : state.modules.modules
-})
 
 export default connect(mapStateToProps)(ComponentBrowser)

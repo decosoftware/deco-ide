@@ -15,19 +15,21 @@
  *
  */
 
-import {
-  fetchModuleRegistry,
-  DEFAULT_REGISTRY,
-} from '../clients/ModuleClient'
+import React, { Component } from 'react'
+import pureRender from 'pure-render-decorator'
 
-import {
-  addModuleRegistry,
-} from '../actions/moduleActions'
+import PropertyIcon from './PropertyIcon'
 
-const moduleActionEmitter = (store) => {
-  fetchModuleRegistry(DEFAULT_REGISTRY).then((modules) => {
-    store.dispatch(addModuleRegistry(DEFAULT_REGISTRY, modules))
-  })
+@pureRender
+export default class extends Component {
+  render() {
+    return (
+      <PropertyIcon
+        width={12}
+        height={12}
+        icon={'icon-settings-small'}
+        {...this.props}
+      />
+    )
+  }
 }
-
-export default moduleActionEmitter

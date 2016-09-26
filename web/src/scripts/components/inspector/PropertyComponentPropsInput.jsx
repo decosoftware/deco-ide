@@ -28,6 +28,8 @@ import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
 import PropertyListInput from './PropertyListInput'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
+import PropertyRemoveButton from './PropertyRemoveButton'
+import PropertySettingsButton from './PropertySettingsButton'
 import * as Parser from '../../utils/Parser'
 import PrimitiveTypes, { OPTIONS } from '../../constants/PrimitiveTypes'
 
@@ -36,6 +38,7 @@ const stylesCreator = ({colors, fonts}) => ({
     flexDirection: 'row',
     display: 'flex',
     alignItems: 'center',
+    height: 30,
   },
   column: {
     flexDirection: 'column',
@@ -46,11 +49,8 @@ const stylesCreator = ({colors, fonts}) => ({
     flexDirection: 'row',
     display: 'flex',
   },
-  actionText: {
-    ...fonts.regular,
-  },
   actionSpacer: {
-    marginRight: 15,
+    marginRight: 10,
   },
   dropdownMenu: {
     padding: 0,
@@ -70,6 +70,7 @@ export default class PropertyComponentPropsInput extends Component {
 
   static defaultProps = {
     title: '',
+    buttonText: 'Add Prop',
     value: [],
     template: (props) => ({
       name: 'hello',
@@ -108,20 +109,10 @@ export default class PropertyComponentPropsInput extends Component {
     )
   }
 
-  onAddSubProp = (subProps, onChangeSubProps) => {
-    const {template} = this.props
-
-    const subProp = template(subProps)
-    const updated = update(subProps, {$push: [subProp]})
-
-    onChangeSubProps(updated)
-  }
-
   renderActions(prop, actions) {
     const {styles} = this.props
     const {type, value} = prop
     const isObject = type === PrimitiveTypes.OBJECT
-    const onChangeSubProps = actions.changeKey.bind(this, 'value')
 
     return (
       <div style={styles.actions}>
@@ -131,30 +122,12 @@ export default class PropertyComponentPropsInput extends Component {
           menuStyle={styles.dropdownMenu}
           hideOnClick={false}
         >
-          <div
-            style={styles.actionText}
-          >
-            Settings
-          </div>
+          <PropertySettingsButton />
         </DropdownMenuButton>
         <div style={styles.actionSpacer} />
-        <div
-          style={styles.actionText}
+        <PropertyRemoveButton
           onClick={actions.remove}
-        >
-          Remove
-        </div>
-        {isObject && (
-          <div style={styles.actionSpacer} />
-        )}
-        {isObject && (
-          <div
-            style={styles.actionText}
-            onClick={this.onAddSubProp.bind(this, value, onChangeSubProps)}
-          >
-            Sub
-          </div>
-        )}
+        />
       </div>
     )
   }
@@ -169,12 +142,14 @@ export default class PropertyComponentPropsInput extends Component {
           <div style={styles.row}>
             <StringInput
               value={name}
+              placeholder={'Name'}
               onChange={actions.changeKey.bind(this, 'name')}
             />
             {this.renderActions(prop, actions)}
           </div>
           <PropertyComponentPropsInput
             title={null}
+            buttonText={'Add Key / Value'}
             renderActions={null}
             value={value}
             onChange={actions.changeKey.bind(this, 'value')}
@@ -187,6 +162,7 @@ export default class PropertyComponentPropsInput extends Component {
       <div style={styles.row}>
         <StringInput
           value={name}
+          placeholder={'Name'}
           onChange={actions.changeKey.bind(this, 'name')}
         />
         <ValueInput
@@ -203,11 +179,12 @@ export default class PropertyComponentPropsInput extends Component {
   }
 
   render() {
-    const {title, renderActions, value, template, onChange} = this.props
+    const {title, buttonText, renderActions, value, template, onChange} = this.props
 
     return (
       <PropertyListInput
         title={title}
+        buttonText={buttonText}
         renderActions={renderActions}
         value={value}
         template={template}

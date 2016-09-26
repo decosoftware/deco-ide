@@ -23,6 +23,7 @@ import update from 'react-addons-update'
 
 import PropertyField from './PropertyField'
 import PropertyDivider from './PropertyDivider'
+import PropertyButton from './PropertyButton'
 import Property from './Property'
 import ValueInput from '../input/ValueInput'
 import StringInput from '../input/StringInput'
@@ -34,8 +35,8 @@ const stylesCreator = ({colors, fonts}) => ({
     alignItems: 'stretch',
     display: 'flex',
     paddingLeft: 15,
-    marginTop: 5,
-    borderLeft: `2px solid ${colors.divider}`
+    borderLeft: `2px solid ${colors.divider}`,
+    marginBottom: 10,
   },
   actions: {
     flex: 0,
@@ -53,6 +54,7 @@ export default class PropertyListInput extends Component {
 
   static defaultProps = {
     value: [],
+    buttonText: 'Add',
     template: (props) => ({
       name: 'hello',
       type: 'string',
@@ -122,38 +124,21 @@ export default class PropertyListInput extends Component {
     })
   }
 
-  renderActions() {
-    const {styles, renderActions} = this.props
-    const listActions = this.getListActions()
-
-    if (typeof renderActions === 'function') {
-      return renderActions(listActions)
-    } else if (typeof renderActions !== 'undefined' && !renderActions) {
-      return renderActions
-    }
-
-    // Render default actions
-    return (
-      <div
-        style={styles.actionText}
-        onClick={listActions.add}
-      >
-        Add
-      </div>
-    )
-  }
-
   render() {
-    const {styles, title, dividerType} = this.props
+    const {styles, title, buttonText, renderActions, dividerType} = this.props
+    const actions = renderActions && renderActions(this.getListActions())
 
     return (
       <PropertyField
         title={title}
         dividerType={dividerType}
-        actions={this.renderActions()}
+        actions={actions}
       >
         <div style={styles.content}>
           {this.renderPropertyList()}
+          <PropertyButton onClick={this.onAdd}>
+            {buttonText}
+          </PropertyButton>
         </div>
       </PropertyField>
     )

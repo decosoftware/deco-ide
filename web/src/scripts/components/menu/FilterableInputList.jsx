@@ -71,7 +71,11 @@ const selectProps = ({transparentBackground}) => transparentBackground
 export default class extends Component {
 
   componentDidMount() {
-    this.refs.filterInput.focus()
+    const {autoFocus} = this.props
+
+    if (autoFocus) {
+      this.refs.filterInput.focus()
+    }
   }
 
   handleClick = (e) => e.stopPropagation()
@@ -95,7 +99,7 @@ export default class extends Component {
           type={'search'}
           ref={'filterInput'}
           style={styles.input}
-          placeholder={'Search Components'}
+          placeholder={'Filter'}
           value={searchText}
           onClick={this.handleClick}
           onChange={this.handleChange}

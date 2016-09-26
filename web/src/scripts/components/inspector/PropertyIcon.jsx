@@ -15,64 +15,40 @@
  *
  */
 
-import React, { Component, } from 'react'
+import _ from 'lodash'
+import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
-const stylesCreator = ({colors, fonts}) => ({
-  base: {
-    borderStyle: 'solid',
-    borderWidth: 0,
-    padding: 10,
-    lineHeight: '18px',
+const OMIT_PROPS = ['styles', 'width', 'height', 'icon']
+
+const stylesCreator = ({colors, fonts}, {width, height, icon}) => ({
+  icon: {
+    position: 'relative',
     cursor: 'default',
+    width: width,
+    height: height,
+    WebkitMaskSize: `${width}px ${height}px`,
+    WebkitMaskPosition: 'center',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskImage: `-webkit-image-set(` +
+      `url('./icons/${icon}.png') 1x, ` +
+      `url('./icons/${icon}@2x.png') 2x` +
+    `)`,
+    backgroundColor: 'rgb(180,180,180)',
   },
-  info: {
-    borderColor: colors.dividerInverted,
-    color: colors.text,
-    ...fonts.regular,
-  },
-  success: {
-    background: '#BBE9AB',
-    borderColor: '#A2CD93',
-    color: '#357B1C',
-  }
 })
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({width, height, icon}) => ({width, height, icon}))
 @pureRender
 export default class extends Component {
-
-  static propTypes = {}
-
-  static defaultProps = {
-    type: 'info',
-    isTop: false,
-    isBottom: false,
-  }
-
-  constructor(props) {
-    super(props)
-
-    this.state = {}
-  }
-
   render() {
-    const {styles, children, type, isTop, isBottom} = this.props
+    const {styles} = this.props
 
-    const style = {
-      ...styles.base,
-      ...styles[type],
-      ...({
-        borderTopWidth: isTop ? 0 : 1,
-        borderBottomWidth: isBottom ? 0 : 1,
-      })
-    }
+    const props = _.omitBy(this.props, (v, k) => OMIT_PROPS.includes(k))
 
     return (
-      <div style={style}>
-        {children}
-      </div>
+      <div style={styles.icon} {...props} />
     )
   }
 }

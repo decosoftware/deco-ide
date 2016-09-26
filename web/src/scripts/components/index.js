@@ -29,6 +29,7 @@ export Console from './console/Console'
 export NoContent from './display/NoContent'
 export Callout from './display/Callout'
 export ProgressBar from './display/ProgressBar'
+export TabContent from './display/TabContent'
 
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'

@@ -175,15 +175,30 @@ class Workspace extends Component {
     }
   }
 
-  renderTabbedEditor = () => {
-    const { decoDoc, styles } = this.props
-    const { storyboardOpen } = this.state
+  createScene = () => {
+    const id = `NewScene${newSceneCounter}`
+    const name = `New Scene ${newSceneCounter}`
+    newSceneCounter++
+    const newScenes = {
+      ...this.state.scenes,
+      [id]: { id, name }
+    }
+    this.setState({scenes: newScenes})
+  }
+
+  handleDeleteScene = (id) => {
+    this.setState({
+      scenes: _.omit(this.state.scenes, id)
+    })
+  }
+
+  renderEditor = () => {
+    const {styles} = this.props
+
     return (
       <TabbedEditor
         key={'tabbed-editor'}
         style={styles.centerPane}
-        decoDoc={decoDoc}
-        storyboardOpen={storyboardOpen}
       />
     )
   }
@@ -198,7 +213,6 @@ class Workspace extends Component {
       position: 'relative',
     }
 
-    const yopsStyle = {width: '100%', height: containerStyle.height}
     return (
       <div style={containerStyle}>
         <WorkspaceToolbar
@@ -212,13 +226,9 @@ class Workspace extends Component {
                 className={'subpixel-antialiased helvetica-smooth'}
                 style={styles.leftPaneTop}
               />
-              <ComponentBrowser
-                className={'subpixel-antialiased'}
-                style={styles.leftPaneBottom}
-              />
             </div>
           )}
-          { this.renderTabbedEditor() }
+          { this.renderEditor() }
           { this.renderInspector() }
         </div>
       </div>

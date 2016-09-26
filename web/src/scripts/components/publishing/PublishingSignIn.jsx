@@ -16,14 +16,16 @@
  */
 
 import React, { Component, } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 import LoginButton from '../buttons/LoginButton'
 import Callout from '../display/Callout'
 
-const styles = {
+const stylesCreator = () => ({
   container: {
     display: 'flex',
-    flex: '1 0 auto',
+    flex: '0 0 auto',
     flexDirection: 'column',
     alignItems: 'stretch',
   },
@@ -31,21 +33,25 @@ const styles = {
     overflowY: 'auto',
     padding: 10,
   }
-}
+})
 
-export default (props) => {
-  const {onClickSignIn} = props
+@StylesEnhancer(stylesCreator)
+@pureRender
+export default class PublishingSignIn extends Component {
+  render() {
+    const {styles, onClickSignIn} = this.props
 
-  return (
-    <div style={styles.container}>
-      <Callout isTop={true}>
-        <b>Publishing with Deco: </b>
-        <br />
-        Deco makes it extremely quick and easy to publish components to <b>GitHub</b> and <b>npm</b> for use in your other projects, by your team, and by other React Native developers.
-      </Callout>
-      <div style={styles.inner}>
-        <LoginButton onClick={onClickSignIn} />
+    return (
+      <div style={styles.container}>
+        <Callout isTop={true}>
+          <b>Publishing with Deco: </b>
+          <br />
+          Deco makes it extremely quick and easy to publish components to <b>GitHub</b> and <b>npm</b> for use in your other projects, by your team, and by other React Native developers.
+        </Callout>
+        <div style={styles.inner}>
+          <LoginButton onClick={onClickSignIn} />
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 }

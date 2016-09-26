@@ -43,7 +43,7 @@ class SearchMenu extends Component {
   }
 
   render () {
-    const {show, requestClose, anchorPosition, ItemComponent, items, onItemClick} = this.props
+    const {show, requestClose, anchorPosition, ItemComponent, items, onClickItem} = this.props
 
     return (
       <DropdownMenu
@@ -58,7 +58,8 @@ class SearchMenu extends Component {
           <FilterableList
             ItemComponent={ItemComponent}
             items={items}
-            onItemClick={onItemClick}
+            onClickItem={onClickItem}
+            autoFocus={true}
             autoSelectFirst={true}
             hideMenu={requestClose}
             transparentBackground={true}
@@ -79,7 +80,7 @@ SearchMenu.propTypes = {
 SearchMenu.defaultProps = {
   autoSelectFirst: true,
   items: [],
-  onItemClick: () => {},
+  onClickItem: () => {},
   requestClose: () => {},
 }
 

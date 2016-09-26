@@ -20,7 +20,7 @@ import { pushModal } from '../actions/uiActions'
 import {
   importModule,
   fetchTemplateText
-} from '../api/ModuleClient'
+} from '../clients/ModuleClient'
 import {
   insertTemplate
 } from '../actions/editorActions'

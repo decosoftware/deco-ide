@@ -24,6 +24,11 @@ export const fonts = {
   },
 }
 
+fonts.buttonSmall = {
+  ...fonts.regular,
+  fontSize: 10,
+}
+
 export const input = {
   platform: {
     height: 20,

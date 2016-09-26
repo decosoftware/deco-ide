@@ -15,62 +15,42 @@
  *
  */
 
-import React, { Component, } from 'react'
+import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
+import PropertyField from './PropertyField'
+import PropertyDivider from './PropertyDivider'
+import CheckboxInput from '../input/CheckboxInput'
+
 const stylesCreator = ({colors, fonts}) => ({
-  base: {
+  button: {
+    alignSelf: 'flex-start',
+    paddingLeft: 10,
+    paddingRight: 10,
+    height: 30,
     borderStyle: 'solid',
-    borderWidth: 0,
-    padding: 10,
-    lineHeight: '18px',
-    cursor: 'default',
-  },
-  info: {
-    borderColor: colors.dividerInverted,
-    color: colors.text,
-    ...fonts.regular,
-  },
-  success: {
-    background: '#BBE9AB',
-    borderColor: '#A2CD93',
-    color: '#357B1C',
+    borderColor: colors.divider,
+    borderWidth: 2,
+    borderRadius: 4,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...fonts.buttonSmall,
   }
 })
 
 @StylesEnhancer(stylesCreator)
 @pureRender
-export default class extends Component {
-
-  static propTypes = {}
-
-  static defaultProps = {
-    type: 'info',
-    isTop: false,
-    isBottom: false,
-  }
-
-  constructor(props) {
-    super(props)
-
-    this.state = {}
-  }
+export default class PropertyButton extends Component {
 
   render() {
-    const {styles, children, type, isTop, isBottom} = this.props
+    let {styles, children, onClick} = this.props
 
-    const style = {
-      ...styles.base,
-      ...styles[type],
-      ...({
-        borderTopWidth: isTop ? 0 : 1,
-        borderBottomWidth: isBottom ? 0 : 1,
-      })
-    }
+    children = typeof children === 'string' ? children.toUpperCase() : children
 
     return (
-      <div style={style}>
+      <div style={styles.button} onClick={onClick}>
         {children}
       </div>
     )

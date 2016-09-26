@@ -105,13 +105,13 @@ class AutocompleteMiddleware extends Middleware {
   }
 
   getHint(pos, wordToComplete) {
-    const {_filename: filename, _decoDoc: decoDoc} = this
+    const {_decoDoc: decoDoc} = this
 
     FlowController.startServer()
 
-    return FlowController.getCompletion(decoDoc.code, pos, filename)
+    return FlowController.getCompletion(decoDoc.code, pos, decoDoc.id)
       .then(completion => {
-        this.cachedCompletions[filename] = {wordToComplete, completion}
+        this.cachedCompletions[decoDoc.id] = {wordToComplete, completion}
         return this.prepareHint(pos, wordToComplete, completion)
       })
 
@@ -131,6 +131,7 @@ class AutocompleteMiddleware extends Middleware {
   }
 
   _changes(cm, changes) {
+    const {_decoDoc: decoDoc} = this
 
     // Do nothing if popup is already open
     if (this.completionActive) {
@@ -155,7 +156,7 @@ class AutocompleteMiddleware extends Middleware {
 
       if (match) {
         const word = match[0]
-        const cached = this.cachedCompletions[this._filename]
+        const cached = this.cachedCompletions[decoDoc.id]
 
         this.currentWord = word
 
@@ -176,7 +177,7 @@ class AutocompleteMiddleware extends Middleware {
     }
   }
 
-  attach(decoDoc, filename) {
+  attach(decoDoc) {
     if (!decoDoc) {
       return
     }
@@ -196,8 +197,7 @@ class AutocompleteMiddleware extends Middleware {
 
 const middleware = new AutocompleteMiddleware()
 
-export default (dispatch, filename) => {
-  middleware._filename = filename
+export default (dispatch) => {
   middleware.setDispatchFunction(dispatch)
   return middleware
 }
