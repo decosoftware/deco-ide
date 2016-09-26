@@ -25,7 +25,23 @@ import CodeMirrorComponent from './CodeMirrorComponent'
 class Editor extends Component {
   constructor(props) {
     super(props)
+
     this.attachMiddleware(props.middleware, props.decoDoc)
+    this.state = {
+      linkedDoc: this.getLinkedDoc(props.decoDoc)
+    }
+  }
+
+  getLinkedDoc(decoDoc) {
+    if (decoDoc) {
+      return decoDoc.getLinkedDoc()
+    }
+  }
+
+  releaseLinkedDoc(decoDoc, linkedDoc) {
+    if (decoDoc) {
+      decoDoc.releaseLinkedDoc(linkedDoc)
+    }
   }
 
   focus() {
@@ -36,9 +52,27 @@ class Editor extends Component {
     }
   }
 
-  componentWillReceiveProps(newProps, newState) {
+  componentWillReceiveProps(nextProps) {
+    const {decoDoc: prevDoc} = this.props
+    const {decoDoc: nextDoc} = nextProps
+
     this.detachMiddleware(this.props.middleware)
-    this.attachMiddleware(newProps.middleware, newProps.decoDoc)
+    this.attachMiddleware(nextProps.middleware, nextDoc)
+
+    if (nextDoc !== prevDoc) {
+      if (prevDoc) {
+        this.releaseLinkedDoc(prevDoc, this.state.linkedDoc)
+        this.setState({
+          linkedDoc: undefined
+        })
+      }
+
+      if (nextDoc) {
+        this.setState({
+          linkedDoc: this.getLinkedDoc(nextDoc)
+        })
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -55,16 +89,19 @@ class Editor extends Component {
 
   //RENDER METHODS
   render() {
-    const eventListeners = _.map(this.props.middleware, 'eventListeners')
+    const {className, style, middleware, decoDoc, options} = this.props
+
+    const eventListeners = _.map(middleware, 'eventListeners')
+    const linkedDoc = decoDoc && decoDoc.getLinkedDoc()
 
     return (
       <CodeMirrorComponent
-        style={this.props.style}
-        ref='codemirror'
-        doc={this.props.decoDoc && this.props.decoDoc.cmDoc}
-        options={this.props.options}
+        style={style}
+        ref={'codemirror'}
+        doc={linkedDoc}
+        options={options}
         eventListeners={eventListeners}
-        className={this.props.className}
+        className={className}
       />
     )
   }
