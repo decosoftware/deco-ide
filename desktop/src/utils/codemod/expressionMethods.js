@@ -123,17 +123,14 @@ export const addFunctionCall = function(object, property, args) {
  * @return {Collection}      Updated Collection
  */
 export const updateFunctionCall = function(object, property, args) {
-  const program = _.get(this.nodes(), '[0].program', {})
-  if (program.body) {
-    program.body.forEach((node) => {
-      if (node.type == 'ExpressionStatement') {
-        const {sameObject, sameProperty,} = getSimilarity(node.expression, object, property)
-        if (sameObject && sameProperty) {
-          _.set(node, 'expression.arguments', createArgumentNodes(args))
-        }
-      }
-    })
-  }
+  this.find(j.CallExpression).paths().filter((node) => {
+    const {sameObject, sameProperty, } = getSimilarity(
+      node, object, property, args
+    )
+    return (sameObject && sameProperty)
+  }).map((node) => {
+    _.set(node, 'value.arguments', createArgumentNodes(args))
+  })
   return this
 }
 

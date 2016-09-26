@@ -37,6 +37,7 @@ export const at = {
 
 export const openStoryboard = (filepath) => async (dispatch, getState) => {
   const storyboardDoc = await dispatch(editorActions.getDocument(filepath))
+  await dispatch(editorActions.setCurrentDoc(storyboardDoc.id))
   const rootPath = getState().directory.rootPath
   const storyboardCode = storyboardDoc.code
   const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
@@ -158,4 +159,17 @@ export const deleteConnection = () => async (dispatch) => {
 
 export const setEntryScene = () => async (dispatch) => {
   dispatch({type: at.SET_ENTRY_SCENE})
+}
+
+export const updateEntryScene = (sceneId) => async (dispatch, getState) => {
+  const {scenes} = getState().storyboard
+  if (!scenes[sceneId])
+    return
+
+  const {openDocId} = getState().editor
+  const {name} = scenes[sceneId]
+
+  const decoDoc = await dispatch(editorActions.getDocument(openDocId))
+  const decoChange = StoryboardChangeFactory.updateEntryScene(decoDoc, name)
+  dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 }
