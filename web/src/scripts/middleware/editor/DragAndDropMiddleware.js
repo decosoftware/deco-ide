@@ -23,6 +23,17 @@ import { EventTypes } from '../../constants/CodeMirrorTypes'
 import CodeMirrorToken from '../../models/editor/CodeMirrorToken'
 import PrimitiveTypes from '../../constants/PrimitiveTypes'
 
+const styles = {
+  widget: `
+    background-color: #1680FA;
+    width: 2px;
+    height: 16px;
+    position: absolute;
+    top: 2px;
+    display: inline-block;
+  `,
+}
+
 /**
  * Middleware for highlighting and clicking specific token types
  */
@@ -36,17 +47,7 @@ export default class DragAndDropMiddleware extends Middleware {
 
   createBookmark(linkedDoc, pos) {
     const widget = document.createElement('span')
-
-    const widgetStyle = `
-      background-color: #1680FA;
-      width: 2px;
-      height: 16px;
-      position: absolute;
-      top: 2px;
-      display: inline-block;
-    `
-
-    widget.setAttribute('style', widgetStyle)
+    widget.setAttribute('style', styles.widget)
 
     return linkedDoc.setBookmark(pos, {widget})
   }

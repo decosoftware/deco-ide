@@ -116,7 +116,7 @@ class Editor extends Component {
     const middleware = [
       new DragAndDropMiddleware(),
       new HistoryMiddleware(),
-      // new TokenMiddleware(),
+      new TokenMiddleware(),
       // clipboardMiddleware,
       // new AutocompleteMiddleware(),
       // new IndentGuideMiddleware(),

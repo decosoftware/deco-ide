@@ -50,6 +50,7 @@ class CodeMirrorTextMarker {
     this._endStyle = CLASSNAME.END
     this._css = null
     this._title = 'Live Value'
+    this._shared = true
   }
 
   get id() {
@@ -85,6 +86,7 @@ class CodeMirrorTextMarker {
       endStyle: this._endStyle,
       css: this._css,
       title: this._title,
+      shared: this._shared,
     }
 
     this._nativeMarker = cmDoc.markText(cmRange.from, cmRange.to, options)

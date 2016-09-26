@@ -37,13 +37,9 @@ export default class TokenMiddleware extends Middleware {
   constructor() {
     super()
 
-    this._keyMap = {
+    this.eventListeners = {
       [EventTypes.mouseDown]: this.mouseDown.bind(this),
     }
-  }
-
-  get eventListeners() {
-    return this._keyMap
   }
 
   getTokenAt(cm, pos, precise = false) {
@@ -65,39 +61,22 @@ export default class TokenMiddleware extends Middleware {
   }
 
   mouseDown(cm, e) {
-    if (e.altKey) {
-      e.stopPropagation()
-      e.preventDefault()
+    if (!e.altKey) return
 
-      const clickCoords = {
-        left: e.pageX,
-        top: e.pageY,
-      }
+    e.stopPropagation()
+    e.preventDefault()
 
-      const clickPos = cm.coordsChar(clickCoords, 'page')
-      const token = this.findNearestLiteralToken(cm, clickPos)
-
-      if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
-        this.dispatch(textEditorCompositeActions.addDecoRangeFromCMToken(this._decoDoc.id, token))
-      }
-
-    }
-  }
-
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
+    const clickCoords = {
+      left: e.pageX,
+      top: e.pageY,
     }
 
-    this._decoDoc = decoDoc
-  }
+    const clickPos = cm.coordsChar(clickCoords, 'page')
+    const token = this.findNearestLiteralToken(cm, clickPos)
 
-  detach() {
-    if (!this._decoDoc) {
-      return
+    if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
+      this.dispatch(textEditorCompositeActions.addDecoRangeFromCMToken(this.decoDoc.id, token))
     }
-
-    this._decoDoc = null
   }
 
 }
