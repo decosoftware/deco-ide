@@ -15,6 +15,8 @@
  *
  */
 
+ import React, { Component, PropTypes, } from 'react'
+
  export default class NewSceneButton extends Component {
   static propTypes = {
     onClick: PropTypes.func.isRequired,
