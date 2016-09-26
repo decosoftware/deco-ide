@@ -90,7 +90,7 @@ export default class ClipboardMiddleware extends Middleware {
     // Only handle paste manually if we're pasting deco content
     if (! rawData) return
 
-    const {decoDoc: {id: fileId}} = this
+    const {decoDoc, decoDoc: {id: fileId}, linkedDoc} = this
 
     const performPaste = ({code, liveValues}, nativeRange) => {
 
@@ -105,7 +105,7 @@ export default class ClipboardMiddleware extends Middleware {
       } = LiveValueUtils.normalizeLiveValueMetadata(liveValues)
 
       // Replace original text with new text
-      const originalText = this.linkedDoc.getRange(from, to)
+      const originalText = linkedDoc.getRange(from, to)
       const textChange = DecoChangeFactory.createChangeToSetText(from, to, code, originalText)
 
       // Shift ranges from Pos(0,0) to location of insertion
@@ -127,7 +127,7 @@ export default class ClipboardMiddleware extends Middleware {
 
     // Unpack custom deco json
     const copyRanges = JSON.parse(rawData).ranges
-    const selections = this.linkedDoc.listSelections()
+    const selections = linkedDoc.listSelections()
 
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i]
@@ -138,7 +138,7 @@ export default class ClipboardMiddleware extends Middleware {
 
       // Otherwise, copy all copyRanges into every selection
       } else {
-        _.each(copyRanges, (copyRange) => {
+        copyRanges.reverse().forEach((copyRange) => {
           performPaste(copyRange, selection)
         })
       }
