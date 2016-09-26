@@ -6,17 +6,28 @@ import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
 
+import { storyboardActions } from '../actions'
+
 const stylesCreator = (theme) => {
   const {colors} = theme
-  return {}
+  return {
+    container: {
+      // backgroundColor: colors.editor.background,
+    }
+  }
 }
 
 const mapDispatchToProps = (dispatch) => ({
-
+  storyboardActions: bindActionCreators(storyboardActions, dispatch),
 })
 
 const mapStateToProps = (state) => createSelector(
-
+  (state) => state.storyboard,
+  (storyboard) => ({
+    storyboard: storyboard,
+    connections: storyboard.connections,
+    scenes: storyboard.scenes,
+  })
 )
 
 let newSceneCounter = 1
@@ -51,46 +62,29 @@ class NewSceneButton extends Component {
   }
 }
 
+@StylesEnhancer(stylesCreator)
 class Storyboard extends Component {
-  state = {
-    scenes: {
-      'Fun': {id: 'Fun', name: 'FunName'},
-      // 'Bun': {id: 'Bun', name: 'BunName'},
-      // 'Sun': {id: 'Sun', name: 'SunName'},
-    }
-  }
-
-  createScene = () => {
-    const id = `NewScene${newSceneCounter}`
-    const name = `New Scene ${newSceneCounter}`
-    newSceneCounter++
-    const newScenes = {
-      ...this.state.scenes,
-      [id]: { id, name }
-    }
-    this.setState({scenes: newScenes})
-  }
-
-  handleDeleteScene = (id) => {
-    this.setState({
-      scenes: _.omit(this.state.scenes, id)
-    })
-  }
 
   render() {
-    const { styles, yopsStyle } = this.props
-    const connections = {}
+    const {
+      connections,
+      scenes,
+      storyboardActions,
+      styles,
+      storyboard,
+      yopsStyle
+    } = this.props
     const syncServiceAddress = 'http://localhost:4082'
     const onLayoutUpdate = () => {}
 
     return (
-      <div>
-        <NewSceneButton onClick={this.createScene}/>
+      <div style={styles.container}>
+        <NewSceneButton onClick={storyboardActions.addScene}/>
         <YOPS
           style={yopsStyle}
           connections={connections}
-          scenes={this.state.scenes}
-          onDeleteScene={this.handleDeleteScene}
+          scenes={scenes}
+          onDeleteScene={storyboardActions.deleteScene}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
         />
@@ -99,7 +93,4 @@ class Storyboard extends Component {
   }
 }
 
-export default Storyboard
-// export default connect(mapStateToProps, mapDispatchToProps)(
-//   StylesEnhancer(stylesCreator)(Storyboard),
-// )
+export default connect(mapStateToProps, mapDispatchToProps)(Storyboard)

@@ -94,8 +94,8 @@ export const removeImport = function(importSource) {
   const program = getProgram(this)
   if (program.body) {
     program.body = program.body.filter((node) => {
-      return (node.type != 'ImportDeclaration' ||
-              node.source.value != importSource)
+      return (node.type !== 'ImportDeclaration' ||
+              node.source.value !== importSource)
     })
   }
   return this

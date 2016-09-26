@@ -7,3 +7,4 @@ export * as elementTreeActions, { at as elementTreeConstants } from './elementTr
 export * as editorActions, { at as editorConstants } from './editorActions'
 export * as textEditorCompositeActions from './textEditorCompositeActions'
 export * as storyboardActions, { at as storyboardConstants } from './storyboardActions'
+export * as fileTreeCompositeActions from './fileTreeCompositeActions'

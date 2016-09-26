@@ -15,25 +15,42 @@
  *
  */
 
-
+import update from 'react-addons-update'
+import _ from 'lodash'
 import { storyboardConstants as at } from '../actions'
 
-const initialState = {}
+const initialState = {
+  scenes: {},
+  connections: {},
+  entry: "",
+}
 
 export default (state = initialState, action) => {
   const {type, payload} = action
 
   switch(type) {
-    case at.ADD_SCENE: {
-      return {...state}
+    case at.OPEN_STORYBOARD: {
+      return update(state, {
+        connections: {$set: payload.connections},
+        entry: {$set: payload.entry},
+        scenes: {$set: payload.scenes},
+      })
     }
 
-    case at.OPEN_STORYBOARD: {
-      return {...state}
+    case at.ADD_SCENE: {
+      return update(state, {
+        scenes: {
+          $merge: payload,
+        },
+      })
     }
 
     case at.DELETE_SCENE: {
-      return {...state}
+      return update(state, {
+        scenes: {
+          $set: _.omit(state.scenes, payload),
+        },
+      })
     }
 
     case at.ADD_CONNECTION: {

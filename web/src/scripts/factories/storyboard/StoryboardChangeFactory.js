@@ -30,27 +30,29 @@ class StoryboardChangeFactory {
     const mod = CodeMod(doc.code)
       .addImport(sceneName, [], relativePath)
       .addFunctionCall(
-        'SceneManager',
-        'registerScene',
-        [
-          {type: 'Literal', value: sceneName},
-          {type: 'Identifier', name: sceneName},
-        ]
-      )
+          'SceneManager',
+          'registerScene',
+          [
+            {type: 'Literal', value: sceneName},
+            {type: 'Identifier', value: sceneName}
+          ]
+        )
+
     return createChange(doc, mod)
   }
 
   static removeSceneFromStoryboard(doc, sceneName, relativePath) {
     const mod = CodeMod(doc.code)
-      .removeImport(sceneName, [], relativePath)
+      .removeImport(relativePath)
       .removeFunctionCall(
         'SceneManager',
         'registerScene',
         [
           {type: 'Literal', value: sceneName},
-          {type: 'Identifier', name: sceneName},
+          {type: 'Identifier', value: sceneName},
         ]
       )
+
     return createChange(doc, mod)
   }
 
