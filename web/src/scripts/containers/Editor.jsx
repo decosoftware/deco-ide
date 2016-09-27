@@ -105,11 +105,6 @@ class Editor extends Component {
   getMiddleware(props) {
     const {dispatch, liveValuesById, publishingFeature} = props
 
-
-
-    // const astMiddleware = new ASTMiddleware()
-    // astMiddleware.enabled = publishingFeature
-
     console.log('get middleware')
 
     const middleware = [
@@ -117,9 +112,9 @@ class Editor extends Component {
       new HistoryMiddleware(),
       new TokenMiddleware(),
       new ClipboardMiddleware().setLiveValuesById(liveValuesById),
-      // new AutocompleteMiddleware(),
+      new AutocompleteMiddleware(),
       // new IndentGuideMiddleware(),
-      // astMiddleware,
+      new ASTMiddleware().setEnabled(publishingFeature),
     ]
 
     middleware.forEach(m => m.setDispatchFunction(dispatch))

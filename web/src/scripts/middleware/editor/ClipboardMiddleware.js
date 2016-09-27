@@ -40,9 +40,7 @@ export default class ClipboardMiddleware extends Middleware {
   handleCut = (...args) => this.copy(true, ...args)
 
   copy = (shouldDeleteSelection, e) => {
-    if (! this.isCodeMirrorChildElement(e.target)) {
-      return
-    }
+    if (!this.containsElement(e.target)) return
 
     // Get code and ranges for the current selection
     const copyRanges = _.map(this.linkedDoc.listSelections(), (nativeRange) => {
@@ -83,7 +81,7 @@ export default class ClipboardMiddleware extends Middleware {
   }
 
   handlePaste = (e) => {
-    if (! this.isCodeMirrorChildElement(e.target)) return
+    if (!this.containsElement(e.target)) return
 
     const rawData = e.clipboardData.getData('application/deco')
 
@@ -176,7 +174,7 @@ export default class ClipboardMiddleware extends Middleware {
     return this
   }
 
-  isCodeMirrorChildElement(element) {
+  containsElement(element) {
     if (!this.linkedDoc) return false
 
     return this.linkedDoc.cm.getWrapperElement().contains(element)

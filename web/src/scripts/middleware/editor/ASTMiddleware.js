@@ -28,6 +28,7 @@ import ASTUtils from '../../utils/ASTUtils'
 import ElementTreeBuilder from '../../utils/ElementTreeBuilder'
 import { astActions, elementTreeActions } from '../../actions'
 import * as uiActions from '../../actions/uiActions'
+import * as ChangeUtils from '../../utils/Editor/ChangeUtils'
 
 /**
  * Middleware for building an AST from the file
@@ -37,15 +38,11 @@ export default class ASTMiddleware extends Middleware {
   constructor() {
     super()
 
-    this.keyMap = {
+    this.eventListeners = {
       [EventTypes.changes]: this.changes,
       [EventTypes.swapDoc]: this.swapDoc,
       [EventTypes.cursorActivity]: this.cursorActivity,
     }
-  }
-
-  get eventListeners() {
-    return this.keyMap
   }
 
   cursorActivity = (cm) => {
@@ -65,12 +62,14 @@ export default class ASTMiddleware extends Middleware {
   }
 
   changes = (cm, changes) => {
-    const origin = changes[changes.length - 1].origin
+
+    // Only rebuild the elementTree for the linked doc in the active tab
+    if (!cm.hasFocus()) return
 
     // Don't rebuild the elementTree when changing a prop - we do this manually.
-    if (origin !== '+decoProp') {
-      this.analyze(cm, changes)
-    }
+    if (ChangeUtils.containsDecoPropChange(changes)) return
+
+    this.analyze(cm, changes)
   }
 
   swapDoc = (cm) => {
@@ -82,7 +81,9 @@ export default class ASTMiddleware extends Middleware {
 
     const {decoDoc, decoDoc: {id: filename}} = this
 
+    // TODO Figure out why calling getAST slows typing significantly.
     const raw = await FlowController.getAST(decoDoc.code, filename)
+
     const ast = JSON.parse(raw)
     const elementTree = ElementTreeBuilder.elementTreeFromAST(ast)
 
@@ -92,20 +93,10 @@ export default class ASTMiddleware extends Middleware {
     ]))
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
+  setEnabled(enabled) {
+    this.enabled = enabled
 
-    this.decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this.decoDoc) {
-      return
-    }
-
-    this.decoDoc = null
+    return this
   }
 
 }
