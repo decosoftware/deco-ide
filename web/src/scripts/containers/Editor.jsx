@@ -103,7 +103,7 @@ class Editor extends Component {
   }
 
   getMiddleware(props) {
-    const {dispatch, liveValuesById, publishingFeature} = props
+    const {dispatch, liveValuesById, publishingFeature, editorOptions} = props
 
     console.log('get middleware')
 
@@ -112,7 +112,8 @@ class Editor extends Component {
       new HistoryMiddleware(),
       new TokenMiddleware(),
       new AutocompleteMiddleware(),
-      // new IndentGuideMiddleware(),
+      
+      editorOptions.showIndentGuides && new IndentGuideMiddleware(),
 
       // Use ASTMiddleware only in new static analysis mode
       publishingFeature && new ASTMiddleware(),
