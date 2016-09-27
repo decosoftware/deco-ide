@@ -92,7 +92,12 @@ class TabSplitter extends Component {
 
     return (
       <div style={style}>
-        <Splitter width={width} height={height}>
+        <Splitter
+          width={width}
+          height={height}
+          workspaceId={'tab-splitter'}
+        >
+          <TabPane />
           <TabPane />
           <TabPane />
         </Splitter>

@@ -56,7 +56,11 @@ export default class Splitter extends Component {
     ))
 
     return (
-      <div style={styles.container} data-resizable>
+      <div
+        style={styles.container}
+        data-resizable
+        data-resize-mode={'%'}
+      >
         {panes}
       </div>
     )
