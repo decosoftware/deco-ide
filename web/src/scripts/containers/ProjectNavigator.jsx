@@ -59,6 +59,10 @@ class ProjectNavigator extends Component {
     style: {},
   }
 
+  state = {
+    currentPreview: ''
+  }
+
   componentWillMount() {
     this.showContextMenu = showContextMenu.bind(this, this.props.dispatch)
   }
@@ -104,17 +108,20 @@ class ProjectNavigator extends Component {
 
   handlePreviewClick = async (node) => {
     const {rootPath, textEditorCompositeActions} = this.props
+    this.setState({currentPreview: node.path})
     const relativePath = node.path.replace(rootPath, '.')
     const requireText = relativePath.replace(path.extname(relativePath), '')
     textEditorCompositeActions.updateDecoEntryRequire(requireText)
   }
 
-  renderNode = (props) => {
+  renderNode = (props, state) => {
     const {node} = props
+    const {currentPreview} = this.state
     return (
       <Node
         {...props}
         onPreviewClick={this.handlePreviewClick.bind(this, node)}
+        isPreviewActive={currentPreview === node.path}
         scaffolds={SCAFFOLDS}
         createFileScaffold={this.onCreateFile}
       />

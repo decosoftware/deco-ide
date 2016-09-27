@@ -140,8 +140,9 @@ export const loadDoc = (payload) => async (dispatch, getState) => {
 }
 
 export const openDocument = (filePath) => async (dispatch, getState) => {
-  await dispatch(getDocument(filePath))
-  return dispatch(setCurrentDoc(filePath))
+  const doc = await dispatch(getDocument(filePath))
+  await dispatch(setCurrentDoc(filePath))
+  return doc
 }
 
 export const getDocument = (filePath) => async (dispatch, getState) => {

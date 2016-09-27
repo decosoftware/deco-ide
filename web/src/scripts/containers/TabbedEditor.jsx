@@ -256,37 +256,6 @@ class TabbedEditor extends Component {
     this.setState({showMenu: false})
   }
 
-  renderEditor = () => {
-    const {
-      styles,
-      focusedTabId,
-      options,
-      decoDoc,
-      liveValuesById,
-      publishingFeature,
-    } = this.props
-
-    return (
-      <EditorDropTarget
-        className={'flex-variable editor'}
-        ref={'editor'}
-        middleware={[
-          DragAndDropMiddleware(this.props.dispatch),
-          HistoryMiddleware(this.props.dispatch),
-          TokenMiddleware(this.props.dispatch),
-          ClipboardMiddleware(this.props.dispatch, liveValuesById),
-          AutocompleteMiddleware(this.props.dispatch, focusedTabId),
-          IndentGuideMiddleware(this.props.dispatch),
-          ASTMiddleware(this.props.dispatch, publishingFeature),
-        ]}
-        onImportItem={this.onImportItem}
-        options={options}
-        decoDoc={decoDoc}
-        style={styles.editor}
-      />
-    )
-  }
-
   renderFlowInstallationToast() {
     const {styles} = this.props
 

@@ -3,6 +3,11 @@ import ElementTreeBuilder from '../ElementTreeBuilder'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 const path = Electron.remote.require('path')
 
+/**
+ * Takes a relative path from an import and, optionally, a root
+ * directory path. Returns an absolute file path.
+ * './Buddy' -> 'Buddy.js' or '/Users/gabe/Code/Buddy.js'
+ */
 const formatFilePaths = (filepath, options = {}) => {
   let formedPath = filepath
   if (formedPath.indexOf('./') != -1) {
@@ -22,7 +27,6 @@ const formatFilePaths = (filepath, options = {}) => {
  * Parses the imports and the specifiers in the storyboard file
  * to return a list of filepaths to load in with their respective
  * scene code
- *
  */
 export const getFilePathsFromStoryboardCode = (code, options) => {
   const scenes = {}
@@ -41,8 +45,6 @@ export const getFilePathsFromStoryboardCode = (code, options) => {
 
 /**
  * Takes thes scene code and looks for the push and the pops
- * @param  {[type]} code [description]
- * @return {[type]}      [description]
  */
 export const getConnectionsInCode = (code) => {
   const mod = CodeMod(code)
@@ -73,8 +75,6 @@ export const buildElementTree = (code) => {
 
 /**
  * Returns an object of scenes, sceneNames, entryScene, whatever
- * @param  {[type]} code [description]
- * @return {[type]}      [description]
  */
 export const getSceneInformationForStoryboardCode = (code) => {
   const mod = new CodeMod(code)

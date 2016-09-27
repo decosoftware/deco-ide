@@ -87,18 +87,10 @@ export default class Node extends Component {
 
   state = {
     menuVisible: false,
-    pinned: false,
   }
 
   stopPropagation = (e) => {
     e.stopPropagation()
-  }
-
-  handlePlayButtonChange = (enabled) => {
-    const {onPreviewClick} = this.props
-
-    onPreviewClick()
-    this.setState({pinned: enabled})
   }
 
   handleVisibilityChange = (menuVisible) => {
@@ -106,11 +98,11 @@ export default class Node extends Component {
   }
 
   renderButton() {
-    const {node, scaffolds, createFileScaffold} = this.props
-    const {hover, menuVisible, pinned} = this.state
+    const {node, scaffolds, createFileScaffold, onPreviewClick, isPreviewActive} = this.props
+    const {hover, menuVisible} = this.state
     const {type} = node
 
-    if (!(menuVisible || hover || pinned)) {
+    if (!(menuVisible || hover || isPreviewActive)) {
       return null
     }
 
@@ -118,9 +110,8 @@ export default class Node extends Component {
       return (
         <div style={styles.plusContainer} onClick={this.stopPropagation}>
           <PlayButton
-            node={node}
-            active={pinned}
-            onChange={this.handlePlayButtonChange}/>
+            isActive={isPreviewActive}
+            onClick={onPreviewClick}/>
         </div>
       )
     }

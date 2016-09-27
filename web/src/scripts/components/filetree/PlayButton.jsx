@@ -16,24 +16,43 @@
  */
 
 import React, { Component, PropTypes, } from 'react'
+import pureRender from 'pure-render-decorator'
 
 import NavigatorHeaderButton from './NavigatorHeaderButton'
 import TwoStateButton from '../buttons/TwoStateButton'
 
-export default ({
-  node, onChange, active
-}) => {
-  return (
-    <TwoStateButton
-      enabled={active}
-      onChange={onChange}
-      hoverStyle={{ opacity: 0.75 }}
-      enabledStyle={{ opacity: 0.5 }}>
-      <div>
-        <NavigatorHeaderButton
-          buttonClass={'icon-play'}
-        />
-      </div>
-    </TwoStateButton>
-  )
+const hoverStyle = {opacity: 0.75}
+const enabledStyle = {opacity: 0.5}
+const navigatorHeaderButtonClass = 'icon-play'
+
+@pureRender
+export default class PlayButton extends Component {
+
+  static propTypes = {
+    isActive: PropTypes.bool,
+    onClick: PropTypes.func,
+  }
+
+  static defaultProps = {
+    isActive: false,
+    onClick: () => {},
+  }
+
+  render() {
+    const {node, onClick, isActive} = this.props
+
+    return (
+      <TwoStateButton
+        enabled={isActive}
+        onChange={onClick}
+        hoverStyle={hoverStyle}
+        enabledStyle={enabledStyle}>
+        <div>
+          <NavigatorHeaderButton
+            buttonClass={navigatorHeaderButtonClass}
+          />
+        </div>
+      </TwoStateButton>
+    )
+  }
 }

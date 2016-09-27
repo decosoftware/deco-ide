@@ -31,10 +31,7 @@ class ${name} extends Component {
 
   static defaultProps = {}
 
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  state = {}
 
   render() {
     return (

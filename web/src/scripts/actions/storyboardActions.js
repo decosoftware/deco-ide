@@ -42,66 +42,86 @@ export const toggleStoryboardView = () => async (dispatch) => {
   })
 }
 
-export const openStoryboard = (filepath) => async (dispatch, getState) => {
-  const storyboardDoc = await dispatch(editorActions.getDocument(filepath))
-  await dispatch(editorActions.setCurrentDoc(storyboardDoc.id))
-  const rootPath = getState().directory.rootPath
-  const storyboardCode = storyboardDoc.code
+const parseStoryboardCode = (storyboardCode, rootPath) => {
   const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
     directoryPath: rootPath,
   })
   const sceneInfo = storyUtils.getSceneInformationForStoryboardCode(storyboardCode)
+  return {sceneImports, sceneInfo}
+}
 
-  //load in files from imports
-  await Promise.all(_.map(sceneImports, async (sceneImport, filepath) => {
-    await dispatch(editorActions.getDocument(filepath))
-  }))
+const loadSceneImportFiles = (sceneImports, dispatch) => {
+  return Promise.all(_.map(sceneImports,
+    (sceneImport) => dispatch(editorActions.getDocument(sceneImport.source))
+  ))
+}
 
-  //get scenes from storyboard code
-  const docCache = getState().editor.docCache
-
-  let scenes = {...sceneInfo.scenes}
-  //get code from new files
-  //get connections for files
-  const sceneConnections = _.map(sceneImports, ({ sceneName, source }) => {
-    scenes[sceneName].filePath = source
-    storyUtils.buildElementTree(docCache[source].code)
+const buildSceneConnections = (sceneImports, sceneImportsDocsById, sceneInfo) => {
+  return _.map(sceneImports, ({sceneName, source}) => {
+    const {code} = sceneImportsDocsById[source]
+    sceneInfo.scenes[sceneName].filePath = source
+    storyUtils.buildElementTree(code)
     return {
-      connections: storyUtils.getConnectionsInCode(docCache[source].code),
+      connections: storyUtils.getConnectionsInCode(code),
       sceneName,
     }
   })
+}
 
-  // match source info to component layout info
-  // return storyboard object
+export const openStoryboard = (filepath) => async (dispatch, getState) => {
+  const rootPath = getState().directory.rootPath
+  console.log(getState().directory)
+  // Open and parse storyboard file
+  const {code: storyboardCode} = await dispatch(editorActions.openDocument(filepath))
+  const {sceneImports, sceneInfo} = parseStoryboardCode(storyboardCode, rootPath)
+
+  // Load files from all scene imports into docs
+  const sceneImportDocs = await loadSceneImportFiles(sceneImports, dispatch)
+  const sceneImportsDocsById = _.keyBy(sceneImportDocs, 'id')
+
+  // Build connections from scene files
+  const sceneConnections = buildSceneConnections(
+    sceneImports, sceneImportsDocsById, sceneInfo
+  )
+
+  // Need to match component info to sourceinfo.
+  // Update state of redux app, so Storyboard receives updates
   dispatch({
     type: at.OPEN_STORYBOARD,
     payload: {
       connections: sceneConnections,
-      scenes: scenes,
+      scenes: sceneInfo.scenes,
       entry: sceneInfo.entry,
     },
   })
 }
 
+const createNewSceneScaffold = async (rootPath, dispatch) => {
+  // Should decide how to name new scenes
+  const newSceneName = `NewScene${Math.floor(Math.random()*1000)}`
+
+  // Generate scene scaffold text and write the file
+  const scaffold = FileScaffoldFactory.getScaffoldFromName('Scene')
+  const fileName = `${newSceneName}${scaffold.extname}`
+  const text = scaffold.generate({name: newSceneName})
+  const filePath = path.join(rootPath, fileName)
+  await dispatch(fileTreeCompositeActions.createFile(filePath, text))
+
+  return {newSceneName, fileName, filePath}
+}
+
 export const addScene = () => async (dispatch, getState) => {
-  const scaffoldId = 0 // id corresponds to Component
   const {rootPath} = getState().directory
   const {openDocId} = getState().editor
-  // Should decide how to name new scenes
-  const newSceneName = `newScene${Math.floor(Math.random()*1000)}`
 
-  // Scaffold new component for scene and write to file
-  const filename = FileScaffoldFactory.updateFilename(scaffoldId, newSceneName)
-  const text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
-  const filePath = path.join(rootPath, filename)
-  await dispatch(fileTreeCompositeActions.createFile(filePath, text))
+  // Scaffold new scene and write to file
+  const {newSceneName, fileName, filePath} = await createNewSceneScaffold(rootPath, dispatch)
 
   // Update the .storyboard.js file with new lines:
   // import NewScene from 'NewScene'
   // SceneManager.registerScene("NewScene", NewScene)
   const decoDoc = await dispatch(editorActions.getDocument(openDocId))
-  const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, newSceneName, `./${filename}`)
+  const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, newSceneName, `./${fileName}`)
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
   // Update redux state of app so Storyboard component picks up changes

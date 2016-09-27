@@ -28,15 +28,12 @@ import * as URIUtils from '../utils/URIUtils'
 import { storyboardActions } from '../actions'
 import NewSceneButton from '../components/storyboard/NewSceneButton'
 
-const stylesCreator = (theme) => {
-  const {colors} = theme
-  return {
-    container: {
-      backgroundColor: 'white',
-      flex: '1 1 auto',
-    }
-  }
-}
+const stylesCreator = ({colors}) => ({
+  container: {
+    backgroundColor: 'white',
+    flex: '1 1 auto',
+  },
+})
 
 const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch),

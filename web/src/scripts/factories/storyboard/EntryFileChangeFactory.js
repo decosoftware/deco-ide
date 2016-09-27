@@ -21,13 +21,13 @@ import DecoChangeFactory from '../editor/DecoChangeFactory'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 
 class EntryFileChangeFactory {
-  static createChangeToUpdateEntryRequire(doc, relativePath) {
-    const { code } = doc
+  static createChangeToUpdateEntryRequire(decoDoc, relativePath) {
+    const { code } = decoDoc
     const mod = CodeMod(code).updateImportSourceForRequire(
       'Entry', relativePath
     )
     const updatedCode = mod.toSource()
-    return DecoChangeFactory.createChangeToReplaceAllText(doc, updatedCode)
+    return DecoChangeFactory.createChangeToReplaceAllText(decoDoc, updatedCode)
   }
 }
 

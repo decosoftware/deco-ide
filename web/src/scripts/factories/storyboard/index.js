@@ -1,2 +1,2 @@
-export { default as EntryFileChangeFactory } from './EntryFileChangeFactory'
-export { default as StoryboardChangeFactory } from './StoryboardChangeFactory'
+export EntryFileChangeFactory from './EntryFileChangeFactory'
+export StoryboardChangeFactory from './StoryboardChangeFactory'
