@@ -135,7 +135,10 @@ const mapStateToProps = (state) => createSelector(
   ({preferences}) => ({
     npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
   }),
-  (decoDoc, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
+  ({storyboard}) => ({
+    showStoryboard: storyboard.shouldShow,
+  }),
+  (decoDoc, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences, storyboard) => ({
     decoDoc,
     filesByTabId,
     rootPath,
@@ -145,6 +148,7 @@ const mapStateToProps = (state) => createSelector(
     ...application,
     liveValuesById,
     ...preferences,
+    ...storyboard,
   })
 )
 

@@ -455,6 +455,18 @@ $icons-list:insert save logout settings to-code to-smart-object record-stop reco
 	}
 }
 
+.icon-play {
+	&:after {
+		content: "►";
+		width: 14px;
+		height: 22px;
+		color: rgba(0,0,0,0.50);
+		font-size: 14px;
+		position: relative;
+    left: 12px;
+	}
+}
+
 .icon-refresh {
 	background-position: center;
 	background-size: 12px 12px;

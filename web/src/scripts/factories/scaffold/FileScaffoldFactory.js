@@ -35,8 +35,16 @@ const scaffoldMetadata = _.map(scaffolds, ({name, id}) => {
 })
 
 const scaffoldsById = _.keyBy(scaffolds, 'id')
+const scaffoldsByName = _.keyBy(scaffolds, 'name')
 
 export default {
+
+  /**
+    * Returns a scaffold {name, id} from name
+    * @param  {String} name
+    * @return {Object}
+    */
+  getScaffoldFromName: (name) => scaffoldsByName[name],
 
   /**
    * Returns an array of {name, id}

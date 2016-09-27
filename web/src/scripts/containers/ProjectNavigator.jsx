@@ -24,7 +24,7 @@ import FileTree from 'react-file-tree'
 import path from 'path'
 
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-import { tabActions } from '../actions'
+import { tabActions, textEditorCompositeActions } from '../actions'
 import * as fileActions from '../actions/fileActions'
 import * as fileTreeCompositeActions from '../actions/fileTreeCompositeActions'
 import * as compositeFileActions from '../actions/compositeFileActions'
@@ -37,6 +37,7 @@ import { PaneHeader, Node, NamingBanner } from '../components'
 const SCAFFOLDS = FileScaffoldFactory.getScaffolds()
 
 const mapStateToProps = (state) => ({
+  rootPath: state.directory.rootPath,
   tree: state.directory.fileTree,
   version: state.directory.version,
 })
@@ -45,6 +46,7 @@ const mapDispatchToProps = (dispatch) => ({
   tabActions: bindActionCreators(tabActions, dispatch),
   fileActions: bindActionCreators(fileActions, dispatch),
   fileTreeCompositeActions: bindActionCreators(fileTreeCompositeActions, dispatch),
+  textEditorCompositeActions: bindActionCreators(textEditorCompositeActions, dispatch),
   compositeFileActions: bindActionCreators(compositeFileActions, dispatch),
   uiActions: bindActionCreators(uiActions, dispatch),
   dispatch,
@@ -55,6 +57,10 @@ class ProjectNavigator extends Component {
   static defaultProps = {
     className: '',
     style: {},
+  }
+
+  state = {
+    currentPreview: ''
   }
 
   componentWillMount() {
@@ -100,10 +106,22 @@ class ProjectNavigator extends Component {
     this.props.uiActions.pushModal(banner, true)
   }
 
+  handlePreviewClick = async (node) => {
+    const {rootPath, textEditorCompositeActions} = this.props
+    this.setState({currentPreview: node.path})
+    const relativePath = node.path.replace(rootPath, '.')
+    const requireText = relativePath.replace(path.extname(relativePath), '')
+    textEditorCompositeActions.updateDecoEntryRequire(requireText)
+  }
+
   renderNode = (props) => {
+    const {node} = props
+    const {currentPreview} = this.state
     return (
       <Node
         {...props}
+        onPreviewClick={this.handlePreviewClick.bind(this, node)}
+        isPreviewActive={currentPreview === node.path}
         scaffolds={SCAFFOLDS}
         createFileScaffold={this.onCreateFile}
       />

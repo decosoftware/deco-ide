@@ -16,16 +16,19 @@
  */
 
 import _ from 'lodash'
+import path from 'path'
 import semver from 'semver'
 
 import request from '../ipc/Request'
 import DecoChangeFactory from '../factories/editor/DecoChangeFactory'
+import EntryFileChangeFactory from '../factories/storyboard/EntryFileChangeFactory'
 import DecoRange from '../models/editor/DecoRange'
 import DecoRangeUtils from '../utils/editor/DecoRangeUtils'
 import DecoComponentUtils from '../utils/editor/DecoComponentUtils'
 import LiveValueUtils from '../utils/metadata/LiveValueUtils'
 import LiveValueGroupUtils from '../utils/metadata/LiveValueGroupUtils'
 import uuid from '../utils/uuid'
+import * as editorActions from './editorActions'
 import * as ModuleClient from '../clients/ModuleClient'
 import * as historyActions from './historyActions'
 import * as liveValueActions from './liveValueActions'
@@ -260,6 +263,13 @@ export const insertTemplate = (decoDoc, text, metadata = {}, imports, groupName,
 
   dispatch(edit(decoDoc.id, insertChange))
   dispatch(insertImports(decoDoc, imports, schemaVersion))
+}
+
+export const updateDecoEntryRequire = (requireText) => async (dispatch, getState) => {
+  const {rootPath} = getState().directory
+  const decoDoc = await dispatch(editorActions.getDocument(path.join(rootPath, 'decoentry.js')))
+  const decoChange = EntryFileChangeFactory.createChangeToUpdateEntryRequire(decoDoc, requireText)
+  dispatch(edit(decoDoc.id, decoChange))
 }
 
 export const insertComponent = (fileId, component) => async (dispatch, getState) => {

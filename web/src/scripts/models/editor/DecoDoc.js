@@ -67,12 +67,20 @@ class DecoDoc extends CodeMirrorDocWrapper {
 
   edit(decoChange) {
 
-    // Batch changes in an operation - CodeMirror will only refresh the DOM
-    // and fire certain events once all changes have completed. This dramatically
-    // improves the performance of composite changes
-    this._nativeDoc.cm.operation(() => {
+    // _nativeDoc.cm will only exist if the document has been loaded into a CM editor.
+    // If it doesn't exist, there's no need to run an operation because batching
+    // is just for DOM performance
+    if (this._nativeDoc.cm) {
+
+      // Batch changes in an operation - CodeMirror will only refresh the DOM
+      // and fire certain events once all changes have completed. This dramatically
+      // improves the performance of composite changes
+      this._nativeDoc.cm.operation(() => {
+        this._edit(decoChange)
+      })
+    } else {
       this._edit(decoChange)
-    })
+    }
   }
 
   _edit(decoChange) {
