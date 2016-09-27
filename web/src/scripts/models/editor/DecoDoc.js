@@ -65,7 +65,7 @@ class DecoDoc extends CodeMirrorDocWrapper {
 
   /*** EDITING ***/
 
-  getLinkedDoc() {
+  createLinkedDoc() {
     return this.cmDoc.linkedDoc({sharedHist: true})
   }
 
@@ -73,16 +73,20 @@ class DecoDoc extends CodeMirrorDocWrapper {
     this.cmDoc.unlinkDoc(cmDoc)
   }
 
+  getLinkedDocs() {
+    const linkedDocs = []
+
+    this.cmDoc.iterLinkedDocs(doc => linkedDocs.push(doc))
+
+    return linkedDocs
+  }
+
+  getFocusedLinkedDoc() {
+    return this.getLinkedDocs().find(doc => doc.cm && doc.cm.hasFocus())
+  }
+
   findLinkedDocById(id) {
-    let found = null
-
-    this.cmDoc.iterLinkedDocs(doc => {
-      if (id === doc.id) {
-        found = doc
-      }
-    })
-
-    return found
+    return this.getLinkedDocs().find(doc => id === doc.id)
   }
 
   edit(decoChange) {

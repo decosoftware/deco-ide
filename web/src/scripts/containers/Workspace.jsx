@@ -33,7 +33,6 @@ import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
-import TabSplitter from './TabSplitter'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops';
@@ -237,7 +236,7 @@ export default class Workspace extends Component {
     const {styles} = this.props
 
     return (
-      <TabSplitter
+      <TabbedEditor
         key={'tabbed-editor'}
         style={styles.centerPane}
       />

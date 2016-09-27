@@ -27,15 +27,15 @@ class Editor extends Component {
     super(props)
 
     this.state = {
-      linkedDoc: this.getLinkedDoc(props.decoDoc)
+      linkedDoc: this.createLinkedDoc(props.decoDoc)
     }
 
     this.attachMiddleware(props.middleware, props.decoDoc, this.state.linkedDoc)
   }
 
-  getLinkedDoc(decoDoc) {
+  createLinkedDoc(decoDoc) {
     if (decoDoc) {
-      return decoDoc.getLinkedDoc()
+      return decoDoc.createLinkedDoc()
     }
   }
 
@@ -70,7 +70,7 @@ class Editor extends Component {
       }
 
       if (nextDoc) {
-        linkedDoc = this.getLinkedDoc(nextDoc)
+        linkedDoc = this.createLinkedDoc(nextDoc)
       }
 
       this.setState({linkedDoc})

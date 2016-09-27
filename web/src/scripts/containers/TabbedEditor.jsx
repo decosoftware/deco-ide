@@ -35,6 +35,7 @@ import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+import TabSplitter from './TabSplitter'
 
 import {
   ProgressBar,
@@ -48,6 +49,8 @@ import {
 } from '../components'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
+const CONSOLE_COLLAPSED_HEIGHT = 36
+const CONSOLE_EXPANDED_HEIGHT = 300
 
 const stylesCreator = ({colors}) => {
   const tabBarHeight = 36
@@ -65,25 +68,6 @@ const stylesCreator = ({colors}) => {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      borderWidth: 1,
-      borderTopWidth: 0,
-      borderStyle: 'solid',
-      borderColor: colors.editor.divider,
-      backgroundColor: colors.editor.background,
-    },
-    editor: {
-      flex: '1 1 auto',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      position: 'relative',
-      overflow: 'auto',
-    },
-    tabContainer: {
-      height: tabBarHeight,
-      borderBottom: '1px solid rgb(16,16,16)',
     },
     progressBar: {
       position: 'absolute',
@@ -96,6 +80,9 @@ const stylesCreator = ({colors}) => {
     },
     link: {
       textDecoration: 'underline',
+    },
+    tabContainer: {
+      flex: 1,
     },
   }
 }
@@ -164,10 +151,14 @@ class TabbedEditor extends Component {
 
   keyHandlers = {
     openInsertMenu: (e) => {
+      const {decoDoc} = this.props
       const {showMenu} = this.state
 
-      if (!showMenu) {
-        this.setState({showMenu: true})
+      if (decoDoc && !showMenu) {
+        this.setState({
+          showMenu: true,
+          linkedDocId: decoDoc.getFocusedLinkedDoc().id
+        })
       }
     }
   }
@@ -193,15 +184,13 @@ class TabbedEditor extends Component {
 
   onImportItem = (component) => {
     const {decoDoc} = this.props
+    const {linkedDocId} = this.state
 
     if (!decoDoc) return
 
-    this.props.dispatch(textEditorCompositeActions.insertComponent(decoDoc.id, component))
+
+    this.props.dispatch(textEditorCompositeActions.insertComponent(decoDoc.id, linkedDocId, component))
   }
-
-  onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
-
-  onCloseTab = (tabId) => this.props.dispatch(compositeFileActions.closeTabWindow(tabId))
 
   onCloseConfigErrorToast = () => this.props.dispatch(applicationActions.clearConfigError())
 
@@ -233,9 +222,11 @@ class TabbedEditor extends Component {
   // TODO: move search menu to top level and take care of this on that refactor
   onRequestCloseSearchMenu = () => {
     const {decoDoc} = this.props
+    const {linkedDocId} = this.state
 
-    if (decoDoc) {
-      const editor = decoDoc.cmDoc.getEditor()
+    if (decoDoc && linkedDocId) {
+      const linkedDoc = decoDoc.findLinkedDocById(linkedDocId)
+      const editor = linkedDoc && linkedDoc.getEditor()
 
       editor && editor.focus()
     }
@@ -270,22 +261,6 @@ class TabbedEditor extends Component {
     )
   }
 
-  renderTabs() {
-    const {tabIds} = this.props
-
-    return tabIds.map((tabId) => {
-      const filename = path.basename(tabId)
-
-      return (
-        <Tab
-          key={tabId}
-          title={filename}
-          tabId={tabId}>{filename}
-        </Tab>
-      )
-    })
-  }
-
   renderToast() {
     const {configError, flowError} = this.props
 
@@ -311,16 +286,23 @@ class TabbedEditor extends Component {
       npmRegistry,
       focusedTabId,
       width,
+      height,
       decoDoc,
       liveValuesById,
       progressBar,
       componentList,
+      consoleVisible,
+      packagerOutput,
+      packagerStatus,
+      savedScrollHeight,
     } = this.props
 
     const {showMenu, menuPosition} = this.state
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = npmRegistry && npmRegistry !== DEFAULT_NPM_REGISTRY
+
+    const consoleHeight = consoleVisible ? CONSOLE_EXPANDED_HEIGHT : CONSOLE_COLLAPSED_HEIGHT
 
     return (
       <HotKeys
@@ -334,24 +316,21 @@ class TabbedEditor extends Component {
           ref={'position'}
           style={style}
         >
-          <TabContainer
-            style={styles.tabContainer}
-            focusedTabId={focusedTabId}
-            onFocusTab={this.onFocusTab}
-            onCloseTab={this.onCloseTab}
-            width={width}
-          >
-            {this.renderTabs()}
-          </TabContainer>
           {this.renderToast()}
           <div style={styles.contentContainer}>
-            <TabContent uri={focusedTabId} />
+            <TabSplitter
+              style={styles.tabContainer}
+              width={width}
+              height={height - consoleHeight}
+            />
           </div>
           <Console
-            consoleOpen={this.props.consoleVisible}
-            packagerOutput={this.props.packagerOutput}
-            packagerStatus={this.props.packagerStatus}
-            initialScrollHeight={this.props.savedScrollHeight}
+            collapsedHeight={CONSOLE_COLLAPSED_HEIGHT}
+            expandedHeight={CONSOLE_EXPANDED_HEIGHT}
+            consoleOpen={consoleVisible}
+            packagerOutput={packagerOutput}
+            packagerStatus={packagerStatus}
+            initialScrollHeight={savedScrollHeight}
             toggleConsole={this.toggleConsole}
             togglePackager={this.togglePackager}
             saveScrollHeight={this.saveScrollHeight}
@@ -369,7 +348,7 @@ class TabbedEditor extends Component {
           <SearchMenu
             ItemComponent={ComponentMenuItem}
             items={componentList}
-            onClickItem={this.onImportItem.bind(this)}
+            onClickItem={this.onImportItem}
             show={showMenu}
             anchorPosition={menuPosition}
             requestClose={this.onRequestCloseSearchMenu}

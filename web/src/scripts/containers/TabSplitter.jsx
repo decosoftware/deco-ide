@@ -98,8 +98,6 @@ class TabSplitter extends Component {
           workspaceId={'tab-splitter'}
         >
           <TabPane />
-          <TabPane />
-          <TabPane />
         </Splitter>
       </div>
     )

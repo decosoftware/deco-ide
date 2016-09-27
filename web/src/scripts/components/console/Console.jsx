@@ -24,17 +24,17 @@ import { StylesEnhancer } from 'react-styles-provider'
 
 const tabBarHeight = 36
 
-const stylesCreator = ({colors, fonts}) => {
+const stylesCreator = ({colors, fonts}, {collapsedHeight, expandedHeight}) => {
   return {
     termContainer: {
       zIndex: '5',
       backgroundColor: colors.console.background,
-      maxHeight: '300px',
-      minHeight: tabBarHeight,
+      maxHeight: expandedHeight,
+      minHeight: collapsedHeight,
       overflow: 'hidden',
     },
     termBar: {
-      height: tabBarHeight,
+      height: collapsedHeight,
       backgroundColor: colors.console.background,
       paddingLeft: 10,
       cursor: 'pointer',
@@ -65,7 +65,7 @@ const stylesCreator = ({colors, fonts}) => {
   }
 }
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({collapsedHeight, expandedHeight}) => ({collapsedHeight, expandedHeight}))
 class Console extends Component {
 
   renderPackagerDisplay() {
@@ -126,6 +126,8 @@ Console.propTypes = {
   consoleOpen: PropTypes.bool.isRequired,
   initialScrollHeight: PropTypes.number.isRequired,
   saveScrollHeight: PropTypes.func.isRequired,
+  collapsedHeight: PropTypes.number.isRequired,
+  expandedHeight: PropTypes.number.isRequired,
 }
 
 export default Console
