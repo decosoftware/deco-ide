@@ -33,6 +33,13 @@ export const at = {
   DELETE_CONNECTION: 'DELETE_CONNECTION',
   SET_ENTRY_SCENE: 'SET_ENTRY_SCENE',
   OPEN_STORYBOARD: 'OPEN_STORYBOARD',
+  TOGGLE_VIEW: 'TOGGLE_VIEW',
+}
+
+export const toggleStoryboardView = () => async (dispatch) => {
+  dispatch({
+    type: at.TOGGLE_VIEW,
+  })
 }
 
 export const openStoryboard = (filepath) => async (dispatch, getState) => {

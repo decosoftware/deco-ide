@@ -23,6 +23,7 @@ const initialState = {
   scenes: {},
   connections: {},
   entry: "",
+  shouldShow: false,
 }
 
 export default (state = initialState, action) => {
@@ -49,6 +50,14 @@ export default (state = initialState, action) => {
       return update(state, {
         scenes: {
           $set: _.omit(state.scenes, payload),
+        },
+      })
+    }
+
+    case at.TOGGLE_VIEW: {
+      return update(state, {
+        shouldShow: {
+          $set: !state.shouldShow,
         },
       })
     }

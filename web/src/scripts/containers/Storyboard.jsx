@@ -95,7 +95,10 @@ export const registerLoader = () => {
   ContentLoader.registerLoader({
     name: 'Storyboard',
     id: 'com.decosoftware.storyboard',
-    filter: (uri) => uri && uri.startsWith('file://') && uri.endsWith('.storyboard.js'),
+    filter: (uri, state) => {
+      return state.storyboard.shouldShow && uri &&
+        uri.startsWith('file://') && uri.endsWith('.storyboard.js')
+    },
     renderContent: (uri) => (
       <ConnectedClass
         fileId={uri && URIUtils.withoutProtocol(uri)}

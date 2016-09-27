@@ -22,7 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import WorkspaceEnhancer from 'react-workspace'
 
-import * as uiActions from '../actions/uiActions'
+import { uiActions, storyboardActions } from '../actions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import * as WindowSizeUtils from '../utils/WindowSizeUtils'
@@ -108,12 +108,10 @@ const mapStateToProps = (state) => createSelector(
 
 const mapDispatchToProps = (dispatch) => ({
   uiActions: bindActionCreators(uiActions, dispatch),
+  storyboardActions: bindActionCreators(storyboardActions, dispatch)
 })
 
 class Workspace extends Component {
-  state = {
-    storyboardOpen: false,
-  }
 
   componentWillMount() {
     this.resize()
@@ -136,10 +134,6 @@ class Workspace extends Component {
     const bounds = WindowSizeUtils.getCurrentWindowBounds()
     this.props.uiActions.setWindowSize(bounds)
     this.props.uiActions.saveWindowBounds()
-  }
-
-  toggleStoryboard = (isOn) => {
-    this.setState({storyboardOpen: isOn})
   }
 
   renderInspector() {
@@ -202,7 +196,14 @@ class Workspace extends Component {
   }
 
   render() {
-    const {styles, decoDoc, width, height, projectNavigatorVisible} = this.props
+    const {
+      styles,
+      decoDoc,
+      width,
+      height,
+      storyboardActions,
+      projectNavigatorVisible,
+    } = this.props
 
     const containerStyle = {
       ...styles.container,
@@ -215,7 +216,7 @@ class Workspace extends Component {
       <div style={containerStyle}>
         <WorkspaceToolbar
           style={styles.toolbar}
-          onStoryboardToggle={this.toggleStoryboard}
+          onStoryboardToggle={storyboardActions.toggleStoryboardView}
         />
         <div style={styles.content} data-resizable>
           { projectNavigatorVisible && (

@@ -186,7 +186,7 @@ class WorkspaceToolbar extends Component {
   }
 
   _toggleStoryboard = () => {
-    this.props.onStoryboardToggle(!this.state.storyboardOpen)
+    this.props.onStoryboardToggle()
     this.setState({storyboardOpen: !this.state.storyboardOpen})
   }
 
