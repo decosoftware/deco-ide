@@ -53,7 +53,7 @@ const createArgumentNodes = (args = []) => args.map((arg) => {
   }
 })
 
-const inversecreateArgumentNodes = (args = []) => args.map((arg) => {
+const inverseCreateArgumentNodes = (args = []) => args.map((arg) => {
   switch (arg.type) {
     case 'MemberExpression': {
       return {
@@ -196,7 +196,7 @@ export const getAllMatchingFunctionCalls = function(object, property, args) {
       object: getObject(node),
       property: getProperty(node),
       source: getSourceLocation(node),
-      args: inversecreateArgumentNodes(getArgs(node)),
+      args: inverseCreateArgumentNodes(getArgs(node)),
     }
   })
 }

@@ -1,5 +1,5 @@
 /**
- *    Copyright (C) 2015 Deco Software Inat.
+ *    Copyright (C) 2015 Deco Software Inc.
  *
  *    This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -91,14 +91,16 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Storyboard)
 
 export default ConnectedClass
 
+const loaderFilter = (uri, state) => {
+  const goodURI = uri && uri.startsWith('file://') && uri.endsWith('.storyboard.js')
+  return goodURI && state.storyboard.shouldShow
+}
+
 export const registerLoader = () => {
   ContentLoader.registerLoader({
     name: 'Storyboard',
     id: 'com.decosoftware.storyboard',
-    filter: (uri, state) => {
-      return state.storyboard.shouldShow && uri &&
-        uri.startsWith('file://') && uri.endsWith('.storyboard.js')
-    },
+    filter: loaderFilter,
     renderContent: (uri) => (
       <ConnectedClass
         fileId={uri && URIUtils.withoutProtocol(uri)}
