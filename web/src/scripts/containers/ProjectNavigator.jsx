@@ -114,7 +114,7 @@ class ProjectNavigator extends Component {
     textEditorCompositeActions.updateDecoEntryRequire(requireText)
   }
 
-  renderNode = (props, state) => {
+  renderNode = (props) => {
     const {node} = props
     const {currentPreview} = this.state
     return (
