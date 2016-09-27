@@ -16,7 +16,7 @@ import com.android.build.OutputFile
  *   bundleAssetName: "index.android.bundle",
  *
  *   // the entry file for bundle generation
- *   entryFile: "index.android.js",
+ *   entryFile: "decoentry.js",
  *
  *   // whether to bundle JS and assets in debug mode
  *   bundleInDebug: false,

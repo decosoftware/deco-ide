@@ -22,7 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import WorkspaceEnhancer from 'react-workspace'
 
-import * as uiActions from '../actions/uiActions'
+import { uiActions, storyboardActions } from '../actions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import * as WindowSizeUtils from '../utils/WindowSizeUtils'
@@ -35,7 +35,6 @@ import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
-import YOPS from 'yops';
 
 const stylesCreator = (theme) => {
   const {colors} = theme
@@ -109,6 +108,7 @@ const mapStateToProps = (state) => createSelector(
 
 const mapDispatchToProps = (dispatch) => ({
   uiActions: bindActionCreators(uiActions, dispatch),
+  storyboardActions: bindActionCreators(storyboardActions, dispatch)
 })
 
 let newSceneCounter = 1
@@ -148,15 +148,6 @@ class NewSceneButton extends Component {
 @WorkspaceEnhancer('main-workspace')
 export default class Workspace extends Component {
 
-  state = {
-    scenes: {
-      'Fun': {id: 'Fun', name: 'FunName'},
-      // 'Bun': {id: 'Bun', name: 'BunName'},
-      // 'Sun': {id: 'Sun', name: 'SunName'},
-    },
-    storyboardOpen: false,
-  }
-
   componentWillMount() {
     this.resize()
   }
@@ -178,10 +169,6 @@ export default class Workspace extends Component {
     const bounds = WindowSizeUtils.getCurrentWindowBounds()
     this.props.uiActions.setWindowSize(bounds)
     this.props.uiActions.saveWindowBounds()
-  }
-
-  toggleStoryboard = (isOn) => {
-    this.setState({storyboardOpen: isOn})
   }
 
   renderInspector() {
@@ -243,29 +230,15 @@ export default class Workspace extends Component {
     )
   }
 
-  renderStoryboard = (yopsStyle) => {
-    const { styles } = this.props
-    const connections = {}
-    const syncServiceAddress = 'http://localhost:4082'
-    const onLayoutUpdate = () => {}
-
-    return (
-      <div style={styles.centerPane}>
-        <NewSceneButton onClick={this.createScene}/>
-        <YOPS
-          style={yopsStyle}
-          connections={connections}
-          scenes={this.state.scenes}
-          onDeleteScene={this.handleDeleteScene}
-          syncServiceAddress={syncServiceAddress}
-          onLayoutUpdate={onLayoutUpdate}
-        />
-      </div>
-    )
-  }
-
   render() {
-    const {styles, decoDoc, width, height, projectNavigatorVisible} = this.props
+    const {
+      styles,
+      decoDoc,
+      width,
+      height,
+      storyboardActions,
+      projectNavigatorVisible,
+    } = this.props
 
     const containerStyle = {
       ...styles.container,
@@ -274,13 +247,11 @@ export default class Workspace extends Component {
       position: 'relative',
     }
 
-    const yopsStyle = {width: '100%', height: containerStyle.height}
-
     return (
       <div style={containerStyle}>
         <WorkspaceToolbar
           style={styles.toolbar}
-          onStoryboardToggle={this.toggleStoryboard}
+          onStoryboardToggle={storyboardActions.toggleStoryboardView}
         />
         <div style={styles.content} data-resizable>
           { projectNavigatorVisible && (
@@ -291,11 +262,7 @@ export default class Workspace extends Component {
               />
             </div>
           )}
-          {
-            this.state.storyboardOpen ?
-              this.renderStoryboard(yopsStyle) :
-              this.renderEditor()
-          }
+          { this.renderEditor() }
           { this.renderInspector() }
         </div>
       </div>

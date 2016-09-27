@@ -67,7 +67,11 @@
   "repository": "git@github.com:decosoftware/deco-ide",
   "scripts": {
     "watch": "./node_modules/.bin/gulp watch",
-    "build": "./node_modules/.bin/gulp build"
+    "build": "./node_modules/.bin/gulp build",
+    "test": "jest"
+  },
+  "jest": {
+    "verbose": true
   },
   "devDependencies": {
     "babel-eslint": "^5.0.0",

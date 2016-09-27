@@ -72,6 +72,16 @@ class DecoChangeFactory {
     return new DecoTextChange(cmChange, origin)
   }
 
+  static createChangeToReplaceAllText(doc, text) {
+    const {cmDoc} = doc
+    const from = { line: cmDoc.firstLine(), ch: 0 }
+    const last = cmDoc.lastLine()
+    const to = { line: last, ch: cmDoc.getLine(last).length }
+    return DecoChangeFactory.createChangeToSetText(
+      from, to, text, doc.code
+    )
+  }
+
   static createChangeFromJSON(json) {
     return CONSTRUCTORS[json.type].fromJSON(json)
   }

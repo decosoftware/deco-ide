@@ -1,10 +1,10 @@
 import React, { Component, PropTypes } from 'react'
 import shallowCompare from 'react-addons-shallow-compare'
-import nodePath from 'path'
 import memoize from 'fast-memoize'
 
 import NodeCaret from './NodeCaret'
 import PlusButtonWithDropdown from './PlusButtonWithDropdown'
+import PlayButton from './PlayButton'
 import styles, { getPaddedStyle } from './styles'
 import { StylesEnhancer } from 'react-styles-provider'
 
@@ -89,13 +89,31 @@ export default class Node extends Component {
     menuVisible: false,
   }
 
+  stopPropagation = (e) => {
+    e.stopPropagation()
+  }
+
+  handleVisibilityChange = (menuVisible) => {
+    this.setState({menuVisible})
+  }
+
   renderButton() {
-    const {node, scaffolds, createFileScaffold} = this.props
+    const {node, scaffolds, createFileScaffold, onPreviewClick, isPreviewActive} = this.props
     const {hover, menuVisible} = this.state
     const {type} = node
 
-    if (!(menuVisible || hover) || !isDirectory(type)) {
+    if (!(menuVisible || hover || isPreviewActive)) {
       return null
+    }
+
+    if (!isDirectory(type)) {
+      return (
+        <div style={styles.plusContainer} onClick={this.stopPropagation}>
+          <PlayButton
+            isActive={isPreviewActive}
+            onClick={onPreviewClick}/>
+        </div>
+      )
     }
 
     return (
@@ -106,9 +124,7 @@ export default class Node extends Component {
           scaffolds={scaffolds}
           visible={menuVisible}
           createFileScaffold={createFileScaffold}
-          onVisibilityChange={(menuVisible) => {
-            this.setState({menuVisible})
-          }}
+          onVisibilityChange={this.handleVisibilityChange}
         />
       </div>
     )
