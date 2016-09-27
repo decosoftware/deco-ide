@@ -36,8 +36,6 @@ import ComponentBrowser from './ComponentBrowser'
 import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 
-import YOPS from 'yops'
-
 const stylesCreator = (theme) => {
   const {colors} = theme
 

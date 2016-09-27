@@ -17,7 +17,6 @@
 
 import * as tabActions from '../actions/tabActions'
 import * as editorActions from '../actions/editorActions'
-import * as storyboardActions from '../actions/storyboardActions'
 import FileTreeActions from '../filetree/actions'
 import TabUtils from '../utils/TabUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
