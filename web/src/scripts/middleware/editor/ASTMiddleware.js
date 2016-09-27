@@ -46,8 +46,6 @@ export default class ASTMiddleware extends Middleware {
   }
 
   cursorActivity = (cm) => {
-    if (!this.enabled) return
-
     const {decoDoc: {id: filename}} = this
 
     const selections = cm.listSelections()
@@ -77,8 +75,6 @@ export default class ASTMiddleware extends Middleware {
   }
 
   analyze = async (cm) => {
-    if (!this.enabled) return
-
     const {decoDoc, decoDoc: {id: filename}} = this
 
     // TODO Figure out why calling getAST slows typing significantly.
@@ -91,12 +87,6 @@ export default class ASTMiddleware extends Middleware {
       astActions.setAST(filename, ast),
       elementTreeActions.setElementTree(filename, elementTree),
     ]))
-  }
-
-  setEnabled(enabled) {
-    this.enabled = enabled
-
-    return this
   }
 
 }

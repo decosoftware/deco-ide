@@ -111,11 +111,16 @@ class Editor extends Component {
       new DragAndDropMiddleware(),
       new HistoryMiddleware(),
       new TokenMiddleware(),
-      new ClipboardMiddleware().setLiveValuesById(liveValuesById),
       new AutocompleteMiddleware(),
       // new IndentGuideMiddleware(),
-      new ASTMiddleware().setEnabled(publishingFeature),
-    ]
+
+      // Use ASTMiddleware only in new static analysis mode
+      publishingFeature && new ASTMiddleware(),
+
+      // Use ClipboardMiddleware only in legacy live value mode
+      !publishingFeature && new ClipboardMiddleware().setLiveValuesById(liveValuesById),
+
+    ].filter(x => !!x)
 
     middleware.forEach(m => m.setDispatchFunction(dispatch))
 
