@@ -61,8 +61,12 @@ export default class ASTMiddleware extends Middleware {
 
   changes = (cm, changes) => {
 
-    // Only rebuild the elementTree for the linked doc in the active tab
-    if (!cm.hasFocus()) return
+    // TODO:
+    // Only rebuild the elementTree for the linked doc in the active tab,
+    // or perhaps instead when the AST is stale.
+    // Currently this breaks when adding/removing props, since these affect the AST,
+    // so we rebuild even if the doc is open in multiple tabs.
+    // if (!cm.hasFocus()) return
 
     // Don't rebuild the elementTree when changing a prop - we do this manually.
     if (ChangeUtils.containsDecoPropChange(changes)) return

@@ -33,8 +33,7 @@ export default class {
     }
   }
 
-  static getPropTextUpdate(decoDoc, elementProp, value, componentProp = {}) {
-    const {cmDoc} = decoDoc
+  static getPropTextUpdate(elementProp, value, componentProp = {}) {
 
     // If componentProp is passed, override elementProp
     elementProp = {...elementProp, ...componentProp}
@@ -48,6 +47,8 @@ export default class {
   }
 
   static removeProp(decoDoc, element, prop) {
+
+    // TODO Need to use DecoChanges to fix history events
     const {cmDoc} = decoDoc
     const {start, end} = prop
     const {openStart} = element
@@ -63,6 +64,8 @@ export default class {
   }
 
   static addProp(decoDoc, element, prop) {
+
+    // TODO Need to use DecoChanges to fix history events
     const {cmDoc} = decoDoc
     const {name, value} = prop
     const {openStart, openEnd, selfClosing} = element
