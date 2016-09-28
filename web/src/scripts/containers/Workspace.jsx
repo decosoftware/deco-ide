@@ -32,8 +32,6 @@ import LiveValueInspector from './LiveValueInspector'
 import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
-import ComponentBrowser from './ComponentBrowser'
-import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = (theme) => {
@@ -111,38 +109,6 @@ const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch)
 })
 
-let newSceneCounter = 1
-
-class NewSceneButton extends Component {
-  static propTypes = {
-    onClick: PropTypes.func.isRequired,
-  }
-
-  render() {
-    const style = {
-      position: 'absolute',
-      background: 'black',
-      width: '30px',
-      height: '30px',
-      borderRadius: '25%',
-      top: '20px',
-      right: '20px',
-      zIndex: 1,
-      textAlign: 'center',
-      paddingTop: '3px',
-      color: 'white',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-    }
-
-    return (
-      <div style={style} onClick={this.props.onClick}>
-        +
-      </div>
-    )
-  }
-}
-
 @connect(mapStateToProps, mapDispatchToProps)
 @StylesEnhancer(stylesCreator)
 @WorkspaceEnhancer('main-workspace')
@@ -200,23 +166,6 @@ export default class Workspace extends Component {
           />
         )
     }
-  }
-
-  createScene = () => {
-    const id = `NewScene${newSceneCounter}`
-    const name = `New Scene ${newSceneCounter}`
-    newSceneCounter++
-    const newScenes = {
-      ...this.state.scenes,
-      [id]: { id, name }
-    }
-    this.setState({scenes: newScenes})
-  }
-
-  handleDeleteScene = (id) => {
-    this.setState({
-      scenes: _.omit(this.state.scenes, id)
-    })
   }
 
   renderEditor = () => {
