@@ -96,24 +96,34 @@ class Editor extends Component {
     }
   }
 
-  onImportComponent = (component) => {
+  onImportComponent = (component, linkedDocId) => {
     const {fileId, textEditorCompositeActions} = this.props
 
-    textEditorCompositeActions.insertComponent(fileId, component)
+    textEditorCompositeActions.insertComponent(fileId, linkedDocId, component)
   }
 
   getMiddleware(props) {
-    const {dispatch, liveValuesById, publishingFeature} = props
+    const {dispatch, liveValuesById, publishingFeature, editorOptions} = props
 
-    return [
-      DragAndDropMiddleware(dispatch),
-      HistoryMiddleware(dispatch),
-      TokenMiddleware(dispatch),
-      ClipboardMiddleware(dispatch, liveValuesById),
-      AutocompleteMiddleware(dispatch),
-      IndentGuideMiddleware(dispatch),
-      ASTMiddleware(dispatch, publishingFeature),
-    ]
+    const middleware = [
+      new DragAndDropMiddleware(),
+      new HistoryMiddleware(),
+      new TokenMiddleware(),
+      new AutocompleteMiddleware(),
+
+      editorOptions.showIndentGuides && new IndentGuideMiddleware(),
+
+      // Use ASTMiddleware only in new static analysis mode
+      publishingFeature && new ASTMiddleware(),
+
+      // Use ClipboardMiddleware only in legacy live value mode
+      !publishingFeature && new ClipboardMiddleware().setLiveValuesById(liveValuesById),
+
+    ].filter(x => !!x)
+
+    middleware.forEach(m => m.setDispatchFunction(dispatch))
+
+    return middleware
   }
 
   render() {

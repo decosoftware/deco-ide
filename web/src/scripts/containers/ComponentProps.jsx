@@ -66,9 +66,11 @@ const stylesCreator = ({fonts}) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
+  selectors.currentDoc,
   selectors.selectedElement,
   selectors.selectedComponent,
-  (element, component) => ({
+  (decoDoc, element, component) => ({
+    decoDoc,
     element,
     component,
   })
@@ -95,7 +97,7 @@ class ComponentProps extends Component {
 
     if (! decoDoc || ! element) return
 
-    const {text, range, value: newValue} = PropUtils.getPropTextUpdate(decoDoc, prop, value)
+    const {text, range, value: newValue} = PropUtils.getPropTextUpdate(prop, value)
 
     dispatch(batchActions([
       textEditorCompositeActions.setTextForRange(decoDoc.id, text, range),

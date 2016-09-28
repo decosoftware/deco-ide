@@ -65,6 +65,30 @@ class DecoDoc extends CodeMirrorDocWrapper {
 
   /*** EDITING ***/
 
+  createLinkedDoc() {
+    return this.cmDoc.linkedDoc({sharedHist: true})
+  }
+
+  releaseLinkedDoc(cmDoc) {
+    this.cmDoc.unlinkDoc(cmDoc)
+  }
+
+  getLinkedDocs() {
+    const linkedDocs = []
+
+    this.cmDoc.iterLinkedDocs(doc => linkedDocs.push(doc))
+
+    return linkedDocs
+  }
+
+  getFocusedLinkedDoc() {
+    return this.getLinkedDocs().find(doc => doc.cm && doc.cm.hasFocus())
+  }
+
+  findLinkedDocById(id) {
+    return this.getLinkedDocs().find(doc => id === doc.id)
+  }
+
   edit(decoChange) {
 
     // _nativeDoc.cm will only exist if the document has been loaded into a CM editor.

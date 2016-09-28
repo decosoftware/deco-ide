@@ -100,6 +100,7 @@ export default class CodeMirrorComponent extends Component {
       styleActiveLine: true, // pref
       showIndentGuides: true, // pref
       showCursorWhenSelecting: true,
+      lineWiseCopyCut: true,
       hint: CodeMirror.hint.anyword,
       extraKeys: {
         'Tab': 'indentMore',

@@ -25,6 +25,7 @@ import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
 import { AutocompleteHint } from '../../components'
+import * as ChangeUtils from '../../utils/Editor/ChangeUtils'
 
 /**
  * Middleware for showing autocompletion hints while typing.
@@ -38,7 +39,7 @@ import { AutocompleteHint } from '../../components'
  *
  * In the case that flow doesn't exist, we show only basic completions.
  */
-class AutocompleteMiddleware extends Middleware {
+export default class AutocompleteMiddleware extends Middleware {
 
   constructor() {
     super()
@@ -52,13 +53,9 @@ class AutocompleteMiddleware extends Middleware {
     // the hints immediately.
     this.cachedCompletions = {}
 
-    this._keyMap = {
-      [EventTypes.changes]: this._changes.bind(this),
+    this.eventListeners = {
+      [EventTypes.changes]: this.changes,
     }
-  }
-
-  get eventListeners() {
-    return this._keyMap
   }
 
   renderHint(item, wordToComplete, node) {
@@ -76,8 +73,8 @@ class AutocompleteMiddleware extends Middleware {
   prepareHint(pos, wordToComplete, completion) {
 
     // Get basic completions from nearby text
-    const cm = this._decoDoc.cmDoc
-    const basic = CodeMirror.hint.anyword(cm).list.map(item => ({name: item}))
+    const cmDoc = this.decoDoc.cmDoc
+    const basic = CodeMirror.hint.anyword(cmDoc).list.map(item => ({name: item}))
 
     // Join flow completions and basic completions
     const list = _.chain([...completion.result, ...basic])
@@ -105,7 +102,7 @@ class AutocompleteMiddleware extends Middleware {
   }
 
   getHint(pos, wordToComplete) {
-    const {_decoDoc: decoDoc} = this
+    const {decoDoc} = this
 
     FlowController.startServer()
 
@@ -130,20 +127,17 @@ class AutocompleteMiddleware extends Middleware {
     })
   }
 
-  _changes(cm, changes) {
-    const {_decoDoc: decoDoc} = this
+  changes = (cm, changes) => {
+    const {decoDoc} = this
+
+    // Only show popup in the linked doc in the active tab
+    if (!cm.hasFocus()) return
 
     // Do nothing if popup is already open
-    if (this.completionActive) {
-      return
-    }
+    if (this.completionActive) return
 
     // Only show popup if the last change was a user input event
-    // http://stackoverflow.com/questions/26174164/auto-complete-with-codemirrror
-    const origin = changes[changes.length - 1].origin
-    if (! (origin === '+input' || origin === '+delete')) {
-      return
-    }
+    if (!ChangeUtils.containsUserInputChange(changes)) return
 
     const range = cm.listSelections()[0]
     const from = range.from()
@@ -177,27 +171,4 @@ class AutocompleteMiddleware extends Middleware {
     }
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this._decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this._decoDoc) {
-      return
-    }
-
-    this._decoDoc = null
-  }
-
-}
-
-const middleware = new AutocompleteMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

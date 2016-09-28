@@ -20,6 +20,10 @@
  */
 class Middleware {
 
+  constructor() {
+    this.eventListeners = {}
+  }
+
   setDispatchFunction(dispatch) {
     this._dispatch = dispatch
   }
@@ -31,16 +35,14 @@ class Middleware {
     return this._dispatch
   }
 
-  get eventListeners() {
-    return {}
-  }
-
-  attach(/* decoDoc */) {
-    throw new Error('Attach not implemented by subclass')
+  attach(decoDoc, linkedDoc) {
+    this.decoDoc = decoDoc
+    this.linkedDoc = linkedDoc
   }
 
   detach() {
-    throw new Error('Detach not implemented by subclass')
+    this.decoDoc = null
+    this.linkedDoc = null
   }
 
 }

@@ -25,8 +25,9 @@ import TextUtils from '../../utils/editor/TextUtils'
 
 const target = {
   drop(props, monitor, component) {
-    TextUtils.ensureNewlineWithIndentation(props.decoDoc.cmDoc)
-    props.onImportItem(monitor.getItem())    
+    const linkedDoc = component.refs.editor.getCurrentDoc()
+    TextUtils.ensureNewlineWithIndentation(linkedDoc)
+    props.onImportItem(monitor.getItem(), linkedDoc.id)
     component.focus()
   },
   hover(props, monitor, component) {
@@ -55,25 +56,21 @@ const style = {
 }
 
 class EditorDropTarget extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      offset: null,
-    }
+
+  state = {
+    offset: null,
   }
+
   focus() {
     this.refs.editor.focus()
   }
+
   render() {
     const {isOver, connectDropTarget, decoDoc, middleware} = this.props
     const {offset} = this.state
 
     // Enhance any middleware that have a setHover method
-    _.each(middleware, (m) => {
-      if (m.setHover) {
-        m.setHover(isOver, offset)
-      }
-    })
+    middleware.forEach((m) => m.setHover && m.setHover(isOver, offset))
 
     return connectDropTarget(
       <div style={style}>

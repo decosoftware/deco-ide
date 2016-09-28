@@ -32,8 +32,6 @@ import LiveValueInspector from './LiveValueInspector'
 import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
-import ComponentBrowser from './ComponentBrowser'
-import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = (theme) => {
@@ -111,7 +109,10 @@ const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch)
 })
 
-class Workspace extends Component {
+@connect(mapStateToProps, mapDispatchToProps)
+@StylesEnhancer(stylesCreator)
+@WorkspaceEnhancer('main-workspace')
+export default class Workspace extends Component {
 
   componentWillMount() {
     this.resize()
@@ -167,23 +168,6 @@ class Workspace extends Component {
     }
   }
 
-  createScene = () => {
-    const id = `NewScene${newSceneCounter}`
-    const name = `New Scene ${newSceneCounter}`
-    newSceneCounter++
-    const newScenes = {
-      ...this.state.scenes,
-      [id]: { id, name }
-    }
-    this.setState({scenes: newScenes})
-  }
-
-  handleDeleteScene = (id) => {
-    this.setState({
-      scenes: _.omit(this.state.scenes, id)
-    })
-  }
-
   renderEditor = () => {
     const {styles} = this.props
 
@@ -234,7 +218,3 @@ class Workspace extends Component {
     )
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  StylesEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
-)

@@ -28,29 +28,24 @@ import ASTUtils from '../../utils/ASTUtils'
 import ElementTreeBuilder from '../../utils/ElementTreeBuilder'
 import { astActions, elementTreeActions } from '../../actions'
 import * as uiActions from '../../actions/uiActions'
+import * as ChangeUtils from '../../utils/Editor/ChangeUtils'
 
 /**
  * Middleware for building an AST from the file
  */
-class ASTMiddleware extends Middleware {
+export default class ASTMiddleware extends Middleware {
 
   constructor() {
     super()
 
-    this.keyMap = {
+    this.eventListeners = {
       [EventTypes.changes]: this.changes,
       [EventTypes.swapDoc]: this.swapDoc,
       [EventTypes.cursorActivity]: this.cursorActivity,
     }
   }
 
-  get eventListeners() {
-    return this.keyMap
-  }
-
   cursorActivity = (cm) => {
-    if (!this.enabled) return
-
     const {decoDoc: {id: filename}} = this
 
     const selections = cm.listSelections()
@@ -65,12 +60,18 @@ class ASTMiddleware extends Middleware {
   }
 
   changes = (cm, changes) => {
-    const origin = changes[changes.length - 1].origin
+
+    // TODO:
+    // Only rebuild the elementTree for the linked doc in the active tab,
+    // or perhaps instead when the AST is stale.
+    // Currently this breaks when adding/removing props, since these affect the AST,
+    // so we rebuild even if the doc is open in multiple tabs.
+    // if (!cm.hasFocus()) return
 
     // Don't rebuild the elementTree when changing a prop - we do this manually.
-    if (origin !== '+decoProp') {
-      this.analyze(cm, changes)
-    }
+    if (ChangeUtils.containsDecoPropChange(changes)) return
+
+    this.analyze(cm, changes)
   }
 
   swapDoc = (cm) => {
@@ -78,11 +79,11 @@ class ASTMiddleware extends Middleware {
   }
 
   analyze = async (cm) => {
-    if (!this.enabled) return
-
     const {decoDoc, decoDoc: {id: filename}} = this
 
+    // TODO Figure out why calling getAST slows typing significantly.
     const raw = await FlowController.getAST(decoDoc.code, filename)
+
     const ast = JSON.parse(raw)
     const elementTree = ElementTreeBuilder.elementTreeFromAST(ast)
 
@@ -92,28 +93,4 @@ class ASTMiddleware extends Middleware {
     ]))
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this.decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this.decoDoc) {
-      return
-    }
-
-    this.decoDoc = null
-  }
-
-}
-
-const middleware = new ASTMiddleware()
-
-export default (dispatch, enabled) => {
-  middleware.setDispatchFunction(dispatch)
-  middleware.enabled = enabled
-  return middleware
 }

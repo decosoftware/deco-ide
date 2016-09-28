@@ -79,7 +79,7 @@ class ProjectNavigator extends Component {
   onDoubleSelectFile = (e, node) => {
     const {path: filepath, type} = node
 
-    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, filepath)
+    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, 'file://' + filepath)
   }
 
   onNameFile = (dirpath, scaffoldId, filename) => {

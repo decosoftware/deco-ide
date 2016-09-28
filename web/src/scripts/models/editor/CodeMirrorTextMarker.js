@@ -50,6 +50,7 @@ class CodeMirrorTextMarker {
     this._endStyle = CLASSNAME.END
     this._css = null
     this._title = 'Live Value'
+    this._shared = true
   }
 
   get id() {
@@ -61,7 +62,9 @@ class CodeMirrorTextMarker {
       throw new Error(`Can't get nativeId - native marker not attached`)
     }
 
-    return this._nativeMarker.id
+    // Markers have an id. Shared markers don't have an id, but are linked to a
+    // primary marker, so use that id.
+    return this._nativeMarker.id || this._nativeMarker.primary.id
   }
 
   attachToNativeDocAtRange(cmDoc, cmRange) {
@@ -85,6 +88,7 @@ class CodeMirrorTextMarker {
       endStyle: this._endStyle,
       css: this._css,
       title: this._title,
+      shared: this._shared,
     }
 
     this._nativeMarker = cmDoc.markText(cmRange.from, cmRange.to, options)

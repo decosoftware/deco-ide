@@ -51,7 +51,8 @@ export const filesByTabId = createSelector(
   ({directory}) => directory.filesById,
   ({ui: {tabs}}) => _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyArray),
   (filesById, tabIds) => tabIds.reduce((acc, tabId) => {
-    acc[tabId] = filesById[tabId]
+    const fileId = URIUtils.withoutProtocol(tabId)
+    acc[tabId] = filesById[fileId]
     return acc
   }, {})
 )
