@@ -129,7 +129,7 @@ const nodeHasValue = (node, value) => {
 export const addFunctionCall = function(object, property, args) {
   const rangeOfLastMatching = getLastMatchingExpressionRange(this, object, property)
   const body = _.get(this.nodes(), '[0].program.body')
-  let newFunctionIndex = 0
+  let newFunctionIndex = body.length
   if (rangeOfLastMatching) {
     newFunctionIndex = _.map(body, 'range').indexOf(rangeOfLastMatching) + 1
   }
