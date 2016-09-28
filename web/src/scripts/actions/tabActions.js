@@ -50,7 +50,7 @@ export const closeTab = (containerId, tabId, groupIndex) => async (dispatch, get
   const {tabIds = []} = TabUtils.getGroup(container, groupIndex)
 
   if (tabIds.includes(tabId)) {
-    dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId}})
+    dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId, groupIndex}})
   }
 }
 
