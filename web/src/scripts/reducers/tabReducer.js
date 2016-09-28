@@ -57,9 +57,9 @@ const tabReducer = (state = initialState, action) => {
     }
 
     case at.MAKE_TAB_PERMANENT: {
-      const {containerId} = payload
+      const {containerId, groupIndex} = payload
       const existing = TabUtils.getContainer(state, containerId)
-      const updated = TabUtils.makeTabPermanent(existing)
+      const updated = TabUtils.makeTabPermanent(existing, groupIndex)
       return update(state, {[containerId]: {$set: updated}})
     }
 
