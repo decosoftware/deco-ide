@@ -19,6 +19,17 @@ const getNodeForImport = (ast, importSource) => {
   return null
 }
 
+/**
+ * Finds the last import in an ast, and returns the range of
+ * that last import
+ */
+const getLastImportRange = (ast) => {
+  const imports = ast.find(j.ImportDeclaration).nodes()
+  if (imports.length === 0) return null
+  const lastImport = imports[imports.length - 1]
+  return lastImport.range
+}
+
 const createImportSpecifier = (type, value) => {
   switch (type) {
     case 'Default': {
@@ -45,8 +56,10 @@ const createImportDeclaration = (defaultImport, namedImports, importSource) => {
 }
 
 /**
- * Adds an import to the top of the AST's program body
- * if the import already exists, nothing happens
+ * Adds an import to the top of the AST's program body if no
+ * imports exist already. Otherwise, adds an import immediately after
+ * the last import in a file.
+ * If this particular import already exists, nothing happens.
  *
  * @param  {String} defaultImport      name of the defaultImport variable
  * @param  {Array[String]} namedImports       list of names of the namedImport variables
@@ -57,8 +70,14 @@ export const addImport = function(defaultImport, namedImports, importSource) {
   // make sure the import does not already exist
   let node = getNodeForImport(this, importSource)
   if (!node) {
+    const lastImportRange = getLastImportRange(this)
+    const body = _.get(this.nodes(), '[0].program.body')
+    let newImportIndex = 0
+    if (lastImportRange) {
+      newImportIndex = _.map(body, 'range').indexOf(lastImportRange) + 1
+    }
     node = createImportDeclaration(defaultImport, namedImports, importSource)
-    _.get(this.nodes(), '[0].program.body').unshift(node)
+    body.splice(newImportIndex, 0, node)
   }
   return this
 }

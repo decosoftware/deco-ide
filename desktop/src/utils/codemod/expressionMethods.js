@@ -86,6 +86,21 @@ const createExpressionStatement = (object, property, args) => (
   ), createArgumentNodes(args)))
 )
 
+/**
+ * Finds the last call to a particular function object.property in
+ * an ast, and returns the range of that last call
+ */
+const getLastMatchingExpressionRange = (ast, object, property) => {
+  const matchingExpressions = ast.find(j.ExpressionStatement).paths().filter((node) => {
+    const {sameObject, sameProperty, } = getSimilarity(
+      node.value.expression, object, property
+    )
+    return (sameObject && sameProperty)
+  })
+  if (matchingExpressions.length === 0) return null
+  return matchingExpressions[matchingExpressions.length - 1].value.range
+}
+
 const nodeHasValue = (node, value) => {
   switch (node.type) {
     case 'Literal': {
@@ -102,8 +117,8 @@ const nodeHasValue = (node, value) => {
 
 /**
  * Adds a function call as 'object.property(...args)'
- * to the end of the AST's program body
- *
+ * immediately after the last call of the same funciton,
+ * or at the top of the file if there isn't another call.
  *
  * @param  {String} object   Name of the object to call function on
  * @param  {String} property Name of the function on object to call
@@ -112,8 +127,15 @@ const nodeHasValue = (node, value) => {
  * @return {Collection}      Updated Collection
  */
 export const addFunctionCall = function(object, property, args) {
+  const rangeOfLastMatching = getLastMatchingExpressionRange(this, object, property)
+  const body = _.get(this.nodes(), '[0].program.body')
+  let newFunctionIndex = 0
+  if (rangeOfLastMatching) {
+    newFunctionIndex = _.map(body, 'range').indexOf(rangeOfLastMatching) + 1
+  }
+
   const node = createExpressionStatement(object, property, args)
-  _.get(this.nodes(), '[0].program.body', []).unshift(node)
+  body.splice(newFunctionIndex, 0, node)
   return this
 }
 
