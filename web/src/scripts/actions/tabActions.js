@@ -75,6 +75,6 @@ export const makeTabPermanent = (containerId, tabId, groupIndex) => async (dispa
   const {ephemeralTabId} = TabUtils.getGroup(container, groupIndex)
 
   if (ephemeralTabId && ephemeralTabId === tabId) {
-    dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId}})
+    dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId, groupIndex}})
   }
 }
