@@ -43,9 +43,9 @@ const tabReducer = (state = initialState, action) => {
     }
 
     case at.CLOSE_TAB: {
-      const {containerId, tabId} = payload
+      const {containerId, tabId, groupIndex} = payload
       const existing = TabUtils.getContainer(state, containerId)
-      const updated = TabUtils.closeTab(existing, tabId)
+      const updated = TabUtils.closeTab(existing, tabId, groupIndex)
       return update(state, {[containerId]: {$set: updated}})
     }
 

@@ -146,23 +146,39 @@ class TabUtils {
     // If the tab to close is focused, reset focus to tab 0
     let newFocusedTabId
     if (focusedTabId && focusedTabId === tabId) {
-      newFocusedTabId = tabIds.length ? tabIds[0] : null
+      newFocusedTabId = tabIds.length > 0 ? tabIds[0] : null
     } else {
       newFocusedTabId = focusedTabId
     }
 
-    return update(container, {
-      focusedGroupIndex: {$set: groupIndex},
-      groups: {
-        [groupIndex]: {
-          $merge: {
-            focusedTabId: newFocusedTabId,
-            ephemeralTabId: ephemeralTabId === tabId ? null : ephemeralTabId,
-            tabIds: _.without(tabIds, tabId),
+    // If there are remaining tabs, focus one
+    if (tabIds.length > 1) {
+      return update(container, {
+        focusedGroupIndex: {$set: groupIndex},
+        groups: {
+          [groupIndex]: {
+            $merge: {
+              focusedTabId: newFocusedTabId,
+              ephemeralTabId: ephemeralTabId === tabId ? null : ephemeralTabId,
+              tabIds: _.without(tabIds, tabId),
+            }
           }
         }
-      }
-    })
+      })
+
+    // Else, delete this tab group
+    } else {
+
+      return update(container, {
+        $merge: {
+          focusedGroupIndex: 0,
+          groups: [
+            ...container.groups.slice(0, groupIndex),
+            ...container.groups.slice(groupIndex + 1, container.groups.length),
+          ],
+        }
+      })
+    }
   }
 
   static focusTab(container, tabId, groupIndex) {

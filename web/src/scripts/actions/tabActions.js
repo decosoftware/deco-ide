@@ -62,8 +62,8 @@ export const focusTab = (containerId, tabId, groupIndex) => async (dispatch) => 
   dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId, groupIndex}})
 }
 
-export const clearFocusedTab = (containerId) => async (dispatch) => {
-  dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId: null}})
+export const clearFocusedTab = (containerId, groupIndex) => async (dispatch) => {
+  dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId: null, groupIndex}})
 }
 
 export const swapTab = (containerId, tabId, newTabId) => async (dispatch) => {

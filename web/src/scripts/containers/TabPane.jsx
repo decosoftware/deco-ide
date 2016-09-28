@@ -77,9 +77,17 @@ const mapStateToProps = (state, props) => createSelector(
 @StylesEnhancer(stylesCreator, ({style}) => ({style}))
 class TabPane extends Component {
 
-  onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
+  onFocusTab = (tabId) => {
+    const {filesByTabId, tabGroupIndex} = this.props
 
-  onCloseTab = (tabId) => this.props.dispatch(compositeFileActions.closeTabWindow(tabId))
+    this.props.dispatch(compositeFileActions.openFile(filesByTabId[tabId].path, tabGroupIndex))
+  }
+
+  onCloseTab = (tabId) => {
+    const {tabGroupIndex} = this.props
+
+    this.props.dispatch(compositeFileActions.closeTabWindow(tabId, tabGroupIndex))
+  }
 
   renderTabs() {
     const {tabIds} = this.props
