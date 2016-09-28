@@ -137,7 +137,8 @@ export const addScene = () => async (dispatch, getState) => {
 }
 
 export const deleteScene = (sceneId) => async (dispatch, getState) => {
-  const scene = getState().storyboard.scenes[sceneId]
+  const {entry, scenes} = getState().storyboard
+  const scene = scenes[sceneId]
   if (!scene || !scene.filePath) {
     return
   }
@@ -151,14 +152,27 @@ export const deleteScene = (sceneId) => async (dispatch, getState) => {
   // import NewScene from 'NewScene'
   // SceneManager.registerScene("NewScene", NewScene)
   const decoDoc = await dispatch(editorActions.getDocument(openDocId))
-  const decoChange = StoryboardChangeFactory.removeSceneFromStoryboard(decoDoc, name, `./${name}`)
-  dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+  const removalDecoChange = StoryboardChangeFactory.removeSceneFromStoryboard(decoDoc, name, `./${name}`)
+  dispatch(textEditorCompositeActions.edit(decoDoc.id, removalDecoChange))
 
   // Update redux state of app so Storyboard component picks up changes
-  dispatch({
+  await dispatch({
     type: at.DELETE_SCENE,
     payload: id
   })
+
+  // If the removed scene was previously the entry scene, try to set another
+  // scene to be entry
+  if (entry === sceneId) {
+    // We'll have to figure out generally what to do if a user puts the
+    // storyboard into a state like this (no scenes)
+    if (Object.keys(getState().storyboard.scenes).length === 0) return
+
+    // Get a random remaining scene and replace the entry scene with it
+    const newEntryScene = _.map(scenes, 'name')[0]
+    const entryDecoChange = StoryboardChangeFactory.updateEntryScene(decoDoc, newEntryScene)
+    dispatch(textEditorCompositeActions.edit(decoDoc.id, entryDecoChange))
+  }
 }
 
 export const renameScene = (sceneId, newName) => async (dispatch) => {
