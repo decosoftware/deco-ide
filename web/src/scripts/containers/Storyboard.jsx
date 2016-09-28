@@ -98,7 +98,7 @@ export const registerLoader = () => {
     name: 'Storyboard',
     id: 'com.decosoftware.storyboard',
     filter: loaderFilter,
-    renderContent: (uri) => (
+    renderContent: ({uri}) => (
       <ConnectedClass
         fileId={uri && URIUtils.withoutProtocol(uri)}
       />

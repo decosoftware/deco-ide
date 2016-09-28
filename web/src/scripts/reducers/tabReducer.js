@@ -50,9 +50,9 @@ const tabReducer = (state = initialState, action) => {
     }
 
     case at.FOCUS_TAB: {
-      const {containerId, tabId} = payload
+      const {containerId, tabId, groupIndex} = payload
       const existing = TabUtils.getContainer(state, containerId)
-      const updated = TabUtils.focusTab(existing, tabId)
+      const updated = TabUtils.focusTab(existing, tabId, groupIndex)
       return update(state, {[containerId]: {$set: updated}})
     }
 

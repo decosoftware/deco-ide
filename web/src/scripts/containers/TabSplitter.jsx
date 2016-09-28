@@ -74,20 +74,32 @@ const stylesCreator = ({colors}) => ({
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  selectors.filesByTabId,
-  selectors.focusedTabId,
-  selectors.tabIds,
-  (filesByTabId, focusedTabId, tabIds) => ({
-    filesByTabId,
-    focusedTabId,
-    tabIds,
+  selectors.tabGroups,
+  selectors.tabContainerId,
+  (tabGroups, tabContainerId) => ({
+    tabGroups,
+    tabContainerId,
   })
 )
 
 @StylesEnhancer(stylesCreator)
 class TabSplitter extends Component {
+
+  renderTabPane = (tabGroup, i) => {
+    const {tabContainerId} = this.props
+
+    return (
+      <TabPane
+        key={i}
+        tabGroup={tabGroup}
+        tabGroupIndex={i}
+        tabContainerId={tabContainerId}
+      />
+    )
+  }
+
   render() {
-    const {styles, style, width, height} = this.props
+    const {styles, style, width, height, tabGroups} = this.props
 
     return (
       <div style={style}>
@@ -96,7 +108,7 @@ class TabSplitter extends Component {
           height={height}
           workspaceId={'tab-splitter'}
         >
-          <TabPane />
+          {tabGroups.map(this.renderTabPane)}
         </Splitter>
       </div>
     )

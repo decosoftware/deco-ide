@@ -17,6 +17,8 @@
 
 import _ from 'lodash'
 
+import TabUtils from '../utils/TabUtils'
+
 export const at = {
   ADD_TAB: 'ADD_TAB',
   MOVE_TAB: 'MOVE_TAB',
@@ -31,13 +33,21 @@ export const addTab = (containerId, tabId, groupIndex, index) => async (dispatch
   dispatch({type: at.ADD_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
+export const splitRight = (containerId, tabId) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const groupIndex = container ? container.groups.length : 0
+
+  dispatch(addTab(containerId, tabId, groupIndex))
+}
+
 // TODO: Implement
 export const moveTab = (containerId, tabId, groupIndex, index) => async (dispatch) => {
   dispatch({type: at.MOVE_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
-export const closeTab = (containerId, tabId) => async (dispatch, getState) => {
-  const tabIds = _.get(getState(), `ui.tabs.${containerId}.groups.0.tabIds`, [])
+export const closeTab = (containerId, tabId, groupIndex) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const {tabIds = []} = TabUtils.getGroup(container, groupIndex)
 
   if (tabIds.includes(tabId)) {
     dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId}})
@@ -48,8 +58,8 @@ export const closeAllTabs = (containerId) => async (dispatch) => {
   dispatch({type: at.CLOSE_ALL_TABS, payload: {containerId}})
 }
 
-export const focusTab = (containerId, tabId) => async (dispatch) => {
-  dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId}})
+export const focusTab = (containerId, tabId, groupIndex) => async (dispatch) => {
+  dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId, groupIndex}})
 }
 
 export const clearFocusedTab = (containerId) => async (dispatch) => {
@@ -60,8 +70,9 @@ export const swapTab = (containerId, tabId, newTabId) => async (dispatch) => {
   dispatch({type: at.SWAP_TAB, payload: {containerId, tabId, newTabId}})
 }
 
-export const makeTabPermanent = (containerId, tabId) => async (dispatch, getState) => {
-  const ephemeralTabId = _.get(getState(), `ui.tabs.${containerId}.groups.0.ephemeralTabId`)
+export const makeTabPermanent = (containerId, tabId, groupIndex) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const {ephemeralTabId} = TabUtils.getGroup(container, groupIndex)
 
   if (ephemeralTabId && ephemeralTabId === tabId) {
     dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId}})

@@ -37,7 +37,10 @@ export const editorOptions = createSelector(
 
 export const focusedTabId = createSelector(
   ({ui: {tabs}}) => tabs,
-  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.focusedTabId`)
+  (tabs) => {
+    const {focusedGroupIndex, groups} = _.get(tabs, CONTENT_PANES.CENTER, {})
+    return _.get(groups, `${focusedGroupIndex}.focusedTabId`)
+  }
 )
 
 export const focusedFileId = createSelector(
@@ -52,14 +55,23 @@ export const tabIds = createSelector(
   (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.tabIds`, emptyArray)
 )
 
+export const tabGroups = createSelector(
+  ({ui: {tabs}}) => tabs,
+  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups`, emptyArray)
+)
+
 export const filesByTabId = createSelector(
   ({directory}) => directory.filesById,
-  ({ui: {tabs}}) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.tabIds`, emptyArray),
-  (filesById, tabIds) => tabIds.reduce((acc, tabId) => {
-    const fileId = URIUtils.withoutProtocol(tabId)
-    acc[tabId] = filesById[fileId]
-    return acc
-  }, {})
+  tabGroups,
+  (filesById, tabGroups) => {
+    const tabIds = _.flatten(tabGroups.map(group => group.tabIds))
+
+    return tabIds.reduce((acc, tabId) => {
+      const fileId = URIUtils.withoutProtocol(tabId)
+      acc[tabId] = filesById[fileId]
+      return acc
+    }, {})
+  }
 )
 
 export const selectedElement = createSelector(
@@ -105,4 +117,15 @@ export const currentDoc = createSelector(
   ({editor: {docCache}}) => docCache,
   focusedFileId,
   (docCache, focusedFileId) => focusedFileId ? docCache[focusedFileId] : null
+)
+
+export const tabContainerId = createSelector(
+  () => CONTENT_PANES.CENTER
+)
+
+// Takes props
+export const docByFileId = createSelector(
+  ({editor: {docCache}}) => docCache,
+  (state, props) => props.fileId,
+  (docCache, fileId) => docCache[fileId]
 )

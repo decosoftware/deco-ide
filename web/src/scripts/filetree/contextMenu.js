@@ -1,11 +1,13 @@
 import _ from 'lodash'
 import React from 'react'
 
-const remote = Electron.remote;
+const remote = Electron.remote
 const path = remote.require('path')
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
+const Menu = remote.Menu
+const MenuItem = remote.MenuItem
 
+import { CONTENT_PANES } from '../constants/LayoutConstants'
+import { tabActions, fileActions } from '../actions'
 import { fileTreeController as controller } from './index'
 import {
   renameFile,
@@ -51,6 +53,14 @@ const buildFileMenu = (dispatch, node) => {
       label: 'Delete',
       click: () => {
         dispatch(deleteFile(filePath))
+      }
+    }),
+    new MenuItem({ type: 'separator' }),
+    new MenuItem({
+      label: 'Split Right',
+      click: () => {
+        dispatch(fileActions.registerPath(filePath))
+        dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, 'file://' + filePath))
       }
     }),
     new MenuItem({ type: 'separator' }),

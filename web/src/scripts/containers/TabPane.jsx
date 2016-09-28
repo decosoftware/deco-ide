@@ -62,14 +62,15 @@ const stylesCreator = ({colors}, {style}) => ({
 
 const emptyTabs = []
 
-const mapStateToProps = (state) => createSelector(
+const mapStateToProps = (state, props) => createSelector(
+  (state, {tabGroup}) => ({
+    focusedTabId: tabGroup.focusedTabId,
+    tabIds: tabGroup.tabIds,
+  }),
   selectors.filesByTabId,
-  selectors.focusedTabId,
-  selectors.tabIds,
-  (filesByTabId, focusedTabId, tabIds) => ({
+  (tabGroup, filesByTabId) => ({
+    ...tabGroup,
     filesByTabId,
-    focusedTabId,
-    tabIds,
   })
 )
 
@@ -90,14 +91,16 @@ class TabPane extends Component {
         <Tab
           key={tabId}
           title={filename}
-          tabId={tabId}>{filename}
+          tabId={tabId}
+        >
+          {filename}
         </Tab>
       )
     })
   }
 
   render() {
-    const {styles, focusedTabId, width} = this.props
+    const {styles, focusedTabId, width, tabContainerId, tabGroupIndex} = this.props
 
     return (
       <div style={styles.container}>
@@ -111,7 +114,11 @@ class TabPane extends Component {
           {this.renderTabs()}
         </TabContainer>
         <div style={styles.contentContainer}>
-          <TabContent uri={focusedTabId} />
+          <TabContent
+            uri={focusedTabId}
+            tabContainerId={tabContainerId}
+            tabGroupIndex={tabGroupIndex}
+          />
         </div>
       </div>
     )
