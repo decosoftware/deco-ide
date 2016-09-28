@@ -28,13 +28,15 @@ export const openFile = (path) => async (dispatch, getState) => {
 }
 
 export const closeTabWindow = (closeTabId) => async (dispatch, getState) => {
-  dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId))
 
-	const tabs = getState().ui.tabs
-	const tabToFocus = tabs.CENTER && TabUtils.determineTabToFocus(tabs.CENTER.tabIds, closeTabId, tabs.CENTER.focusedTabId)
+  // Before modifying tab state, determine which tab to focus next
+  const tabs = getState().ui.tabs
+  const tabToFocus = TabUtils.determineTabToFocus(tabs[CONTENT_PANES.CENTER], closeTabId)
   const fileToFocus = tabToFocus && URIUtils.withoutProtocol(tabToFocus)
 
-	// If there's another tab to open, open the file for it
+  dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId))
+
+  // If there's another tab to open, open the file for it
   if (fileToFocus) {
     const filePath = getState().directory.filesById[fileToFocus].path
     dispatch(openFile(filePath))

@@ -37,7 +37,7 @@ export const editorOptions = createSelector(
 
 export const focusedTabId = createSelector(
   ({ui: {tabs}}) => tabs,
-  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`)
+  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.focusedTabId`)
 )
 
 export const focusedFileId = createSelector(
@@ -47,9 +47,14 @@ export const focusedFileId = createSelector(
 
 const emptyArray = []
 
+export const tabIds = createSelector(
+  ({ui: {tabs}}) => tabs,
+  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.tabIds`, emptyArray)
+)
+
 export const filesByTabId = createSelector(
   ({directory}) => directory.filesById,
-  ({ui: {tabs}}) => _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyArray),
+  ({ui: {tabs}}) => _.get(tabs, `${CONTENT_PANES.CENTER}.groups.0.tabIds`, emptyArray),
   (filesById, tabIds) => tabIds.reduce((acc, tabId) => {
     const fileId = URIUtils.withoutProtocol(tabId)
     acc[tabId] = filesById[fileId]

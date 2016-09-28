@@ -53,6 +53,7 @@ const buildFileMenu = (dispatch, node) => {
         dispatch(deleteFile(filePath))
       }
     }),
+    new MenuItem({ type: 'separator' }),
     new MenuItem({
       label: 'Show in Finder',
       click: () => {

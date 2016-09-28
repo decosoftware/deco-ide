@@ -64,13 +64,12 @@ const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
   selectors.filesByTabId,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
-  }),
-  (filesByTabId, tabs) => ({
+  selectors.focusedTabId,
+  selectors.tabIds,
+  (filesByTabId, focusedTabId, tabIds) => ({
     filesByTabId,
-    ...tabs,
+    focusedTabId,
+    tabIds,
   })
 )
 

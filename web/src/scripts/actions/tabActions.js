@@ -27,17 +27,21 @@ export const at = {
   MAKE_TAB_PERMANENT: 'MAKE_TAB_PERMANENT',
 }
 
-export const addTab = (containerId, tabId, position) => async (dispatch) => {
-  dispatch({type: at.ADD_TAB, payload: {containerId, tabId, position}})
+export const addTab = (containerId, tabId, groupIndex, index) => async (dispatch) => {
+  dispatch({type: at.ADD_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
 // TODO: Implement
-export const moveTab = (containerId, tabId, position) => async (dispatch) => {
-  dispatch({type: at.MOVE_TAB, payload: {containerId, tabId, position}})
+export const moveTab = (containerId, tabId, groupIndex, index) => async (dispatch) => {
+  dispatch({type: at.MOVE_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
-export const closeTab = (containerId, tabId) => async (dispatch) => {
-  dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId}})
+export const closeTab = (containerId, tabId) => async (dispatch, getState) => {
+  const tabIds = _.get(getState(), `ui.tabs.${containerId}.groups.0.tabIds`, [])
+
+  if (tabIds.includes(tabId)) {
+    dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId}})
+  }
 }
 
 export const closeAllTabs = (containerId) => async (dispatch) => {
@@ -57,7 +61,7 @@ export const swapTab = (containerId, tabId, newTabId) => async (dispatch) => {
 }
 
 export const makeTabPermanent = (containerId, tabId) => async (dispatch, getState) => {
-  const ephemeralTabId = _.get(getState(), `ui.tabs.${containerId}.ephemeralTabId`)
+  const ephemeralTabId = _.get(getState(), `ui.tabs.${containerId}.groups.0.ephemeralTabId`)
 
   if (ephemeralTabId && ephemeralTabId === tabId) {
     dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId}})
