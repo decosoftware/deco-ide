@@ -129,7 +129,9 @@ const nodeHasValue = (node, value) => {
 export const addFunctionCall = function(object, property, args) {
   const rangeOfLastMatching = getLastMatchingExpressionRange(this, object, property)
   const body = _.get(this.nodes(), '[0].program.body')
-  let newFunctionIndex = body.length
+  // Let's do this the correct way with insertBefore, etc and
+  // generally smarter logic on all these inserts
+  let newFunctionIndex = body.length - 1
   if (rangeOfLastMatching) {
     newFunctionIndex = _.map(body, 'range').indexOf(rangeOfLastMatching) + 1
   }
