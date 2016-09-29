@@ -172,8 +172,7 @@ const ipcActionEmitter = (store) => {
   })
 
   ipc.on(SHOULD_CLOSE_TAB, () => {
-    const tabs = store.getState().ui.tabs
-    store.dispatch(closeTabWindow(tabs.CENTER.focusedTabId))
+    store.dispatch(closeTabWindow())
   })
 
   ipc.on(SHOULD_SAVE_PROJECT, () => {

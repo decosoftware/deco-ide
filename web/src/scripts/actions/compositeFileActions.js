@@ -29,6 +29,8 @@ export const openFile = (path, tabGroupIndex) => async (dispatch, getState) => {
 }
 
 export const closeTabWindow = (closeTabId, tabGroupIndex) => async (dispatch, getState) => {
+  closeTabId = closeTabId || selectors.focusedTabId(getState())
+
   await dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId, tabGroupIndex))
 
   const focusedFileId = selectors.focusedFileId(getState())
