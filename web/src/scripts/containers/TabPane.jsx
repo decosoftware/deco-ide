@@ -63,7 +63,7 @@ const stylesCreator = ({colors}, {style}) => ({
 const emptyTabs = []
 
 const mapStateToProps = (state, props) => createSelector(
-  (state, {tabGroup}) => ({
+  (state, {tabGroup}) => tabGroup && ({
     focusedTabId: tabGroup.focusedTabId,
     tabIds: tabGroup.tabIds,
   }),
@@ -90,7 +90,7 @@ class TabPane extends Component {
   }
 
   renderTabs() {
-    const {tabIds} = this.props
+    const {tabIds = []} = this.props
 
     return tabIds.map((tabId) => {
       const filename = path.basename(tabId)

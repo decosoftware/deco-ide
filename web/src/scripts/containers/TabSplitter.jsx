@@ -85,6 +85,12 @@ const mapStateToProps = (state) => createSelector(
 @StylesEnhancer(stylesCreator)
 class TabSplitter extends Component {
 
+  renderEmpty() {
+    return (
+      <TabPane key={0} />
+    )
+  }
+
   renderTabPane = (tabGroup, i) => {
     const {tabContainerId} = this.props
 
@@ -98,8 +104,18 @@ class TabSplitter extends Component {
     )
   }
 
+  renderContent() {
+    const {tabGroups} = this.props
+
+    if (tabGroups.length > 0) {
+      return tabGroups.map(this.renderTabPane)
+    } else {
+      return this.renderEmpty()
+    }
+  }
+
   render() {
-    const {styles, style, width, height, tabGroups} = this.props
+    const {styles, style, width, height} = this.props
 
     return (
       <div style={style}>
@@ -108,7 +124,7 @@ class TabSplitter extends Component {
           height={height}
           workspaceId={'tab-splitter'}
         >
-          {tabGroups.map(this.renderTabPane)}
+          {this.renderContent()}
         </Splitter>
       </div>
     )
