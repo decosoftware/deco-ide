@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
+import { batchActions } from 'redux-batched-subscribe'
 
 const remote = Electron.remote
 const path = remote.require('path')
@@ -76,9 +77,11 @@ const buildFileMenu = (dispatch, node) => {
         click: () => {
           const uriWithLoader = URIUtils.createUrl(uri, {loader: id})
 
-          dispatch(fileActions.registerPath(filePath))
-          dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, uriWithLoader))
-          dispatch(tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader))
+          dispatch(batchActions([
+            fileActions.registerPath(filePath),
+            tabActions.splitRight(CONTENT_PANES.CENTER, uriWithLoader),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader),
+          ]))
         }
       })
     }),
