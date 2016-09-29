@@ -6,11 +6,12 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "deco-sdk": "git+ssh://github.com/decosoftware/deco-sdk.git",
     "react": "^15.1.0",
-    "react-native": "^0.33.0",
-    "deco-sdk": "git+ssh://github.com/decosoftware/deco-sdk.git"
+    "react-native": "^0.33.0"
   },
   "devDependencies": {
-    "babel-plugin-transform-react-jsx": "^6.8.0"
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "flow-bin": "^0.32.0"
   }
 }
