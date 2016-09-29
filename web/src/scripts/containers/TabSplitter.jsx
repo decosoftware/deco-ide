@@ -74,19 +74,46 @@ const stylesCreator = ({colors}) => ({
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  selectors.filesByTabId,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
-  }),
-  (filesByTabId, tabs) => ({
-    filesByTabId,
-    ...tabs,
+  selectors.tabGroups,
+  selectors.tabContainerId,
+  (tabGroups, tabContainerId) => ({
+    tabGroups,
+    tabContainerId,
   })
 )
 
 @StylesEnhancer(stylesCreator)
 class TabSplitter extends Component {
+
+  renderEmpty() {
+    return (
+      <TabPane key={0} />
+    )
+  }
+
+  renderTabPane = (tabGroup, i) => {
+    const {tabContainerId} = this.props
+
+    return (
+      <TabPane
+        key={i}
+        tabGroup={tabGroup}
+        tabGroupIndex={i}
+        tabContainerId={tabContainerId}
+      />
+    )
+  }
+
+  renderContent() {
+    const {tabGroups} = this.props
+
+    if (tabGroups.length > 0) {
+      return tabGroups.map(this.renderTabPane)
+    } else {
+      return this.renderEmpty()
+    }
+  }
+
   render() {
     const {styles, style, width, height} = this.props
 
@@ -97,7 +124,7 @@ class TabSplitter extends Component {
           height={height}
           workspaceId={'tab-splitter'}
         >
-          <TabPane />
+          {this.renderContent()}
         </Splitter>
       </div>
     )

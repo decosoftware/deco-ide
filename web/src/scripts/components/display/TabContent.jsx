@@ -24,6 +24,8 @@ export default class TabContent extends Component {
 
   static propTypes = {
     uri: PropTypes.string,
+    tabGroupIndex: PropTypes.number,
+    tabContainerId: PropTypes.string,
   }
 
   constructor(props) {
@@ -47,6 +49,8 @@ export default class TabContent extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     return (
       this.props.uri !== nextProps.uri ||
+      this.props.tabGroupIndex !== nextProps.tabGroupIndex ||
+      this.props.tabContainerId !== nextProps.tabContainerId ||
       this.state.loader !== nextState.loader
     )
   }
@@ -56,7 +60,6 @@ export default class TabContent extends Component {
   }
 
   render() {
-    const {uri} = this.props
     const {loader} = this.state
 
     if (!loader) {
@@ -70,7 +73,7 @@ export default class TabContent extends Component {
       )
     }
 
-    const element = loader.renderContent(uri, loader)
+    const element = loader.renderContent(this.props, loader)
 
     return React.cloneElement(element, {ref: 'wrappedInstance'})
   }

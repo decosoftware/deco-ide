@@ -18,6 +18,7 @@
 import CodeMirror from 'codemirror'
 import { batchActions } from 'redux-batched-subscribe'
 
+import * as URIUtils from '../../utils/URIUtils'
 import * as editorActions from '../../actions/editorActions'
 import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 import { markUnsaved } from '../../actions/fileActions'
@@ -27,7 +28,6 @@ import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import DecoChangeFactory from '../../factories/editor/DecoChangeFactory'
 import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
-
 
 /**
  * Middleware for custom history management
@@ -86,7 +86,7 @@ export default class HistoryMiddleware extends Middleware {
       this.dispatch(batchActions([
         markUnsaved(id),
         editorActions.markDirty(id),
-        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, 'file://' + id),
+        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(id)),
       ]))
     }
   }

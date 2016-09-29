@@ -16,44 +16,93 @@
  */
 
 import _ from 'lodash'
+import update from 'react-addons-update'
+import * as URIUtils from '../utils/URIUtils'
 
 class TabUtils {
 
-  static addTab(container, tabId, position) {
-    let {focusedTabId, ephemeralTabId, tabIds = []} = container
+  static createContainer() {
+    return {
+      focusedGroupIndex: 0,
+      groups: [],
+    }
+  }
+
+  static createGroup() {
+    return {
+      tabIds: [],
+      focusedTabId: null,
+      ephemeralTabId: null,
+    }
+  }
+
+  static getContainer(state, containerId) {
+    const container = state[containerId]
+
+    return container ? container : this.createContainer()
+  }
+
+  static getGroupIndex(container = {}, groupIndex) {
+    const {focusedGroupIndex} = container
+
+    return typeof groupIndex === 'number' ? groupIndex : focusedGroupIndex
+  }
+
+  static getGroup(container = {}, groupIndex) {
+    const groups = container.groups || []
+
+    return groups[this.getGroupIndex(container, groupIndex)] || {}
+  }
+
+  static addTab(container, tabId, groupIndex, index) {
+    groupIndex = this.getGroupIndex(container, groupIndex)
+
+    let group = container.groups[groupIndex] || this.createGroup()
+    let {focusedTabId, ephemeralTabId, tabIds} = group
 
     // If there's an ephemeral tab, swap it for the tab to add (unless the tab
     // to add is already open)
     if (ephemeralTabId && tabIds.indexOf(tabId) === -1) {
       container = this.swapTab(container, ephemeralTabId, tabId)
-      focusedTabId = container.focusedTabId
-      ephemeralTabId = container.ephemeralTabId
-      tabIds = container.tabIds
+      const group = container.groups[groupIndex]
+      focusedTabId = group.focusedTabId
+      ephemeralTabId = group.ephemeralTabId
+      tabIds = group.tabIds
     }
 
     let newTabIds = _.clone(tabIds)
 
     // Position defaults to after the focusedTab
-    if (typeof position === 'undefined') {
+    if (typeof index === 'undefined') {
       const focusedTabPosition = newTabIds.indexOf(focusedTabId)
-      position = focusedTabPosition !== -1 ? focusedTabPosition + 1 : 0
+      index = focusedTabPosition !== -1 ? focusedTabPosition + 1 : 0
     }
 
     // Add tab only if it doesn't exist
     if (newTabIds.indexOf(tabId) === -1) {
-      newTabIds.splice(position, 0, tabId)
+      newTabIds.splice(index, 0, tabId)
       ephemeralTabId = tabId
     }
 
-    return Object.assign({}, container, {
-      focusedTabId: tabId,
-      ephemeralTabId: ephemeralTabId,
-      tabIds: newTabIds,
+    return update(container, {
+      focusedGroupIndex: {$set: groupIndex},
+      groups: {
+        [groupIndex]: {
+          $set: {
+            focusedTabId: tabId,
+            ephemeralTabId: ephemeralTabId,
+            tabIds: newTabIds,
+          }
+        }
+      }
     })
   }
 
-  static swapTab(container, tabId, newTabId) {
-    const {focusedTabId, ephemeralTabId, tabIds = []} = container
+  static swapTab(container, tabId, newTabId, groupIndex) {
+    groupIndex = this.getGroupIndex(container, groupIndex)
+
+    const group = container.groups[groupIndex] || this.createGroup()
+    const {focusedTabId, ephemeralTabId, tabIds} = group
 
     // Tab to swap was not open
     if (tabIds.indexOf(tabId) === -1) {
@@ -73,45 +122,85 @@ class TabUtils {
     const newTabIds = _.clone(tabIds)
     newTabIds.splice(index, 1, newTabId)
 
-    return Object.assign({}, container, {
-      focusedTabId: newFocusedTabId,
-      ephemeralTabId: ephemeralTabId === tabId ? newTabId : ephemeralTabId,
-      tabIds: newTabIds,
+    return update(container, {
+      focusedGroupIndex: {$set: groupIndex},
+      groups: {
+        [groupIndex]: {
+          $merge: {
+            focusedTabId: newFocusedTabId,
+            ephemeralTabId: ephemeralTabId === tabId ? newTabId : ephemeralTabId,
+            tabIds: newTabIds,
+          }
+        }
+      }
     })
   }
 
-  static closeTab(container, tabId) {
-    const {focusedTabId, ephemeralTabId, tabIds = []} = container || {}
+  static closeTab(container, tabId, groupIndex) {
+    groupIndex = this.getGroupIndex(container, groupIndex)
 
-    // If the tab to close is focused, reset focus to tab 0
-    let newFocusedTabId
-    if (focusedTabId && focusedTabId === tabId) {
-      newFocusedTabId = tabIds.length ? tabIds[0] : null
+    const group = container.groups[groupIndex] || this.createGroup()
+    const {focusedTabId, ephemeralTabId, tabIds} = group
+
+    // If there are remaining tabs, focus one
+    if (tabIds.length > 1) {
+      return update(container, {
+        focusedGroupIndex: {$set: groupIndex},
+        groups: {
+          [groupIndex]: {
+            $merge: {
+              focusedTabId: this.determineTabToFocus(container, tabId, groupIndex),
+              ephemeralTabId: ephemeralTabId === tabId ? null : ephemeralTabId,
+              tabIds: _.without(tabIds, tabId),
+            }
+          }
+        }
+      })
+
+    // Else, delete this tab group
     } else {
-      newFocusedTabId = focusedTabId
+      return update(container, {
+        focusedGroupIndex: {$set: 0},
+        groups: {$splice: [[groupIndex, 1]]}
+      })
     }
+  }
 
-    return Object.assign({}, container, {
-      focusedTabId: newFocusedTabId,
-      ephemeralTabId: ephemeralTabId === tabId ? null : ephemeralTabId,
-      tabIds: _.without(tabIds, tabId),
+  static focusTab(container, tabId, groupIndex) {
+    groupIndex = this.getGroupIndex(container, groupIndex)
+
+    return update(container, {
+      focusedGroupIndex: {$set: groupIndex},
+      groups: {
+        [groupIndex]: {
+          $merge: {
+            focusedTabId: tabId,
+          }
+        }
+      }
     })
   }
 
-  static focusTab(container, tabId) {
-    return Object.assign({}, container, {
-      focusedTabId: tabId,
-    })
-  }
+  static makeTabPermanent(container, groupIndex) {
+    groupIndex = this.getGroupIndex(container, groupIndex)
 
-  static makeTabPermanent(container) {
-    return Object.assign({}, container, {
-      ephemeralTabId: null,
+    return update(container, {
+      focusedGroupIndex: {$set: groupIndex},
+      groups: {
+        [groupIndex]: {
+          $merge: {
+            ephemeralTabId: null,
+          }
+        }
+      }
     })
   }
 
   // Try to focus another tab when one is closed
-  static determineTabToFocus(tabIds, closedTabId, focusedTabId) {
+  static determineTabToFocus(container, closedTabId, groupIndex) {
+    if (!container) return null
+
+    const {focusedTabId, tabIds} = this.getGroup(container, groupIndex)
 
     // If the tab to close is focused, and there are at least 2 tabs
     if (closedTabId === focusedTabId && tabIds.length >= 2) {
@@ -135,6 +224,25 @@ class TabUtils {
 
     // The closed tab is the only tab, so return null
     return null
+  }
+
+  static getTabsForResource(container, uri) {
+    if (!container) return []
+
+    const {groups} = container
+
+    // Return any tabs in any group that match the resource
+    return groups.reduce((acc, group, groupIndex) => {
+      const {tabIds} = group
+
+      tabIds.forEach((tabId) => {
+        if (URIUtils.matchesResource(uri, tabId)) {
+          acc.push({tabId, groupIndex})
+        }
+      })
+
+      return acc
+    }, [])
   }
 
 }

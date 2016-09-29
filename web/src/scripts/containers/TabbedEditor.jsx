@@ -91,12 +91,7 @@ const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
   selectors.currentDoc,
-  selectors.filesByTabId,
   ({directory}) => directory.rootPath,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
-  }),
   selectors.componentList,
   ({ui}) => ({
     consoleVisible: ui.consoleVisible,
@@ -116,11 +111,9 @@ const mapStateToProps = (state) => createSelector(
   ({storyboard}) => ({
     showStoryboard: storyboard.shouldShow,
   }),
-  (decoDoc, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences, storyboard) => ({
+  (decoDoc, rootPath, componentList, ui, application, liveValuesById, preferences, storyboard) => ({
     decoDoc,
-    filesByTabId,
     rootPath,
-    ...tabs,
     componentList,
     ...ui,
     ...application,
@@ -288,7 +281,6 @@ class TabbedEditor extends Component {
       styles,
       style,
       npmRegistry,
-      focusedTabId,
       width,
       height,
       decoDoc,

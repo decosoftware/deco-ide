@@ -20,11 +20,12 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
-import path from 'path'
 
+import * as ContentLoader from '../api/ContentLoader'
 import * as selectors from '../selectors'
+import FileTreeActions from '../filetree/actions'
+import { tabActions } from '../actions'
 import * as compositeFileActions from '../actions/compositeFileActions'
-import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { TabContainer, Tab, TabContent } from '../components'
 
 const stylesCreator = ({colors}, {style}) => ({
@@ -62,43 +63,55 @@ const stylesCreator = ({colors}, {style}) => ({
 
 const emptyTabs = []
 
-const mapStateToProps = (state) => createSelector(
-  selectors.filesByTabId,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
+const mapStateToProps = (state, props) => createSelector(
+  (state, {tabGroup}) => tabGroup && ({
+    focusedTabId: tabGroup.focusedTabId,
+    tabIds: tabGroup.tabIds,
   }),
-  (filesByTabId, tabs) => ({
+  selectors.filesByTabId,
+  (tabGroup, filesByTabId) => ({
+    ...tabGroup,
     filesByTabId,
-    ...tabs,
   })
 )
 
 @StylesEnhancer(stylesCreator, ({style}) => ({style}))
 class TabPane extends Component {
 
-  onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
+  onFocusTab = (tabId) => {
+    const {filesByTabId, tabGroupIndex, tabContainerId} = this.props
+    const filePath = filesByTabId[tabId].path
 
-  onCloseTab = (tabId) => this.props.dispatch(compositeFileActions.closeTabWindow(tabId))
+    FileTreeActions.selectFile(filePath)
+    this.props.dispatch(tabActions.focusTab(tabContainerId, tabId, tabGroupIndex))
+  }
+
+  onCloseTab = (tabId) => {
+    const {tabGroupIndex} = this.props
+
+    this.props.dispatch(compositeFileActions.closeTabWindow(tabId, tabGroupIndex))
+  }
 
   renderTabs() {
-    const {tabIds} = this.props
+    const {tabIds = []} = this.props
 
     return tabIds.map((tabId) => {
-      const filename = path.basename(tabId)
+      const name = ContentLoader.getResourceName(tabId)
 
       return (
         <Tab
           key={tabId}
-          title={filename}
-          tabId={tabId}>{filename}
+          title={name}
+          tabId={tabId}
+        >
+          {name}
         </Tab>
       )
     })
   }
 
   render() {
-    const {styles, focusedTabId, width} = this.props
+    const {styles, focusedTabId, width, tabContainerId, tabGroupIndex} = this.props
 
     return (
       <div style={styles.container}>
@@ -112,7 +125,11 @@ class TabPane extends Component {
           {this.renderTabs()}
         </TabContainer>
         <div style={styles.contentContainer}>
-          <TabContent uri={focusedTabId} />
+          <TabContent
+            uri={focusedTabId}
+            tabContainerId={tabContainerId}
+            tabGroupIndex={tabGroupIndex}
+          />
         </div>
       </div>
     )

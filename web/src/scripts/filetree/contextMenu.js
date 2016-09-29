@@ -1,11 +1,16 @@
 import _ from 'lodash'
 import React from 'react'
+import { batchActions } from 'redux-batched-subscribe'
 
-const remote = Electron.remote;
+const remote = Electron.remote
 const path = remote.require('path')
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
+const Menu = remote.Menu
+const MenuItem = remote.MenuItem
 
+import * as ContentLoader from '../api/ContentLoader'
+import * as URIUtils from '../utils/URIUtils'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
+import { tabActions, fileActions } from '../actions'
 import { fileTreeController as controller } from './index'
 import {
   renameFile,
@@ -33,6 +38,8 @@ const ShowNamingBanner = (props) => {
 
 const buildFileMenu = (dispatch, node) => {
   const { name, path: filePath, type } = node
+  const uri = URIUtils.filePathToURI(filePath)
+
   return [
     new MenuItem({
       label: 'Rename',
@@ -53,6 +60,34 @@ const buildFileMenu = (dispatch, node) => {
         dispatch(deleteFile(filePath))
       }
     }),
+    new MenuItem({ type: 'separator' }),
+    new MenuItem({
+      label: 'Split Right',
+      click: () => {
+        dispatch(fileActions.registerPath(filePath))
+        dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, uri))
+      }
+    }),
+    new MenuItem({ type: 'separator' }),
+    ...ContentLoader.filterLoaders(uri).map(loader => {
+      const {name, id} = loader
+
+      return new MenuItem({
+        label: `Open as ${name}`,
+        click: () => {
+          const uriWithLoader = ContentLoader.getURIWithLoader(uri, id)
+
+          // Make the previous tab permanent, open the new tab, and make it permanent too
+          dispatch(batchActions([
+            fileActions.registerPath(filePath),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER),
+            tabActions.addTab(CONTENT_PANES.CENTER, uriWithLoader),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader),
+          ]))
+        }
+      })
+    }),
+    new MenuItem({ type: 'separator' }),
     new MenuItem({
       label: 'Show in Finder',
       click: () => {

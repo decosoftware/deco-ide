@@ -22,6 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
+import path from 'path'
 
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
@@ -89,19 +90,24 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Storyboard)
 
 export default ConnectedClass
 
+const loaderId = 'com.decosoftware.storyboard'
+
 const loaderFilter = (uri, state) => {
-  const goodURI = uri && uri.startsWith('file://') && uri.endsWith('.storyboard.js')
-  return goodURI && state.storyboard.shouldShow
+  return (
+    (uri.startsWith('file://') && uri.endsWith('.storyboard.js')) ||
+    URIUtils.getParam(uri, 'loader') === loaderId ||
+    state.storyboard.shouldShow
+  )
 }
 
 export const registerLoader = () => {
   ContentLoader.registerLoader({
     name: 'Storyboard',
-    id: 'com.decosoftware.storyboard',
+    id: loaderId,
     filter: loaderFilter,
-    renderContent: (uri) => (
+    renderContent: ({uri}) => (
       <ConnectedClass
-        fileId={uri && URIUtils.withoutProtocol(uri)}
+        fileId={URIUtils.withoutProtocolOrParams(uri)}
       />
     ),
   })

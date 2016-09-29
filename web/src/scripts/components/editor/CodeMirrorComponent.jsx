@@ -55,6 +55,9 @@ export default class CodeMirrorComponent extends Component {
     options: {},
     doc: new CodeMirror.Doc('', 'jsx'),
     style: {},
+    eventListeners: [],
+    onFocus: () => {},
+    onBlur: () => {},
   }
 
   constructor() {
@@ -63,7 +66,14 @@ export default class CodeMirrorComponent extends Component {
     this.styleNode = new StyleNode()
   }
 
+  onFocus = () => this.props.onFocus()
+
+  onBlur = () => this.props.onBlur()
+
   _attachEventListeners(cm, listeners) {
+    cm.on('focus', this.onFocus)
+    cm.on('blur', this.onBlur)
+
     _.each(listeners, (listener) => {
       _.each(listener, (fn, eventName) => {
         cm.on(eventName, fn)
@@ -72,6 +82,9 @@ export default class CodeMirrorComponent extends Component {
   }
 
   _detachEventListeners(cm, listeners) {
+    cm.off('focus', this.onFocus)
+    cm.off('blur', this.onBlur)
+
     _.each(listeners, (listener) => {
       _.each(listener, (fn, eventName) => {
         cm.off(eventName, fn)

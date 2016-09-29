@@ -33,6 +33,7 @@ import { fileTreeController, PLUGINS } from '../filetree'
 import { showContextMenu } from '../filetree/contextMenu'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { PaneHeader, Node, NamingBanner } from '../components'
+import * as URIUtils from '../utils/URIUtils'
 
 const SCAFFOLDS = FileScaffoldFactory.getScaffolds()
 
@@ -79,7 +80,7 @@ class ProjectNavigator extends Component {
   onDoubleSelectFile = (e, node) => {
     const {path: filepath, type} = node
 
-    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, 'file://' + filepath)
+    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(filepath))
   }
 
   onNameFile = (dirpath, scaffoldId, filename) => {

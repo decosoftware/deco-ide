@@ -31,8 +31,9 @@ import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
-import { editorActions, textEditorCompositeActions } from '../actions'
+import { tabActions, editorActions, textEditorCompositeActions } from '../actions'
 import { EditorDropTarget, EditorToast } from '../components'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 const stylesCreator = () => ({
   editor: {
@@ -47,8 +48,8 @@ const stylesCreator = () => ({
   },
 })
 
-const mapStateToProps = (state) => createSelector(
-  selectors.currentDoc,
+const mapStateToProps = (state, props) => createSelector(
+  selectors.docByFileId,
   selectors.editorOptions,
   selectors.publishingFeature,
   ({metadata}) => metadata.liveValues.liveValuesById,
@@ -61,6 +62,7 @@ const mapStateToProps = (state) => createSelector(
 )
 
 const mapDispatchToProps = (dispatch) => ({
+  tabActions: bindActionCreators(tabActions, dispatch),
   editorActions: bindActionCreators(editorActions, dispatch),
   textEditorCompositeActions: bindActionCreators(textEditorCompositeActions, dispatch),
   dispatch,
@@ -94,6 +96,12 @@ class Editor extends Component {
     if (!decoDoc) {
       editorActions.getDocument(fileId)
     }
+  }
+
+  onFocus = () => {
+    const {uri, tabContainerId, tabGroupIndex, tabActions} = this.props
+
+    tabActions.focusTab(tabContainerId, uri, tabGroupIndex)
   }
 
   onImportComponent = (component, linkedDocId) => {
@@ -139,6 +147,7 @@ class Editor extends Component {
         options={editorOptions}
         middleware={middleware}
         onImportItem={this.onImportComponent}
+        onFocus={this.onFocus}
       />
     )
   }
@@ -148,14 +157,22 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 
 export default ConnectedClass
 
+const loaderId = 'com.decosoftware.text'
+
 export const registerLoader = () => {
   ContentLoader.registerLoader({
     name: 'Text',
-    id: 'com.decosoftware.text',
-    filter: (uri) => uri && uri.startsWith('file://'),
-    renderContent: (uri) => (
+    id: loaderId,
+    filter: (uri) => (
+      uri.startsWith('file://') ||
+      URIUtils.getParam(uri, 'loader') === loaderId
+    ),
+    renderContent: ({uri, tabContainerId, tabGroupIndex}) => (
       <ConnectedClass
-        fileId={uri && URIUtils.withoutProtocol(uri)}
+        uri={uri}
+        tabContainerId={tabContainerId}
+        tabGroupIndex={tabGroupIndex}
+        fileId={URIUtils.withoutProtocolOrParams(uri)}
       />
     ),
   })
