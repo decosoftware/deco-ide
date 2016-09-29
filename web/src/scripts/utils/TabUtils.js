@@ -24,9 +24,7 @@ class TabUtils {
   static createContainer() {
     return {
       focusedGroupIndex: 0,
-      groups: [
-        this.createGroup(),
-      ],
+      groups: [],
     }
   }
 
@@ -162,13 +160,8 @@ class TabUtils {
     // Else, delete this tab group
     } else {
       return update(container, {
-        $merge: {
-          focusedGroupIndex: 0,
-          groups: [
-            ...container.groups.slice(0, groupIndex),
-            ...container.groups.slice(groupIndex + 1, container.groups.length),
-          ],
-        }
+        focusedGroupIndex: {$set: 0},
+        groups: {$splice: [[groupIndex, 1]]}
       })
     }
   }
