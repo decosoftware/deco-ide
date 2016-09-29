@@ -76,6 +76,7 @@ class Storyboard extends Component {
           connections={connections}
           scenes={scenes}
           onDeleteScene={storyboardActions.deleteScene}
+          onClickScene={storyboardActions.updateEntryScene}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
         />

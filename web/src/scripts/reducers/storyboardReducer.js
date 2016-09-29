@@ -73,7 +73,11 @@ export default (state = initialState, action) => {
     }
 
     case at.SET_ENTRY_SCENE: {
-      return {...state}
+      return update(state, {
+        entry: {
+          $set: payload,
+        },
+      })
     }
 
     default: {
