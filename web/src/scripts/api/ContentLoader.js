@@ -15,6 +15,9 @@
  *
  */
 
+import path from 'path'
+import * as URIUtils from '../utils/URIUtils'
+
 const loaders = []
 let getState
 
@@ -36,6 +39,8 @@ export const registerLoader = (loader) => {
 
 // Determine how to display content
 export const findLoader = (uri) => {
+  if (!uri) return null
+
   const state = getState()
   return loaders.find(loader => loader.filter(uri, state))
 }
@@ -43,6 +48,18 @@ export const findLoader = (uri) => {
 // Used to give a list of all possible loaders, so the user can switch
 // between multiple views of the same file (e.g. Text Editor vs. Storyboard)
 export const filterLoaders = (uri) => {
+  if (!uri) return []
+
   const state = getState()
   return loaders.filter(loader => loader.filter(uri, state))
+}
+
+export const getResourceName = (uri) => {
+  const loader = findLoader(uri)
+
+  if (loader && loader.getResourceName) {
+    return loader.getResourceName(uri)
+  } else {
+    return path.basename(URIUtils.withoutProtocolOrParams(uri))
+  }
 }

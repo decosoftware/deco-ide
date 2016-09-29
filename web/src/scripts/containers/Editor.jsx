@@ -157,17 +157,22 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 
 export default ConnectedClass
 
+const loaderId = 'com.decosoftware.text'
+
 export const registerLoader = () => {
   ContentLoader.registerLoader({
     name: 'Text',
-    id: 'com.decosoftware.text',
-    filter: (uri) => uri && uri.startsWith('file://'),
+    id: loaderId,
+    filter: (uri) => (
+      uri.startsWith('file://') ||
+      URIUtils.getParam(uri, 'loader') === loaderId
+    ),
     renderContent: ({uri, tabContainerId, tabGroupIndex}) => (
       <ConnectedClass
         uri={uri}
         tabContainerId={tabContainerId}
         tabGroupIndex={tabGroupIndex}
-        fileId={uri && URIUtils.withoutProtocol(uri)}
+        fileId={URIUtils.withoutProtocolOrParams(uri)}
       />
     ),
   })

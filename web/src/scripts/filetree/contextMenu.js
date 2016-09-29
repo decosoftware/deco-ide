@@ -6,6 +6,8 @@ const path = remote.require('path')
 const Menu = remote.Menu
 const MenuItem = remote.MenuItem
 
+import * as ContentLoader from '../api/ContentLoader'
+import * as URIUtils from '../utils/URIUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { tabActions, fileActions } from '../actions'
 import { fileTreeController as controller } from './index'
@@ -35,6 +37,8 @@ const ShowNamingBanner = (props) => {
 
 const buildFileMenu = (dispatch, node) => {
   const { name, path: filePath, type } = node
+  const uri = URIUtils.filePathToURI(filePath)
+
   return [
     new MenuItem({
       label: 'Rename',
@@ -60,8 +64,23 @@ const buildFileMenu = (dispatch, node) => {
       label: 'Split Right',
       click: () => {
         dispatch(fileActions.registerPath(filePath))
-        dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, 'file://' + filePath))
+        dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, uri))
       }
+    }),
+    new MenuItem({ type: 'separator' }),
+    ...ContentLoader.filterLoaders(uri).map(loader => {
+      const {name, id} = loader
+
+      return new MenuItem({
+        label: `Open as ${name}`,
+        click: () => {
+          const uriWithLoader = URIUtils.createUrl(uri, {loader: id})
+
+          dispatch(fileActions.registerPath(filePath))
+          dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, uriWithLoader))
+          dispatch(tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader))
+        }
+      })
     }),
     new MenuItem({ type: 'separator' }),
     new MenuItem({

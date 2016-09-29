@@ -23,7 +23,7 @@ import * as URIUtils from '../utils/URIUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 export const openFile = (path, tabGroupIndex) => async (dispatch, getState) => {
-  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, 'file://' + path, tabGroupIndex))
+  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, URIUtils.filePathToURI(path), tabGroupIndex))
   FileTreeActions.selectFile(path)
 }
 
@@ -32,7 +32,7 @@ export const closeTabWindow = (closeTabId, tabGroupIndex) => async (dispatch, ge
   // Before modifying tab state, determine which tab to focus next
   const tabs = getState().ui.tabs
   const tabToFocus = TabUtils.determineTabToFocus(tabs[CONTENT_PANES.CENTER], closeTabId, tabGroupIndex)
-  const fileToFocus = tabToFocus && URIUtils.withoutProtocol(tabToFocus)
+  const fileToFocus = tabToFocus && URIUtils.withoutProtocolOrParams(tabToFocus)
 
   dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId, tabGroupIndex))
 

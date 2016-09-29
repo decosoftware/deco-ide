@@ -45,7 +45,7 @@ export const focusedTabId = createSelector(
 
 export const focusedFileId = createSelector(
   focusedTabId,
-  (focusedTabId) => focusedTabId && URIUtils.withoutProtocol(focusedTabId)
+  (focusedTabId) => focusedTabId && URIUtils.withoutProtocolOrParams(focusedTabId)
 )
 
 const emptyArray = []
@@ -67,7 +67,7 @@ export const filesByTabId = createSelector(
     const tabIds = _.flatten(tabGroups.map(group => group.tabIds))
 
     return tabIds.reduce((acc, tabId) => {
-      const fileId = URIUtils.withoutProtocol(tabId)
+      const fileId = URIUtils.withoutProtocolOrParams(tabId)
       acc[tabId] = filesById[fileId]
       return acc
     }, {})

@@ -3,6 +3,7 @@ const path = remote.require('path')
 
 import { fileTreeController as controller } from '../filetree'
 import FileTreeActions from '../filetree/actions'
+import * as URIUtils from '../utils/URIUtils'
 
 import {
   showInFinder,
@@ -112,7 +113,7 @@ export const deleteFile = (filePath) => {
         return
       }
       const unsaved = getState().directory.unsaved
-      dispatch(closeTabWindow('file://' + filePath))
+      dispatch(closeTabWindow(URIUtils.filePathToURI(filePath)))
       if (unsaved[filePath]) {
         dispatch(markSaved(filePath))
       }
@@ -139,7 +140,7 @@ export const deleteDir = (dirPath) => {
       controller.run('remove', dirPath)
       _.each(filesById, (file, id) => {
         if (id.indexOf(dirPath) == 0) {
-          dispatch(closeTabWindow('file://' + id))
+          dispatch(closeTabWindow(URIUtils.filePathToURI(id)))
           if (unsaved[id]) {
             dispatch(markSaved(id))
           }

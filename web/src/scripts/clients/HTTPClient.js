@@ -15,6 +15,8 @@
  *
  */
 
+import * as URIUtils from '../utils/URIUtils'
+
 export default class {
   constructor(baseUrl) {
     this.baseUrl = baseUrl
@@ -25,14 +27,12 @@ export default class {
   }
 
   createUrlParams(params) {
-    return Object.keys(params).map(key => {
-      return `${key}=${encodeURIComponent(params[key])}`
-    }).join('&')
+    return URIUtils.createUrlParams(params)
   }
 
   createUrl(endpoint, params) {
     const {baseUrl} = this
-    return `${baseUrl}${endpoint}` + (params ? `?${this.createUrlParams(params)}` : '')
+    return URIUtils.createUrl(`${baseUrl}${endpoint}`, params)
   }
 
   get(endpoint, params) {
@@ -62,35 +62,5 @@ export default class {
       method: 'DELETE',
       headers: this.defaultHeaders,
     })
-  }
-
-  static parseQueryString(url) {
-    const params = {}
-    const query = url.split('?')[1]
-
-    if (!query) {
-      return params
-    }
-
-    const components = query.split("&")
-
-    components.forEach(component => {
-      const pair = component.split("=")
-      const key = decodeURIComponent(pair[0])
-      const value = decodeURIComponent(pair[1])
-
-      // Param may exist - there are potentially multiple with the same name
-      const existing = params[key]
-
-      if (typeof existing === 'undefined') {
-        params[key] = value
-      } else if (typeof existing === 'string') {
-        params[key] = [existing, value]
-      } else {
-        params[key].push(value)
-      }
-    })
-
-    return params
   }
 }

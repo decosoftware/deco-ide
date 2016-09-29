@@ -20,11 +20,12 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
-import path from 'path'
 
+import * as ContentLoader from '../api/ContentLoader'
 import * as selectors from '../selectors'
+import FileTreeActions from '../filetree/actions'
+import { tabActions } from '../actions'
 import * as compositeFileActions from '../actions/compositeFileActions'
-import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { TabContainer, Tab, TabContent } from '../components'
 
 const stylesCreator = ({colors}, {style}) => ({
@@ -78,9 +79,11 @@ const mapStateToProps = (state, props) => createSelector(
 class TabPane extends Component {
 
   onFocusTab = (tabId) => {
-    const {filesByTabId, tabGroupIndex} = this.props
+    const {filesByTabId, tabGroupIndex, tabContainerId} = this.props
+    const filePath = filesByTabId[tabId].path
 
-    this.props.dispatch(compositeFileActions.openFile(filesByTabId[tabId].path, tabGroupIndex))
+    FileTreeActions.selectFile(filePath)
+    this.props.dispatch(tabActions.focusTab(tabContainerId, tabId, tabGroupIndex))
   }
 
   onCloseTab = (tabId) => {
@@ -93,15 +96,15 @@ class TabPane extends Component {
     const {tabIds = []} = this.props
 
     return tabIds.map((tabId) => {
-      const filename = path.basename(tabId)
+      const name = ContentLoader.getResourceName(tabId)
 
       return (
         <Tab
           key={tabId}
-          title={filename}
+          title={name}
           tabId={tabId}
         >
-          {filename}
+          {name}
         </Tab>
       )
     })

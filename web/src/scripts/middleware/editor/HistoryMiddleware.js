@@ -86,7 +86,7 @@ export default class HistoryMiddleware extends Middleware {
       this.dispatch(batchActions([
         markUnsaved(id),
         editorActions.markDirty(id),
-        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, 'file://' + id),
+        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(id)),
       ]))
     }
   }
