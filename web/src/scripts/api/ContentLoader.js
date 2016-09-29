@@ -63,3 +63,16 @@ export const getResourceName = (uri) => {
     return path.basename(URIUtils.withoutProtocolOrParams(uri))
   }
 }
+
+export const getURIWithLoader = (uri, id) => {
+  const defaultLoader = findLoader(uri)
+
+  // If we would use the correct loader anyway, return the uri unmodified
+  if (id === defaultLoader.id) {
+    return uri
+
+  // Else, return the uri with the loader param appended
+  } else {
+    return URIUtils.createUrl(uri, {loader: id})
+  }
+}

@@ -75,11 +75,13 @@ const buildFileMenu = (dispatch, node) => {
       return new MenuItem({
         label: `Open as ${name}`,
         click: () => {
-          const uriWithLoader = URIUtils.createUrl(uri, {loader: id})
+          const uriWithLoader = ContentLoader.getURIWithLoader(uri, id)
 
+          // Make the previous tab permanent, open the new tab, and make it permanent too
           dispatch(batchActions([
             fileActions.registerPath(filePath),
-            tabActions.splitRight(CONTENT_PANES.CENTER, uriWithLoader),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER),
+            tabActions.addTab(CONTENT_PANES.CENTER, uriWithLoader),
             tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader),
           ]))
         }

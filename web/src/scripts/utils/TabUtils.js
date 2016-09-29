@@ -143,14 +143,6 @@ class TabUtils {
     const group = container.groups[groupIndex] || this.createGroup()
     const {focusedTabId, ephemeralTabId, tabIds} = group
 
-    // If the tab to close is focused, reset focus to tab 0
-    let newFocusedTabId
-    if (focusedTabId && focusedTabId === tabId) {
-      newFocusedTabId = tabIds.length > 0 ? tabIds[0] : null
-    } else {
-      newFocusedTabId = focusedTabId
-    }
-
     // If there are remaining tabs, focus one
     if (tabIds.length > 1) {
       return update(container, {
@@ -158,7 +150,7 @@ class TabUtils {
         groups: {
           [groupIndex]: {
             $merge: {
-              focusedTabId: newFocusedTabId,
+              focusedTabId: this.determineTabToFocus(container, tabId, groupIndex),
               ephemeralTabId: ephemeralTabId === tabId ? null : ephemeralTabId,
               tabIds: _.without(tabIds, tabId),
             }
@@ -168,7 +160,6 @@ class TabUtils {
 
     // Else, delete this tab group
     } else {
-
       return update(container, {
         $merge: {
           focusedGroupIndex: 0,

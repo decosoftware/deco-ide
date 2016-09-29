@@ -15,6 +15,7 @@
  *
  */
 
+import * as selectors from '../selectors'
 import * as tabActions from '../actions/tabActions'
 import * as editorActions from '../actions/editorActions'
 import FileTreeActions from '../filetree/actions'
@@ -28,18 +29,12 @@ export const openFile = (path, tabGroupIndex) => async (dispatch, getState) => {
 }
 
 export const closeTabWindow = (closeTabId, tabGroupIndex) => async (dispatch, getState) => {
-
-  // Before modifying tab state, determine which tab to focus next
-  const tabs = getState().ui.tabs
-  const tabToFocus = TabUtils.determineTabToFocus(tabs[CONTENT_PANES.CENTER], closeTabId, tabGroupIndex)
-  const fileToFocus = tabToFocus && URIUtils.withoutProtocolOrParams(tabToFocus)
-
   dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId, tabGroupIndex))
 
-  // If there's another tab to open, open the file for it
-  if (fileToFocus) {
-    const filePath = getState().directory.filesById[fileToFocus].path
-    dispatch(openFile(filePath))
+  const focusedFileId = selectors.focusedFileId(getState())
+
+  if (focusedFileId) {
+    FileTreeActions.selectFile(focusedFileId)
   } else {
     dispatch(editorActions.clearCurrentDoc())
     FileTreeActions.clearSelections()
