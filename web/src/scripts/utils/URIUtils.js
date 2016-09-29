@@ -71,3 +71,12 @@ export const withoutParams = (uri) => {
 export const getParam = (uri, key) => {
   return parseQueryString(uri)[key]
 }
+
+export const matchesResource = (a, b) => {
+  return withoutParams(a) === withoutParams(b)
+}
+
+// Replace the resource of oldURI with newURI, while keeping the same params
+export const replaceResource = (oldURI, newURI) => {
+  return oldURI.replace(withoutParams(oldURI), withoutParams(newURI))
+}

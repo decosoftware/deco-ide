@@ -17,6 +17,7 @@
 
 import _ from 'lodash'
 import update from 'react-addons-update'
+import * as URIUtils from '../utils/URIUtils'
 
 class TabUtils {
 
@@ -230,6 +231,25 @@ class TabUtils {
 
     // The closed tab is the only tab, so return null
     return null
+  }
+
+  static getTabsForResource(container, uri) {
+    if (!container) return []
+
+    const {groups} = container
+
+    // Return any tabs in any group that match the resource
+    return groups.reduce((acc, group, groupIndex) => {
+      const {tabIds} = group
+
+      tabIds.forEach((tabId) => {
+        if (URIUtils.matchesResource(uri, tabId)) {
+          acc.push({tabId, groupIndex})
+        }
+      })
+
+      return acc
+    }, [])
   }
 
 }

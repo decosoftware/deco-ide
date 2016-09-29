@@ -4,6 +4,7 @@ const path = remote.require('path')
 import { fileTreeController as controller } from '../filetree'
 import FileTreeActions from '../filetree/actions'
 import * as URIUtils from '../utils/URIUtils'
+import { tabActions } from '../actions'
 
 import {
   showInFinder,
@@ -19,10 +20,6 @@ import {
 import {
   docIdChange,
 } from './editorActions'
-import {
-  closeTab,
-  swapTab,
-} from './tabActions'
 import {
   historyIdChange,
 } from './historyActions'
@@ -54,7 +51,11 @@ export const renameFile = (oldPath, newPath) => {
       }
       dispatch(docIdChange(oldPath, newPath))
       dispatch(historyIdChange(oldPath, newPath))
-      dispatch(swapTab(CONTENT_PANES.CENTER, oldPath, newPath))
+
+      const oldURI = URIUtils.filePathToURI(oldPath)
+      const newURI = URIUtils.filePathToURI(newPath)
+      dispatch(tabActions.swapAllTabsForResource(CONTENT_PANES.CENTER, oldURI, newURI))
+
       dispatch(removeRegisteredPath(oldPath))
     })
   }
@@ -79,7 +80,11 @@ export const renameDir = (oldPath, newPath) => {
           dispatch(registerPath(newSubPath))
           dispatch(docIdChange(id, newSubPath))
           dispatch(historyIdChange(id, newSubPath))
-          dispatch(swapTab(CONTENT_PANES.CENTER, id, newSubPath))
+
+          const oldURI = URIUtils.filePathToURI(id)
+          const newURI = URIUtils.filePathToURI(newSubPath)
+          dispatch(tabActions.swapAllTabsForResource(CONTENT_PANES.CENTER, oldURI, newURI))
+
           dispatch(removeRegisteredPath(id))
         }
       })
@@ -113,10 +118,14 @@ export const deleteFile = (filePath) => {
         return
       }
       const unsaved = getState().directory.unsaved
-      dispatch(closeTabWindow(URIUtils.filePathToURI(filePath)))
+
+      const uri = URIUtils.filePathToURI(filePath)
+      dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+
       if (unsaved[filePath]) {
         dispatch(markSaved(filePath))
       }
+
       dispatch(removeRegisteredPath(filePath))
       controller.run('remove', filePath)
 
@@ -140,10 +149,13 @@ export const deleteDir = (dirPath) => {
       controller.run('remove', dirPath)
       _.each(filesById, (file, id) => {
         if (id.indexOf(dirPath) == 0) {
-          dispatch(closeTabWindow(URIUtils.filePathToURI(id)))
+          const uri = URIUtils.filePathToURI(id)
+          dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+
           if (unsaved[id]) {
             dispatch(markSaved(id))
           }
+
           dispatch(removeRegisteredPath(id))
         }
       })
