@@ -98,6 +98,19 @@ class Publishing extends Component {
     tabActions.addTab(tabContainerId, uri)
   }
 
+  openComponent = (component, newTab = false) => {
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
+
+    if (newTab) {
+      tabActions.splitRight(tabContainerId, uri)
+    } else {
+      tabActions.addTab(tabContainerId, uri)
+    }
+
+    tabActions.makeTabPermanent(tabContainerId, uri)
+  }
+
   signIn = () => {
     this.props.userActions.signIn()
   }
@@ -119,6 +132,7 @@ class Publishing extends Component {
           onSignOut={this.signOut}
           onSelectComponent={this.selectComponent}
           onCreateComponent={this.createComponent}
+          onOpenComponent={this.openComponent}
         />
       </div>
     )

@@ -19,6 +19,9 @@ import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
+const { remote } = Electron
+const { Menu, MenuItem } = remote
+
 import InspectorButton from '../buttons/InspectorButton'
 import UserDetailsBanner from '../user/UserDetailsBanner'
 import ComponentBrowser from '../../containers/ComponentBrowser'
@@ -53,6 +56,26 @@ const stylesCreator = ({colors, fonts}) => ({
 @StylesEnhancer(stylesCreator)
 @pureRender
 export default class PublishingBrowser extends Component {
+
+  buildContextMenu(component) {
+    const {onOpenComponent} = this.props
+
+    const menu = new Menu()
+
+    const items = [{
+      label: 'Split Right',
+      click: onOpenComponent.bind(null, component, true),
+    }]
+
+    items.forEach(item => menu.append(new MenuItem(item)))
+
+    return menu
+  }
+
+  showContextMenu = (component) => {
+    const menu = this.buildContextMenu(component)
+    menu.popup(remote.getCurrentWindow())
+  }
 
   renderSignedOut() {
     const {onSignIn} = this.props
@@ -91,13 +114,15 @@ export default class PublishingBrowser extends Component {
   }
 
   render() {
-    const {styles, signedIn, user, onSelectComponent} = this.props
+    const {styles, signedIn, user, onSelectComponent, onOpenComponent} = this.props
 
     return (
       <div style={styles.container}>
         {signedIn ? this.renderSignedIn() : this.renderSignedOut()}
         <ComponentBrowser
           onClickItem={onSelectComponent}
+          onDoubleClickItem={onOpenComponent}
+          onContextMenuItem={this.showContextMenu}
         />
       </div>
     )

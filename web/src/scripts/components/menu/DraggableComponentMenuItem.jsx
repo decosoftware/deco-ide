@@ -56,38 +56,15 @@ const overlayStyle = {
 
 @pureRender
 class DraggableComponentMenuItem extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      clicked: false,
-    }
-  }
-  handleClick() {
-    this.clearTimer()
 
-    this.setState({clicked: true})
-
-    this._timerId = setTimeout(() => {
-      this.setState({clicked: false})
-    }, 2000)
-  }
-  clearTimer() {
-    if (this._timerId) {
-      clearTimeout(this._timerId)
-      this._timerId = null
-    }
-  }
   componentDidMount() {
     const img = new Image()
     img.src = `./images/component-drag-layer.png`
     img.onload = () => this.props.connectDragPreview(img)
   }
-  componentWillUnmount() {
-    this.clearTimer()
-  }
+
   render() {
     const { isDragging, connectDragSource } = this.props
-    const { clicked } = this.state
     const style = {
       opacity: isDragging ? 0.5 : 1,
       position: 'relative',
@@ -96,7 +73,6 @@ class DraggableComponentMenuItem extends Component {
       <div
         style={style}
         title={'Drag me into your code!'}
-        onClick={this.handleClick.bind(this)}
       >
         <ComponentMenuItem {...this.props} />
       </div>,
