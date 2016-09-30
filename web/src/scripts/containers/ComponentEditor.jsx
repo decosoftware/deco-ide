@@ -57,11 +57,11 @@ class ComponentEditor extends Component {
   }
 
   deleteComponent = (component) => {
-    const {dispatch, tabContainerId, tabGroupIndex, uri} = this.props
+    const {dispatch, tabContainerId, uri} = this.props
 
     dispatch(batchActions([
       componentActions.deleteComponent(component),
-      tabActions.closeAllTabsForResource(tabContainerId, uri, tabGroupIndex),
+      tabActions.closeAllTabsForResource(tabContainerId, uri),
     ]))
   }
 
