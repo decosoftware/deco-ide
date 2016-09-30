@@ -129,3 +129,10 @@ export const docByFileId = createSelector(
   (state, props) => props.fileId,
   (docCache, fileId) => docCache[fileId]
 )
+
+// Takes props
+export const componentById = createSelector(
+  componentList,
+  (state, props) => props.id,
+  (componentList, id) => componentList.find(c => c.id === id)
+)

@@ -126,21 +126,33 @@ export default class extends Component {
 
   static defaultProps = {
     onClick: () => {},
+    onDoubleClick: () => {},
     onMouseEnter: () => {},
+    onContextMenu: () => {},
     name: '',
     tags: [],
     active: false,
   }
 
+  onClick = () => this.props.onClick(this.props.item)
+
+  onDoubleClick = () => this.props.onDoubleClick(this.props.item)
+
+  onMouseEnter = () => this.props.onMouseEnter(this.props.item)
+
+  onContextMenu = () => this.props.onContextMenu(this.props.item)
+
   render() {
-    const {styles, name, tags, active, onClick, onMouseEnter, item} = this.props
+    const {styles, name, tags, active} = this.props
     const selector = active ? 'active' : 'normal'
 
     return (
       <div
         style={styles.row[selector]}
-        onClick={onClick.bind(this, item)}
-        onMouseEnter={onMouseEnter.bind(this, item)}
+        onClick={this.onClick}
+        onDoubleClick={this.onDoubleClick}
+        onMouseEnter={this.onMouseEnter}
+        onContextMenu={this.onContextMenu}
       >
         <div style={styles.content[selector]}>
           <span style={styles.name[selector]}>

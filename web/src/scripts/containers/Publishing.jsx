@@ -21,7 +21,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
-import { componentActions, userActions, publishingActions } from '../actions'
+import * as selectors from '../selectors'
+import * as URIUtils from '../utils/URIUtils'
+import { componentActions, userActions, publishingActions, tabActions } from '../actions'
 import { PaneHeader, PublishingBrowser, PublishingMetadata } from '../components'
 
 const styles = {
@@ -51,12 +53,12 @@ const mapStateToProps = (state) => createSelector(
   ({ui: {publishing}}) => ({
     currentComponentId: publishing.currentComponentId
   }),
-  (components, signedIn, user, publishing) => ({
+  selectors.tabContainerId,
+  (components, signedIn, user, publishing, tabContainerId) => ({
     components: _.filter(components, ['authorId', user.authorId]),
     signedIn,
     user,
-    currentComponent: publishing.currentComponentId ?
-      _.find(components, ['id', publishing.currentComponentId]) : null
+    tabContainerId,
   })
 )
 
@@ -64,6 +66,7 @@ const mapDispatchToProps = (dispatch) => ({
   publishingActions: bindActionCreators(publishingActions, dispatch),
   componentActions: bindActionCreators(componentActions, dispatch),
   userActions: bindActionCreators(userActions, dispatch),
+  tabActions: bindActionCreators(tabActions, dispatch),
 })
 
 class Publishing extends Component {
@@ -79,25 +82,33 @@ class Publishing extends Component {
   }
 
   createComponent = async () => {
-    const {id} = await this.props.componentActions.createComponent()
-    this.props.publishingActions.setCurrentComponent(id)
-  }
+    const {componentActions, tabActions, tabContainerId} = this.props
 
-  updateComponent = (component) => {
-    this.props.componentActions.updateComponent(component)
-  }
+    const {id} = await componentActions.createComponent()
+    const uri = URIUtils.componentIdToURI(id)
 
-  deleteComponent = (component) => {
-    this.props.publishingActions.setCurrentComponent(null)
-    this.props.componentActions.deleteComponent(component)
+    tabActions.addTab(tabContainerId, uri)
+    tabActions.makeTabPermanent(tabContainerId, uri)
   }
 
   selectComponent = (component) => {
-    this.props.publishingActions.setCurrentComponent(component.id)
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
+
+    tabActions.addTab(tabContainerId, uri)
   }
 
-  deselectCurrentComponent = () => {
-    this.props.publishingActions.setCurrentComponent(null)
+  openComponent = (component, newTab = false) => {
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
+
+    if (newTab) {
+      tabActions.splitRight(tabContainerId, uri)
+    } else {
+      tabActions.addTab(tabContainerId, uri)
+    }
+
+    tabActions.makeTabPermanent(tabContainerId, uri)
   }
 
   signIn = () => {
@@ -109,35 +120,20 @@ class Publishing extends Component {
   }
 
   render() {
-    const {currentComponent, components, signedIn, user, width} = this.props
+    const {components, signedIn, user, width} = this.props
 
     return (
       <div style={styles.container}>
-        {currentComponent && (
-          <PaneHeader
-            leftTitle={'Back'}
-            onClickLeftTitle={this.deselectCurrentComponent}
-          />
-        )}
-        {currentComponent ? (
-          <PublishingMetadata
-            user={user}
-            component={currentComponent}
-            width={width}
-            onUpdateComponent={this.updateComponent}
-            onDeleteComponent={this.deleteComponent}
-          />
-        ) : (
-          <PublishingBrowser
-            signedIn={signedIn}
-            user={user}
-            components={components}
-            onSignIn={this.signIn}
-            onSignOut={this.signOut}
-            onSelectComponent={this.selectComponent}
-            onCreateComponent={this.createComponent}
-          />
-        )}
+        <PublishingBrowser
+          signedIn={signedIn}
+          user={user}
+          components={components}
+          onSignIn={this.signIn}
+          onSignOut={this.signOut}
+          onSelectComponent={this.selectComponent}
+          onCreateComponent={this.createComponent}
+          onOpenComponent={this.openComponent}
+        />
       </div>
     )
   }

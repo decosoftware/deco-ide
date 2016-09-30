@@ -19,10 +19,11 @@ import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { createSelector } from 'reselect'
-import { StylesEnhancer } from 'react-styles-provider'
+import { StylesProvider, StylesEnhancer } from 'react-styles-provider'
 import { AutoSizer } from 'react-virtualized'
 import path from 'path'
 
+import * as themes from '../themes'
 import * as selectors from '../selectors'
 import * as compositeFileActions from '../actions/compositeFileActions'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
@@ -119,13 +120,15 @@ class TabSplitter extends Component {
 
     return (
       <div style={style}>
-        <Splitter
-          width={width}
-          height={height}
-          workspaceId={'tab-splitter'}
-        >
-          {this.renderContent()}
-        </Splitter>
+        <StylesProvider theme={themes.dark}>
+          <Splitter
+            width={width}
+            height={height}
+            workspaceId={'tab-splitter'}
+          >
+            {this.renderContent()}
+          </Splitter>
+        </StylesProvider>
       </div>
     )
   }

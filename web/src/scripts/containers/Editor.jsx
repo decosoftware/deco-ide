@@ -157,9 +157,9 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 
 export default ConnectedClass
 
-const loaderId = 'com.decosoftware.text'
-
 export const registerLoader = () => {
+  const loaderId = 'com.decosoftware.text'
+
   ContentLoader.registerLoader({
     name: 'Text',
     id: loaderId,

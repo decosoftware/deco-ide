@@ -142,6 +142,8 @@ class ComponentProps extends Component {
   }
 
   renderProp(prop, exists) {
+    if (!prop) return
+
     const {styles} = this.props
     const {name} = prop
 
@@ -230,9 +232,11 @@ class ComponentProps extends Component {
       })
 
       element && element.props.forEach((prop) => {
+        if (!name) return
+
         const {name} = prop
 
-        if (! matched[name]) {
+        if (!matched[name]) {
           existingProps.push(prop)
         }
       })
