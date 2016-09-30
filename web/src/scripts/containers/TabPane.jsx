@@ -80,9 +80,12 @@ class TabPane extends Component {
 
   onFocusTab = (tabId) => {
     const {filesByTabId, tabGroupIndex, tabContainerId} = this.props
-    const filePath = filesByTabId[tabId].path
+    const file = filesByTabId[tabId]
 
-    FileTreeActions.selectFile(filePath)
+    if (file) {
+      FileTreeActions.selectFile(file.path)
+    }
+
     this.props.dispatch(tabActions.focusTab(tabContainerId, tabId, tabGroupIndex))
   }
 

@@ -90,17 +90,17 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Storyboard)
 
 export default ConnectedClass
 
-const loaderId = 'com.decosoftware.storyboard'
-
-const loaderFilter = (uri, state) => {
-  return (
-    (uri.startsWith('file://') && uri.endsWith('.storyboard.js')) ||
-    URIUtils.getParam(uri, 'loader') === loaderId ||
-    state.storyboard.shouldShow
-  )
-}
-
 export const registerLoader = () => {
+  const loaderId = 'com.decosoftware.storyboard'
+
+  const loaderFilter = (uri, state) => {
+    return (
+      (uri.startsWith('file://') && uri.endsWith('.storyboard.js')) ||
+      URIUtils.getParam(uri, 'loader') === loaderId ||
+      state.storyboard.shouldShow
+    )
+  }
+
   ContentLoader.registerLoader({
     name: 'Storyboard',
     id: loaderId,

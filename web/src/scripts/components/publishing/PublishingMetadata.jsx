@@ -71,31 +71,17 @@ const stylesCreator = ({colors}) => ({
 
 @StylesEnhancer(stylesCreator)
 @pureRender
-export default class extends Component {
-  constructor(props) {
-    super()
+export default class PublishingMetadata extends Component {
 
-    const {component} = props
-
-    this.state = {
-      component: _.cloneDeep(component),
-    }
-  }
-
-  save(component) {
-    const {onUpdateComponent} = this.props
-
-    this.setState({component})
-    onUpdateComponent(component)
-  }
+  save = (component) => this.props.onUpdateComponent(component)
 
   render() {
     const {styles, onDeleteComponent} = this.props
-    const {component} = this.state
+    const {component} = this.props
 
     return (
       <div style={styles.container}>
-        <div style={styles.inner}>
+        <div style={styles.inner} className={'scrollbar-theme-dark'}>
           <PropertyStringInput
             title={'Name'}
             value={component.name}

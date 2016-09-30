@@ -2,6 +2,10 @@ export const filePathToURI = (filePath) => {
   return 'file://' + filePath
 }
 
+export const componentIdToURI = (componentId) => {
+  return 'component://' + componentId
+}
+
 export const createUrlParams = (params) => {
   return Object.keys(params).map(key => {
     return `${key}=${encodeURIComponent(params[key])}`

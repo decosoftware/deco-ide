@@ -58,7 +58,9 @@ export const getResourceName = (uri) => {
   const loader = findLoader(uri)
 
   if (loader && loader.getResourceName) {
-    return loader.getResourceName(uri)
+    const state = getState()
+
+    return loader.getResourceName(uri, state)
   } else {
     return path.basename(URIUtils.withoutProtocolOrParams(uri))
   }
