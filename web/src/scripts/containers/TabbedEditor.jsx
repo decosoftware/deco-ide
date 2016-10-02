@@ -154,7 +154,9 @@ class TabbedEditor extends Component {
 
   keyMap = {
     openInsertMenu: 'command+i',
-    openFileSearch: ['command+p', 'command+t'],
+
+    // TODO consider also using command+t. Currently conflicts with a CM command
+    openFileSearch: 'command+p',
   }
 
   keyHandlers = {
