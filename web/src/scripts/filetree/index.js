@@ -9,3 +9,5 @@ import expand from './plugins/expand'
 import context from './plugins/context'
 
 export const PLUGINS = [select, expand, context]
+
+export const getFiles = () => fileTreeController.filter(node => node.type === 'file')

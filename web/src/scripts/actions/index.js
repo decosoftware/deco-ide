@@ -10,3 +10,5 @@ export * as storyboardActions, { at as storyboardConstants } from './storyboardA
 export * as fileTreeCompositeActions from './fileTreeCompositeActions'
 export * as uiActions from './uiActions'
 export * as fileActions from './fileActions'
+export * as applicationActions from './applicationActions'
+export * as compositeFileActions from './compositeFileActions'

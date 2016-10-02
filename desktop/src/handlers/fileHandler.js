@@ -42,9 +42,10 @@ const {
   SAVE_SUCCESSFUL,
   SHARE_SAVE_STATUS,
 } = FileConstants
-import bridge from '../bridge'
 
+import bridge from '../bridge'
 import Logger from '../log/logger'
+import DecoPaths from '../constants/DecoPaths'
 
 function verifyPayload(payload) {
   if (!payload.filePath) {
@@ -90,7 +91,12 @@ class FileHandler {
     bridge.on(WRITE_FILE_METADATA, this.writeFileMetadata.bind(this))
     bridge.on(SHOW_IN_FINDER, this.showInFinder.bind(this))
     bridge.on(DELETE_FILE_METADATA, this.deleteFileMetadata.bind(this))
-    this._treeServer = new FileTreeServer(transport(ipcMain), path.resolve('~/'))
+
+    this._treeServer = new FileTreeServer(
+      transport(ipcMain),
+      DecoPaths.TEMP_PROJECT_FOLDER,
+      {scan: true}
+    )
   }
 
   readFileData(payload, respond) {
@@ -129,7 +135,7 @@ class FileHandler {
           Logger.error(err)
           respond(onError(err))
           return
-        }        
+        }
         respond(onSuccess(WRITE_FILE_DATA))
         bridge.send(confirmSave(payload.filePath))
       })
