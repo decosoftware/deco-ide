@@ -69,9 +69,11 @@ const mapStateToProps = (state, props) => createSelector(
     tabIds: tabGroup.tabIds,
   }),
   selectors.filesByTabId,
-  (tabGroup, filesByTabId) => ({
+  selectors.focusedGroupIndex,
+  (tabGroup, filesByTabId, focusedGroupIndex) => ({
     ...tabGroup,
     filesByTabId,
+    focusedGroupIndex,
   })
 )
 
@@ -114,7 +116,7 @@ class TabPane extends Component {
   }
 
   render() {
-    const {styles, focusedTabId, width, tabContainerId, tabGroupIndex} = this.props
+    const {styles, focusedTabId, width, tabContainerId, tabGroupIndex, focusedGroupIndex} = this.props
 
     return (
       <div style={styles.container}>
@@ -130,6 +132,7 @@ class TabPane extends Component {
         <div style={styles.contentContainer}>
           <TabContent
             uri={focusedTabId}
+            focused={tabGroupIndex === focusedGroupIndex}
             tabContainerId={tabContainerId}
             tabGroupIndex={tabGroupIndex}
           />
