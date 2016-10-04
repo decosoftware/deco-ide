@@ -32,7 +32,7 @@ const Logger = require('../log/logger')
 
 // top dir of app data folder ~/Library/Application Support/
 const ROOT_FOLDER = '/com.decosoftware.Deco'
-// holds Project skeleton and modules.tar.gz
+// holds Project skeleton and modules.tar.bz2
 const EXTERNAL_LIB_FOLDER = '/com.decosoftware.Deco/libs'
 // temp project that will be opened on create new
 const TEMP_PROJECT_FOLDER = '/.Deco/tmp/Project'

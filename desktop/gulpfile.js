@@ -215,7 +215,7 @@ gulp.task('process-new-project-template', function(callback) {
   var oldProjectPath = path.join(__dirname, 'libs/Project');
   var newProjectPath = gutil.env.projectPath;
   var nodeModulesPath = path.join(__dirname, 'libs/Project/node_modules');
-  var nodeModulesArchive = path.join(__dirname, 'libs/modules.tar.gz');
+  var nodeModulesArchive = path.join(__dirname, 'libs/modules.tar.bz2');
   var projectBinary = path.join(__dirname, 'libs/Project/Project.app');
   var binaryDestination = path.join(__dirname, 'libs/Project/ios/build/Build/Products/Debug-iphonesimulator');
 
@@ -228,7 +228,7 @@ gulp.task('process-new-project-template', function(callback) {
       fs.stat(projectBinary, function(err, stat) {
         if (err == null) {
           console.log('Creating the modules archive...');
-          child_process.execSync('tar -cvzf ' + nodeModulesArchive + ' -C ' + oldProjectPath + ' node_modules');
+          child_process.execSync('tar -cvjf ' + nodeModulesArchive + ' -C ' + oldProjectPath + ' node_modules');
 
           console.log('Copying the binary...');
           child_process.execSync('mkdir -p ' + binaryDestination);

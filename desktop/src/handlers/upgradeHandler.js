@@ -42,9 +42,10 @@ import Logger from '../log/logger'
 const UPGRADE_FILE = path.join(INTERNAL_LIB_FOLDER, './Scripts/postinstall')
 const VERSION_FILE_PATH = path.join(APP_SUPPORT, '.deco.version')
 
+const ZIPPED_MODULES_NAME = 'modules.tar.bz2'
 const INTERNAL_PROJECT_PATH = path.join(INTERNAL_LIB_FOLDER, 'Project')
-const INTERNAL_MODULES_TAR_GZ = path.join(INTERNAL_LIB_FOLDER, 'modules.tar.gz')
-const EXTERNAL_MODULES_TAR_GZ = path.join(EXTERNAL_LIB_FOLDER, 'modules.tar.gz')
+const INTERNAL_MODULES_TAR_BZ2 = path.join(INTERNAL_LIB_FOLDER, 'modules.tar.bz2')
+const EXTERNAL_MODULES_TAR_BZ2 = path.join(EXTERNAL_LIB_FOLDER, 'modules.tar.bz2')
 
 function run(generatorFunction, resolve, reject) {
     var generatorItr = generatorFunction(resolve, reject, resume);
@@ -72,22 +73,32 @@ function copyInternalProjectToLib(resume) {
 
 function removeModulesLib(resume) {
   try {
-    fse.remove(EXTERNAL_MODULES_TAR_GZ, () => resume())
+    fse.remove(EXTERNAL_MODULES_TAR_BZ2, () => resume())
   } catch (e) {
-    Logger.error('Did not find an external modules.tar.gz to remove during update.')
+    Logger.error('Did not find an external modules.tar.bz2 to remove during update.')
   }
 }
 
-function copyModulesToLib(resume) {
-  fse.copy(INTERNAL_MODULES_TAR_GZ, EXTERNAL_MODULES_TAR_GZ, (err) => resume(err))
+function copyZippedModulesToTemp(resume) {
+  fse.copy(INTERNAL_MODULES_TAR_BZ2, TEMP_PROJECT_FOLDER_TEMPLATE, (err) => resume(err))
 }
 
-function unpackModulesIntoProjectLib(resume) {
-  const child = child_process.spawn('tar', ['-zxf', EXTERNAL_MODULES_TAR_GZ, '-C', LIB_PROJECT_FOLDER])
+function unpackZippedModulesInTemp(resume) {
+  const child = child_process.spawn('tar', ['-xf', ZIPPED_MODULES_NAME], {
+    cwd: path.join(TEMP_PROJECT_FOLDER_TEMPLATE)
+  })
   child.on('close', (code) => {
     let err = code != 0 ? 'unpack modules failed with non-zero exit code': null
     resume(err)
   })
+}
+
+function removeZippedModulesFromTemp(resume) {
+  try {
+    fse.remove(path.join(TEMP_PROJECT_FOLDER_TEMPLATE, ZIPPED_MODULES_NAME), () => resume())
+  } catch (e) {
+    Logger.error('Did not find a modules.tar.bz2 in temp.')
+  }
 }
 
 function removeTempProject(resume) {
@@ -110,10 +121,11 @@ const upgradeChain = [
   removeProjectLib,
   copyInternalProjectToLib,
   removeModulesLib,
-  copyModulesToLib,
-  unpackModulesIntoProjectLib,
   removeTempProject,
   copyProjectLibToTemp,
+  copyZippedModulesToTemp,
+  unpackZippedModulesInTemp,
+  removeZippedModulesFromTemp
   writeUpdatedVersionFile,
 ]
 
