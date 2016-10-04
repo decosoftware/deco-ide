@@ -26,16 +26,22 @@ import { StylesEnhancer } from 'react-styles-provider'
 import { HotKeys } from 'react-hotkeys'
 import path from 'path'
 
+import * as URIUtils from '../utils/URIUtils'
 import * as selectors from '../selectors'
-import * as uiActions from '../actions/uiActions'
-import * as applicationActions from '../actions/applicationActions'
-import * as textEditorCompositeActions from '../actions/textEditorCompositeActions'
-import * as compositeFileActions from '../actions/compositeFileActions'
 import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import TabSplitter from './TabSplitter'
+import { getTrackedFiles } from '../filetree'
+
+import {
+  uiActions,
+  applicationActions,
+  textEditorCompositeActions,
+  compositeFileActions,
+  tabActions,
+} from '../actions'
 
 import {
   ProgressBar,
@@ -51,6 +57,8 @@ import {
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
 const CONSOLE_COLLAPSED_HEIGHT = 36
 const CONSOLE_EXPANDED_HEIGHT = 300
+const MENU_FILE_SEARCH = 'fileSearch'
+const MENU_INSERT = 'insert'
 
 const stylesCreator = ({colors}) => {
   const tabBarHeight = 36
@@ -111,7 +119,8 @@ const mapStateToProps = (state) => createSelector(
   ({storyboard}) => ({
     showStoryboard: storyboard.shouldShow,
   }),
-  (decoDoc, rootPath, componentList, ui, application, liveValuesById, preferences, storyboard) => ({
+  selectors.tabContainerId,
+  (decoDoc, rootPath, componentList, ui, application, liveValuesById, preferences, storyboard, tabContainerId) => ({
     decoDoc,
     rootPath,
     componentList,
@@ -120,6 +129,7 @@ const mapStateToProps = (state) => createSelector(
     liveValuesById,
     ...preferences,
     ...storyboard,
+    tabContainerId,
   })
 )
 
@@ -138,26 +148,41 @@ class TabbedEditor extends Component {
   }
 
   state = {
-    showMenu: false,
+    menu: null,
     menuPosition: {x: 0, y: 0},
   }
 
   keyMap = {
     openInsertMenu: 'command+i',
+
+    // TODO consider also using command+t (which currently conflicts with a CM command)
+    openFileSearch: 'command+p',
   }
 
   keyHandlers = {
-    openInsertMenu: (e) => {
-      const {decoDoc} = this.props
-      const {showMenu} = this.state
+    openInsertMenu: (e) => this.props.decoDoc && this.openMenu(MENU_INSERT),
+    openFileSearch: (e) => {
+      const files = getTrackedFiles().map(node => ({
+        node,
+        name: node.path,
+        displayName: `${node.name} - ${node.path}`,
+      }))
 
-      if (decoDoc && !showMenu) {
-        this.setState({
-          showMenu: true,
-          linkedDocId: decoDoc.getFocusedLinkedDoc().id
-        })
-      }
-    }
+      this.setState({files})
+      this.openMenu(MENU_FILE_SEARCH)
+    },
+  }
+
+  openMenu(menu) {
+    const {decoDoc} = this.props
+
+    // Return if this menu is already open
+    if (menu === this.state.menu) return
+
+    this.setState({
+      menu,
+      linkedDocId: decoDoc && decoDoc.getFocusedLinkedDoc().id
+    })
   }
 
   calculatePositions() {
@@ -179,12 +204,17 @@ class TabbedEditor extends Component {
     }
   }
 
+  onOpenFile = ({node}) => {
+    const {dispatch, tabContainerId} = this.props
+
+    dispatch(tabActions.addTab(tabContainerId, URIUtils.filePathToURI(node.path)))
+  }
+
   onImportItem = (component) => {
     const {decoDoc} = this.props
     const {linkedDocId} = this.state
 
     if (!decoDoc) return
-
 
     this.props.dispatch(textEditorCompositeActions.insertComponent(decoDoc.id, linkedDocId, component))
   }
@@ -228,7 +258,7 @@ class TabbedEditor extends Component {
       editor && editor.focus()
     }
 
-    this.setState({showMenu: false})
+    this.setState({menu: null})
   }
 
   renderFlowInstallationToast() {
@@ -293,7 +323,7 @@ class TabbedEditor extends Component {
       savedScrollHeight,
     } = this.props
 
-    const {showMenu, menuPosition} = this.state
+    const {menu, menuPosition, files} = this.state
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = npmRegistry && npmRegistry !== DEFAULT_NPM_REGISTRY
@@ -345,7 +375,15 @@ class TabbedEditor extends Component {
             ItemComponent={ComponentMenuItem}
             items={componentList}
             onClickItem={this.onImportItem}
-            show={showMenu}
+            show={menu === MENU_INSERT}
+            anchorPosition={menuPosition}
+            requestClose={this.onRequestCloseSearchMenu}
+          />
+          <SearchMenu
+            ItemComponent={ComponentMenuItem}
+            items={files}
+            onClickItem={this.onOpenFile}
+            show={menu === MENU_FILE_SEARCH}
             anchorPosition={menuPosition}
             requestClose={this.onRequestCloseSearchMenu}
           />

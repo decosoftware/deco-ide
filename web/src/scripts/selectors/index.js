@@ -43,6 +43,11 @@ export const focusedTabId = createSelector(
   }
 )
 
+export const focusedGroupIndex = createSelector(
+  ({ui: {tabs}}) => tabs,
+  (tabs) => _.get(tabs, `${CONTENT_PANES.CENTER}.focusedGroupIndex`, 0)
+)
+
 export const focusedFileId = createSelector(
   focusedTabId,
   (focusedTabId) => focusedTabId && URIUtils.withoutProtocolOrParams(focusedTabId)

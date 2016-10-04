@@ -9,6 +9,8 @@ import { writeFile } from '../fs/safeWriter'
 
 import FileTreeServer from 'file-tree-server'
 import transport from 'file-tree-server-transport-electron'
+import GitUtils from 'git-utils'
+import gitPlugin from 'file-tree-server-git'
 import electron from 'electron'
 
 const { ipcMain, shell } = electron
@@ -42,9 +44,10 @@ const {
   SAVE_SUCCESSFUL,
   SHARE_SAVE_STATUS,
 } = FileConstants
-import bridge from '../bridge'
 
+import bridge from '../bridge'
 import Logger from '../log/logger'
+import DecoPaths from '../constants/DecoPaths'
 
 function verifyPayload(payload) {
   if (!payload.filePath) {
@@ -90,7 +93,15 @@ class FileHandler {
     bridge.on(WRITE_FILE_METADATA, this.writeFileMetadata.bind(this))
     bridge.on(SHOW_IN_FINDER, this.showInFinder.bind(this))
     bridge.on(DELETE_FILE_METADATA, this.deleteFileMetadata.bind(this))
-    this._treeServer = new FileTreeServer(transport(ipcMain), path.resolve('~/'))
+
+    this._treeServer = new FileTreeServer(
+      transport(ipcMain),
+      DecoPaths.EXTERNAL_LIB_FOLDER,
+      {
+        scan: true,
+        plugins: [gitPlugin(GitUtils)],
+      }
+    )
   }
 
   readFileData(payload, respond) {
@@ -129,7 +140,7 @@ class FileHandler {
           Logger.error(err)
           respond(onError(err))
           return
-        }        
+        }
         respond(onSuccess(WRITE_FILE_DATA))
         bridge.send(confirmSave(payload.filePath))
       })
