@@ -33,7 +33,7 @@ import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import TabSplitter from './TabSplitter'
-import { getFiles } from '../filetree'
+import { getTrackedFiles } from '../filetree'
 
 import {
   uiActions,
@@ -155,14 +155,14 @@ class TabbedEditor extends Component {
   keyMap = {
     openInsertMenu: 'command+i',
 
-    // TODO consider also using command+t. Currently conflicts with a CM command
+    // TODO consider also using command+t (which currently conflicts with a CM command)
     openFileSearch: 'command+p',
   }
 
   keyHandlers = {
     openInsertMenu: (e) => this.props.decoDoc && this.openMenu(MENU_INSERT),
     openFileSearch: (e) => {
-      const files = getFiles().map(node => ({
+      const files = getTrackedFiles().map(node => ({
         node,
         name: node.path,
         displayName: `${node.name} - ${node.path}`,

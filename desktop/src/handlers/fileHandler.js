@@ -9,6 +9,8 @@ import { writeFile } from '../fs/safeWriter'
 
 import FileTreeServer from 'file-tree-server'
 import transport from 'file-tree-server-transport-electron'
+import GitUtils from 'git-utils'
+import gitPlugin from 'file-tree-server-git'
 import electron from 'electron'
 
 const { ipcMain, shell } = electron
@@ -94,8 +96,11 @@ class FileHandler {
 
     this._treeServer = new FileTreeServer(
       transport(ipcMain),
-      DecoPaths.TEMP_PROJECT_FOLDER,
-      {scan: true}
+      DecoPaths.EXTERNAL_LIB_FOLDER,
+      {
+        scan: true,
+        plugins: [gitPlugin(GitUtils)],
+      }
     )
   }
 
