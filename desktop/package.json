@@ -31,12 +31,16 @@
     "run-sequence": "^1.2.1",
     "spectron": "^3.3.0"
   },
+  "jest": {
+    "testRegex": "src/.*/__tests__/.*"
+  },
   "scripts": {
     "start": "./node_modules/.bin/gulp start",
     "pack": "./node_modules/.bin/gulp pack",
     "debug": "./node_modules/.bin/gulp debug",
     "copy-libs": "./node_modules/.bin/gulp dev-unpack-lib",
-    "upgrade-project-template": "./node_modules/.bin/gulp upgrade-project-template"
+    "upgrade-project-template": "./node_modules/.bin/gulp upgrade-project-template",
+    "test": "./node_modules/.bin/jest --watchAll"
   },
   "dependencies": {
     "babel-core": "^6.4.0",

@@ -1,6 +1,8 @@
 import j from 'jscodeshift'
 import _ from 'lodash'
 
+import { createArgumentNodes } from './nodeUtils'
+
 const getObject = (node) => (
   _.get(node, 'callee.object.name') || _.get(node, 'value.callee.object.name')
 )
@@ -35,23 +37,6 @@ const getSimilarity = (node, object, property, args = []) => {
 
   return { sameObject, sameProperty, sameArgs, }
 }
-
-const createArgumentNodes = (args = []) => args.map((arg) => {
-  switch (arg.type) {
-    case 'Identifier': {
-      return j.identifier(arg.value)
-    }
-    case 'MemberExpression': {
-      return j.memberExpression(
-        j.identifier(arg.object),
-        j.identifier(arg.property)
-      )
-    }
-    default: {
-      return j.literal(arg.value || "")
-    }
-  }
-})
 
 const inverseCreateArgumentNodes = (args = []) => args.map((arg) => {
   switch (arg.type) {

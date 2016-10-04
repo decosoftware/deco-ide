@@ -82,6 +82,7 @@ export const openStoryboard = (filepath) => async (dispatch, getState) => {
   const sceneConnections = buildSceneConnections(
     sceneImports, sceneImportsDocsById, sceneInfo
   )
+  console.log("sceneConnections", sceneConnections)
 
   // Need to match component info to sourceinfo.
   // Update state of redux app, so Storyboard receives updates

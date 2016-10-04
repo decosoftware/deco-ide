@@ -56,6 +56,26 @@ class Storyboard extends Component {
     storyboardActions.openStoryboard(fileId)
   }
 
+  handleConnectionChange = (type, connections, elementId) => {
+    switch (type) {
+      case 'create': {
+        storyboardActions.addConnections(elementId, connections)
+        break;
+      }
+      case 'update': {
+        storyboardActions.updateConnections(elementId, connections)
+        break;
+      }
+      case 'delete': {
+        storyboardActions.deleteConnections(elementId, connections)
+        break;
+      }
+      default: {
+        return;
+      }
+    }
+  }
+
   render() {
     const {
       connections,
@@ -77,6 +97,7 @@ class Storyboard extends Component {
           scenes={scenes}
           onDeleteScene={storyboardActions.deleteScene}
           onClickScene={storyboardActions.updateEntryScene}
+          onConnectionChange={this.handleConnectionChange}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
         />
