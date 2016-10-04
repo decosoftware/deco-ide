@@ -89,19 +89,19 @@ export function addJSXAttribute(line, attributeName, value) {
   const matchingElement = findJSXElementByLine.call(this, line)
   if (!matchingElement) return this
 
-  // const oldSource = this.toSource()
+  const oldSource = this.toSource()
 
   // Build new element and append it to the front of JSX element
   const newElement = createJSXAttribute(attributeName, value)
   matchingElement.value.openingElement.attributes.unshift(newElement)
 
   return this
-  // const newSource = this.toSource()
+  const newSource = this.toSource()
 
   // // We override toSource on this, so that we can handle lost newlines appropriately
-  // const newThis = _.clone(this)
-  // newThis.toSource = getModifiedToSource(oldSource, newSource)
-  // return newThis
+  const newThis = _.clone(this)
+  newThis.toSource = getModifiedToSource(oldSource, newSource)
+  return newThis
 }
 
 export function updateJSXAttribute(line, attributeName, value) {
@@ -114,26 +114,13 @@ export function updateJSXAttribute(line, attributeName, value) {
 
   const newAttribute = createJSXAttribute(attributeName, value)
 
-  // const oldSource = this.toSource()
+  const oldSource = this.toSource()
   attributes[matchingAttributeIndex] = newAttribute
-  // const newSource = this.toSource()
+  const newSource = this.toSource()
 
-  return this
-  // const newThis = _.clone(this)
-  // newThis.toSource = getModifiedToSource(oldSource, newSource)
-  // return newThis
-}
-
-const getRemoveModifiedToSource = (oldSource, newSource) => {
-  const strippedOldSource = oldSource.replace(/\n/g, '')
-  const strippedNewSource = newSource.replace(/\n/g, '')
-
-  console.log(strippedOldSource)
-  console.log(strippedNewSource)
-
-  return () => {
-    return ""
-  }
+  const newThis = _.clone(this)
+  newThis.toSource = getModifiedToSource(oldSource, newSource)
+  return newThis
 }
 
 export function removeJSXAttribute(line, attributeName) {
@@ -145,13 +132,11 @@ export function removeJSXAttribute(line, attributeName) {
   const matchingAttributeIndex = _.findIndex(attributes, (att) => att.name.name === attributeName)
   if (!matchingAttributeIndex) return this
 
-  // const value = attributes[matchingAttributeIndex].value.expression.value
-  // const oldSource = this.toSource()
+  const oldSource = this.toSource()
   attributes.splice(matchingAttributeIndex, 1)
-  // const newSource = this.toSource()
+  const newSource = this.toSource()
 
-  return this
-  // const newThis = _.clone(this)
-  // newThis.toSource = getRemoveModifiedToSource(oldSource, newSource)
-  // return newThis
+  const newThis = _.clone(this)
+  newThis.toSource = getModifiedToSource(oldSource, newSource)
+  return newThis
 }
