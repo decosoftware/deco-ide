@@ -15,9 +15,10 @@ const isDirectory = (type) => {
 const stylesCreator = ({colors, fonts}) => {
   const styles = {
     fileIcon: {
-      width: 11,
-      height: 11,
-      WebkitMaskPosition: 'center',
+      width: 14,
+      height: 14,
+      WebkitMaskPosition: 'left',
+      WebkitMaskSize: 'contain',
       WebkitMaskRepeat: 'no-repeat',
       WebkitMaskImage: `-webkit-image-set(` +
         `url('./icons/icon-file.png') 1x, ` +
@@ -32,9 +33,10 @@ const stylesCreator = ({colors, fonts}) => {
       flex: '0 0 auto',
     },
     folderIcon: {
-      width: 11,
-      height: 11,
-      WebkitMaskPosition: 'center',
+      width: 14,
+      height: 14,
+      WebkitMaskPosition: 'left',
+      WebkitMaskSize: 'contain',
       WebkitMaskRepeat: 'no-repeat',
       WebkitMaskImage: `-webkit-image-set(` +
         `url('./icons/icon-folder.png') 1x, ` +
@@ -45,7 +47,7 @@ const stylesCreator = ({colors, fonts}) => {
       marginLeft: 7,
       alignSelf: 'center',
       position: 'relative',
-      top: -2,
+      top: -1,
       flex: '0 0 auto',
     },
     plusContainer: {
@@ -72,7 +74,7 @@ const stylesCreator = ({colors, fonts}) => {
   styles.getNodeStyle = memoize((depth, selected, hover) => {
     return {
       ...styles.nodeContent,
-      paddingLeft: 15 + depth * 20,
+      paddingLeft: 15 + depth * 18,
       backgroundColor: selected ? colors.fileTree.backgroundSelected :
           hover ? colors.fileTree.backgroundHover : colors.fileTree.background,
       color: selected ? colors.fileTree.textSelected : colors.fileTree.text,
