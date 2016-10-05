@@ -100,7 +100,7 @@ gulp.task('setup-pack-folder', function(callback) {
   // Unzip the node source
   es(`tar -zxf ${paths.package_libs_node_tar} -C ${paths.package_libs}`)
 
-  // Delete the node source if it already exists (may exist from local dev build?)
+  // Delete the node source if it already exists (may exist from local dev build)
   try {
     fs.statSync(paths.package_libs_node)
     fse.removeSync(paths.package_libs_node)
