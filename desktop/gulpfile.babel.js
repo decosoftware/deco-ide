@@ -1,79 +1,119 @@
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var gulpFail = require('gulp-fail');
-var path = require('path');
-var ElectronPackager = require('electron-packager');
-var child_process = require('child_process');
-var fs = require('fs');
-var plist = require('plist');
-var $ = require('gulp-load-plugins')();
-var open = require('gulp-open');
-var runSequence = require('run-sequence');
-var fse = require('fs-extra');
-var mocha = require('gulp-mocha');
+const gulp = require('gulp')
+const gutil = require('gulp-util')
+const gulpFail = require('gulp-fail')
+const path = require('path')
+const ElectronPackager = require('electron-packager')
+const child_process = require('child_process')
+const fs = require('fs')
+const plist = require('plist')
+const $ = require('gulp-load-plugins')()
+const open = require('gulp-open')
+const runSequence = require('run-sequence')
+const fse = require('fs-extra')
+const mocha = require('gulp-mocha')
 
-var BUILD_VERSION = "0.7.1";
+// Utility functions
+const {execSync: es} = child_process
+const cwd = (...args) => path.join(__dirname, ...args)
 
-var SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
+const BUILD_VERSION = "0.7.1"
+const NODE_MODULES_VERSION = 50
+
+const SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
 var child = null
 var debug_child = null
-gulp.task('clean-dist', $.shell.task(["rm -rf " + (path.join(__dirname, '../dist'))]));
-gulp.task('clean-app-folder', $.shell.task(["rm -rf " + (path.join(__dirname, '../app/*'))]));
-gulp.task('make-dist', $.shell.task(["mkdir -p " + (path.join(__dirname, '../dist/osx'))]));
 
-gulp.task('dev-unpack-lib', function(callback) {
-  var _child;
-  _child = child_process.execSync((path.join(__dirname, './libs/Scripts/pkg/Scripts/postinstall')) + " dev " + (path.join(__dirname, './libs')), {
-    cwd: __dirname
-  });
-  return callback();
-});
+const paths = {
+  app                        : cwd('../app'),
+  assets                     : cwd('assets'),
+  build                      : cwd('build'),
+  dist                       : cwd('../dist'),
+  dist_osx                   : cwd('../dist/osx'),
+  electron_rebuild           : cwd('node_modules/.bin/electron-rebuild'),
+  libs                       : cwd('libs'),
+  package                    : cwd('package'),
+  package_json               : cwd('package.json'),
+  package_libs               : cwd('package/libs'),
+  package_libs_node          : cwd('package/libs/node'),
+  package_libs_node_unpacked : cwd('package/libs/node-v5.7.0-darwin-x64'),
+  package_libs_node_tar      : cwd('package/libs/node-v5.7.0-darwin-x64.tar.gz'),
+  postinstall                : cwd('libs/Scripts/pkg/Scripts/postinstall'),
+  plist                      : cwd('../app/deco/Deco-darwin-x64/Deco.app/Contents/Info.plist'),
+  public                     : cwd('public'),
+  ship_n_zip                 : cwd('ship_n_zip.sh'),
+}
 
-gulp.task('modify-plist', ['electron-pack'], function(callback) {
-  var info, plistPath;
-  plistPath = path.join(__dirname, '../app/deco/Deco-darwin-x64/Deco.app/Contents/Info.plist');
-  info = plist.parse(fs.readFileSync(plistPath, 'utf8'));
+gulp.task('clean-app', () => es(`rm -rf ${paths.app}`))
+gulp.task('clean-build', () => es(`rm -rf ${paths.build}`))
+gulp.task('clean-dist', () => es(`rm -rf ${paths.dist}`))
+gulp.task('clean-package', () => es(`rm -rf ${paths.package}`))
+
+gulp.task('clean', [
+  'clean-app',
+  'clean-build',
+  'clean-dist',
+  'clean-package',
+])
+
+gulp.task('make-dist-dir', () => es(`mkdir -p ${paths.dist_osx}`))
+
+gulp.task('dev-unpack-lib', () => {
+  es(`${paths.postinstall} dev ${paths.libs}`, {cwd: __dirname})
+})
+
+gulp.task('modify-plist', ['electron-pack'], (callback) => {
+  const info = plist.parse(fs.readFileSync(paths.plist, 'utf8'))
   info.NSAppTransportSecurity = {
     NSAllowsArbitraryLoads: true
-  };
-  info.LSMinimumSystemVersion = "10.9.0";
-  fs.writeFileSync(plistPath, plist.build(info));
-  return callback();
-});
+  }
+  info.LSMinimumSystemVersion = "10.9.0"
+  fs.writeFileSync(paths.plist, plist.build(info))
+  return callback()
+})
 
-gulp.task('dist', ['modify-plist'], function(callback) {
-  return child_process.execFileSync(path.join(__dirname, '/ship_n_zip.sh'), [BUILD_VERSION, SIGN_PACKAGE], {
+gulp.task('dist', ['modify-plist'], (callback) => {
+  return child_process.execFileSync(paths.ship_n_zip, [BUILD_VERSION, SIGN_PACKAGE], {
     cwd: process.cwd(),
     stdio: 'inherit',
-    env: process.env
-  });
-});
+    env: process.env,
+  })
+})
 
-gulp.task('setup-pack-folder', ['build', 'build-web'], function(callback) {
-  var packagePath;
-  packagePath = path.join(__dirname, 'package');
-  child_process.execSync('rm -rf ' + packagePath + '/*');
-  child_process.execSync('mkdir -p ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'build') + ' ' + path.join(packagePath, 'build'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'libs') + ' ' + packagePath);
-  child_process.execSync('tar -zxf node-v5.7.0-darwin-x64.tar.gz', {
-    cwd: path.join(packagePath, 'libs')
-  });
+gulp.task('rebuild-native-modules', () => {
+  es(`${paths.electron_rebuild} --pre-gyp-fix --node-module-version ${NODE_MODULES_VERSION} --which-module git-utils`)
+})
+
+gulp.task('setup-pack-folder', function(callback) {
+
+  // Create package dir
+  es(`rm -rf ${paths.package}/*`)
+  es(`mkdir -p ${paths.package}`)
+
+  // Copy assets, build, libs, package.json, and public into package dir
+  es(`cp -rf ${paths.assets} ${paths.package}`)
+  es(`cp -a ${paths.build} ${paths.package}`)
+  es(`cp -rf ${paths.libs} ${paths.package}`)
+  es(`cp -rf ${paths.package_json} ${paths.package}`)
+  es(`cp -rf ${paths.public} ${paths.package}`)
+
+  // Unzip the node source
+  es(`tar -zxf ${paths.package_libs_node_tar} -C ${paths.package_libs}`)
+
+  // Delete the node source if it already exists (may exist from local dev build)
   try {
-    fs.statSync(path.join(packagePath, 'libs/node'));
-    fse.removeSync(path.join(packagePath, 'libs/node'))
-  } catch (e) {
-    //move along
-  }
-  child_process.execSync('mv ' + path.join(packagePath, 'libs/node-v5.7.0-darwin-x64') + ' ' + path.join(packagePath, 'libs/node'));
-  fs.unlinkSync(path.join(packagePath, 'libs/node-v5.7.0-darwin-x64.tar.gz'));
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'public') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'node_modules') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'assets') + ' ' + packagePath);
-  child_process.execSync('cp -rf ' + path.join(__dirname, 'package.json') + ' ' + packagePath);
-  return callback();
-});
+    fs.statSync(paths.package_libs_node)
+    fse.removeSync(paths.package_libs_node)
+  } catch (e) {}
+
+  // Rename the unpacked node source directory to 'node'
+  es(`mv ${paths.package_libs_node_unpacked} ${paths.package_libs_node}`)
+
+  // Delete the zipped node source
+  fs.unlinkSync(paths.package_libs_node_tar)
+
+  return callback()
+})
 
 gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
   var opts = {
@@ -82,7 +122,7 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     arch: 'all',
     platform: 'darwin',
     icon: path.join(__dirname, '/assets/icons/deco.icns'),
-    version: '1.1.2',
+    version: '1.4.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
     out: path.join(__dirname, '../app/deco'),
@@ -130,7 +170,8 @@ function transform(params) {
   child_process.execSync("cp " + sharedPackageSrc + ' ' + sharedPackageDest)
 
   // Copy node_modules
-  child_process.execSync("cp -rf node_modules build/")
+  child_process.execSync("rm -rf build/node_modules")
+  child_process.execSync("cp -a node_modules build/")
 }
 
 gulp.task("setup-node-binary", function(callback) {
@@ -257,15 +298,16 @@ gulp.task('upgrade-project-template', function() {
 });
 
 gulp.task('pack', [
-  'clean-dist',
-  'clean-app-folder',
-  'make-dist',
+  'clean',
+  'make-dist-dir',
+  'rebuild-native-modules',
   'build',
   'build-web',
   'setup-pack-folder',
   'electron-pack',
   'modify-plist',
-  'dist']);
+  'dist'
+])
 
 gulp.task('test-integration', function() {
   return gulp.src(['tests/setup.js', 'tests/integration/**/*.test.js'], { read: false })

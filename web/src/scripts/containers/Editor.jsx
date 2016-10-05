@@ -83,11 +83,33 @@ class Editor extends Component {
     this.ensureDoc(this.props)
   }
 
+  componentDidMount() {
+    const {focused} = this.props
+
+    focused && this.focus()
+  }
+
   componentWillReceiveProps(nextProps) {
     this.ensureDoc(nextProps)
     this.setState({
       middleware: this.getMiddleware(nextProps)
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    const {focused, decoDoc} = this.props
+
+    const focusChanged = !prevProps.focused && focused
+    const docChanged = decoDoc && decoDoc !== prevProps.decoDoc
+
+    if (focusChanged || (docChanged && focused)) {
+      this.focus()
+    }
+  }
+
+  focus() {
+    const {editor} = this.refs
+    editor && editor.decoratedComponentInstance.focus()
   }
 
   ensureDoc(props) {
@@ -142,6 +164,7 @@ class Editor extends Component {
 
     return (
       <EditorDropTarget
+        ref={'editor'}
         style={styles.editor}
         decoDoc={decoDoc}
         options={editorOptions}
@@ -167,11 +190,12 @@ export const registerLoader = () => {
       uri.startsWith('file://') ||
       URIUtils.getParam(uri, 'loader') === loaderId
     ),
-    renderContent: ({uri, tabContainerId, tabGroupIndex}) => (
+    renderContent: ({uri, tabContainerId, tabGroupIndex, focused}) => (
       <ConnectedClass
         uri={uri}
         tabContainerId={tabContainerId}
         tabGroupIndex={tabGroupIndex}
+        focused={focused}
         fileId={URIUtils.withoutProtocolOrParams(uri)}
       />
     ),

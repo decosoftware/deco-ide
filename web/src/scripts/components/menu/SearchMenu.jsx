@@ -16,14 +16,17 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
 import DropdownMenu from './DropdownMenu'
 import FilterableList from './FilterableList'
 
-const styles = {
+const stylesCreator = ({colors}, {width}) => ({
   inner: {
     overflowY: 'auto',
     overflowX: 'hidden',
+    width,
     height: 380,
     borderRadius: 3,
     display: 'flex',
@@ -35,15 +38,28 @@ const styles = {
     overflow: 'hidden',
     borderRadius: 3,
   },
-}
+})
 
-class SearchMenu extends Component {
-  constructor(props) {
-    super(props)
+@StylesEnhancer(stylesCreator, ({anchorPosition}) => ({width: anchorPosition.width}))
+@pureRender
+export default class SearchMenu extends Component {
+
+  static propTypes = {
+    show: PropTypes.bool.isRequired,
+    anchorPosition: PropTypes.object.isRequired,
+    requestClose: PropTypes.func,
+    renderItem: PropTypes.func,
+  }
+
+  static defaultProps = {
+    autoSelectFirst: true,
+    items: [],
+    onClickItem: () => {},
+    requestClose: () => {},
   }
 
   render () {
-    const {show, requestClose, anchorPosition, ItemComponent, items, onClickItem} = this.props
+    const {styles, show, requestClose, anchorPosition, ItemComponent, items, onClickItem} = this.props
 
     return (
       <DropdownMenu
@@ -54,7 +70,7 @@ class SearchMenu extends Component {
         hideOnClick={true}
         captureBackground={true}
       >
-        <div style={{...styles.inner, width: anchorPosition.width}}>
+        <div style={styles.inner}>
           <FilterableList
             ItemComponent={ItemComponent}
             items={items}
@@ -69,19 +85,3 @@ class SearchMenu extends Component {
     )
   }
 }
-
-SearchMenu.propTypes = {
-  show: PropTypes.bool.isRequired,
-  anchorPosition: PropTypes.object.isRequired,
-  requestClose: PropTypes.func,
-  renderItem: PropTypes.func,
-}
-
-SearchMenu.defaultProps = {
-  autoSelectFirst: true,
-  items: [],
-  onClickItem: () => {},
-  requestClose: () => {},
-}
-
-export default SearchMenu
