@@ -64,9 +64,9 @@ $ bundle install
 $ cd ../desktop
 $ npm install
 $ npm run copy-libs
-$ cd /libs/Scripts/sync-service
+$ cd ../shared
 $ npm install
-$ cd ../../../../shared
+$ cd ../desktop/libs/Scripts/sync-service
 $ npm install
 ```
 
