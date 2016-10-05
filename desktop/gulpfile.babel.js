@@ -17,6 +17,7 @@ const {execSync: es} = child_process
 const cwd = (...args) => path.join(__dirname, ...args)
 
 const BUILD_VERSION = "0.7.1"
+const NODE_MODULES_VERSION = 50
 
 const SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
 
@@ -29,6 +30,7 @@ const paths = {
   build                      : cwd('build'),
   dist                       : cwd('../dist'),
   dist_osx                   : cwd('../dist/osx'),
+  electron_rebuild           : cwd('node_modules/.bin/electron-rebuild'),
   libs                       : cwd('libs'),
   package                    : cwd('package'),
   package_json               : cwd('package.json'),
@@ -78,6 +80,10 @@ gulp.task('dist', ['modify-plist'], (callback) => {
   })
 })
 
+gulp.task('rebuild-native-modules', () => {
+  es(`${paths.electron_rebuild} --pre-gyp-fix --node-module-version ${NODE_MODULES_VERSION} --which-module git-utils`)
+})
+
 gulp.task('setup-pack-folder', function(callback) {
 
   // Create package dir
@@ -106,8 +112,6 @@ gulp.task('setup-pack-folder', function(callback) {
   // Delete the zipped node source
   fs.unlinkSync(paths.package_libs_node_tar)
 
-  es('./package/build/node_modules/.bin/electron-rebuild -p -n 48 -w git-utils -m ./package/build/node_modules/')
-
   return callback()
 })
 
@@ -118,7 +122,7 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     arch: 'all',
     platform: 'darwin',
     icon: path.join(__dirname, '/assets/icons/deco.icns'),
-    version: '1.2.5',
+    version: '1.4.2',
     appVersion: BUILD_VERSION,
     overwrite: true,
     out: path.join(__dirname, '../app/deco'),
@@ -296,6 +300,7 @@ gulp.task('upgrade-project-template', function() {
 gulp.task('pack', [
   'clean',
   'make-dist-dir',
+  'rebuild-native-modules',
   'build',
   'build-web',
   'setup-pack-folder',
