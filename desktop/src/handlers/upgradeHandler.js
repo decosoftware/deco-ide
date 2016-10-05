@@ -125,7 +125,7 @@ const upgradeChain = [
   copyProjectLibToTemp,
   copyZippedModulesToTemp,
   unpackZippedModulesInTemp,
-  removeZippedModulesFromTemp
+  removeZippedModulesFromTemp,
   writeUpdatedVersionFile,
 ]
 
