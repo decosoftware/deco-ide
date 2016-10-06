@@ -45,6 +45,52 @@ import 'codemirror/keymap/sublime'
 import '../../utils/decoParserMode'
 import '../../utils/editor/ShowInvisiblesPlugin'
 
+const COMMENT_OPTIONS = {
+  xml: {
+    blockCommentStart: '{/* ',
+    blockCommentEnd: ' */}',
+    lineComment: '// ',
+  },
+  javascript: {
+    blockCommentStart: '/* ',
+    blockCommentEnd: ' */',
+    blockCommentLead: ' * ',
+    lineComment: '// ',
+  },
+}
+
+const EXTRA_KEYS = {
+  sublime: {
+    'Tab': 'indentMore',
+    'Ctrl-Space': 'autocomplete',
+    'Alt-Left': 'goGroupLeft',
+    'Alt-Right': 'goGroupRight',
+    'Cmd-/': (cm) => {
+      _.each(cm.listSelections(), (selection) => {
+        const from = selection.from()
+        const to = selection.to()
+        const mode = cm.getModeAt({line: from.line, ch: 0})
+        const commentOptions = COMMENT_OPTIONS[mode.name]
+
+        switch (mode.name) {
+          case 'xml': {
+            if (selection.empty() || from.line === to.line) {
+              cm.lineComment(from, to, commentOptions)
+            } else {
+              cm.blockComment(from, to, commentOptions)
+            }
+            break
+          }
+          case 'javascript': {
+            cm.toggleComment(from, to, commentOptions)
+            break
+          }
+        }
+      })
+    },
+  },
+}
+
 export default class CodeMirrorComponent extends Component {
 
   static propTypes = {
@@ -115,25 +161,7 @@ export default class CodeMirrorComponent extends Component {
       showCursorWhenSelecting: true,
       lineWiseCopyCut: true,
       hint: CodeMirror.hint.anyword,
-      extraKeys: {
-        'Tab': 'indentMore',
-        'Ctrl-Space': 'autocomplete',
-        'Cmd-/': () => {
-          _.each(this.codeMirror.listSelections(), (selection) => {
-            const mode = this.codeMirror.getModeAt(selection.from())
-            switch (mode.name) {
-              case 'xml':
-                return this.codeMirror.toggleComment({
-                  lineComment: '//',
-                })
-              case 'javascript':
-                return this.codeMirror.toggleComment({
-                  lineComment: '//',
-                })
-            }
-          })
-        },
-      },
+      extraKeys: EXTRA_KEYS[options.keyMap] || {},
     })
   }
 
