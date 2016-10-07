@@ -37,7 +37,8 @@
     "debug": "gulp debug",
     "copy-libs": "gulp dev-unpack-lib",
     "upgrade-project-template": "gulp upgrade-project-template",
-    "postinstall": "gulp rebuild-native-modules"
+    "postinstall": "gulp rebuild-native-modules",
+    "test": "gulp test-integration"
   },
   "dependencies": {
     "babel-core": "^6.4.0",
