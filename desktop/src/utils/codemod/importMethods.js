@@ -126,22 +126,17 @@ export const removeImport = function(importSource) {
  * @param  {String} importSource value of the import source
  * @return {Collection}                    Updated Collection object
  */
+
 export const updateImportSourceForRequire = function(identifier, importSource) {
-  const program = getProgram(this)
-  if (program.body) {
-    program.body.forEach((node) => {
-      if (node.type != 'VariableDeclaration') {
-        return
-      }
-      node.declarations.forEach((dec) => {
-        if (_.get(dec, 'id.name') == identifier) {
-          dec.init.arguments[0] = j.literal(importSource)
-        }
-      })
-    })
-  }
+  const entryNode = this.find(j.VariableDeclaration).filter((node) => (
+    _.get(node, 'value.declarations[0].id.name') == identifier
+  ))
+  const node = _.get(entryNode.paths(), '[0].value')
+  _.set(node, 'declarations[0].init.arguments[0]', j.literal(importSource))
   return this
 }
+
+
 
 /**
  * Return the default variable used for that import source from program body
