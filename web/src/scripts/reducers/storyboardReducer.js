@@ -61,15 +61,30 @@ export default (state = initialState, action) => {
     }
 
     case at.ADD_CONNECTION: {
-      return {...state}
+      return update(state, {
+        connections: {
+          $merge: action.payload,
+        },
+      })
     }
 
     case at.UPDATE_CONNECTION: {
-      return {...state}
+      return update(state, {
+        connections: {
+          [action.payload.id]: {
+            $set: action.payload.connection,
+          },
+        },
+      })
     }
 
     case at.DELETE_CONNECTION: {
-      return {...state}
+      const connections = _.omit(state.connections, (conn) => conn.id === action.payload)
+      return update(state, {
+        connections: {
+          $set: connections,
+        },
+      })
     }
 
     case at.SET_ENTRY_SCENE: {

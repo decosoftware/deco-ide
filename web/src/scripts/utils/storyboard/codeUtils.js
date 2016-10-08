@@ -70,7 +70,7 @@ export const getConnectionsInCode = (code) => {
 }
 
 export const buildElementTree = (code) => {
-  const elementTree = ElementTreeBuilder.elementTreeFromAST(CodeMod(code).nodes())
+  return ElementTreeBuilder.elementTreeFromAST(CodeMod(code).nodes())
 }
 
 /**

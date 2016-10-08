@@ -22,7 +22,7 @@ import * as editorActions from '../actions/editorActions'
 import * as storyUtils from '../utils/storyboard'
 import StoryboardChangeFactory from '../factories/storyboard/StoryboardChangeFactory'
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-import { fileTreeCompositeActions, textEditorCompositeActions } from '../actions'
+import { fileTreeCompositeActions, textEditorCompositeActions, ElementTreeActions } from '../actions'
 
 export const at = {
   ADD_SCENE: 'ADD_SCENE',
@@ -82,7 +82,6 @@ export const openStoryboard = (filepath) => async (dispatch, getState) => {
   const sceneConnections = buildSceneConnections(
     sceneImports, sceneImportsDocsById, sceneInfo
   )
-  console.log("sceneConnections", sceneConnections)
 
   // Need to match component info to sourceinfo.
   // Update state of redux app, so Storyboard receives updates
@@ -186,15 +185,49 @@ export const renameScene = (sceneId, newName) => async (dispatch) => {
   dispatch(fileTreeCompositeActions.renameFile(filePath, path.join(rootPath, `${newName}${ext}`)))
 }
 
-export const addConnection = () => async (dispatch) => {
-  dispatch({type: at.ADD_CONNECTION})
+export const addConnections = (elementId, connections) => async (dispatch) => {
+  // CodeMod file to add Navigator.push("toScene")
+  // storyUtils.getConnectionsInCode from the scene matching the file we codemod'd
+  //
+  console.log("elementId", elementId)
+  const {scenes} = getState().storyboard
+  let connections = {}
+
+  // some expensive shit in here. figure out smart element tree and file writing
+  _.forEach(connections, async (conn) => {
+    const scene = scenes[conn.from]
+    if (!scene || !scene.filePath) return
+    const line = getLineFromElementId(elementId)
+    const fileName = getFilenameFromElementId(elementId)
+
+    // update file w/ push("toScene")
+    // onPress = () => NavigatorActions.push(toScene)
+    const decoDoc = await dispatch(editorActions.getDocument(scene.filePath))
+    const decoChange = StoryboardChangeFactory.addConnection(decoDoc, line, conn.to)
+    dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+
+    const newElementTree = storyUtils.buildElementTree(decoDoc.code)
+    ElementTreeActions.setElementTree(fileName, newElementTree)
+
+    // elementId filepath.jsLine30,0,1,0
+
+
+    // capture connection to sent to redux
+    _.set(connections, `${conn.from}.${elementId}.to`, conn.to)
+  })
+
+  console.log("new connections", connections)
+  dispatch({
+    type: at.ADD_CONNECTION,
+    payload: connections,
+  })
 }
 
-export const updateConnection = () => async (dispatch) => {
+export const updateConnections = (elementId, connections) => async (dispatch) => {
   dispatch({type: at.UPDATE_CONNECTION})
 }
 
-export const deleteConnection = () => async (dispatch) => {
+export const deleteConnections = (elementId, connections) => async (dispatch) => {
   dispatch({type: at.DELETE_CONNECTION})
 }
 

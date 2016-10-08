@@ -24,6 +24,10 @@ const createChange = (doc, mod) => (
   DecoChangeFactory.createChangeToReplaceAllText(doc, mod.toSource())
 )
 
+const getNavigationFunc = (destination) => {
+  return `() => NavigatorActions.push(${destination})`
+}
+
 class StoryboardChangeFactory {
 
   static addSceneToStoryboard(doc, sceneName, relativePath) {
@@ -82,6 +86,32 @@ class StoryboardChangeFactory {
       [
         {type: 'Literal', value: sceneName},
       ]
+    )
+    return createChange(doc, mod)
+  }
+
+  static addConnection(doc, line, toScene) {
+    const mod = CodeMod(doc.code).addJSXAttribute(
+      line,
+      'onPress',
+      getNavigationFunc(toScene)
+    )
+    return createChange(doc, mod)
+  }
+
+  static updateConnection(doc, line, toScene) {
+    const mod = CodeMod(doc.code).updateJSXAttribute(
+      line,
+      'onPress',
+      getNavigationFunc(toScene)
+    )
+    return createChange(doc, mod)
+  }
+
+  static removeConnection(doc, line) {
+    const mod = CodeMod(doc.code).removeJSXAttribute(
+      line,
+      'onPress'
     )
     return createChange(doc, mod)
   }
