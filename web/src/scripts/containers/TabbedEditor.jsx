@@ -157,9 +157,9 @@ class TabbedEditor extends Component {
 
     // TODO consider also using command+t (which currently conflicts with a CM command)
     openFileSearch: 'command+p',
-    nextTab: 'command+]',
-    prevTab: 'command+[',
-    openInNewTab: 'command+alt+\\',
+    focusNextTab: 'command+shift+]',
+    focusPrevTab: 'command+shift+[',
+    openInNewTab: 'command+shift+\\',
     focusNextGroup: 'command+k command+right',
     focusPrevGroup: 'command+k command+left',
   }
@@ -176,44 +176,32 @@ class TabbedEditor extends Component {
       this.setState({files})
       this.openMenu(MENU_FILE_SEARCH)
     },
-    focusNextGroup: (e) => {
-      const { dispatch } = this.props
-      dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => i+1))
-    },
-    focusPrevGroup: (e) => {
-      const { dispatch } = this.props
-      dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => i-1))
-    },
-    nextTab: (e) => {
-      const { dispatch } = this.props
-      dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => i+1))
-    },
-    prevTab: (e) => {
-      const { dispatch } = this.props
-      dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => i-1))
-    },
-    openInNewTab: (e) => {
-      const {decoDoc, dispatch} = this.props
-      if (!decoDoc) return
-      dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, URIUtils.filePathToURI(decoDoc.id)))
-    }
+    focusNextGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'next')),
+    focusPrevGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'prev')),
+    focusNextTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'next')),
+    focusPrevTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'prev')),
+    openInNewTab: (e) => this.props.dispatch(tabActions.splitRight(CONTENT_PANES.CENTER)),
   }
 
   constructor(props) {
     super(props)
-    _.each(['1','2','3','4','5','6','7','8','9'], (num) => {
-      this.keyHandlers[`focusTab${num}`] = () => {
-        const { dispatch } = this.props
-        dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => Number(num) - 1, {nowrap: true}))
-      }
-      this.keyHandlers[`focusGroup${num}`] = () => {
-        const { dispatch } = this.props
-        dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => Number(num) - 1, {nowrap: true}))
-      }
-      this.keyMap[`focusTab${num}`] = `command+${num}`
-      this.keyMap[`focusGroup${num}`] = `command+k command+${num}`
-    })
+
+    for (let key = 1; key <= 9; key++) {
+      const index = key - 1
+      const focusTabHotkey = `focusTab${key}`
+      const focusGroupHotkey = `focusGroup${key}`
+
+      this.keyMap[focusTabHotkey] = `command+${key}`
+      this.keyMap[focusGroupHotkey] = `command+k command+${key}`
+
+      this.keyHandlers[focusTabHotkey] = this.focusTabByIndex.bind(this, index)
+      this.keyHandlers[focusGroupHotkey] = this.focusGroupByIndex.bind(this, index)
+    }
   }
+
+  focusTabByIndex = (index) => this.props.dispatch(tabActions.focusTabByIndex(CONTENT_PANES.CENTER, index))
+
+  focusGroupByIndex = (index) => this.props.dispatch(tabActions.focusGroup(CONTENT_PANES.CENTER, index))
 
   openMenu(menu) {
     const {decoDoc} = this.props

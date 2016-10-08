@@ -39,7 +39,16 @@ export const splitRight = (containerId, tabId) => async (dispatch, getState) => 
   const container = getState().ui.tabs[containerId]
   const groupIndex = container ? container.groups.length : 0
 
-  dispatch(addTab(containerId, tabId, groupIndex))
+  if (tabId) {
+    dispatch(addTab(containerId, tabId, groupIndex))
+
+  // If no tabId, attempt to split the current focused tab
+  } else {
+    const focusedTabId = TabUtils.getFocusedTabId(container)
+    if (! focusedTabId) return
+
+    dispatch(addTab(containerId, focusedTabId, groupIndex))
+  }
 }
 
 // TODO: Implement
@@ -49,7 +58,7 @@ export const moveTab = (containerId, tabId, groupIndex, index) => async (dispatc
 
 export const closeTab = (containerId, tabId, groupIndex) => async (dispatch, getState) => {
   const container = getState().ui.tabs[containerId]
-  const {tabIds = []} = TabUtils.getGroup(container, groupIndex)
+  const {tabIds} = TabUtils.getGroup(container, groupIndex)
 
   if (tabIds.includes(tabId)) {
     dispatch({type: at.CLOSE_TAB, payload: {containerId, tabId, groupIndex}})
@@ -75,49 +84,44 @@ export const closeAllTabs = (containerId) => async (dispatch) => {
   dispatch({type: at.CLOSE_ALL_TABS, payload: {containerId}})
 }
 
-export const focusAdjacentTab = (containerId, iterator, options = {}) => async (dispatch, getState) => {
-  const tabs = getState().ui.tabs
-  const { groups, focusedGroupIndex } = _.get(tabs, `${containerId}`)
-  const focusedGroup = groups[focusedGroupIndex]
-  const focusedTabIndex = focusedGroup.tabIds.indexOf(focusedGroup.focusedTabId)
-  const newIndex = iterator(focusedTabIndex)
-  if (newIndex >= 0 && newIndex < focusedGroup.tabIds.length) {
-    dispatch(focusTab(containerId, focusedGroup.tabIds[newIndex], focusedGroupIndex))
-    return
-  }
-  if (options.nowrap) return
+export const focusAdjacentTab = (containerId, direction, groupIndex) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const group = TabUtils.getGroup(container, groupIndex)
+  const focusedTabId = TabUtils.getAdjacentTab(group, direction)
 
-  //wrapping behavior for contiguous iteration
-  if (newIndex == focusedGroup.tabIds.length) {
-    dispatch(focusTab(containerId, focusedGroup.tabIds[0], focusedGroupIndex))
-    return
-  }
-  if (newIndex < 0) {
-    dispatch(focusTab(containerId, focusedGroup.tabIds[focusedGroup.tabIds.length - 1], focusedGroupIndex))
+  if (focusedTabId) {
+    dispatch(focusTab(containerId, focusedTabId, groupIndex))
   }
 }
 
-export const focusAdjacentGroup = (containerId, iterator, options = {}) => async (dispatch, getState) => {
-  const tabs = getState().ui.tabs
-  const { groups, focusedGroupIndex } = _.get(tabs, `${containerId}`)
-  const newIndex = iterator(focusedGroupIndex)
-  if (newIndex >= 0 && newIndex < groups.length) {
-    const focusedGroup = groups[newIndex]
-    dispatch(focusTab(containerId, focusedGroup.focusedTabId || focusedGroup.tabIds[0], newIndex))
-    return
-  }
-  if (options.nowrap) return
+export const focusAdjacentGroup = (containerId, direction) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const groupIndex = TabUtils.getAdjacentGroupIndex(container, direction)
 
-  //wrapping behavior for contiguous iteration
-  if (newIndex == groups.length) {
-    const newGroup = groups[0]
-    dispatch(focusTab(containerId, newGroup.focusedTabId || newGroup.tabIds[0], 0))
-    return
+  if (groupIndex >= 0) {
+    const {focusedTabId} = TabUtils.getGroup(container, groupIndex)
+    dispatch(focusTab(containerId, focusedTabId, groupIndex))
   }
-  if (newIndex < 0) {
-    const newGroup = groups[groups.length - 1]
-    dispatch(focusTab(containerId, newGroup.focusedTabId || newGroup.tabIds[0], groups.length - 1))
-  }
+}
+
+export const focusTabByIndex = (containerId, index, groupIndex) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  const {tabIds} = TabUtils.getGroup(container, groupIndex)
+
+  if (index > tabIds.length - 1) return
+
+  dispatch(focusTab(containerId, tabIds[index], groupIndex))
+}
+
+export const focusGroup = (containerId, groupIndex) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  if (!container) return
+
+  const {groups} = container
+  if (groupIndex > groups.length - 1) return
+
+  const {focusedTabId} = TabUtils.getGroup(container, groupIndex)
+  dispatch(focusTab(containerId, focusedTabId, groupIndex))
 }
 
 export const focusTab = (containerId, tabId, groupIndex) => async (dispatch) => {

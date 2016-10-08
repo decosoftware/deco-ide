@@ -51,7 +51,13 @@ class TabUtils {
   static getGroup(container = {}, groupIndex) {
     const groups = container.groups || []
 
-    return groups[this.getGroupIndex(container, groupIndex)] || {}
+    return groups[this.getGroupIndex(container, groupIndex)] || this.createGroup()
+  }
+
+  static getFocusedTabId(container, groupIndex) {
+    const group = this.getGroup(container, groupIndex)
+
+    return group.focusedTabId
   }
 
   static addTab(container, tabId, groupIndex, index) {
@@ -224,6 +230,36 @@ class TabUtils {
 
     // The closed tab is the only tab, so return null
     return null
+  }
+
+  static getAdjacentTab(group, direction = 'next') {
+    if (!group) return null
+
+    const {tabIds, focusedTabId} = group
+
+    if (tabIds.length === 0) return null
+
+    const focusedIndex = tabIds.indexOf(focusedTabId)
+    let newFocusedIndex = focusedIndex + (direction === 'next' ? 1 : -1)
+
+    // Make sure the new index refers to an existing tab
+    newFocusedIndex = (newFocusedIndex + tabIds.length) % tabIds.length
+
+    return tabIds[newFocusedIndex]
+  }
+
+  static getAdjacentGroupIndex(container, direction) {
+    if (!container) return -1
+
+    const {groups, focusedGroupIndex} = container
+    if (groups.length === 0) return -1
+
+    let newFocusedIndex = focusedGroupIndex + (direction === 'next' ? 1 : -1)
+
+    // Make sure the new index refers to an existing group
+    newFocusedIndex = (newFocusedIndex + groups.length) % groups.length
+
+    return newFocusedIndex
   }
 
   static getTabsForResource(container, uri) {
