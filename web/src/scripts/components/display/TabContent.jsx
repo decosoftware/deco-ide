@@ -16,10 +16,12 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import pureRender from 'pure-render-decorator'
 
 import * as ContentLoader from '../../api/ContentLoader'
 import NoContent from './NoContent'
 
+@pureRender
 export default class TabContent extends Component {
 
   static propTypes = {
@@ -44,16 +46,6 @@ export default class TabContent extends Component {
   findLoader(props) {
     const {uri} = props
     return ContentLoader.findLoader(uri)
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return (
-      this.props.uri !== nextProps.uri ||
-      this.props.tabGroupIndex !== nextProps.tabGroupIndex ||
-      this.props.tabContainerId !== nextProps.tabContainerId ||
-      this.props.focused !== nextProps.focused ||
-      this.state.loader !== nextState.loader
-    )
   }
 
   getWrappedInstance() {

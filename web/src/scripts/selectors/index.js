@@ -106,6 +106,11 @@ export const selectedComponent = createSelector(
   }
 )
 
+export const showMinimap = createSelector(
+  ({preferences}) => preferences,
+  (preferences) => preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.SHOW_MINIMAP]
+)
+
 export const publishingFeature = createSelector(
   ({preferences}) => preferences,
   (preferences) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]

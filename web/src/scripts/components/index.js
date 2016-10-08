@@ -36,6 +36,7 @@ export AutocompleteHint from './editor/AutocompleteHint'
 export CodeMirrorComponent from './editor/CodeMirrorComponent'
 export EditorDropTarget from './editor/EditorDropTarget'
 export EditorToast from './editor/EditorToast'
+export Minimap from './editor/Minimap'
 
 // File Tree
 export Node from './filetree/Node'

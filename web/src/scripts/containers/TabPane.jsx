@@ -80,6 +80,10 @@ const mapStateToProps = (state, props) => createSelector(
 @StylesEnhancer(stylesCreator, ({style}) => ({style}))
 class TabPane extends Component {
 
+  static defaultProps = {
+    tabHeight: 35,
+  }
+
   onFocusTab = (tabId) => {
     const {filesByTabId, tabGroupIndex, tabContainerId} = this.props
     const file = filesByTabId[tabId]
@@ -116,7 +120,7 @@ class TabPane extends Component {
   }
 
   render() {
-    const {styles, focusedTabId, width, tabContainerId, tabGroupIndex, focusedGroupIndex} = this.props
+    const {styles, focusedTabId, width, height, tabHeight, tabContainerId, tabGroupIndex, focusedGroupIndex} = this.props
 
     return (
       <div style={styles.container}>
@@ -135,6 +139,8 @@ class TabPane extends Component {
             focused={tabGroupIndex === focusedGroupIndex}
             tabContainerId={tabContainerId}
             tabGroupIndex={tabGroupIndex}
+            width={width}
+            height={height - tabHeight}
           />
         </div>
       </div>

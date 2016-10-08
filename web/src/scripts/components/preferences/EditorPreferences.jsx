@@ -46,6 +46,7 @@ export default ({
   showInvisibles,
   highlightActiveLine,
   showIndentGuides,
+  showMinimap,
   npmRegistry,
   theme,
   fontSize,
@@ -110,6 +111,15 @@ export default ({
         <CheckboxInput
           value={showIndentGuides}
           onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_INDENT_GUIDES)}
+        />
+      </FormRow>
+      <FormRow
+        label={'Show Minimap'}
+        labelWidth={LABEL_WIDTH}
+      >
+        <CheckboxInput
+          value={showMinimap}
+          onChange={onPreferenceChange.bind(null, PREFERENCES.EDITOR.SHOW_MINIMAP)}
         />
       </FormRow>
       <FormRow
