@@ -182,8 +182,8 @@ export default class CodeMirrorComponent extends Component {
 
     if (!(typeof line === 'number' && codeMirror)) return
 
-    line = Math.max(0, Math.min(line, codeMirror.lastLine()))
-    codeMirror.scrollIntoView({line, ch: 0}, 500)
+    const clamped = Math.max(0, Math.min(line, codeMirror.lastLine()))
+    codeMirror.scrollIntoView({line: clamped, ch: 0}, 500)
   }
 
   //LIFECYCLE METHODS

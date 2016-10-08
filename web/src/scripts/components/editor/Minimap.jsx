@@ -21,20 +21,6 @@ import { StylesEnhancer } from 'react-styles-provider'
 import 'codemirror/addon/runmode/runmode'
 import CodeMirror from 'codemirror'
 
-const stylesCreator = (theme) => ({
-  container: {
-    flex: '1 1 auto',
-    display: 'flex',
-    alignItems: 'stretch',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  canvas: {
-    flex: '1 1 auto',
-    opacity: 0.6,
-  },
-})
-
 const CH_WIDTH = 1
 const CH_HEIGHT = 2
 const LINE_HEIGHT = 3
@@ -66,6 +52,20 @@ const COLORS = {
   ['tag']: 'rgba(255, 83, 112, 1)',
   ['error']: 'rgba(255, 255, 255, 1)',
 }
+
+const stylesCreator = (theme) => ({
+  container: {
+    flex: '1 1 auto',
+    display: 'flex',
+    alignItems: 'stretch',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  canvas: {
+    flex: '1 1 auto',
+    opacity: 0.6,
+  },
+})
 
 @StylesEnhancer(stylesCreator)
 export default class Minimap extends Component {

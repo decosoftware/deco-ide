@@ -63,6 +63,7 @@ const stylesCreator = (theme, {width}) => ({
   minimap: {
     flex: `0 0 ${getMinimapWidth(width)}px`,
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'stretch',
   },
 })
