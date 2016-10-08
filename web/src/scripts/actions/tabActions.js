@@ -75,6 +75,51 @@ export const closeAllTabs = (containerId) => async (dispatch) => {
   dispatch({type: at.CLOSE_ALL_TABS, payload: {containerId}})
 }
 
+export const focusAdjacentTab = (containerId, iterator, options = {}) => async (dispatch, getState) => {
+  const tabs = getState().ui.tabs
+  const { groups, focusedGroupIndex } = _.get(tabs, `${containerId}`)
+  const focusedGroup = groups[focusedGroupIndex]
+  const focusedTabIndex = focusedGroup.tabIds.indexOf(focusedGroup.focusedTabId)
+  const newIndex = iterator(focusedTabIndex)
+  if (newIndex >= 0 && newIndex < focusedGroup.tabIds.length) {
+    dispatch(focusTab(containerId, focusedGroup.tabIds[newIndex], focusedGroupIndex))
+    return
+  }
+  if (options.nowrap) return
+
+  //wrapping behavior for contiguous iteration
+  if (newIndex == focusedGroup.tabIds.length) {
+    dispatch(focusTab(containerId, focusedGroup.tabIds[0], focusedGroupIndex))
+    return
+  }
+  if (newIndex < 0) {
+    dispatch(focusTab(containerId, focusedGroup.tabIds[focusedGroup.tabIds.length - 1], focusedGroupIndex))
+  }
+}
+
+export const focusAdjacentGroup = (containerId, iterator, options = {}) => async (dispatch, getState) => {
+  const tabs = getState().ui.tabs
+  const { groups, focusedGroupIndex } = _.get(tabs, `${containerId}`)
+  const newIndex = iterator(focusedGroupIndex)
+  if (newIndex >= 0 && newIndex < groups.length) {
+    const focusedGroup = groups[newIndex]
+    dispatch(focusTab(containerId, focusedGroup.focusedTabId || focusedGroup.tabIds[0], newIndex))
+    return
+  }
+  if (options.nowrap) return
+
+  //wrapping behavior for contiguous iteration
+  if (newIndex == groups.length) {
+    const newGroup = groups[0]
+    dispatch(focusTab(containerId, newGroup.focusedTabId || newGroup.tabIds[0], 0))
+    return
+  }
+  if (newIndex < 0) {
+    const newGroup = groups[groups.length - 1]
+    dispatch(focusTab(containerId, newGroup.focusedTabId || newGroup.tabIds[0], groups.length - 1))
+  }
+}
+
 export const focusTab = (containerId, tabId, groupIndex) => async (dispatch) => {
   dispatch({type: at.FOCUS_TAB, payload: {containerId, tabId, groupIndex}})
 }

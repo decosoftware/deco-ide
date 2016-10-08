@@ -43,13 +43,14 @@ if [ -d "$HOME_DIR" ]; then
   rm -rf ~/.Deco/tmp
 fi
 
-mkdir -p ~/.Deco/tmp
-cp -rf ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project ~/.Deco/tmp/.template.Project
-cp ~/Library/Application\ Support/com.decosoftware.Deco/libs/modules.tar.bz2 ~/.Deco/tmp/.template.Project
-pushd ~/.Deco/tmp/.template.Project
+pushd ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project
+cp ../modules.tar.bz2 ./
 tar -xf ./modules.tar.bz2
 rm ./modules.tar.bz2
 popd
+
+mkdir -p ~/.Deco/tmp
+cp -af ~/Library/Application\ Support/com.decosoftware.Deco/libs/Project ~/.Deco/tmp/.template.Project
 chmod -R 755 ~/.Deco
 chown -R $USER:staff ~/.Deco
 
