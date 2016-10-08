@@ -308,7 +308,7 @@ const TemplateBuilder = function(platform) {
       }
     }, {
       label: 'Clean',
-      accelerator: 'Command+K',
+      accelerator: 'CommandOrCtrl+Alt+K',
       click: function() {
         try {
           const root = fileHandler.getWatchedPath()

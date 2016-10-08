@@ -157,6 +157,11 @@ class TabbedEditor extends Component {
 
     // TODO consider also using command+t (which currently conflicts with a CM command)
     openFileSearch: 'command+p',
+    nextTab: 'command+]',
+    prevTab: 'command+[',
+    openInNewTab: 'command+alt+\\',
+    focusNextGroup: 'command+k command+right',
+    focusPrevGroup: 'command+k command+left',
   }
 
   keyHandlers = {
@@ -171,6 +176,43 @@ class TabbedEditor extends Component {
       this.setState({files})
       this.openMenu(MENU_FILE_SEARCH)
     },
+    focusNextGroup: (e) => {
+      const { dispatch } = this.props
+      dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => i+1))
+    },
+    focusPrevGroup: (e) => {
+      const { dispatch } = this.props
+      dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => i-1))
+    },
+    nextTab: (e) => {
+      const { dispatch } = this.props
+      dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => i+1))
+    },
+    prevTab: (e) => {
+      const { dispatch } = this.props
+      dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => i-1))
+    },
+    openInNewTab: (e) => {
+      const {decoDoc, dispatch} = this.props
+      if (!decoDoc) return
+      dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, URIUtils.filePathToURI(decoDoc.id)))
+    }
+  }
+
+  constructor(props) {
+    super(props)
+    _.each(['1','2','3','4','5','6','7','8','9'], (num) => {
+      this.keyHandlers[`focusTab${num}`] = () => {
+        const { dispatch } = this.props
+        dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, (i) => Number(num) - 1, {nowrap: true}))
+      }
+      this.keyHandlers[`focusGroup${num}`] = () => {
+        const { dispatch } = this.props
+        dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, (i) => Number(num) - 1, {nowrap: true}))
+      }
+      this.keyMap[`focusTab${num}`] = `command+${num}`
+      this.keyMap[`focusGroup${num}`] = `command+k command+${num}`
+    })
   }
 
   openMenu(menu) {
