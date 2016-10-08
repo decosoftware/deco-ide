@@ -157,6 +157,11 @@ class TabbedEditor extends Component {
 
     // TODO consider also using command+t (which currently conflicts with a CM command)
     openFileSearch: 'command+p',
+    focusNextTab: 'command+shift+]',
+    focusPrevTab: 'command+shift+[',
+    openInNewTab: 'command+shift+\\',
+    focusNextGroup: 'command+k command+right',
+    focusPrevGroup: 'command+k command+left',
   }
 
   keyHandlers = {
@@ -171,7 +176,32 @@ class TabbedEditor extends Component {
       this.setState({files})
       this.openMenu(MENU_FILE_SEARCH)
     },
+    focusNextGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'next')),
+    focusPrevGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'prev')),
+    focusNextTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'next')),
+    focusPrevTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'prev')),
+    openInNewTab: (e) => this.props.dispatch(tabActions.splitRight(CONTENT_PANES.CENTER)),
   }
+
+  constructor(props) {
+    super(props)
+
+    for (let key = 1; key <= 9; key++) {
+      const index = key - 1
+      const focusTabHotkey = `focusTab${key}`
+      const focusGroupHotkey = `focusGroup${key}`
+
+      this.keyMap[focusTabHotkey] = `command+${key}`
+      this.keyMap[focusGroupHotkey] = `command+k command+${key}`
+
+      this.keyHandlers[focusTabHotkey] = this.focusTabByIndex.bind(this, index)
+      this.keyHandlers[focusGroupHotkey] = this.focusGroupByIndex.bind(this, index)
+    }
+  }
+
+  focusTabByIndex = (index) => this.props.dispatch(tabActions.focusTabByIndex(CONTENT_PANES.CENTER, index))
+
+  focusGroupByIndex = (index) => this.props.dispatch(tabActions.focusGroup(CONTENT_PANES.CENTER, index))
 
   openMenu(menu) {
     const {decoDoc} = this.props
