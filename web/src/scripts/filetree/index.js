@@ -9,3 +9,12 @@ import expand from './plugins/expand'
 import context from './plugins/context'
 
 export const PLUGINS = [select, expand, context]
+
+export const getTrackedFiles = () => {
+  const {tree, metadata} = fileTreeController
+
+  return fileTreeController.filter(node => {
+    const itemMetadata = metadata[node.path]
+    return node.type === 'file' && !(itemMetadata && itemMetadata.ignoredByGit)
+  })
+}

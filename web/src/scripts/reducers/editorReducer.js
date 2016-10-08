@@ -45,7 +45,7 @@ const editorReducer = (state = initialState, action) => {
       const {oldId, newId} = payload
 
       // Replace the portion of the filename that overlaps
-      if (openDocId.includes(oldId)) {
+      if (openDocId && openDocId.includes(oldId)) {
         openDocId = openDocId.replace(oldId, newId)
       }
 

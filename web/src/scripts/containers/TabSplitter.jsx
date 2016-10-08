@@ -19,10 +19,11 @@ import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { createSelector } from 'reselect'
-import { StylesEnhancer } from 'react-styles-provider'
+import { StylesProvider, StylesEnhancer } from 'react-styles-provider'
 import { AutoSizer } from 'react-virtualized'
 import path from 'path'
 
+import * as themes from '../themes'
 import * as selectors from '../selectors'
 import * as compositeFileActions from '../actions/compositeFileActions'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
@@ -74,31 +75,60 @@ const stylesCreator = ({colors}) => ({
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  selectors.filesByTabId,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
-  }),
-  (filesByTabId, tabs) => ({
-    filesByTabId,
-    ...tabs,
+  selectors.tabGroups,
+  selectors.tabContainerId,
+  (tabGroups, tabContainerId) => ({
+    tabGroups,
+    tabContainerId,
   })
 )
 
 @StylesEnhancer(stylesCreator)
 class TabSplitter extends Component {
+
+  renderEmpty() {
+    return (
+      <TabPane key={0} />
+    )
+  }
+
+  renderTabPane = (tabGroup, i) => {
+    const {tabContainerId} = this.props
+
+    return (
+      <TabPane
+        key={i}
+        tabGroup={tabGroup}
+        tabGroupIndex={i}
+        tabContainerId={tabContainerId}
+      />
+    )
+  }
+
+  renderContent() {
+    const {tabGroups} = this.props
+
+    if (tabGroups.length > 0) {
+      return tabGroups.map(this.renderTabPane)
+    } else {
+      return this.renderEmpty()
+    }
+  }
+
   render() {
     const {styles, style, width, height} = this.props
 
     return (
       <div style={style}>
-        <Splitter
-          width={width}
-          height={height}
-          workspaceId={'tab-splitter'}
-        >
-          <TabPane />
-        </Splitter>
+        <StylesProvider theme={themes.dark}>
+          <Splitter
+            width={width}
+            height={height}
+            workspaceId={'tab-splitter'}
+          >
+            {this.renderContent()}
+          </Splitter>
+        </StylesProvider>
       </div>
     )
   }

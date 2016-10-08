@@ -17,6 +17,7 @@
 
 import _ from 'lodash'
 
+import * as URIUtils from '../utils/URIUtils'
 import HTTPClient from './HTTPClient'
 import PopupUtils from '../utils/PopupUtils'
 
@@ -111,7 +112,7 @@ export default class {
       const match = location.match(/users\/me/)
 
       if (match) {
-        const {access_token} = HTTPClient.parseQueryString(location)
+        const {access_token} = URIUtils.parseQueryString(location)
         return access_token
       }
     })

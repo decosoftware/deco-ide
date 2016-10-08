@@ -66,6 +66,8 @@ $ npm install
 $ npm run copy-libs
 $ cd ../shared
 $ npm install
+$ cd ../desktop/libs/Scripts/sync-service
+$ npm install
 ```
 
 ### Development

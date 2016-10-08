@@ -29,33 +29,38 @@ const tabReducer = (state = initialState, action) => {
   switch (type) {
 
     case at.ADD_TAB: {
-      const {containerId, tabId, position} = payload
-      const container = TabUtils.addTab(state[containerId] || {}, tabId, position)
-      return update(state, {[containerId]: {$set: container}})
+      const {containerId, tabId, groupIndex, index} = payload
+      const existing = TabUtils.getContainer(state, containerId)
+      const updated = TabUtils.addTab(existing, tabId, groupIndex, index)
+      return update(state, {[containerId]: {$set: updated}})
     }
 
     case at.SWAP_TAB: {
-      const {containerId, tabId, newTabId} = payload
-      const container = TabUtils.swapTab(state[containerId] || {}, tabId, newTabId)
-      return update(state, {[containerId]: {$set: container}})
+      const {containerId, tabId, newTabId, groupIndex} = payload
+      const existing = TabUtils.getContainer(state, containerId)
+      const updated = TabUtils.swapTab(existing, tabId, newTabId, groupIndex)
+      return update(state, {[containerId]: {$set: updated}})
     }
 
     case at.CLOSE_TAB: {
-      const {containerId, tabId} = payload
-      const container = TabUtils.closeTab(state[containerId] || {}, tabId)
-      return update(state, {[containerId]: {$set: container}})
+      const {containerId, tabId, groupIndex} = payload
+      const existing = TabUtils.getContainer(state, containerId)
+      const updated = TabUtils.closeTab(existing, tabId, groupIndex)
+      return update(state, {[containerId]: {$set: updated}})
     }
 
     case at.FOCUS_TAB: {
-      const {containerId, tabId} = payload
-      const container = TabUtils.focusTab(state[containerId] || {}, tabId)
-      return update(state, {[containerId]: {$set: container}})
+      const {containerId, tabId, groupIndex} = payload
+      const existing = TabUtils.getContainer(state, containerId)
+      const updated = TabUtils.focusTab(existing, tabId, groupIndex)
+      return update(state, {[containerId]: {$set: updated}})
     }
 
     case at.MAKE_TAB_PERMANENT: {
-      const {containerId} = payload
-      const container = TabUtils.makeTabPermanent(state[containerId] || {})
-      return update(state, {[containerId]: {$set: container}})
+      const {containerId, groupIndex} = payload
+      const existing = TabUtils.getContainer(state, containerId)
+      const updated = TabUtils.makeTabPermanent(existing, groupIndex)
+      return update(state, {[containerId]: {$set: updated}})
     }
 
     case at.CLOSE_ALL_TABS: {
@@ -64,7 +69,7 @@ const tabReducer = (state = initialState, action) => {
       // If a containerId is passed, close all its tabs
       if (containerId) {
         return update(state, {[containerId]: {$set: null}})
-        
+
       // Else, close all tabs for all containers
       } else {
         return {}

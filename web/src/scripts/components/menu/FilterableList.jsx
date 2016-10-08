@@ -49,6 +49,8 @@ export default class FilterableList extends Component {
     hideMenu: () => {},
     onClickItem: () => {},
     onSelectItem: () => {},
+    onDoubleClickItem: () => {},
+    onContextMenuItem: () => {},
   }
 
   constructor(props) {
@@ -117,9 +119,6 @@ export default class FilterableList extends Component {
         e.preventDefault()
       }
     }
-  }
-
-  componentDidUpdate() {
   }
 
   //TODO: move this somewhere else and make it more legit
@@ -199,7 +198,7 @@ export default class FilterableList extends Component {
   }
 
   renderItem = ({index}) => {
-    const {items, onClickItem, ItemComponent, transparentBackground} = this.props
+    const {items, onClickItem, onDoubleClickItem, onContextMenuItem, ItemComponent, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -221,6 +220,8 @@ export default class FilterableList extends Component {
         key={item.id}
         ref={index}
         onClick={onClickItem}
+        onDoubleClick={onDoubleClickItem}
+        onContextMenu={onContextMenuItem}
         onMouseEnter={this._onItemMouseEnter.bind(this, index)}
         active={index === activeIndex}
         name={displayName || name}
@@ -233,7 +234,7 @@ export default class FilterableList extends Component {
 
   render() {
     const {keyMap, keyHandlers, _onSearchTextChange} = this
-    const {items, onClickItem, ItemComponent, autoFocus, transparentBackground} = this.props
+    const {items, ItemComponent, autoFocus, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 

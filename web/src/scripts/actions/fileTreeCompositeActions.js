@@ -3,6 +3,8 @@ const path = remote.require('path')
 
 import { fileTreeController as controller } from '../filetree'
 import FileTreeActions from '../filetree/actions'
+import * as URIUtils from '../utils/URIUtils'
+import { tabActions } from '../actions'
 
 import {
   showInFinder,
@@ -18,10 +20,6 @@ import {
 import {
   docIdChange,
 } from './editorActions'
-import {
-  closeTab,
-  swapTab,
-} from './tabActions'
 import {
   historyIdChange,
 } from './historyActions'
@@ -53,7 +51,11 @@ export const renameFile = (oldPath, newPath) => {
       }
       dispatch(docIdChange(oldPath, newPath))
       dispatch(historyIdChange(oldPath, newPath))
-      dispatch(swapTab(CONTENT_PANES.CENTER, oldPath, newPath))
+
+      const oldURI = URIUtils.filePathToURI(oldPath)
+      const newURI = URIUtils.filePathToURI(newPath)
+      dispatch(tabActions.swapAllTabsForResource(CONTENT_PANES.CENTER, oldURI, newURI))
+
       dispatch(removeRegisteredPath(oldPath))
     })
   }
@@ -61,13 +63,11 @@ export const renameFile = (oldPath, newPath) => {
 
 export const renameDir = (oldPath, newPath) => {
   return (dispatch, getState) => {
-    // current files
-    const filesById = getState().directory.filesById
-    const unsaved = getState().directory.unsaved
-    const currentTabs = getState().ui.tabs.CENTER || {tabIds: []}
-    const rootPath = getState().directory.rootPath
+    const {filesById, unsaved, rootPath} = getState()
+
     const oldMetadataPath = buildMetadataFilePath(oldPath, rootPath)
     const newMetadataPath = buildMetadataFilePath(newPath, rootPath)
+
     controller.run('rename', oldMetadataPath, newMetadataPath)
     controller.run('rename', oldPath, newPath).then(() => {
       _.each(filesById, (file, id) => {
@@ -80,7 +80,11 @@ export const renameDir = (oldPath, newPath) => {
           dispatch(registerPath(newSubPath))
           dispatch(docIdChange(id, newSubPath))
           dispatch(historyIdChange(id, newSubPath))
-          dispatch(swapTab(CONTENT_PANES.CENTER, id, newSubPath))
+
+          const oldURI = URIUtils.filePathToURI(id)
+          const newURI = URIUtils.filePathToURI(newSubPath)
+          dispatch(tabActions.swapAllTabsForResource(CONTENT_PANES.CENTER, oldURI, newURI))
+
           dispatch(removeRegisteredPath(id))
         }
       })
@@ -88,15 +92,16 @@ export const renameDir = (oldPath, newPath) => {
   }
 }
 
-export const createFile = (filePath, content = '') => {
-  return (dispatch, getState) => {
-    controller.run('writeFile', filePath, content).then(() => {
-      FileTreeActions.clearSelections()
-      const parentPath = path.dirname(filePath)
-      FileTreeActions.expandNode(parentPath)
-      dispatch(openFile(filePath))
-    })
-  }
+export const createFile = (filePath, content = '') => async (dispatch) => {
+  await controller.run('writeFile', filePath, content)
+
+  const parentPath = path.dirname(filePath)
+
+  FileTreeActions.clearSelections()
+  FileTreeActions.expandNode(parentPath)
+
+  dispatch(registerPath(filePath))
+  dispatch(openFile(filePath))
 }
 
 export const createDir = (dirPath) => {
@@ -113,10 +118,14 @@ export const deleteFile = (filePath) => {
         return
       }
       const unsaved = getState().directory.unsaved
-      dispatch(closeTabWindow(filePath))
+
+      const uri = URIUtils.filePathToURI(filePath)
+      dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+
       if (unsaved[filePath]) {
         dispatch(markSaved(filePath))
       }
+
       dispatch(removeRegisteredPath(filePath))
       controller.run('remove', filePath)
 
@@ -130,25 +139,23 @@ export const deleteFile = (filePath) => {
 
 export const deleteDir = (dirPath) => {
   return (dispatch, getState) => {
-    const filesById = getState().directory.filesById
-    const unsaved = getState().directory.unsaved
-    const currentTabs = getState().ui.tabs.CENTER || { tabIds: [] }
-    const rootPath = getState().directory.rootPath
+    const {filesById, unsaved, rootPath} = getState().directory
 
     dispatch(confirmDelete(dirPath)).then((resp) => {
-      const { shouldDelete } = resp
+      const {shouldDelete} = resp
       if (!shouldDelete) {
         return
       }
       controller.run('remove', dirPath)
       _.each(filesById, (file, id) => {
         if (id.indexOf(dirPath) == 0) {
-          if (currentTabs.tabIds.indexOf(id) != -1) {
-            dispatch(closeTabWindow(id))
-          }
+          const uri = URIUtils.filePathToURI(id)
+          dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+
           if (unsaved[id]) {
             dispatch(markSaved(id))
           }
+
           dispatch(removeRegisteredPath(id))
         }
       })

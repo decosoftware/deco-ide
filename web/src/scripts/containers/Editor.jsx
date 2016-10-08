@@ -31,8 +31,9 @@ import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
 import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
-import { editorActions, textEditorCompositeActions } from '../actions'
+import { tabActions, editorActions, textEditorCompositeActions } from '../actions'
 import { EditorDropTarget, EditorToast } from '../components'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
 
 const stylesCreator = () => ({
   editor: {
@@ -47,8 +48,8 @@ const stylesCreator = () => ({
   },
 })
 
-const mapStateToProps = (state) => createSelector(
-  selectors.currentDoc,
+const mapStateToProps = (state, props) => createSelector(
+  selectors.docByFileId,
   selectors.editorOptions,
   selectors.publishingFeature,
   ({metadata}) => metadata.liveValues.liveValuesById,
@@ -61,6 +62,7 @@ const mapStateToProps = (state) => createSelector(
 )
 
 const mapDispatchToProps = (dispatch) => ({
+  tabActions: bindActionCreators(tabActions, dispatch),
   editorActions: bindActionCreators(editorActions, dispatch),
   textEditorCompositeActions: bindActionCreators(textEditorCompositeActions, dispatch),
   dispatch,
@@ -81,11 +83,33 @@ class Editor extends Component {
     this.ensureDoc(this.props)
   }
 
+  componentDidMount() {
+    const {focused} = this.props
+
+    focused && this.focus()
+  }
+
   componentWillReceiveProps(nextProps) {
     this.ensureDoc(nextProps)
     this.setState({
       middleware: this.getMiddleware(nextProps)
     })
+  }
+
+  componentDidUpdate(prevProps) {
+    const {focused, decoDoc} = this.props
+
+    const focusChanged = !prevProps.focused && focused
+    const docChanged = decoDoc && decoDoc !== prevProps.decoDoc
+
+    if (focusChanged || (docChanged && focused)) {
+      this.focus()
+    }
+  }
+
+  focus() {
+    const {editor} = this.refs
+    editor && editor.decoratedComponentInstance.focus()
   }
 
   ensureDoc(props) {
@@ -94,6 +118,12 @@ class Editor extends Component {
     if (!decoDoc) {
       editorActions.getDocument(fileId)
     }
+  }
+
+  onFocus = () => {
+    const {uri, tabContainerId, tabGroupIndex, tabActions} = this.props
+
+    tabActions.focusTab(tabContainerId, uri, tabGroupIndex)
   }
 
   onImportComponent = (component, linkedDocId) => {
@@ -134,11 +164,13 @@ class Editor extends Component {
 
     return (
       <EditorDropTarget
+        ref={'editor'}
         style={styles.editor}
         decoDoc={decoDoc}
         options={editorOptions}
         middleware={middleware}
         onImportItem={this.onImportComponent}
+        onFocus={this.onFocus}
       />
     )
   }
@@ -149,13 +181,22 @@ const ConnectedClass = connect(mapStateToProps, mapDispatchToProps)(Editor)
 export default ConnectedClass
 
 export const registerLoader = () => {
+  const loaderId = 'com.decosoftware.text'
+
   ContentLoader.registerLoader({
     name: 'Text',
-    id: 'com.decosoftware.text',
-    filter: (uri) => uri && uri.startsWith('file://'),
-    renderContent: (uri) => (
+    id: loaderId,
+    filter: (uri) => (
+      uri.startsWith('file://') ||
+      URIUtils.getParam(uri, 'loader') === loaderId
+    ),
+    renderContent: ({uri, tabContainerId, tabGroupIndex, focused}) => (
       <ConnectedClass
-        fileId={uri && URIUtils.withoutProtocol(uri)}
+        uri={uri}
+        tabContainerId={tabContainerId}
+        tabGroupIndex={tabGroupIndex}
+        focused={focused}
+        fileId={URIUtils.withoutProtocolOrParams(uri)}
       />
     ),
   })

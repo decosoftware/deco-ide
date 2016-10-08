@@ -94,7 +94,7 @@ class Editor extends Component {
 
   //RENDER METHODS
   render() {
-    const {className, style, middleware, decoDoc, options} = this.props
+    const {className, style, middleware, decoDoc, options, onFocus, onBlur} = this.props
     const {linkedDoc} = this.state
 
     const eventListeners = _.map(middleware, 'eventListeners')
@@ -107,6 +107,8 @@ class Editor extends Component {
         options={options}
         eventListeners={eventListeners}
         className={className}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
     )
   }

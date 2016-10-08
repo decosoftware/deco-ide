@@ -43,7 +43,7 @@ const mapStateToProps = (state) => createSelector(
 
 class ComponentBrowser extends Component {
   render() {
-    const {componentList, style, onSelectItem, onClickItem} = this.props
+    const {componentList, style, onSelectItem, onClickItem, onDoubleClickItem, onContextMenuItem} = this.props
 
     return (
       <div style={styles.main}>
@@ -52,6 +52,8 @@ class ComponentBrowser extends Component {
           items={componentList}
           onClickItem={onClickItem}
           onSelectItem={onSelectItem}
+          onDoubleClickItem={onDoubleClickItem}
+          onContextMenuItem={onContextMenuItem}
           autoSelectFirst={false}
         />
       </div>
