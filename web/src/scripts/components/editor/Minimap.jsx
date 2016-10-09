@@ -16,7 +16,6 @@
  */
 
 import React, { Component } from 'react'
-import { AutoSizer } from 'react-virtualized'
 import { StylesEnhancer } from 'react-styles-provider'
 import 'codemirror/addon/runmode/runmode'
 import CodeMirror from 'codemirror'
@@ -74,10 +73,6 @@ export default class Minimap extends Component {
     onScrollToLine: () => {},
   }
 
-  state = {
-    scrolling: false,
-  }
-
   componentDidMount() {
     this.updateCanvas()
   }
@@ -110,13 +105,10 @@ export default class Minimap extends Component {
     e.preventDefault()
 
     this.onMoveViewport(e)
-    this.setState({scrolling: true})
     this.attachGlobalListeners()
   }
 
   onMouseMove = (e) => {
-    if (!this.state.scrolling) return
-
     e.stopPropagation()
     e.preventDefault()
 
@@ -124,12 +116,9 @@ export default class Minimap extends Component {
   }
 
   onMouseUp = (e) => {
-    if (!this.state.scrolling) return
-
     e.stopPropagation()
     e.preventDefault()
 
-    this.setState({scrolling: false})
     this.detachGlobalListeners()
   }
 
