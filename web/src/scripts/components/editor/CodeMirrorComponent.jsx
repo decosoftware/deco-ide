@@ -104,6 +104,7 @@ export default class CodeMirrorComponent extends Component {
     eventListeners: [],
     onFocus: () => {},
     onBlur: () => {},
+    scrollToLine: null,
   }
 
   constructor() {
@@ -176,6 +177,15 @@ export default class CodeMirrorComponent extends Component {
     this.codeMirror = null
   }
 
+  scrollToLine(line) {
+    const {codeMirror} = this
+
+    if (!(typeof line === 'number' && codeMirror)) return
+
+    const clamped = Math.max(0, Math.min(line, codeMirror.lastLine()))
+    codeMirror.scrollIntoView({line: clamped, ch: 0}, 500)
+  }
+
   //LIFECYCLE METHODS
 
   attachStyles(options) {
@@ -202,6 +212,8 @@ export default class CodeMirrorComponent extends Component {
       if (this.props.doc != this.codeMirror.getDoc()) {
         this.codeMirror.swapDoc(this.props.doc)
       }
+
+      this.scrollToLine(this.props.scrollToLine)
     } else {
       console.error('CodeMirrorComponent instantiated without doc')
     }
@@ -224,6 +236,10 @@ export default class CodeMirrorComponent extends Component {
       if (nextProps.doc != this.codeMirror.getDoc()) {
         this.codeMirror.swapDoc(nextProps.doc)
       }
+    }
+
+    if (nextProps.scrollToLine !== this.props.scrollToLine) {
+      this.scrollToLine(nextProps.scrollToLine)
     }
   }
 

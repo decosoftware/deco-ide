@@ -32,11 +32,13 @@ import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
 import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
 import ASTMiddleware from '../middleware/editor/ASTMiddleware'
 import { tabActions, editorActions, textEditorCompositeActions } from '../actions'
-import { EditorDropTarget, EditorToast } from '../components'
+import { EditorDropTarget, EditorToast, Minimap } from '../components'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
-const stylesCreator = () => ({
-  editor: {
+const getMinimapWidth = (width) => Math.floor(width * 0.1)
+
+const stylesCreator = (theme, {width}) => ({
+  container: {
     flex: '1 1 auto',
     top: 0,
     bottom: 0,
@@ -45,6 +47,24 @@ const stylesCreator = () => ({
     zIndex: 1000,
     position: 'relative',
     overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  editor: {
+    flex: '1 1 auto',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    position: 'relative',
+    overflow: 'auto',
+  },
+  minimap: {
+    flex: `0 0 ${getMinimapWidth(width)}px`,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
 })
 
@@ -52,11 +72,13 @@ const mapStateToProps = (state, props) => createSelector(
   selectors.docByFileId,
   selectors.editorOptions,
   selectors.publishingFeature,
+  selectors.showMinimap,
   ({metadata}) => metadata.liveValues.liveValuesById,
-  (decoDoc, editorOptions, publishingFeature, liveValuesById) => ({
+  (decoDoc, editorOptions, publishingFeature, showMinimap, liveValuesById) => ({
     decoDoc,
     editorOptions,
     publishingFeature,
+    showMinimap,
     liveValuesById,
   })
 )
@@ -68,14 +90,15 @@ const mapDispatchToProps = (dispatch) => ({
   dispatch,
 })
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({width}) => ({width}))
 class Editor extends Component {
 
   constructor(props) {
     super()
 
     this.state = {
-      middleware: this.getMiddleware(props)
+      middleware: this.getMiddleware(props),
+      scrollToLine: null,
     }
   }
 
@@ -120,6 +143,8 @@ class Editor extends Component {
     }
   }
 
+  onScrollToLine = (scrollToLine) => this.setState({scrollToLine})
+
   onFocus = () => {
     const {uri, tabContainerId, tabGroupIndex, tabActions} = this.props
 
@@ -157,21 +182,34 @@ class Editor extends Component {
   }
 
   render() {
-    const {styles, decoDoc, editorOptions} = this.props
-    const {middleware} = this.state
+    const {styles, decoDoc, editorOptions, showMinimap, height, width} = this.props
+    const {middleware, scrollToLine} = this.state
 
     if (!decoDoc) return null
 
     return (
-      <EditorDropTarget
-        ref={'editor'}
-        style={styles.editor}
-        decoDoc={decoDoc}
-        options={editorOptions}
-        middleware={middleware}
-        onImportItem={this.onImportComponent}
-        onFocus={this.onFocus}
-      />
+      <div style={styles.container}>
+        <EditorDropTarget
+          ref={'editor'}
+          style={styles.editor}
+          decoDoc={decoDoc}
+          scrollToLine={scrollToLine}
+          options={editorOptions}
+          middleware={middleware}
+          onImportItem={this.onImportComponent}
+          onFocus={this.onFocus}
+        />
+        {showMinimap && (
+          <div style={styles.minimap}>
+            <Minimap
+              text={decoDoc && decoDoc.code}
+              width={getMinimapWidth(width)}
+              height={height}
+              onScrollToLine={this.onScrollToLine}
+            />
+          </div>
+        )}
+      </div>
     )
   }
 }
@@ -190,13 +228,15 @@ export const registerLoader = () => {
       uri.startsWith('file://') ||
       URIUtils.getParam(uri, 'loader') === loaderId
     ),
-    renderContent: ({uri, tabContainerId, tabGroupIndex, focused}) => (
+    renderContent: ({uri, tabContainerId, tabGroupIndex, focused, width, height}) => (
       <ConnectedClass
         uri={uri}
         tabContainerId={tabContainerId}
         tabGroupIndex={tabGroupIndex}
         focused={focused}
         fileId={URIUtils.withoutProtocolOrParams(uri)}
+        width={width}
+        height={height}
       />
     ),
   })

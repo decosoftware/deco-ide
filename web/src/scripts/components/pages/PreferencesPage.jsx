@@ -67,7 +67,7 @@ class PreferencesPage extends Component {
           <GeneralPreferences
             onPreferenceChange={this.props.onPreferenceChange.bind(null, CATEGORIES.GENERAL)}
             setSystemLocationPreference={this.props.setSystemLocationPreference.bind(null, CATEGORIES.GENERAL)}
-            decoTheme={this.props.general[PREFERENCES.GENERAL.DECO_THEME]} 
+            decoTheme={this.props.general[PREFERENCES.GENERAL.DECO_THEME]}
             androidHome={this.props.general[PREFERENCES.GENERAL.ANDROID_HOME]}
             pathToGenymotionApp={this.props.general[PREFERENCES.GENERAL.GENYMOTION_APP]}
             useGenymotion={this.props.general[PREFERENCES.GENERAL.USE_GENYMOTION]}
@@ -90,6 +90,7 @@ class PreferencesPage extends Component {
             fontSize={this.props.editor[PREFERENCES.EDITOR.FONT_SIZE]}
             vimMode={this.props.editor[PREFERENCES.EDITOR.VIM_MODE]}
             showInvisibles={this.props.editor[PREFERENCES.EDITOR.SHOW_INVISIBLES]}
+            showMinimap={this.props.editor[PREFERENCES.EDITOR.SHOW_MINIMAP]}
             highlightActiveLine={this.props.editor[PREFERENCES.EDITOR.HIGHLIGHT_ACTIVE_LINE]}
             showIndentGuides={this.props.editor[PREFERENCES.EDITOR.SHOW_INDENT_GUIDES]}
             npmRegistry={this.props.editor[PREFERENCES.EDITOR.NPM_REGISTRY]} />
