@@ -63,7 +63,7 @@ export const renameFile = (oldPath, newPath) => {
 
 export const renameDir = (oldPath, newPath) => {
   return (dispatch, getState) => {
-    const {filesById, unsaved, rootPath} = getState()
+    const {filesById, unsaved, directory: {rootPath}} = getState()
 
     const oldMetadataPath = buildMetadataFilePath(oldPath, rootPath)
     const newMetadataPath = buildMetadataFilePath(newPath, rootPath)
