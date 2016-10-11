@@ -23,6 +23,7 @@ import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
 import path from 'path'
+import { ViewportUtils } from 'react-scene-graph'
 
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
@@ -33,6 +34,15 @@ const stylesCreator = ({colors}) => ({
   container: {
     backgroundColor: 'white',
     flex: '1 1 auto',
+    display: 'flex',
+    alignItems: 'stretch',
+    position: 'relative',
+  },
+  storyboard: {
+    flex: '1 1 auto',
+    display: 'flex',
+    alignItems: 'stretch',
+    position: 'relative',
   },
 })
 
@@ -52,9 +62,37 @@ const mapStateToProps = (state) => createSelector(
 @StylesEnhancer(stylesCreator)
 class Storyboard extends Component {
 
+  constructor(props) {
+    super()
+
+    const {width, height} = props
+
+    this.state = {
+      viewport: ViewportUtils.init({width, height}),
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {width: oldWidth, height: oldHeight} = this.props
+    const {width: newWidth, height: newHeight} = nextProps
+    const {viewport} = this.state
+
+    if (newWidth !== oldWidth || newHeight !== oldHeight) {
+      const dimensions = {width: newWidth, height: newHeight}
+
+      this.setState({
+        viewport: ViewportUtils.resize(viewport, dimensions),
+      })
+    }
+  }
+
   componentWillMount() {
     const { fileId, storyboardActions } = this.props
     storyboardActions.openStoryboard(fileId)
+  }
+
+  onViewportChange = (viewport) => {
+    this.setState({viewport})
   }
 
   render() {
@@ -66,6 +104,7 @@ class Storyboard extends Component {
       storyboard,
       yopsStyle
     } = this.props
+    const {viewport} = this.state
     const syncServiceAddress = 'http://localhost:4082'
     const onLayoutUpdate = () => {}
 
@@ -73,13 +112,15 @@ class Storyboard extends Component {
       <div style={styles.container}>
         <NewSceneButton onClick={storyboardActions.addScene}/>
         <YOPS
-          style={yopsStyle}
+          style={styles.storyboard}
           connections={connections}
           scenes={scenes}
           onDeleteScene={storyboardActions.deleteScene}
           onClickScene={storyboardActions.updateEntryScene}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
+          onViewportChange={this.onViewportChange}
+          viewport={viewport}
         />
       </div>
     )
@@ -105,9 +146,11 @@ export const registerLoader = () => {
     name: 'Storyboard',
     id: loaderId,
     filter: loaderFilter,
-    renderContent: ({uri}) => (
+    renderContent: ({uri, width, height}) => (
       <ConnectedClass
         fileId={URIUtils.withoutProtocolOrParams(uri)}
+        width={width}
+        height={height}
       />
     ),
   })
