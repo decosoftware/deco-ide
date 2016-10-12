@@ -1,8 +1,17 @@
-import $ from 'nodobjc'
+
 import Logger from '../log/logger'
 
-// Load Cocoa framework
-$.framework('cocoa')
+let $
+
+try {
+  // Load Obj-C bridge
+  $ = require('nodobjc')
+
+  // Load Cocoa framework
+  $.framework('cocoa')
+} catch (e) {
+  Logger.error('Failed to load nodobjc.', e)
+}
 
 export const getBackground = () => {
   try {
