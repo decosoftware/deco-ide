@@ -32,7 +32,7 @@ const COLORS = {
   // Types
   ['keyword']: 'rgba(199, 146, 234, 1)',
   ['operator']: 'rgba(233, 237, 237, 1)',
-  ['variable-2']: '#80CBC4',
+  ['variable-2']: '#82B1FF',
   ['variable-3']: '#82B1FF',
   ['builtin']: '#DECB6B',
   ['atom']: '#F77669',
