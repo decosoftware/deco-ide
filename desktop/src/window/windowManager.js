@@ -155,7 +155,6 @@ var WindowManager = {
         icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png'),
         webPreferences: {
           experimentalFeatures: true,
-          webSecurity: false,
         },
       });
 

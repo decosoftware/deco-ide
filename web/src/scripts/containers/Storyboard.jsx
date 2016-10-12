@@ -33,7 +33,7 @@ import NewSceneButton from '../components/storyboard/NewSceneButton'
 
 const stylesCreator = ({colors}) => {
   const {availWidth, availHeight} = window.screen
-  const backgroundImageURL = desktopBackground.getBackground()
+  const backgroundImageURL = desktopBackground.getBackgroundImage()
 
   return {
     container: {
