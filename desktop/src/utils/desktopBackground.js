@@ -34,14 +34,11 @@ export const getBackgroundImage = () => {
 
   if (!url) return null
 
-  // The url is encoded, but we want to use it as a file path
-  url = decodeURI(url)
-
-  // Strip the file:// protocol
-  url = url.replace(/^file:\/\//, '')
+  // Decode the url and strip the file:// protocol
+  const filepath = decodeURI(url).replace(/^file:\/\//, '')
 
   try {
-    const image = nativeImage.createFromPath(url)
+    const image = nativeImage.createFromPath(filepath)
 
     // Arbitrarily scale to 512 wide. Since this image will be heavily blurred,
     // the quality of the image is not important.
@@ -49,7 +46,7 @@ export const getBackgroundImage = () => {
 
     return scaled.toDataURL()
   } catch (e) {
-    Logger.error('Failed to create nativeImage from desktop background url.', e)
+    Logger.error(`Failed to create nativeImage from desktop background ${url}.`, e)
 
     return null
   }
