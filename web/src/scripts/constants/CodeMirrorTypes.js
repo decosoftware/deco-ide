@@ -28,4 +28,5 @@ export const EventTypes = {
   keyUp: 'keyup',
   focus: 'focus',
   blur: 'blur',
+  renderLine: 'renderLine',
 }
