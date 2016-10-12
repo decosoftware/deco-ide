@@ -81,7 +81,12 @@ gulp.task('dist', ['modify-plist'], (callback) => {
 })
 
 gulp.task('rebuild-native-modules', () => {
-  es(`${paths.electron_rebuild} --pre-gyp-fix --node-module-version ${NODE_MODULES_VERSION} --which-module git-utils`)
+  const modules = ['git-utils', 'nodobjc', 'ffi', 'ref', 'ref-struct']
+
+  modules.forEach(module => {
+    console.log('Building native module', module, 'for version', NODE_MODULES_VERSION)
+    es(`${paths.electron_rebuild} --pre-gyp-fix --node-module-version ${NODE_MODULES_VERSION} --which-module ${module}`)
+  })
 })
 
 gulp.task('setup-pack-folder', function(callback) {
@@ -122,7 +127,7 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     arch: 'all',
     platform: 'darwin',
     icon: path.join(__dirname, '/assets/icons/deco.icns'),
-    version: '1.4.2',
+    version: '1.4.3',
     appVersion: BUILD_VERSION,
     overwrite: true,
     out: path.join(__dirname, '../app/deco'),

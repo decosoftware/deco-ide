@@ -24,27 +24,51 @@ import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
 import path from 'path'
 import { ViewportUtils } from 'react-scene-graph'
+const desktopBackground = Electron.remote.require('./utils/desktopBackground.js')
 
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
 import { storyboardActions } from '../actions'
 import NewSceneButton from '../components/storyboard/NewSceneButton'
 
-const stylesCreator = ({colors}) => ({
-  container: {
-    backgroundColor: 'white',
-    flex: '1 1 auto',
-    display: 'flex',
-    alignItems: 'stretch',
-    position: 'relative',
-  },
-  storyboard: {
-    flex: '1 1 auto',
-    display: 'flex',
-    alignItems: 'stretch',
-    position: 'relative',
-  },
-})
+const stylesCreator = ({colors}) => {
+  const {availWidth, availHeight} = window.screen
+  const backgroundImageURL = desktopBackground.getBackground()
+
+  return {
+    container: {
+      flex: '1 1 auto',
+      display: 'flex',
+      alignItems: 'stretch',
+      position: 'relative',
+    },
+    storyboard: {
+      flex: '1 1 auto',
+      display: 'flex',
+      alignItems: 'stretch',
+      position: 'relative',
+    },
+    backdropContainer: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      overflow: 'hidden',
+    },
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      WebkitFilter: 'blur(20px) saturate(120%) brightness(50%)',
+      backgroundImage: backgroundImageURL && `url(${backgroundImageURL})`,
+      backgroundSize: `${availWidth}px ${availHeight}px`,
+      transform: 'scale(1.1)',
+    },
+  }
+}
 
 const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch),
@@ -110,6 +134,9 @@ class Storyboard extends Component {
 
     return (
       <div style={styles.container}>
+        <div style={styles.backdropContainer}>
+          <div style={styles.backdrop} />
+        </div>
         <NewSceneButton onClick={storyboardActions.addScene}/>
         <YOPS
           style={styles.storyboard}
