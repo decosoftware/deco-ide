@@ -28,8 +28,7 @@ export const at = {
   ADD_SCENE: 'ADD_SCENE',
   DELETE_SCENE: 'DELETE_SCENE',
   RENAME_SCENE: 'RENAME_SCENE',
-  ADD_CONNECTION: 'ADD_CONNECTION',
-  UPDATE_CONNECTION: 'UPDATE_CONNECTION',
+  SET_CONNECTIONS: 'SET_CONNECTIONS',
   DELETE_CONNECTION: 'DELETE_CONNECTION',
   SET_ENTRY_SCENE: 'SET_ENTRY_SCENE',
   OPEN_STORYBOARD: 'OPEN_STORYBOARD',
@@ -185,13 +184,38 @@ export const renameScene = (sceneId, newName) => async (dispatch) => {
   dispatch(fileTreeCompositeActions.renameFile(filePath, path.join(rootPath, `${newName}${ext}`)))
 }
 
-export const addConnections = (elementId, connections) => async (dispatch) => {
+const getLineFromElementId = (elementId) => {
+  return elementId.line
+}
+
+const getPathFromElementId = (elementId) => {
+  elementDotSplit = elementId.split('.')
+  return elementDotSplit.slice(1, elementDotSplit.length - 1).join('')
+}
+
+const getFilenameFromElementId = (elementId) => {
+  return elementId.fileName
+}
+
+connections: {
+  [connectionid]: {
+    id:
+    component_id:
+    to:,
+    from:,
+  }
+
+}
+
+const setConnections = async (elementId, connections, storyboardFunc, actionType, dispatch, getState) => {
   // CodeMod file to add Navigator.push("toScene")
   // storyUtils.getConnectionsInCode from the scene matching the file we codemod'd
   //
+  const {elementTreeForFile} = getState().elementTree
   console.log("elementId", elementId)
+  const element = ElementTreeUtils.getElementByPath(getPathFromElementId(elementId))
   const {scenes} = getState().storyboard
-  let connections = {}
+  // let connections = {}
 
   // some expensive shit in here. figure out smart element tree and file writing
   _.forEach(connections, async (conn) => {
@@ -203,32 +227,56 @@ export const addConnections = (elementId, connections) => async (dispatch) => {
     // update file w/ push("toScene")
     // onPress = () => NavigatorActions.push(toScene)
     const decoDoc = await dispatch(editorActions.getDocument(scene.filePath))
-    const decoChange = StoryboardChangeFactory.addConnection(decoDoc, line, conn.to)
+    const decoChange = storyboardFunc(decoDoc, line, conn.to)
     dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
     const newElementTree = storyUtils.buildElementTree(decoDoc.code)
     ElementTreeActions.setElementTree(fileName, newElementTree)
 
-    // elementId filepath.jsLine30,0,1,0
+    // elementId root.0.1.0.kjkjk23j42k3lasdf
 
-
-    // capture connection to sent to redux
+    // capture connection to send to redux
     _.set(connections, `${conn.from}.${elementId}.to`, conn.to)
   })
 
   console.log("new connections", connections)
   dispatch({
-    type: at.ADD_CONNECTION,
+    type: actionType,
     payload: connections,
   })
 }
 
-export const updateConnections = (elementId, connections) => async (dispatch) => {
-  dispatch({type: at.UPDATE_CONNECTION})
+export const addConnections = (elementId, connections) => async (dispatch, getState) => {
+  setConnections(
+    elementId,
+    connections,
+    StoryboardChangeFactory.addConnection,
+    at.SET_CONNECTIONS,
+    dispatch,
+    getState
+  );
 }
 
-export const deleteConnections = (elementId, connections) => async (dispatch) => {
-  dispatch({type: at.DELETE_CONNECTION})
+export const updateConnections = (elementId, connections) => async (dispatch, getState) => {
+  setConnections(
+    elementId,
+    connections,
+    StoryboardChangeFactory.updateConnection,
+    at.SET_CONNECTIONS,
+    dispatch,
+    getState
+  );
+}
+
+export const deleteConnections = (elementId, connections) => async (dispatch, getState) => {
+  setConnections(
+    elementId,
+    connections,
+    StoryboardChangeFactory.updateConnection,
+    at.DELETE_CONNECTIONS,
+    dispatch,
+    getState
+  );
 }
 
 const setEntryScene = async (sceneId, dispatch, getState, decoChangeFunc) => {
