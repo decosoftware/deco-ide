@@ -92,9 +92,8 @@ class Editor extends Component {
     _.invokeMap(middleware, 'detach')
   }
 
-  //RENDER METHODS
   render() {
-    const {className, style, middleware, decoDoc, options, onFocus, onBlur} = this.props
+    const {className, style, middleware, decoDoc, scrollToLine, options, onFocus, onBlur} = this.props
     const {linkedDoc} = this.state
 
     const eventListeners = _.map(middleware, 'eventListeners')
@@ -104,6 +103,7 @@ class Editor extends Component {
         style={style}
         ref={'codemirror'}
         doc={linkedDoc}
+        scrollToLine={scrollToLine}
         options={options}
         eventListeners={eventListeners}
         className={className}

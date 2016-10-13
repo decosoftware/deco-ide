@@ -23,18 +23,52 @@ import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
 import path from 'path'
+import { ViewportUtils } from 'react-scene-graph'
+const desktopBackground = Electron.remote.require('./utils/desktopBackground.js')
 
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
 import { storyboardActions } from '../actions'
 import NewSceneButton from '../components/storyboard/NewSceneButton'
 
-const stylesCreator = ({colors}) => ({
-  container: {
-    backgroundColor: 'white',
-    flex: '1 1 auto',
-  },
-})
+const stylesCreator = ({colors}) => {
+  const {availWidth, availHeight} = window.screen
+  const backgroundImageURL = desktopBackground.getBackgroundImage()
+
+  return {
+    container: {
+      flex: '1 1 auto',
+      display: 'flex',
+      alignItems: 'stretch',
+      position: 'relative',
+    },
+    storyboard: {
+      flex: '1 1 auto',
+      display: 'flex',
+      alignItems: 'stretch',
+      position: 'relative',
+    },
+    backdropContainer: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      overflow: 'hidden',
+    },
+    backdrop: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      WebkitFilter: 'blur(20px) saturate(120%) brightness(50%)',
+      backgroundImage: backgroundImageURL && `url(${backgroundImageURL})`,
+      backgroundSize: `${availWidth}px ${availHeight}px`,
+      transform: 'scale(1.1)',
+    },
+  }
+}
 
 const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch),
@@ -51,6 +85,30 @@ const mapStateToProps = (state) => createSelector(
 
 @StylesEnhancer(stylesCreator)
 class Storyboard extends Component {
+
+  constructor(props) {
+    super()
+
+    const {width, height} = props
+
+    this.state = {
+      viewport: ViewportUtils.init({width, height}),
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const {width: oldWidth, height: oldHeight} = this.props
+    const {width: newWidth, height: newHeight} = nextProps
+    const {viewport} = this.state
+
+    if (newWidth !== oldWidth || newHeight !== oldHeight) {
+      const dimensions = {width: newWidth, height: newHeight}
+
+      this.setState({
+        viewport: ViewportUtils.resize(viewport, dimensions),
+      })
+    }
+  }
 
   componentWillMount() {
     const { fileId, storyboardActions } = this.props
@@ -77,6 +135,10 @@ class Storyboard extends Component {
     }
   }
 
+  onViewportChange = (viewport) => {
+    this.setState({viewport})
+  }
+
   render() {
     const {
       connections,
@@ -86,14 +148,18 @@ class Storyboard extends Component {
       storyboard,
       yopsStyle
     } = this.props
+    const {viewport} = this.state
     const syncServiceAddress = 'http://localhost:4082'
     const onLayoutUpdate = () => {}
 
     return (
       <div style={styles.container}>
+        <div style={styles.backdropContainer}>
+          <div style={styles.backdrop} />
+        </div>
         <NewSceneButton onClick={storyboardActions.addScene}/>
         <YOPS
-          style={yopsStyle}
+          style={styles.storyboard}
           connections={connections}
           scenes={scenes}
           onDeleteScene={storyboardActions.deleteScene}
@@ -101,6 +167,8 @@ class Storyboard extends Component {
           onConnectionChange={this.handleConnectionChange}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
+          onViewportChange={this.onViewportChange}
+          viewport={viewport}
         />
       </div>
     )
@@ -126,9 +194,11 @@ export const registerLoader = () => {
     name: 'Storyboard',
     id: loaderId,
     filter: loaderFilter,
-    renderContent: ({uri}) => (
+    renderContent: ({uri, width, height}) => (
       <ConnectedClass
         fileId={URIUtils.withoutProtocolOrParams(uri)}
+        width={width}
+        height={height}
       />
     ),
   })

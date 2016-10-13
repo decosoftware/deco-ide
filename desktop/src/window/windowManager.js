@@ -152,7 +152,10 @@ var WindowManager = {
         height: height || global.workArea.height,
         show: show || true,
         titleBarStyle: 'hidden',
-        icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png')
+        icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png'),
+        webPreferences: {
+          experimentalFeatures: true,
+        },
       });
 
       intializeMainWindow(browserWindow);

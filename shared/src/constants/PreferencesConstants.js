@@ -45,6 +45,7 @@ export const PREFERENCES = {
     'VIM_MODE',
     'SHOW_INVISIBLES',
     'SHOW_INDENT_GUIDES',
+    'SHOW_MINIMAP',
     'HIGHLIGHT_ACTIVE_LINE',
     'NPM_REGISTRY',
   ]),
@@ -95,11 +96,14 @@ export const METADATA = {
     [PREFERENCES[CATEGORIES.EDITOR].SHOW_INVISIBLES]: {
       defaultValue: false,
     },
-    [PREFERENCES[CATEGORIES.EDITOR].HIGHLIGHT_ACTIVE_LINE]: {
-      defaultValue: true,
-    },
     [PREFERENCES[CATEGORIES.EDITOR].SHOW_INDENT_GUIDES]: {
       defaultValue: false,
+    },
+    [PREFERENCES[CATEGORIES.EDITOR].SHOW_MINIMAP]: {
+      defaultValue: false,
+    },
+    [PREFERENCES[CATEGORIES.EDITOR].HIGHLIGHT_ACTIVE_LINE]: {
+      defaultValue: true,
     },
     [PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY]: {
       defaultValue: 'https://registry.npmjs.org',
