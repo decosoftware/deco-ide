@@ -61,6 +61,7 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   //setup environment variables
   app.commandLine.appendSwitch('js-flags', '--harmony')
+  app.commandLine.appendSwitch('--enable-experimental-web-platform-features'); 
 
   Logger.info('Deco initializing...')
 
