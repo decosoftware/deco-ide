@@ -25,7 +25,6 @@ import Pos from '../../models/editor/CodeMirrorPos'
 import StyleNode from '../../utils/StyleNode'
 
 const MAX_GUIDE_DEPTH = 32
-const LINE_PADDING = 4
 const WORK_PER_FRAME = 2
 
 // Emit changes on CodeMirror option changes
@@ -74,13 +73,38 @@ export default class IndentGuideMiddleware extends Middleware {
     this.deletionQueue = {}
 
     this.eventListeners = {
-      [EventTypes.viewportChange]: this.viewportChange,
-      [EventTypes.swapDoc]: this.swapDoc,
-      [EventTypes.changes]: this.changes,
+      [EventTypes.renderLine]: this.renderLine,
     }
   }
 
-  enable = (cm, indentUnit, charWidth, textHeight) => {    
+  getClassName = (text) => {
+    const {indentSize} = this
+
+    const whitespace = typeof text === 'number' ? text : text.search(/\S|$/) + 1
+    const indentCount = Math.floor(whitespace / indentSize) * indentSize
+
+    return `cm-indent-guide-${indentCount}`
+  }
+
+  renderLine = (cm, lineHandle, element) => {
+    const {text, stateAfter} = lineHandle
+
+    let className
+
+    // If there are any non-whitespace characters, count indentation and determine className
+    if (text.match(/\S/)) {
+      className = this.getClassName(text)
+
+    // Else, use syntax highlighter's indentation level
+    } else {
+      const indent = _.get(stateAfter, 'context.state.indented', 0)
+      className = this.getClassName(indent)
+    }
+
+    element.classList.add(className)
+  }
+
+  enable = (cm, indentUnit, charWidth, textHeight) => {
     this.showIndentGuides = true
     this.attachStyles(indentUnit, charWidth, textHeight)
   }
@@ -110,7 +134,7 @@ export default class IndentGuideMiddleware extends Middleware {
       ['background']: `linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1))`,
       ['background-size']: `1px ${textHeight}px`,
       ['background-repeat']: `no-repeat`,
-      ['background-position']: `${LINE_PADDING + i * charWidth}px 0px`,
+      ['background-position']: `${charWidth * i}px 0px`,
     }
   }
 
@@ -171,175 +195,6 @@ export default class IndentGuideMiddleware extends Middleware {
 
   detachStyles() {
     this.styleNode.detach()
-  }
-
-  // Add and remove classes from the DOM.
-  // Distribute over multiple frames so scrolling remains fast.
-  updateClasses(cm) {
-    const addedLineIndexes = []
-    const deletedLineIndexes = []
-    let addedCount = 0
-    let deletedCount = 0
-    let shouldCallAgain = false
-
-    // Remove classes from the DOM
-    _.each(this.deletionQueue, (_, i) => {
-
-      // Cast i to number (it's an object key initially)
-      i = +i
-
-      cm.removeLineClass(i, 'background', this.lineCache[i])
-      delete this.lineCache[i]
-
-      deletedLineIndexes.push(i)
-      deletedCount++
-
-      if (deletedCount > WORK_PER_FRAME) {
-        shouldCallAgain = true
-
-        // Exit iteration early
-        return false
-      }
-    })
-
-    // Add classes to the DOM
-    _.each(this.classQueue, (className, i) => {
-
-      // Cast i to number (it's an object key initially)
-      i = +i
-
-      // Remove previous className
-      if (this.lineCache[i]) {
-        cm.removeLineClass(i, 'background', this.lineCache[i])
-      }
-
-      cm.addLineClass(i, 'background', className)
-      this.lineCache[i] = className
-      addedLineIndexes.push(i)
-      addedCount++
-
-      if (addedCount > WORK_PER_FRAME) {
-        shouldCallAgain = true
-
-        // Exit iteration early
-        return false
-      }
-    })
-
-    // Update the queue
-    _.each(addedLineIndexes, (key) => {
-      delete this.classQueue[key]
-    })
-
-    // Update the queue
-    _.each(deletedLineIndexes, (key) => {
-      delete this.deletionQueue[key]
-    })
-
-    if (shouldCallAgain) {
-      window.requestAnimationFrame(this.updateClasses.bind(this, cm))
-    }
-  }
-
-  enqueueClassUpdates(cm, fromLine, toLine) {
-    if (! this.showIndentGuides) {
-      return
-    }
-
-    _.each(this.lineCache, (_, i) => {
-      i = +i
-
-      if (i <= fromLine || i >= toLine) {
-        this.deletionQueue[i] = true
-      }
-    })
-
-    _.each(this.classQueue, (_, i) => {
-      i = +i
-
-      if (i <= fromLine || i >= toLine) {
-        delete this.classQueue[i]
-      }
-    })
-
-    for (let i = fromLine; i <= toLine; i++) {
-      const text = cm.getRange({line: i, ch: 0}, {line: i, ch: MAX_GUIDE_DEPTH + 1})
-
-      let className
-
-      // If empty line, use previous line's indent count
-      if (text === '') {
-        className = this.classQueue[i - 1] || this.lineCache[i - 1]
-
-      // Else, count indentation and determine className
-      } else {
-        const whitespace = text.search(/\S|$/) + 1
-        const indentCount = Math.floor(whitespace / this.indentSize) * this.indentSize
-        className = 'cm-indent-guide-' + indentCount
-      }
-
-      // Add the className to the queue, if it doesn't already exist
-      if (className &&
-          className !== this.classQueue[i] &&
-          (className !== this.lineCache[i] || this.deletionQueue[i])) {
-
-        this.classQueue[i] = className
-      }
-    }
-
-    if (_.size(this.classQueue) || _.size(this.deletionQueue)) {
-      window.requestAnimationFrame(this.updateClasses.bind(this, cm))
-    }
-  }
-
-  enqueueRemoveAllClasses(cm) {
-    this.classQueue = {}
-
-    // Mark all existing classes for deletion
-    Object.assign(this.deletionQueue, this.lineCache)
-
-    if (_.size(this.deletionQueue)) {
-      window.requestAnimationFrame(this.updateClasses.bind(this, cm))
-    }
-  }
-
-  enqueueViewportUpdate(cm) {
-    const {from, to} = cm.getViewport()
-    this.enqueueClassUpdates(cm, from, to)
-  }
-
-  viewportChange = (cm, fromLine, toLine) => {
-    this.enqueueClassUpdates(cm, fromLine, toLine)
-  }
-
-  // On change, invalidate all lines below the start of the change closest to
-  // the top of the file.
-  changes = (cm, changes) => {
-    const sortedChanges = _.sortBy(changes, ['from.line'])
-    const fromLine = sortedChanges[0].from.line
-
-    _.each(this.lineCache, (_, i) => {
-      i = +i
-
-      if (i >= fromLine) {
-        this.deletionQueue[i] = true
-      }
-    })
-
-    _.each(this.classQueue, (_, i) => {
-      i = +i
-
-      if (i >= fromLine) {
-        delete this.classQueue[i]
-      }
-    })
-
-    this.enqueueViewportUpdate(cm)
-  }
-
-  swapDoc = (cm) => {
-    this.classQueue = {}
-    this.enqueueViewportUpdate(cm)
   }
 
 }
