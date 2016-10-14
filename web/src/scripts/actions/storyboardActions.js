@@ -42,56 +42,54 @@ export const toggleStoryboardView = () => async (dispatch) => {
   })
 }
 
+const getImportedScenes = (storyboardCode, rootPath) => {
+  return storyUtils
+    .getFilePathsFromStoryboardCode(storyboardCode)
+    .map(({name, source}) => ({
+      id: name, // Used?
+      name,
+      source: path.join(rootPath, source),
+    }))
+}
+
+const getEntryName = (storyboardCode) => {
+  return storyUtils.getSceneInformationForStoryboardCode(storyboardCode).entry
+}
+
 const parseStoryboardCode = (storyboardCode, rootPath) => {
-  const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
-    directoryPath: rootPath,
-  })
-  const sceneInfo = storyUtils.getSceneInformationForStoryboardCode(storyboardCode)
-  return {sceneImports, sceneInfo}
+  const entry = getEntryName(storyboardCode)
+  const scenes = getImportedScenes(storyboardCode, rootPath)
+
+  return {entry, scenes}
 }
 
-const loadSceneImportFiles = (sceneImports, dispatch) => {
-  return Promise.all(_.map(sceneImports,
-    (sceneImport) => dispatch(editorActions.getDocument(sceneImport.source))
-  ))
+const loadSceneDocuments = (scenes, dispatch) => {
+  const loadScene = scene => dispatch(editorActions.getDocument(scene.source))
+
+  return Promise.all(scenes.map(loadScene))
 }
 
-const buildSceneConnections = (sceneImports, sceneImportsDocsById, sceneInfo) => {
-  return _.map(sceneImports, ({sceneName, source}) => {
-    const {code} = sceneImportsDocsById[source]
-    sceneInfo.scenes[sceneName].filePath = source
-    storyUtils.buildElementTree(code)
-    return {
-      connections: storyUtils.getConnectionsInCode(code),
-      sceneName,
-    }
-  })
+const buildSceneConnections = (sceneDecoDocs) => {
+  return _.chain(sceneDecoDocs)
+    .map(({code, id}) => storyUtils.getConnectionsInCode(code))
+    .flatten()
+    .value()
 }
 
 export const openStoryboard = (filepath) => async (dispatch, getState) => {
   const rootPath = getState().directory.rootPath
+
   // Open and parse storyboard file
-  const {code: storyboardCode} = await dispatch(editorActions.openDocument(filepath))
-  const {sceneImports, sceneInfo} = parseStoryboardCode(storyboardCode, rootPath)
+  const {code: storyboardCode} = await dispatch(editorActions.getDocument(filepath))
+  const {entry, scenes} = parseStoryboardCode(storyboardCode, rootPath)
 
-  // Load files from all scene imports into docs
-  const sceneImportDocs = await loadSceneImportFiles(sceneImports, dispatch)
-  const sceneImportsDocsById = _.keyBy(sceneImportDocs, 'id')
+  // Open imported scenes and parse their connections
+  const sceneDecoDocs = await loadSceneDocuments(scenes, dispatch)
+  const connections = buildSceneConnections(sceneDecoDocs)
 
-  // Build connections from scene files
-  const sceneConnections = buildSceneConnections(
-    sceneImports, sceneImportsDocsById, sceneInfo
-  )
-
-  // Need to match component info to sourceinfo.
-  // Update state of redux app, so Storyboard receives updates
   dispatch({
     type: at.OPEN_STORYBOARD,
-    payload: {
-      connections: sceneConnections,
-      scenes: sceneInfo.scenes,
-      entry: sceneInfo.entry,
-    },
+    payload: {entry, scenes, connections},
   })
 }
 
