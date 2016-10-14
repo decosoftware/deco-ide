@@ -118,6 +118,12 @@ class Storyboard extends Component {
     this.setState({viewport})
   }
 
+  createScene = () => this.props.storyboardActions.createScene(this.props.fileId)
+
+  deleteScene = (sceneId) => this.props.storyboardActions.deleteScene(this.props.fileId, sceneId)
+
+  updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
+
   render() {
     const {
       connections,
@@ -137,13 +143,13 @@ class Storyboard extends Component {
         <div style={styles.backdropContainer}>
           <div style={styles.backdrop} />
         </div>
-        <NewSceneButton onClick={storyboardActions.addScene.bind(this, fileId)}/>
+        <NewSceneButton onClick={this.createScene} />
         <YOPS
           style={styles.storyboard}
           connections={connections}
           scenes={_.keyBy(scenes, 'id')}
-          onDeleteScene={storyboardActions.deleteScene.bind(this, fileId)}
-          onClickScene={storyboardActions.updateEntryScene.bind(this, fileId)}
+          onDeleteScene={this.deleteScene}
+          onClickScene={this.updateEntryScene}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
           onViewportChange={this.onViewportChange}

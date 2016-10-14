@@ -106,7 +106,7 @@ const createNewSceneScaffold = (rootPath) => {
   return {name: newSceneName, filePath, text}
 }
 
-export const addScene = (storyboardPath) => async (dispatch, getState) => {
+export const createScene = (storyboardPath) => async (dispatch, getState) => {
   const {directory: {rootPath}} = getState()
 
   // Scaffold new scene and write to file
