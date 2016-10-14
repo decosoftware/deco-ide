@@ -121,11 +121,12 @@ class Storyboard extends Component {
   render() {
     const {
       connections,
+      fileId,
       scenes,
       storyboardActions,
       styles,
       storyboard,
-      yopsStyle
+      yopsStyle,
     } = this.props
     const {viewport} = this.state
     const syncServiceAddress = 'http://localhost:4082'
@@ -136,7 +137,7 @@ class Storyboard extends Component {
         <div style={styles.backdropContainer}>
           <div style={styles.backdrop} />
         </div>
-        <NewSceneButton onClick={storyboardActions.addScene}/>
+        <NewSceneButton onClick={storyboardActions.addScene.bind(this, fileId)}/>
         <YOPS
           style={styles.storyboard}
           connections={connections}

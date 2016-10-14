@@ -39,7 +39,7 @@ export default (state = initialState, action) => {
     case at.ADD_SCENE: {
       return update(state, {
         scenes: {
-          $merge: payload,
+          $push: [payload],
         },
       })
     }
