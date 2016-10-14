@@ -77,7 +77,6 @@ const mapDispatchToProps = (dispatch) => ({
 const mapStateToProps = (state) => createSelector(
   (state) => state.storyboard,
   (storyboard) => ({
-    storyboard: storyboard,
     connections: storyboard.connections,
     scenes: storyboard.scenes,
   })
@@ -115,18 +114,18 @@ class Storyboard extends Component {
     storyboardActions.openStoryboard(fileId)
   }
 
-  handleConnectionChange = (type, connections, elementId) => {
+  handleConnectionChange = (type, connections, elementId, filePath) => {
     switch (type) {
       case 'create': {
-        storyboardActions.addConnections(elementId, connections)
+        storyboardActions.addConnections(filePath, elementId, connections)
         break;
       }
       case 'update': {
-        storyboardActions.updateConnections(elementId, connections)
+        storyboardActions.updateConnections(filePath, elementId, connections)
         break;
       }
       case 'delete': {
-        storyboardActions.deleteConnections(elementId, connections)
+        storyboardActions.deleteConnections(filePath, elementId, connections)
         break;
       }
       default: {

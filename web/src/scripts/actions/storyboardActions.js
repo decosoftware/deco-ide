@@ -185,69 +185,39 @@ export const renameScene = (sceneId, newName) => async (dispatch) => {
 }
 
 const getLineFromElementId = (elementId) => {
-  return elementId.line
+  return elementId.start.line
 }
 
+// elementId = root.0.1.0.khjhsadf23423
+// where khjhsadf23423 is base64 encoded fileName
 const getPathFromElementId = (elementId) => {
   elementDotSplit = elementId.split('.')
-  return elementDotSplit.slice(1, elementDotSplit.length - 1).join('')
+  // slice root off the front and filename off the back
+  return '.' + elementDotSplit.slice(1, -1).join('')
 }
 
-const getFilenameFromElementId = (elementId) => {
-  return elementId.fileName
-}
-
-connections: {
-  [connectionid]: {
-    id:
-    component_id:
-    to:,
-    from:,
-  }
-
-}
-
-const setConnections = async (elementId, connections, storyboardFunc, actionType, dispatch, getState) => {
+const setConnections = async (filePath, elementId, connections, storyboardFunc, actionType, dispatch, getState) => {
   // CodeMod file to add Navigator.push("toScene")
   // storyUtils.getConnectionsInCode from the scene matching the file we codemod'd
-  //
-  const {elementTreeForFile} = getState().elementTree
-  console.log("elementId", elementId)
-  const element = ElementTreeUtils.getElementByPath(getPathFromElementId(elementId))
-  const {scenes} = getState().storyboard
-  // let connections = {}
+  const elementTree = getState().elementTree.elementTreeForFile[filePath]
+  const element = ElementTreeUtils.getElementByPath(elementTree, getPathFromElementId(elementId))
+  const {line} = element.start // 0 offset
 
   // some expensive shit in here. figure out smart element tree and file writing
   _.forEach(connections, async (conn) => {
-    const scene = scenes[conn.from]
-    if (!scene || !scene.filePath) return
-    const line = getLineFromElementId(elementId)
-    const fileName = getFilenameFromElementId(elementId)
-
-    // update file w/ push("toScene")
-    // onPress = () => NavigatorActions.push(toScene)
-    const decoDoc = await dispatch(editorActions.getDocument(scene.filePath))
+    // CodeMod file to add Navigator.push("toScene")
+    const decoDoc = await dispatch(editorActions.getDocument(filePath))
     const decoChange = storyboardFunc(decoDoc, line, conn.to)
     dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
     const newElementTree = storyUtils.buildElementTree(decoDoc.code)
-    ElementTreeActions.setElementTree(fileName, newElementTree)
-
-    // elementId root.0.1.0.kjkjk23j42k3lasdf
-
-    // capture connection to send to redux
-    _.set(connections, `${conn.from}.${elementId}.to`, conn.to)
-  })
-
-  console.log("new connections", connections)
-  dispatch({
-    type: actionType,
-    payload: connections,
+    ElementTreeActions.setElementTree(filePath, newElementTree)
   })
 }
 
-export const addConnections = (elementId, connections) => async (dispatch, getState) => {
+export const addConnections = (elementId, connections, filePath) => async (dispatch, getState) => {
   setConnections(
+    filePath,
     elementId,
     connections,
     StoryboardChangeFactory.addConnection,
@@ -257,8 +227,9 @@ export const addConnections = (elementId, connections) => async (dispatch, getSt
   );
 }
 
-export const updateConnections = (elementId, connections) => async (dispatch, getState) => {
+export const updateConnections = (elementId, connections, filePath) => async (dispatch, getState) => {
   setConnections(
+    filePath,
     elementId,
     connections,
     StoryboardChangeFactory.updateConnection,
@@ -268,11 +239,12 @@ export const updateConnections = (elementId, connections) => async (dispatch, ge
   );
 }
 
-export const deleteConnections = (elementId, connections) => async (dispatch, getState) => {
+export const deleteConnections = (elementId, connections, filePath) => async (dispatch, getState) => {
   setConnections(
+    filePath,
     elementId,
     connections,
-    StoryboardChangeFactory.updateConnection,
+    StoryboardChangeFactory.removeConnection,
     at.DELETE_CONNECTIONS,
     dispatch,
     getState

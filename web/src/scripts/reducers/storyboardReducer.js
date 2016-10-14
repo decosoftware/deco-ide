@@ -23,7 +23,7 @@ import * as ObjectUtils from '../utils/ObjectUtils'
 
 const initialState = {
   scenes: {},
-  connections: {},
+  connections: [],
   entry: "",
   shouldShow: false,
 }
