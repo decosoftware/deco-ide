@@ -42,60 +42,58 @@ export const toggleStoryboardView = () => async (dispatch) => {
   })
 }
 
+const getImportedScenes = (storyboardCode, rootPath) => {
+  return storyUtils
+    .getFilePathsFromStoryboardCode(storyboardCode)
+    .map(({name, source}) => ({
+      id: name, // Used?
+      name,
+      filePath: path.join(rootPath, source),
+    }))
+}
+
+const getEntryName = (storyboardCode) => {
+  return storyUtils.getSceneInformationForStoryboardCode(storyboardCode).entry
+}
+
 const parseStoryboardCode = (storyboardCode, rootPath) => {
-  const sceneImports = storyUtils.getFilePathsFromStoryboardCode(storyboardCode, {
-    directoryPath: rootPath,
-  })
-  const sceneInfo = storyUtils.getSceneInformationForStoryboardCode(storyboardCode)
-  return {sceneImports, sceneInfo}
+  const entry = getEntryName(storyboardCode)
+  const scenes = getImportedScenes(storyboardCode, rootPath)
+
+  return {entry, scenes}
 }
 
-const loadSceneImportFiles = (sceneImports, dispatch) => {
-  return Promise.all(_.map(sceneImports,
-    (sceneImport) => dispatch(editorActions.getDocument(sceneImport.source))
-  ))
+const loadSceneDocuments = (scenes, dispatch) => {
+  const loadScene = scene => dispatch(editorActions.getDocument(scene.filePath))
+
+  return Promise.all(scenes.map(loadScene))
 }
 
-const buildSceneConnections = (sceneImports, sceneImportsDocsById, sceneInfo) => {
-  return _.map(sceneImports, ({sceneName, source}) => {
-    const {code} = sceneImportsDocsById[source]
-    sceneInfo.scenes[sceneName].filePath = source
-    storyUtils.buildElementTree(code)
-    return {
-      connections: storyUtils.getConnectionsInCode(code),
-      sceneName,
-    }
-  })
+const buildSceneConnections = (sceneDecoDocs) => {
+  return _.chain(sceneDecoDocs)
+    .map(({code}) => storyUtils.getConnectionsInCode(code))
+    .flatten()
+    .value()
 }
 
-export const openStoryboard = (filepath) => async (dispatch, getState) => {
-  const rootPath = getState().directory.rootPath
+export const openStoryboard = (storyboardPath) => async (dispatch, getState) => {
+  const {directory: {rootPath}} = getState()
+
   // Open and parse storyboard file
-  const {code: storyboardCode} = await dispatch(editorActions.openDocument(filepath))
-  const {sceneImports, sceneInfo} = parseStoryboardCode(storyboardCode, rootPath)
+  const {code: storyboardCode} = await dispatch(editorActions.getDocument(storyboardPath))
+  const {entry, scenes} = parseStoryboardCode(storyboardCode, rootPath)
 
-  // Load files from all scene imports into docs
-  const sceneImportDocs = await loadSceneImportFiles(sceneImports, dispatch)
-  const sceneImportsDocsById = _.keyBy(sceneImportDocs, 'id')
+  // Open imported scenes and parse their connections
+  const sceneDecoDocs = await loadSceneDocuments(scenes, dispatch)
+  const connections = buildSceneConnections(sceneDecoDocs)
 
-  // Build connections from scene files
-  const sceneConnections = buildSceneConnections(
-    sceneImports, sceneImportsDocsById, sceneInfo
-  )
-
-  // Need to match component info to sourceinfo.
-  // Update state of redux app, so Storyboard receives updates
   dispatch({
     type: at.OPEN_STORYBOARD,
-    payload: {
-      connections: sceneConnections,
-      scenes: sceneInfo.scenes,
-      entry: sceneInfo.entry,
-    },
+    payload: {entry, scenes, connections},
   })
 }
 
-const createNewSceneScaffold = async (rootPath, dispatch) => {
+const createNewSceneScaffold = (rootPath) => {
   // Should decide how to name new scenes
   const newSceneName = `NewScene${Math.floor(Math.random()*1000)}`
 
@@ -104,85 +102,68 @@ const createNewSceneScaffold = async (rootPath, dispatch) => {
   const fileName = `${newSceneName}${scaffold.extname}`
   const text = scaffold.generate({name: newSceneName})
   const filePath = path.join(rootPath, fileName)
-  await dispatch(fileTreeCompositeActions.createFile(filePath, text))
 
-  return {newSceneName, filePath}
+  return {name: newSceneName, filePath, text}
 }
 
-export const addScene = () => async (dispatch, getState) => {
-  const {rootPath} = getState().directory
-  const {openDocId} = getState().editor
+export const createScene = (storyboardPath) => async (dispatch, getState) => {
+  const {directory: {rootPath}} = getState()
 
   // Scaffold new scene and write to file
-  const {newSceneName, filePath} = await createNewSceneScaffold(rootPath, dispatch)
+  const {name, filePath, text} = createNewSceneScaffold(rootPath)
+  await dispatch(fileTreeCompositeActions.createFile(filePath, text))
 
   // Update the .storyboard.js file with new lines:
-  // import NewScene from 'NewScene'
-  // SceneManager.registerScene("NewScene", NewScene)
-  const decoDoc = await dispatch(editorActions.getDocument(openDocId))
-  const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, newSceneName, `./${newSceneName}`)
+  // - import NewScene from 'NewScene'
+  // - SceneManager.registerScene("NewScene", NewScene)
+  const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
+  const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, name, `./${name}`)
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
-  // Update redux state of app so Storyboard component picks up changes
   dispatch({
     type: at.ADD_SCENE,
-    payload: {
-      [newSceneName]: {
-        id: newSceneName,
-        name: newSceneName,
-        filePath: filePath,
-      }
-    }
+    payload: {id: name, name, filePath}
   })
 }
 
-export const deleteScene = (sceneId) => async (dispatch, getState) => {
-  const {entry, scenes} = getState().storyboard
-  const scene = scenes[sceneId]
-  if (!scene || !scene.filePath) {
-    return
-  }
-  const {filePath, id, name} = scene
-  const {openDocId} = getState().editor
+export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getState) => {
+  const {storyboard: {entry, scenes}} = getState()
+
+  const {id, name, filePath} = scenes.find(x => x.id === sceneId)
 
   // Delete the file corresponding to the removed scene
   dispatch(fileTreeCompositeActions.deleteFile(filePath))
 
   // Remove scene references from .storyboard.js file:
-  // import NewScene from 'NewScene'
-  // SceneManager.registerScene("NewScene", NewScene)
-  const decoDoc = await dispatch(editorActions.getDocument(openDocId))
-  const removalDecoChange = StoryboardChangeFactory.removeSceneFromStoryboard(decoDoc, name, `./${name}`)
-  dispatch(textEditorCompositeActions.edit(decoDoc.id, removalDecoChange))
+  // - import NewScene from 'NewScene'
+  // - SceneManager.registerScene("NewScene", NewScene)
+  const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
+  const decoChange = StoryboardChangeFactory.removeSceneFromStoryboard(decoDoc, name, `./${name}`)
+  dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
-  // Update redux state of app so Storyboard component picks up changes
-  await dispatch({
-    type: at.DELETE_SCENE,
-    payload: id
-  })
+  await dispatch({type: at.DELETE_SCENE, payload: id})
 
-  // If the removed scene was previously the entry scene, try to set another
-  // scene to be entry
-  if (entry === sceneId) {
-    // We'll have to figure out generally what to do if a user puts the
-    // storyboard into a state like this (no scenes)
-    if (Object.keys(getState().storyboard.scenes).length === 0) return
+  // Get scenes remaining after the deletion
+  const remainingScenes = getState().storyboard.scenes
 
-    // Get a random remaining scene and replace the entry scene with it
-    const newEntryScene = _.map(scenes, 'name')[0]
-    const entryDecoChange = StoryboardChangeFactory.updateEntryScene(decoDoc, newEntryScene)
-    dispatch(textEditorCompositeActions.edit(decoDoc.id, entryDecoChange))
+  // If we removed the entry scene, and there are scenes remaining
+  if (entry === sceneId && remainingScenes.length > 0) {
+
+    // Choose the first scene, arbitrarily, as the new entry scene
+    dispatch(updateEntryScene(storyboardPath, remainingScenes[0].id))
   }
 }
 
-export const renameScene = (sceneId, newName) => async (dispatch) => {
-  const scene = getState().storyboard.scenes[sceneId]
-  if (!scene || !scene.filePath) {
-    return
-  }
-  const {filePath} = scene
-  const ext = path.extname(filePath)
-  dispatch(fileTreeCompositeActions.renameFile(filePath, path.join(rootPath, `${newName}${ext}`)))
+export const renameScene = (storyboardPath, sceneId, newName) => async (dispatch) => {
+  const scenes = getState().storyboard.scenes
+  const scene = scenes.find(x => x.id === sceneId)
+
+  // Swap scene names in the file path
+  const {filePath, name} = scene
+  const nameIndex = filePath.lastIndexOf(name)
+  const newFilePath = filePath.slice(0, nameIndex) + newName + filePath.slice(nameIndex + name.length)
+
+  dispatch(fileTreeCompositeActions.renameFile(filePath, newFilePath))
 }
 
 export const addConnection = () => async (dispatch) => {
@@ -197,27 +178,29 @@ export const deleteConnection = () => async (dispatch) => {
   dispatch({type: at.DELETE_CONNECTION})
 }
 
-const setEntryScene = async (sceneId, dispatch, getState, decoChangeFunc) => {
-  const scene = getState().storyboard.scenes[sceneId]
+const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, getState) => {
+  const scenes = getState().storyboard.scenes
+  const scene = scenes.find(x => x.id === sceneId)
+
   if (!scene) return
 
-  // Add or update entry scene in storyboard file
-  const {openDocId} = getState().editor
-  const decoDoc = await dispatch(editorActions.getDocument(openDocId))
-  const decoChange = decoChangeFunc(decoDoc, scene.name)
+  const {id, name} = scene
+  const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
+
+  const decoChange = operation === 'add' ?
+    StoryboardChangeFactory.addEntryScene(decoDoc, name) :
+    StoryboardChangeFactory.updateEntryScene(decoDoc, name)
+
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
   // Update entry scene in redux store
-  dispatch({
-    type: at.SET_ENTRY_SCENE,
-    payload: scene.id,
-  })
+  dispatch({type: at.SET_ENTRY_SCENE, payload: scene.id})
 }
 
-export const addEntryScene = (sceneId) => async (dispatch, getState) => {
-  setEntryScene(sceneId, dispatch, getState, StoryboardChangeFactory.addEntryScene)
+export const addEntryScene = (storyboardPath, sceneId) => async (dispatch) => {
+  dispatch(setEntryScene(storyboardPath, sceneId, 'add'))
 }
 
-export const updateEntryScene = (sceneId) => async (dispatch, getState) => {
-  setEntryScene(sceneId, dispatch, getState, StoryboardChangeFactory.updateEntryScene)
+export const updateEntryScene = (storyboardPath, sceneId) => async (dispatch) => {
+  dispatch(setEntryScene(storyboardPath, sceneId, 'update'))
 }

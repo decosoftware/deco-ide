@@ -77,7 +77,6 @@ const mapDispatchToProps = (dispatch) => ({
 const mapStateToProps = (state) => createSelector(
   (state) => state.storyboard,
   (storyboard) => ({
-    storyboard: storyboard,
     connections: storyboard.connections,
     scenes: storyboard.scenes,
   })
@@ -119,14 +118,21 @@ class Storyboard extends Component {
     this.setState({viewport})
   }
 
+  createScene = () => this.props.storyboardActions.createScene(this.props.fileId)
+
+  deleteScene = (sceneId) => this.props.storyboardActions.deleteScene(this.props.fileId, sceneId)
+
+  updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
+
   render() {
     const {
       connections,
+      fileId,
       scenes,
       storyboardActions,
       styles,
       storyboard,
-      yopsStyle
+      yopsStyle,
     } = this.props
     const {viewport} = this.state
     const syncServiceAddress = 'http://localhost:4082'
@@ -137,13 +143,13 @@ class Storyboard extends Component {
         <div style={styles.backdropContainer}>
           <div style={styles.backdrop} />
         </div>
-        <NewSceneButton onClick={storyboardActions.addScene}/>
+        <NewSceneButton onClick={this.createScene} />
         <YOPS
           style={styles.storyboard}
           connections={connections}
-          scenes={scenes}
-          onDeleteScene={storyboardActions.deleteScene}
-          onClickScene={storyboardActions.updateEntryScene}
+          scenes={_.keyBy(scenes, 'id')}
+          onDeleteScene={this.deleteScene}
+          onClickScene={this.updateEntryScene}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
           onViewportChange={this.onViewportChange}

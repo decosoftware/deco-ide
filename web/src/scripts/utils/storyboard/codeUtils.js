@@ -1,26 +1,32 @@
 import _ from 'lodash'
 import ElementTreeBuilder from '../ElementTreeBuilder'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
-const path = Electron.remote.require('path')
 
 /**
- * Takes a relative path from an import and, optionally, a root
- * directory path. Returns an absolute file path.
+ * Takes a name or relative path and returns a relative path with a .js extension
  * './Buddy' -> 'Buddy.js' or '/Users/gabe/Code/Buddy.js'
  */
-const formatFilePaths = (filepath, options = {}) => {
+const relativize = (filepath) => {
   let formedPath = filepath
-  if (formedPath.indexOf('./') != -1) {
+
+  // Strip './' if present
+  if (formedPath.startsWith('./')) {
     formedPath = formedPath.slice(2)
   }
-  if (formedPath.indexOf('.js') == -1) {
-    if (formedPath[formedPath.length - 1] == '/') {
-      formedPath = formedPath.slice(0, formedPath.length - 1)
+
+  // If no .js ending
+  if (formedPath.indexOf('.js') === -1) {
+
+    // Remove an ending '/' if present
+    if (formedPath.endsWith('/')) {
+      formedPath = formedPath.slice(0, -1)
     }
+
+    // Add the .js extension
     formedPath += '.js'
   }
 
-  return options.directoryPath ? path.join(options.directoryPath, formedPath) : formedPath
+  return formedPath
 }
 
 /**
@@ -28,45 +34,36 @@ const formatFilePaths = (filepath, options = {}) => {
  * to return a list of filepaths to load in with their respective
  * scene code
  */
-export const getFilePathsFromStoryboardCode = (code, options) => {
-  const scenes = {}
-  CodeMod(code).getAllImports()
+export const getFilePathsFromStoryboardCode = (code) => {
+  return CodeMod(code).getAllImports()
     .filter((_import) => _import.source != 'deco-sdk')
-    .forEach((sceneImport) => {
-      const filepath = _.get(sceneImport, 'source')
-      const formattedPath = formatFilePaths(filepath, options)
-      scenes[formattedPath] = {
-        sceneName: _.get(sceneImport, 'identifiers[0].value'),
-        source: formattedPath,
-      }
-    })
-  return scenes
+    .map((sceneImport) => ({
+      name: _.get(sceneImport, 'identifiers[0].value'),
+      source: relativize(sceneImport.source),
+    }))
 }
 
 /**
- * Takes thes scene code and looks for the push and the pops
+ * Takes the scene code and looks for the push and the pops
  */
 export const getConnectionsInCode = (code) => {
   const mod = CodeMod(code)
-  const pushes = mod.getAllMatchingFunctionCalls(
-    'NavigatorActions',
-    'push'
-  )
-  const pops = mod.getAllMatchingFunctionCalls(
-    'NavigatorActions',
-    'pop'
-  )
-  const connectionsTo = pushes.map(({args, source}) => ({
+
+  const pushCalls = mod.getAllMatchingFunctionCalls('NavigatorActions', 'push')
+  const popCalls = mod.getAllMatchingFunctionCalls('NavigatorActions', 'pop')
+
+  const pushes = pushCalls.map(({args, source}) => ({
+    type: 'push',
     source,
     to: _.get(args, '[0].value')
   }))
-  const connectionsPop = pops.map(({args, source}) => ({
+
+  const pops = popCalls.map(({args, source}) => ({
+    type: 'pop',
     source,
   }))
-  return {
-    pushes: connectionsTo,
-    pops: connectionsPop
-  }
+
+  return [...pushes, ...pops]
 }
 
 export const buildElementTree = (code) => {
@@ -78,24 +75,13 @@ export const buildElementTree = (code) => {
  */
 export const getSceneInformationForStoryboardCode = (code) => {
   const mod = new CodeMod(code)
-  const entryCall = mod.getAllMatchingFunctionCalls(
-    'SceneManager',
-    'registerEntryScene'
-  )
-  const entryScene = _.get(entryCall, '[0].args[0].value')
-  const scenes = {}
-  mod.getAllMatchingFunctionCalls(
-    'SceneManager',
-    'registerScene'
-  ).forEach((sceneCall) => {
-    const sceneName = _.get(sceneCall, 'args[1].value')
-    scenes[sceneName] = {
-      id: sceneName,
-      name: sceneName,
-    }
-  })
-  return {
-    entry: entryScene,
-    scenes,
-  }
+
+  const entryCall = mod.getAllMatchingFunctionCalls('SceneManager', 'registerEntryScene')
+  const entryName = _.get(entryCall, '[0].args[0].value')
+
+  const scenes = mod
+    .getAllMatchingFunctionCalls('SceneManager', 'registerScene')
+    .map((sceneCall) => _.get(sceneCall, 'args[1].value'))
+
+  return {entry: entryName, scenes}
 }
