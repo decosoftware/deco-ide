@@ -142,8 +142,8 @@ class Storyboard extends Component {
           style={styles.storyboard}
           connections={connections}
           scenes={_.keyBy(scenes, 'id')}
-          onDeleteScene={storyboardActions.deleteScene}
-          onClickScene={storyboardActions.updateEntryScene}
+          onDeleteScene={storyboardActions.deleteScene.bind(this, fileId)}
+          onClickScene={storyboardActions.updateEntryScene.bind(this, fileId)}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
           onViewportChange={this.onViewportChange}

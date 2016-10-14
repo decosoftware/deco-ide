@@ -3,7 +3,7 @@ import ElementTreeBuilder from '../ElementTreeBuilder'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 
 /**
- * Takes a relative path from an import and returns an absolute file path.
+ * Takes a name or relative path and returns a relative path with a .js extension
  * './Buddy' -> 'Buddy.js' or '/Users/gabe/Code/Buddy.js'
  */
 const relativize = (filepath) => {
@@ -34,7 +34,7 @@ const relativize = (filepath) => {
  * to return a list of filepaths to load in with their respective
  * scene code
  */
-export const getFilePathsFromStoryboardCode = (code, rootPath) => {
+export const getFilePathsFromStoryboardCode = (code) => {
   return CodeMod(code).getAllImports()
     .filter((_import) => _import.source != 'deco-sdk')
     .map((sceneImport) => ({

@@ -45,9 +45,11 @@ export default (state = initialState, action) => {
     }
 
     case at.DELETE_SCENE: {
+      const {scenes} = state
+
       return update(state, {
         scenes: {
-          $set: _.omit(state.scenes, payload),
+          $set: scenes.filter(x => x.id !== payload),
         },
       })
     }
