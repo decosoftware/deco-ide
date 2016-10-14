@@ -25,7 +25,7 @@ test('adds prop to jsx element with newlines', () => {
   expect(output).toBe(`<Buddy color={"red"} \nsize={"bsdfig"} \nname={"gabe"}\n></Buddy>`)
 })
 
-test('gets fucked', () => {
+test('might break', () => {
   const mod = CodeMod('<Buddy onClick={() => {\nconsole.log("hehe")}} name={"gabe"}\n></Buddy>')
   const output = mod.addJSXAttribute(
     1, 'color', {type: 'Literal', value: 'red'}

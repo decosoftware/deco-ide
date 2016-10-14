@@ -184,10 +184,6 @@ export const renameScene = (sceneId, newName) => async (dispatch) => {
   dispatch(fileTreeCompositeActions.renameFile(filePath, path.join(rootPath, `${newName}${ext}`)))
 }
 
-const getLineFromElementId = (elementId) => {
-  return elementId.start.line
-}
-
 // elementId = root.0.1.0.khjhsadf23423
 // where khjhsadf23423 is base64 encoded fileName
 const getPathFromElementId = (elementId) => {

@@ -18,8 +18,6 @@
 import update from 'react-addons-update'
 import _ from 'lodash'
 import { storyboardConstants as at } from '../actions'
-import shallowEqual from '../utils/dev/shallowEqual'
-import * as ObjectUtils from '../utils/ObjectUtils'
 
 const initialState = {
   scenes: {},
@@ -27,15 +25,6 @@ const initialState = {
   entry: "",
   shouldShow: false,
 }
-
-// const getPrunedConnections = (connections, connectionsToRemove) => {
-//   const flattenedConnectionsToRemove = _.map(connectionsToRemove, ObjectUtils.flatten)
-//   const flattenedConnections = _.map(connections, ObjectUtils.flatten)
-//   ObjectUtils.shallowDiff(flattenedConnections, flattenedConnectionsToRemove).forEach(
-//     (conn) => delete flattenedConnections[conn]
-//   ))
-//   return ObjectUtils.unflatten(flattenedConnections)
-// }
 
 export default (state = initialState, action) => {
   const {type, payload} = action
@@ -67,24 +56,6 @@ export default (state = initialState, action) => {
       return update(state, {
         shouldShow: {
           $set: !state.shouldShow,
-        },
-      })
-    }
-
-    case at.SET_CONNECTIONS: {
-      return update(state, {
-        connections: {
-          $merge: action.payload,
-        },
-      })
-    }
-
-    case at.DELETE_CONNECTIONS: {
-      // const updatedConnections = getPrunedConnections(state.connections, action.payload);
-      const updatedConnections = {};
-      return update(state, {
-        connections: {
-          $set: updatedConnections,
         },
       })
     }
