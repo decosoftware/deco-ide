@@ -162,8 +162,7 @@ export const registerLoader = () => {
   const loaderFilter = (uri, state) => {
     return (
       (uri.startsWith('file://') && uri.endsWith('.storyboard.js')) ||
-      URIUtils.getParam(uri, 'loader') === loaderId ||
-      state.storyboard.shouldShow
+      URIUtils.getParam(uri, 'loader') === loaderId
     )
   }
 

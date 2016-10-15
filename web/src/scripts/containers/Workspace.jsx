@@ -22,7 +22,7 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import WorkspaceEnhancer from 'react-workspace'
 
-import { uiActions, storyboardActions } from '../actions'
+import { uiActions } from '../actions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import * as WindowSizeUtils from '../utils/WindowSizeUtils'
@@ -106,7 +106,6 @@ const mapStateToProps = (state) => createSelector(
 
 const mapDispatchToProps = (dispatch) => ({
   uiActions: bindActionCreators(uiActions, dispatch),
-  storyboardActions: bindActionCreators(storyboardActions, dispatch)
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -185,7 +184,6 @@ export default class Workspace extends Component {
       decoDoc,
       width,
       height,
-      storyboardActions,
       projectNavigatorVisible,
     } = this.props
 
@@ -198,10 +196,7 @@ export default class Workspace extends Component {
 
     return (
       <div style={containerStyle}>
-        <WorkspaceToolbar
-          style={styles.toolbar}
-          onStoryboardToggle={storyboardActions.toggleStoryboardView}
-        />
+        <WorkspaceToolbar style={styles.toolbar} />
         <div style={styles.content} data-resizable>
           { projectNavigatorVisible && (
             <div style={styles.leftPane} data-resizable>
