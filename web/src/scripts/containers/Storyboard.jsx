@@ -75,11 +75,7 @@ const mapDispatchToProps = (dispatch) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
-  (state) => state.storyboard,
-  (storyboard) => ({
-    connections: storyboard.connections,
-    scenes: storyboard.scenes,
-  })
+  (state) => ({})
 )
 
 @StylesEnhancer(stylesCreator)
@@ -126,9 +122,7 @@ class Storyboard extends Component {
 
   render() {
     const {
-      connections,
       fileId,
-      scenes,
       storyboardActions,
       styles,
       storyboard,
@@ -146,8 +140,6 @@ class Storyboard extends Component {
         <NewSceneButton onClick={this.createScene} />
         <YOPS
           style={styles.storyboard}
-          connections={connections}
-          scenes={_.keyBy(scenes, 'id')}
           onDeleteScene={this.deleteScene}
           onClickScene={this.updateEntryScene}
           syncServiceAddress={syncServiceAddress}

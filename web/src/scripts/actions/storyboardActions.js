@@ -17,6 +17,7 @@
 
 import _ from 'lodash'
 import path from 'path'
+import { storyboardActions } from 'yops'
 
 import * as editorActions from '../actions/editorActions'
 import * as storyUtils from '../utils/storyboard'
@@ -91,6 +92,9 @@ export const openStoryboard = (storyboardPath) => async (dispatch, getState) => 
     type: at.OPEN_STORYBOARD,
     payload: {entry, scenes, connections},
   })
+
+  storyboardActions.setScenes(_.keyBy(scenes, 'id'))
+  storyboardActions.setConnections(connections)
 }
 
 const createNewSceneScaffold = (rootPath) => {
@@ -124,6 +128,8 @@ export const createScene = (storyboardPath) => async (dispatch, getState) => {
     type: at.ADD_SCENE,
     payload: {id: name, name, filePath}
   })
+
+  storyboardActions.addScene({id: name, name, filePath})
 }
 
 export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getState) => {
@@ -142,6 +148,8 @@ export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getStat
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
   await dispatch({type: at.DELETE_SCENE, payload: id})
+
+  storyboardActions.deleteScene(id)
 
   // Get scenes remaining after the deletion
   const remainingScenes = getState().storyboard.scenes

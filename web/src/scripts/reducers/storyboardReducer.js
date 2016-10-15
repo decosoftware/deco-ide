@@ -20,8 +20,8 @@ import _ from 'lodash'
 import { storyboardConstants as at } from '../actions'
 
 const initialState = {
-  scenes: {},
-  connections: {},
+  scenes: [],
+  connections: [],
   entry: "",
   shouldShow: false,
 }
