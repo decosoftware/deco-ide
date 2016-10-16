@@ -24,10 +24,9 @@ import FileTree from 'react-file-tree'
 import path from 'path'
 
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-import { tabActions, textEditorCompositeActions } from '../actions'
+import { tabActions, textEditorCompositeActions, compositeFileActions } from '../actions'
 import * as fileActions from '../actions/fileActions'
 import * as fileTreeCompositeActions from '../actions/fileTreeCompositeActions'
-import * as compositeFileActions from '../actions/compositeFileActions'
 import * as uiActions from '../actions/uiActions'
 import { fileTreeController, PLUGINS } from '../filetree'
 import { showContextMenu } from '../filetree/contextMenu'
@@ -83,7 +82,7 @@ class ProjectNavigator extends Component {
     this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(filepath))
   }
 
-  onNameFile = (dirpath, scaffoldId, filename) => {
+  onNameFile = async (dirpath, scaffoldId, filename) => {
     let text = ''
 
     if (typeof scaffoldId !== 'undefined') {
@@ -91,7 +90,10 @@ class ProjectNavigator extends Component {
       text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
     }
 
-    this.props.fileTreeCompositeActions.createFile(path.join(dirpath, filename), text)
+    const filepath = path.join(dirpath, filename)
+
+    await this.props.fileTreeCompositeActions.createFile(filepath, text)
+    this.props.compositeFileActions.openFile(filepath)
   }
 
   onCreateFile = (node, scaffoldId) => {

@@ -101,7 +101,6 @@ export const createFile = (filePath, content = '') => async (dispatch) => {
   FileTreeActions.expandNode(parentPath)
 
   dispatch(registerPath(filePath))
-  dispatch(openFile(filePath))
 }
 
 export const createDir = (dirPath) => {

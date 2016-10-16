@@ -10,7 +10,7 @@ const MenuItem = remote.MenuItem
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
-import { tabActions, fileActions } from '../actions'
+import { tabActions, fileActions, compositeFileActions } from '../actions'
 import { fileTreeController as controller } from './index'
 import {
   renameFile,
@@ -105,9 +105,11 @@ const buildDirectoryMenu = (dispatch, node) => {
       click: () => {
         dispatch(ShowNamingBanner({
           bannerText: `Create new file in ${name}`,
-          onTextDone: (fileName) => {
+          onTextDone: async (fileName) => {
             const newFilePath = path.join(dirPath, fileName)
-            dispatch(createFile(newFilePath))
+
+            await dispatch(createFile(newFilePath))
+            dispatch(compositeFileActions.openFile(newFilePath))
           }
         }))
       }
