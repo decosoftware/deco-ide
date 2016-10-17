@@ -24,7 +24,6 @@ import historyReducer from './historyReducer'
 import metadataReducer from './metadata/metadataReducer'
 import uiReducer from './uiReducer'
 import preferencesReducer from './preferencesReducer'
-import storyboard from './storyboardReducer'
 import modules from './moduleReducer'
 import components from './componentReducer'
 import user from './userReducer'
@@ -45,7 +44,6 @@ const rootReducer = combineReducers({
   user,
   ast,
   elementTree,
-  storyboard,
 })
 
 export default rootReducer

@@ -90,23 +90,19 @@ const emptySimulatorMenuStyle = {
 }
 
 class WorkspaceToolbar extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      storyboardOpen: false,
-    }
 
-    this.discussMenuOptions = [
-      {
-        text: 'Open Deco Slack',
-        action: this._openDiscuss.bind(this)
-      },
-      {
-        text: 'Create Slack Account',
-        action: this._openCreateDiscussAccount.bind(this)
-      },
-    ]
-  }
+  state = {}
+
+  discussMenuOptions = [
+    {
+      text: 'Open Deco Slack',
+      action: this._openDiscuss.bind(this)
+    },
+    {
+      text: 'Create Slack Account',
+      action: this._openCreateDiscussAccount.bind(this)
+    },
+  ]
 
   _processStatusToButtonState(statusType) {
     switch(statusType) {
@@ -185,11 +181,6 @@ class WorkspaceToolbar extends Component {
     )
   }
 
-  _toggleStoryboard = () => {
-    this.props.onStoryboardToggle()
-    this.setState({storyboardOpen: !this.state.storyboardOpen})
-  }
-
   // RENDER
   _renderLeftSection() {
     return (
@@ -238,14 +229,6 @@ class WorkspaceToolbar extends Component {
               pressed={this.state.discussMenuOpen}
             />
           </DropdownMenuButton>
-        </ToolbarButtonGroup>
-        <ToolbarButtonGroup
-          style={separatorSmallStyle}>
-          <ToolbarButton
-            text={'Storyboard'}
-            icon={'project'}
-            onClick={this._toggleStoryboard}
-            pressed={this.state.storyboardOpen} />
         </ToolbarButtonGroup>
       </div>
     )
