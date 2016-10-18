@@ -20,14 +20,8 @@ import path from 'path'
 
 import _ from 'lodash'
 
-import {
-  INTERNAL_LIB_FOLDER,
-  NODE_BINARIES,
-} from '../constants/DecoPaths'
-
 import Logger from '../log/logger'
-
-const FORK_SYNC_SERVICE = 'Scripts/sync-service'
+import Simulacra from 'deco-simulacra'
 
 class SyncServiceController {
   constructor() {
@@ -48,13 +42,7 @@ class SyncServiceController {
     }
   }
   start = () => {
-    this.syncService = child_process.fork('index', [], {
-      cwd: path.join(INTERNAL_LIB_FOLDER, FORK_SYNC_SERVICE),
-      env: {
-        ...process.env,
-        PATH: `${process.env.PATH}:${NODE_BINARIES}`
-      }
-    })
+    this.syncService = Simulacra.run()
     this.syncService.on('error', (err) => {
       closeService()
       this.start()
