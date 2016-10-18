@@ -35,14 +35,4 @@ describe('Toolbar', function() {
       .then(() => client.leftClick('#simulator-btn', 10, 10)) // aim carefully to avoid clicking the popover
       .then(() => expect(client.isExisting('#simulator-menu')).to.eventually.be.false)
   })
-
-  it('opens and closes the inspector', function() {
-    const client = this.app.client
-    return Promise.resolve()
-      .then(() => expect(client.isExisting('.inspector')).to.eventually.be.true)
-      .then(() => client.click('#properties-btn'))
-      .then(() => expect(client.isExisting('.inspector')).to.eventually.be.false)
-      .then(() => client.click('#properties-btn'))
-      .then(() => expect(client.isExisting('.inspector')).to.eventually.be.true)
-  })
 })
