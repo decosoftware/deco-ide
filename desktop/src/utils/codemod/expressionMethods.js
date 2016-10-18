@@ -7,6 +7,7 @@ import {
   createExpressionStatement,
   findCommentMarker,
   addNodeAtIndex,
+  addCommentsToNodeIndex,
 } from './helpers'
 
 const getObject = (node) => (
@@ -90,11 +91,18 @@ export const addFunctionCall = function(object, property, args, options = {}) {
   // Let's do this the correct way with insertBefore, etc and
   // generally smarter logic on all these inserts
   let newFunctionIndex = body.length - 1
+
+  // least precedent
   if (rangeOfLastMatching) {
     newFunctionIndex = _.map(body, 'range').indexOf(rangeOfLastMatching) + 1
   }
+  // next highest precedence
   if (options.afterCommentMatching) {
     newFunctionIndex = findCommentMarker(body, options.afterCommentMatching)
+  }
+  // highest precedence
+  if (options.appendToBody) {
+    newFunctionIndex = body.length
   }
 
   const node = createExpressionStatement(object, property, args)
@@ -129,19 +137,30 @@ export const updateFunctionCall = function(object, property, args) {
  * @param Same as addFunctionCall
  * @return Same as addFunctionCall
  */
-export const removeFunctionCall = function(object, property, args) {
+export const removeFunctionCall = function(object, property, args, options = {}) {
   const program = _.get(this.nodes(), '[0].program', {})
+  let comments = []
+  let earliestFilteredIndex = -1
   if (program.body) {
-    program.body = program.body.filter((node) => {
+    program.body = program.body.filter((node, i) => {
       if (node.type == 'ExpressionStatement') {
         const { sameObject, sameProperty, sameArgs, } = getSimilarity(
           node.expression, object, property, args
         )
-        return (!sameObject || !sameProperty || !sameArgs)
+        const keepNode = (!sameObject || !sameProperty || !sameArgs)
+
+        if (options.preserveComments && !keepNode) {
+          if (earliestFilteredIndex < 0) earliestFilteredIndex = i
+          comments = comments.concat(node.comments || [])
+        }
+        return keepNode
       }
       return true
     })
+
+    addCommentsToNodeIndex(program.body, earliestFilteredIndex, comments)
   }
+
   return this
 }
 

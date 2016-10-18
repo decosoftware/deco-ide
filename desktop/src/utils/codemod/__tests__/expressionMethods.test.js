@@ -203,3 +203,25 @@ Happy.wat("idkman");
 
 Happy.funTimes("nomo");`)
 })
+
+test('remove function call after comment', () => {
+  const mod = CodeMod(`
+Happy.funTimes("fosho")
+
+//comment
+Happy.wat("idkman");
+
+Happy.funTimes("nomo");`)
+  const output = mod.removeFunctionCall(
+    'Happy', 'wat', [{
+      type: 'Literal', value: 'idkman'
+    }], {
+      preserveComments: true,
+    }
+  ).toSource()
+  expect(output).toBe(`
+Happy.funTimes("fosho")
+
+//comment
+Happy.funTimes("nomo");`)
+})

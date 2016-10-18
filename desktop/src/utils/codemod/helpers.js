@@ -4,11 +4,27 @@ import _ from 'lodash'
 export const findCommentMarker = (nodes, matchString) => {
   let match = -1
   _.each(nodes, (node, i) => {
-    if(node.comments && node.comments[0].value.indexOf(matchString) != -1) {
+    if(node.comments &&
+       node.comments.length != 0 &&
+       node.comments[0].value.indexOf(matchString) != -1) {
       match = i
     }
   })
   return match
+}
+
+export const addCommentsToNodeIndex = (nodes, index, comments) => {
+  if (index >= 0 && comments.length > 0) {
+    if (nodes.length <= index) {
+      index = nodes.length - 1
+    }
+    const prevComments = nodes[index].comments
+    nodes[index].comments = prevComments ? (
+      prevComments.concat(comments)
+    ) : (
+      comments
+    )
+  }
 }
 
 export const createArgumentNodes = (args = []) => args.map((arg) => {
@@ -72,11 +88,11 @@ export const inverseCreateArgumentNodes = (args = []) => args.map((arg) => {
 export const addNodeAtIndex = (nodes, node, i) => {
   // -1 we append to the end
   if (i == -1) {
-    i = nodes.length - 1
+    i = nodes.length
   }
 
   //if we're potentially replacing a node then we transfer the leading comment
-  if (nodes.length != 0) {
+  if (nodes.length != 0 && i != nodes.length) {
     const comment = nodes[i].comments && nodes[i].comments[0]
     if (comment) {
       nodes[i].comments = nodes[i].comments.slice(1)

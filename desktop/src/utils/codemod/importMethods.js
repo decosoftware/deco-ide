@@ -1,5 +1,6 @@
 import j from 'jscodeshift'
 import _ from 'lodash'
+import { addNodeAtIndex, addCommentsToNodeIndex } from './helpers'
 
 const getProgram = (ast) => {
   if (ast.nodes().length == 0 || !_.get(ast.nodes(), '[0].program')) {
@@ -71,7 +72,7 @@ export const addImport = function(defaultImport, namedImports, importSource) {
     const lastImportRange = getLastImportRange(this)
     const body = _.get(this.nodes(), '[0].program.body')
     node = createImportDeclaration(defaultImport, namedImports, importSource)
-    body.unshift(node)
+    addNodeAtIndex(body, node, 0)
   }
   return this
 }
@@ -103,14 +104,22 @@ export const updateImport = function(defaultImport, namedImports, importSource) 
  * @param  {String} importSource string to use for import source
  * @return {Collection}                    Updated Collection object
  */
-export const removeImport = function(importSource) {
+export const removeImport = function(importSource, options = {}) {
   const program = getProgram(this)
+  let comments = []
+  let earliestFilteredIndex = -1
   if (program.body) {
-    program.body = program.body.filter((node) => {
-      return (node.type !== 'ImportDeclaration' ||
+    program.body = program.body.filter((node, i) => {
+      const keepNode = (node.type !== 'ImportDeclaration' ||
               node.source.value !== importSource)
+      if (!keepNode && options.preserveComments) {
+        if (earliestFilteredIndex < 0) earliestFilteredIndex = i
+        comments = comments.concat(node.comments || [])
+      }
+      return keepNode
     })
   }
+  addCommentsToNodeIndex(program.body, earliestFilteredIndex, comments)
   return this
 }
 
