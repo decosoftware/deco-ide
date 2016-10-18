@@ -56,9 +56,7 @@ const createImportDeclaration = (defaultImport, namedImports, importSource) => {
 }
 
 /**
- * Adds an import to the top of the AST's program body if no
- * imports exist already. Otherwise, adds an import immediately after
- * the last import in a file.
+ * Adds an import to the top of the AST's program body
  * If this particular import already exists, nothing happens.
  *
  * @param  {String} defaultImport      name of the defaultImport variable
@@ -72,12 +70,8 @@ export const addImport = function(defaultImport, namedImports, importSource) {
   if (!node) {
     const lastImportRange = getLastImportRange(this)
     const body = _.get(this.nodes(), '[0].program.body')
-    let newImportIndex = 0
-    if (lastImportRange) {
-      newImportIndex = _.map(body, 'range').indexOf(lastImportRange) + 1
-    }
     node = createImportDeclaration(defaultImport, namedImports, importSource)
-    body.splice(newImportIndex, 0, node)
+    body.unshift(node)
   }
   return this
 }
