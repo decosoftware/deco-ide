@@ -64,7 +64,7 @@ class ProjectNavigator extends Component {
   }
 
   componentWillMount() {
-    this.showContextMenu = showContextMenu.bind(this, this.props.dispatch)
+    this.showContextMenu = showContextMenu.bind(this, this.props.dispatch, this.props.rootPath)
   }
 
   onSelectFile = (e, node, nodeMetadata, index) => {

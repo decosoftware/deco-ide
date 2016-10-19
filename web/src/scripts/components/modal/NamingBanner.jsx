@@ -52,11 +52,12 @@ class NamingBanner extends Component {
     inputElement.focus()
 
     if (value !== '') {
+      let start = value.lastIndexOf('/') + 1 // works correctly when index is -1 too
       let end = value.lastIndexOf('.')
       if (end === -1) {
         end = value.length
       }
-      inputElement.setSelectionRange(0, end)
+      inputElement.setSelectionRange(start, end)
     }
   }
   render() {

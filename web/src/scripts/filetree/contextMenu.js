@@ -26,17 +26,17 @@ import {
 
 import NamingBanner from '../components/modal/NamingBanner'
 
-export const showContextMenu = (dispatch, e, node, nodeMetadata, index) => {
+export const showContextMenu = (dispatch, rootPath, e, node, nodeMetadata, index) => {
   e.preventDefault()
   const { type } = node
-  buildMenu(type, dispatch, node).popup(remote.getCurrentWindow())
+  buildMenu(type, dispatch, rootPath, node).popup(remote.getCurrentWindow())
 }
 
 const ShowNamingBanner = (props) => {
   return pushModal(<NamingBanner {...props} />, true)
 }
 
-const buildFileMenu = (dispatch, node) => {
+const buildFileMenu = (dispatch, rootPath, node) => {
   const { name, path: filePath, type } = node
   const uri = URIUtils.filePathToURI(filePath)
 
@@ -46,9 +46,9 @@ const buildFileMenu = (dispatch, node) => {
       click: () => {
         dispatch(ShowNamingBanner({
           bannerText: `Rename file ${name}`,
-          initialValue: name,
+          initialValue: path.relative(rootPath, filePath),
           onTextDone: (newPath) => {
-            const absoluteNewPath = path.join(path.dirname(filePath), newPath)
+            const absoluteNewPath = path.join(rootPath, newPath)
             dispatch(renameFile(filePath, absoluteNewPath))
           },
         }))
@@ -155,12 +155,12 @@ const buildDirectoryMenu = (dispatch, node) => {
   ]
 }
 
-const buildMenu = (type, dispatch, node) => {
+const buildMenu = (type, dispatch, rootPath, node) => {
   const _menu = new Menu()
   let menuItems = []
   switch (type) {
     case 'file':
-      menuItems = buildFileMenu(dispatch, node)
+      menuItems = buildFileMenu(dispatch, rootPath, node)
       break
     case 'directory':
       menuItems = buildDirectoryMenu(dispatch, node)
