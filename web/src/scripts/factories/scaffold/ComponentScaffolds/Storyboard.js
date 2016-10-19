@@ -28,5 +28,7 @@ export default {
  */
 import { Navigational, Adapters, SceneManager } from 'deco-sdk'
 Navigational.registerAdapter(Adapters.${adapter})
+
+export default SceneManager.getEntryScene()
 ` }
 ,}

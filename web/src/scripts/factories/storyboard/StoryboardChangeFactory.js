@@ -49,15 +49,21 @@ class StoryboardChangeFactory {
         }
       )
       .removeExports()
+      .addFunctionCall(
+        'SceneManager',
+        'registerEntryScene',
+        [{
+          type: 'Literal',
+          value: sceneName,
+        }],
+        { appendToBody: true, }
+      )
       .addExport(true, {
         type: 'CallExpression',
         expression: [
           'SceneManager',
-          'registerEntryScene',
-          [{
-            type: 'Literal',
-            value: sceneName,
-          }]
+          'getEntryScene',
+          []
         ]
       })
     } else {
@@ -88,7 +94,7 @@ class StoryboardChangeFactory {
     ).length
     //remove comment marker if this is the last comment
     const preserveComments = scenesRemaining > 1
-    const removeExport = scenesRemaining == 1
+    const removeEntryScene = scenesRemaining == 1
 
     mod.removeFunctionCall(
         'SceneManager',
@@ -100,26 +106,18 @@ class StoryboardChangeFactory {
         { preserveComments, }
       )
 
-    if (removeExport) {
-      mod.removeExports()
+    if (removeEntryScene) {
+      mod.removeFunctionCall(
+        'SceneManager',
+        'registerEntryScene'
+      )
     }
 
     return createChange(doc, mod)
   }
 
   static addEntryScene(doc, sceneName) {
-    const mod = CodeMod(doc.code).addExport(true, {
-      type: 'CallExpression',
-      expression: [
-        'SceneManager',
-        'registerEntryScene',
-        [{
-          type: 'Literal',
-          value: sceneName,
-        }]
-      ]
-    })
-    return createChange(doc, mod)
+    return StoryboardChangeFactory.updateEntryScene(doc, sceneName)
   }
 
   static removeEntryScene(doc, sceneName, projectName) {
@@ -130,15 +128,25 @@ class StoryboardChangeFactory {
   static updateEntryScene(doc, sceneName) {
     const mod = CodeMod(doc.code)
       .removeExports()
+      .removeFunctionCall(
+        'SceneManager',
+        'registerEntryScene'
+      )
+      .addFunctionCall(
+        'SceneManager',
+        'registerEntryScene',
+        [{
+          type: 'Literal',
+          value: sceneName,
+        }],
+        { appendToBody: true, }
+      )
       .addExport(true, {
         type: 'CallExpression',
         expression: [
           'SceneManager',
-          'registerEntryScene',
-          [{
-            type: 'Literal',
-            value: sceneName,
-          }]
+          'getEntryScene',
+          []
         ]
       })
     return createChange(doc, mod)
