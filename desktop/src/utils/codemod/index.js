@@ -1,11 +1,13 @@
 import j from 'jscodeshift'
 import * as ExpressionMethods from './expressionMethods'
 import * as ImportMethods from './importMethods'
+import * as ExportMethods from './exportMethods'
 
 const enrichedJ = j.withParser('flow')
 
 j.registerMethods(ExpressionMethods)
 j.registerMethods(ImportMethods)
+j.registerMethods(ExportMethods)
 
 const codemod = (code) => enrichedJ(code)
 

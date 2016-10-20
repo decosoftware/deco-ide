@@ -22,7 +22,13 @@ export default {
   extname: '.storyboard.js',
   generate: ({name, adapter = "NavigatorIOSAdapter"}) => {
     return '' +
-`import { Navigational, Adapters, SceneManager } from 'deco-sdk'
+`
+/**
+ * This code is programmatically generated, DO NOT MODIFY
+ */
+import { Navigational, Adapters, SceneManager } from 'deco-sdk'
 Navigational.registerAdapter(Adapters.${adapter})
+
+export default SceneManager.getEntryScene()
 ` }
 ,}

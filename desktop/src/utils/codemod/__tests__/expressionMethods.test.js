@@ -18,6 +18,17 @@ test('add empty function call', () => {
   expect(output).toBe(`Happy.funTimes();`)
 })
 
+test('add empty function call with comment', () => {
+  const mod = CodeMod(``)
+  const output = mod.addFunctionCall(
+    'Happy', 'funTimes', [], {
+      withComment: {value: 'test'},
+    }
+  ).toSource()
+  expect(output).toBe(`//test
+Happy.funTimes();`)
+})
+
 test('updates a function call in the code', () => {
   const mod = CodeMod(`Happy.funTimes("fosho");`)
   const output = mod.updateFunctionCall(
@@ -170,4 +181,47 @@ test('match a function inlined on export default', () => {
       }
     }
   }])
+})
+
+test('add function call after comment', () => {
+  const mod = CodeMod(`
+Happy.funTimes("fosho")
+//comment
+Happy.funTimes("nomo")`)
+  const output = mod.addFunctionCall(
+    'Happy', 'wat', [{
+      type: 'Literal', value: 'idkman'
+    }], {
+      afterCommentMatching: 'comment'
+    }
+  ).toSource()
+  expect(output).toBe(`
+Happy.funTimes("fosho")
+
+//comment
+Happy.wat("idkman");
+
+Happy.funTimes("nomo");`)
+})
+
+test('remove function call after comment', () => {
+  const mod = CodeMod(`
+Happy.funTimes("fosho")
+
+//comment
+Happy.wat("idkman");
+
+Happy.funTimes("nomo");`)
+  const output = mod.removeFunctionCall(
+    'Happy', 'wat', [{
+      type: 'Literal', value: 'idkman'
+    }], {
+      preserveComments: true,
+    }
+  ).toSource()
+  expect(output).toBe(`
+Happy.funTimes("fosho")
+
+//comment
+Happy.funTimes("nomo");`)
 })

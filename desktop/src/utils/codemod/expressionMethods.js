@@ -1,5 +1,14 @@
 import j from 'jscodeshift'
 import _ from 'lodash'
+import {
+  createArgumentNodes,
+  inverseCreateArgumentNodes,
+  createCallExpression,
+  createExpressionStatement,
+  findCommentMarker,
+  addNodeAtIndex,
+  addCommentsToNodeIndex,
+} from './helpers'
 
 const getObject = (node) => (
   _.get(node, 'callee.object.name') || _.get(node, 'value.callee.object.name')
@@ -36,56 +45,6 @@ const getSimilarity = (node, object, property, args = []) => {
   return { sameObject, sameProperty, sameArgs, }
 }
 
-const createArgumentNodes = (args = []) => args.map((arg) => {
-  switch (arg.type) {
-    case 'Identifier': {
-      return j.identifier(arg.value)
-    }
-    case 'MemberExpression': {
-      return j.memberExpression(
-        j.identifier(arg.object),
-        j.identifier(arg.property)
-      )
-    }
-    default: {
-      return j.literal(arg.value || "")
-    }
-  }
-})
-
-const inverseCreateArgumentNodes = (args = []) => args.map((arg) => {
-  switch (arg.type) {
-    case 'MemberExpression': {
-      return {
-        type: arg.type,
-        object: arg.object.name,
-        property: arg.property.name,
-      }
-    }
-    case 'Identifier': {
-      return {
-        type: arg.type,
-        value: arg.name,
-      }
-    }
-    case 'Literal': {
-      return {
-        type: arg.type,
-        value: arg.value,
-      }
-    }
-    default: {
-      return {}
-    }
-  }
-})
-
-const createExpressionStatement = (object, property, args) => (
-  j.expressionStatement(j.callExpression(j.memberExpression(
-    j.identifier(object), j.identifier(property)
-  ), createArgumentNodes(args)))
-)
-
 /**
  * Finds the last call to a particular function object.property in
  * an ast, and returns the range of that last call
@@ -117,7 +76,7 @@ const nodeHasValue = (node, value) => {
 
 /**
  * Adds a function call as 'object.property(...args)'
- * immediately after the last call of the same funciton,
+ * immediately after the last call of the same function,
  * or at the top of the file if there isn't another call.
  *
  * @param  {String} object   Name of the object to call function on
@@ -126,18 +85,31 @@ const nodeHasValue = (node, value) => {
  *                           if args is missing then it is a function call without arguments
  * @return {Collection}      Updated Collection
  */
-export const addFunctionCall = function(object, property, args) {
+export const addFunctionCall = function(object, property, args, options = {}) {
   const rangeOfLastMatching = getLastMatchingExpressionRange(this, object, property)
   const body = _.get(this.nodes(), '[0].program.body')
   // Let's do this the correct way with insertBefore, etc and
   // generally smarter logic on all these inserts
   let newFunctionIndex = body.length - 1
+
+  // least precedent
   if (rangeOfLastMatching) {
     newFunctionIndex = _.map(body, 'range').indexOf(rangeOfLastMatching) + 1
   }
+  // next highest precedence
+  if (options.afterCommentMatching) {
+    newFunctionIndex = findCommentMarker(body, options.afterCommentMatching)
+  }
+  // highest precedence
+  if (options.appendToBody) {
+    newFunctionIndex = body.length
+  }
 
   const node = createExpressionStatement(object, property, args)
-  body.splice(newFunctionIndex, 0, node)
+  if (options.withComment) {
+    node.comments = [j.commentLine(options.withComment.value, options.withComment.leading || true)]
+  }
+  addNodeAtIndex(body, node, newFunctionIndex)
   return this
 }
 
@@ -165,19 +137,30 @@ export const updateFunctionCall = function(object, property, args) {
  * @param Same as addFunctionCall
  * @return Same as addFunctionCall
  */
-export const removeFunctionCall = function(object, property, args) {
+export const removeFunctionCall = function(object, property, args, options = {}) {
   const program = _.get(this.nodes(), '[0].program', {})
+  let comments = []
+  let earliestFilteredIndex = -1
   if (program.body) {
-    program.body = program.body.filter((node) => {
+    program.body = program.body.filter((node, i) => {
       if (node.type == 'ExpressionStatement') {
         const { sameObject, sameProperty, sameArgs, } = getSimilarity(
           node.expression, object, property, args
         )
-        return (!sameObject || !sameProperty || !sameArgs)
+        const keepNode = (!sameObject || !sameProperty || !sameArgs)
+
+        if (options.preserveComments && !keepNode) {
+          if (earliestFilteredIndex < 0) earliestFilteredIndex = i
+          comments = comments.concat(node.comments || [])
+        }
+        return keepNode
       }
       return true
     })
+
+    addCommentsToNodeIndex(program.body, earliestFilteredIndex, comments)
   }
+
   return this
 }
 
