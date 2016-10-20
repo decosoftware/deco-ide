@@ -70,7 +70,7 @@ class ComponentInspector extends Component {
   }
 
   render() {
-    const {style, styles, width, decoDoc, component, elementTreeActions} = this.props
+    const {style, styles, width, component, elementTreeActions} = this.props
 
     return (
       <div style={styles.container}>
@@ -86,7 +86,6 @@ class ComponentInspector extends Component {
         )}
         <div style={styles.properties}>
           <ComponentProps
-            decoDoc={decoDoc}
             width={width - 30}
           />
         </div>

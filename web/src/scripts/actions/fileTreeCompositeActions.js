@@ -5,6 +5,7 @@ import _ from 'lodash'
 import { fileTreeController as controller } from '../filetree'
 import FileTreeActions from '../filetree/actions'
 import * as URIUtils from '../utils/URIUtils'
+import TabUtils from '../utils/TabUtils'
 import { tabActions } from '../actions'
 
 import {
@@ -63,17 +64,13 @@ export const renameFile = (oldPath, newPath) => {
 
       dispatch(removeRegisteredPath(oldPath))
 
-      _.each(tabs, (tab) => {
-        _.each(tab.groups, ({tabIds}) => {
-          _.each(tabIds, (id) => {
-            if (id.indexOf('.storyboard.js') != -1) {
-              const oldSceneName = path.basename(oldPath, '.js')
-              const newSceneName = path.basename(newPath, '.js')
-              dispatch(updateSceneName(URIUtils.withoutProtocol(id), oldSceneName, newSceneName))
-            }
-          })
+      TabUtils
+        .selectTabsWithIdContainingString(tabs, '.storyboard.js')
+        .forEach(({id}) => {
+          const oldSceneName = path.basename(oldPath, '.js')
+          const newSceneName = path.basename(newPath, '.js')
+          dispatch(updateSceneName(URIUtils.withoutProtocol(id), oldSceneName, newSceneName))
         })
-      })
     })
   }
 }
@@ -126,59 +123,56 @@ export const createDir = (dirPath) => {
   }
 }
 
-export const deleteFile = (filePath) => {
-  return (dispatch, getState) => {
-    dispatch(confirmDelete(filePath)).then((resp) => {
-      const { shouldDelete } = resp
-      if (!shouldDelete) {
-        return
-      }
-      const unsaved = getState().directory.unsaved
+export const deleteFile = (filePath) => async (dispatch, getState) => {
+  return dispatch(confirmDelete(filePath)).then((resp) => {
+    const { shouldDelete } = resp
+    if (!shouldDelete) {
+      return { shouldDelete }
+    }
+    const unsaved = getState().directory.unsaved
 
-      const uri = URIUtils.filePathToURI(filePath)
-      dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+    const uri = URIUtils.filePathToURI(filePath)
+    dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
 
-      if (unsaved[filePath]) {
-        dispatch(markSaved(filePath))
-      }
+    if (unsaved[filePath]) {
+      dispatch(markSaved(filePath))
+    }
 
-      dispatch(removeRegisteredPath(filePath))
-      controller.run('remove', filePath)
+    dispatch(removeRegisteredPath(filePath))
+    controller.run('remove', filePath)
 
-      // handle metadata
-      const rootPath = getState().directory.rootPath
-      const metadataPath = buildMetadataFilePath(filePath, rootPath)
-      controller.run('remove', metadataPath)
-    })
-  }
+    // handle metadata
+    const rootPath = getState().directory.rootPath
+    const metadataPath = buildMetadataFilePath(filePath, rootPath)
+    controller.run('remove', metadataPath)
+    return { shouldDelete }
+  })
 }
 
-export const deleteDir = (dirPath) => {
-  return (dispatch, getState) => {
-    const {filesById, unsaved, rootPath} = getState().directory
+export const deleteDir = (dirPath) => async (dispatch, getState) => {
+  const {filesById, unsaved, rootPath} = getState().directory
 
-    dispatch(confirmDelete(dirPath)).then((resp) => {
-      const {shouldDelete} = resp
-      if (!shouldDelete) {
-        return
-      }
-      controller.run('remove', dirPath)
-      _.each(filesById, (file, id) => {
-        if (id.indexOf(dirPath) == 0) {
-          const uri = URIUtils.filePathToURI(id)
-          dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
+  dispatch(confirmDelete(dirPath)).then((resp) => {
+    const {shouldDelete} = resp
+    if (!shouldDelete) {
+      return
+    }
+    controller.run('remove', dirPath)
+    _.each(filesById, (file, id) => {
+      if (id.indexOf(dirPath) == 0) {
+        const uri = URIUtils.filePathToURI(id)
+        dispatch(tabActions.closeAllTabsForResource(CONTENT_PANES.CENTER, uri))
 
-          if (unsaved[id]) {
-            dispatch(markSaved(id))
-          }
-
-          dispatch(removeRegisteredPath(id))
+        if (unsaved[id]) {
+          dispatch(markSaved(id))
         }
-      })
 
-      // handle metadata
-      const metadataPath = buildMetadataFilePath(dirPath, rootPath)
-      controller.run('remove', metadataPath)
+        dispatch(removeRegisteredPath(id))
+      }
     })
-  }
+
+    // handle metadata
+    const metadataPath = buildMetadataFilePath(dirPath, rootPath)
+    controller.run('remove', metadataPath)
+  })
 }

@@ -29,7 +29,7 @@ const desktopBackground = Electron.remote.require('./utils/desktopBackground.js'
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
 import { storyboardActions } from '../actions'
-import NewSceneButton from '../components/storyboard/NewSceneButton'
+import { DeleteSceneButton, SceneHeader, NewSceneButton } from '../components/storyboard'
 
 const stylesCreator = ({colors}) => {
   const {availWidth, availHeight} = window.screen
@@ -120,6 +120,15 @@ class Storyboard extends Component {
 
   updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
 
+  renderHeader = (id, headerProps) => {
+    return (
+      <div onClick={() => this.updateEntryScene(id)}>
+        <DeleteSceneButton onClick={() => this.deleteScene(id)} />
+        <SceneHeader {...headerProps} />
+      </div>
+    )
+  }
+
   render() {
     const {
       fileId,
@@ -145,6 +154,7 @@ class Storyboard extends Component {
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
           onViewportChange={this.onViewportChange}
+          renderHeader={this.renderHeader}
           viewport={viewport}
         />
       </div>

@@ -40,20 +40,3 @@ export const openInstallModuleDialog = () => (dispatch, getState) => {
   )
   dispatch(pushModal(dialog, true))
 }
-
-export const openImportTemplateDialog = () => (dispatch, getState) => {
-  const dialog = (
-    <NamingBanner
-      bannerText={'Import template'}
-      onTextDone={(url) => {
-        dispatch(fetchTemplateText(url)).then((text) => {
-          const {openDocId, docCache} = getState().editor
-
-          if (docCache && docCache[openDocId]) {
-            dispatch(insertTemplate(docCache[openDocId], text))
-          }
-        })
-      }} />
-  )
-  dispatch(pushModal(dialog, true))
-}

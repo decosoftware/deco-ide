@@ -36,6 +36,26 @@ class TabUtils {
     }
   }
 
+  static forEachTab(tabs, fn) {
+    _.each(tabs, (container) => {
+      _.each(container.groups, (group) => {
+        _.each(group.tabIds, (id) => {
+          fn(container, group, id)
+        })
+      })
+    })
+  }
+
+  static selectTabsWithIdContainingString(tabs, matchStr) {
+    const selected = []
+    TabUtils.forEachTab(tabs, (container, group, id) => {
+      if (id.indexOf(matchStr) != -1) {
+        selected.push({container, group, id})
+      }
+    })
+    return selected
+  }
+
   static getContainer(state, containerId) {
     const container = state[containerId]
 

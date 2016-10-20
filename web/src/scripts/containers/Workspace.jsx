@@ -86,7 +86,6 @@ const stylesCreator = (theme) => {
 }
 
 const mapStateToProps = (state) => createSelector(
-  ({editor: {openDocId, docCache}}) => openDocId ? docCache[openDocId] : null,
   ({ui}) => ({
     width: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].width,
     height: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].height,
@@ -96,8 +95,7 @@ const mapStateToProps = (state) => createSelector(
     rightSidebarContent: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
   }),
   ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
-  (decoDoc, windowBounds, ui, publishingFeature) => ({
-    decoDoc,
+  (windowBounds, ui, publishingFeature) => ({
     ...windowBounds,
     ...ui,
     publishingFeature,
@@ -148,12 +146,10 @@ export default class Workspace extends Component {
         return publishingFeature ? (
           <ComponentInspector
             style={styles.rightPane}
-            decoDoc={decoDoc}
           />
         ) : (
           <LiveValueInspector
-            style={styles.rightPane}
-            decoDoc={decoDoc}
+            style={styles.rightPane}            
           />
         )
 
@@ -161,7 +157,6 @@ export default class Workspace extends Component {
         return (
           <Publishing
             style={styles.rightPane}
-            decoDoc={decoDoc}
           />
         )
     }

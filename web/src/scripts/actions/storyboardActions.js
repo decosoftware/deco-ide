@@ -107,10 +107,15 @@ export const createScene = (storyboardPath) => async (dispatch, getState) => {
 }
 
 export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getState) => {
-  const {id, name, filePath} = await storyboardActions.deleteScene(sceneId)
 
   // Delete the file corresponding to the removed scene
-  dispatch(fileTreeCompositeActions.deleteFile(filePath))
+  const {scenes: oldScenes} = storyboardStore.getStoryboardState()
+  const filePath = _.get(_.filter(oldScenes, (scene) => scene.id == sceneId), '[0].filePath')
+  if (!filePath) return
+  const {shouldDelete} = await dispatch(fileTreeCompositeActions.deleteFile(filePath))
+  if (!shouldDelete) return //don't do anything
+
+  const {id, name} = await storyboardActions.deleteScene(sceneId)
 
   // Remove scene references from .storyboard.js file:
   // - import NewScene from 'NewScene'
@@ -145,16 +150,7 @@ export const updateSceneName = (storyboardPath, oldName, newName) => async (disp
   const decoChange = StoryboardChangeFactory.renameSceneInStoryboard(decoDoc, oldName, `./${oldName}`, newName, `./${newName}`)
   await dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
-  //now reparse and reload the storyboard
-  const {entry, scenes} = parseStoryboardCode(decoDoc.code, rootPath)
-
-  // Open imported scenes and parse their connections
-  const sceneDecoDocs = await loadSceneDocuments(scenes, dispatch)
-  const connections = buildSceneConnections(sceneDecoDocs)
-
-  storyboardActions.setScenes(_.keyBy(scenes, 'id'))
-  storyboardActions.setConnections(connections)
-  storyboardActions.setActiveScene(entry)
+  dispatch(openStoryboard(storyboardPath))
 }
 
 const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, getState) => {

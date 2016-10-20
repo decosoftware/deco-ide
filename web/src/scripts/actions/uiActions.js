@@ -183,11 +183,9 @@ export const upgradeStatus = (status) => {
   }
 }
 
-export const confirmDelete = (deletePath) => {
-  return (dispatch, getState) => {
-    return request({
-      type: CONFIRM_DELETE_DIALOG,
-      deletePath,
-    })
-  }
+export const confirmDelete = (deletePath) => async (dispatch, getState) => {
+  return request({
+    type: CONFIRM_DELETE_DIALOG,
+    deletePath,
+  })
 }

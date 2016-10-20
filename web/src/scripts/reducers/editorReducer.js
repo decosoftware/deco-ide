@@ -23,7 +23,6 @@ import DecoDoc from '../models/editor/DecoDoc'
 const initialState = {
   dirtyList: {},
   docCache: {},
-  openDocId: null,
 }
 
 const editorReducer = (state = initialState, action) => {
@@ -37,17 +36,12 @@ const editorReducer = (state = initialState, action) => {
 
     case at.SET_CURRENT_DOC: {
       const {id} = payload
-      return {...state, openDocId: id}
+      return {...state }
     }
 
     case at.DOC_ID_CHANGE: {
-      let {openDocId, docCache} = state
+      let {docCache} = state
       const {oldId, newId} = payload
-
-      // Replace the portion of the filename that overlaps
-      if (openDocId && openDocId.includes(oldId)) {
-        openDocId = openDocId.replace(oldId, newId)
-      }
 
       // If this is a cached file, replace it in the cache
       if (docCache[oldId]) {
@@ -57,7 +51,6 @@ const editorReducer = (state = initialState, action) => {
         decoDoc.id = newId
 
         return update(state, {
-          openDocId: {$set: openDocId},
           docCache: {
             [newId]: {$set: decoDoc},
             [oldId]: {$set: null},
@@ -78,16 +71,9 @@ const editorReducer = (state = initialState, action) => {
             updates[newChildId] = decoDoc
           }
         }, {})
-        return openDocId ? (
-          update(state, {
-            openDocId: openDocId,
-            docCache: {$merge: merge},
-          })
-        ) : (
-          update(state, {
-            docCache: {$merge: merge},
-          })
-        )
+        update(state, {
+          docCache: {$merge: merge},
+        })
       }
     }
 
