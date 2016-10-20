@@ -1,6 +1,7 @@
 const remote = Electron.remote;
 const path = remote.require('path')
 
+import _ from 'lodash'
 import { fileTreeController as controller } from '../filetree'
 import FileTreeActions from '../filetree/actions'
 import * as URIUtils from '../utils/URIUtils'
@@ -26,6 +27,9 @@ import {
 import {
   confirmDelete
 } from './uiActions'
+import {
+  updateSceneName
+} from './storyboardActions'
 
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
@@ -38,6 +42,7 @@ export const renameFile = (oldPath, newPath) => {
     const unsaved = getState().directory.unsaved
     const metadataFiles = getState().metadata.liveValues.liveValuesForFile
     const rootPath = getState().directory.rootPath
+    const tabs = getState().ui.tabs
     controller.run('rename', oldPath, newPath).then(() => {
       dispatch(registerPath(newPath))
       if (unsaved[oldPath]) {
@@ -57,6 +62,18 @@ export const renameFile = (oldPath, newPath) => {
       dispatch(tabActions.swapAllTabsForResource(CONTENT_PANES.CENTER, oldURI, newURI))
 
       dispatch(removeRegisteredPath(oldPath))
+
+      _.each(tabs, (tab) => {
+        _.each(tab.groups, ({tabIds}) => {
+          _.each(tabIds, (id) => {
+            if (id.indexOf('.storyboard.js') != -1) {
+              const oldSceneName = path.basename(oldPath, '.js')
+              const newSceneName = path.basename(newPath, '.js')
+              dispatch(updateSceneName(URIUtils.withoutProtocol(id), oldSceneName, newSceneName))
+            }
+          })
+        })
+      })
     })
   }
 }

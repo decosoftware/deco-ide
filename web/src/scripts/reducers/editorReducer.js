@@ -78,11 +78,16 @@ const editorReducer = (state = initialState, action) => {
             updates[newChildId] = decoDoc
           }
         }, {})
-
-        return update(state, {
-          openDocId: openDocId,
-          docCache: {$merge: merge},
-        })
+        return openDocId ? (
+          update(state, {
+            openDocId: openDocId,
+            docCache: {$merge: merge},
+          })
+        ) : (
+          update(state, {
+            docCache: {$merge: merge},
+          })
+        )
       }
     }
 

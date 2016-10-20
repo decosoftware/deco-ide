@@ -130,6 +130,33 @@ export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getStat
   }
 }
 
+//TODO what about renaming files for other storyboards?
+export const updateSceneName = (storyboardPath, oldName, newName) => async (dispatch, getState) => {
+  // first check if this is necessary
+  const {directory: {rootPath}} = getState()
+  const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
+  const {scenes: oldScenes} = parseStoryboardCode(decoDoc.code, rootPath)
+  if (!_.find(oldScenes, (scene) => scene.name == oldName)) {
+    return //the file renamed wasn't in this storyboard
+  }
+
+  // similar to openStoryboard, we'll make a decoChange then reparse the storyboard file
+  // update the deco doc
+  const decoChange = StoryboardChangeFactory.renameSceneInStoryboard(decoDoc, oldName, `./${oldName}`, newName, `./${newName}`)
+  await dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+
+  //now reparse and reload the storyboard
+  const {entry, scenes} = parseStoryboardCode(decoDoc.code, rootPath)
+
+  // Open imported scenes and parse their connections
+  const sceneDecoDocs = await loadSceneDocuments(scenes, dispatch)
+  const connections = buildSceneConnections(sceneDecoDocs)
+
+  storyboardActions.setScenes(_.keyBy(scenes, 'id'))
+  storyboardActions.setConnections(connections)
+  storyboardActions.setActiveScene(entry)
+}
+
 const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, getState) => {
   const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
 

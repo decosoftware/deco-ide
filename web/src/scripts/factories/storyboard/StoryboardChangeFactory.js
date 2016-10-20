@@ -19,7 +19,8 @@ import _ from 'lodash'
 
 import DecoChangeFactory from '../editor/DecoChangeFactory'
 const CodeMod = Electron.remote.require('./utils/codemod/index.js')
-
+import * as storyboardMod from '../../utils/storyboard/storyboardMod'
+import { getSceneInformationForStoryboardCode } from '../../utils/storyboard/codeUtils'
 const createChange = (doc, mod) => (
   DecoChangeFactory.createChangeToReplaceAllText(doc, mod.toSource())
 )
@@ -28,91 +29,24 @@ class StoryboardChangeFactory {
 
   static addSceneToStoryboard(doc, sceneName, relativePath) {
     const mod = CodeMod(doc.code)
-    mod.addImport(sceneName, [], relativePath)
-    if (mod.getAllMatchingFunctionCalls(
-      'SceneManager',
-      'registerScene'
-    ).length == 0) {
-      mod.addFunctionCall(
-        'SceneManager',
-        'registerScene',
-        [
-          {type: 'Literal', value: sceneName},
-          {type: 'Identifier', value: sceneName}
-        ],
-        {
-          appendToBody: true,
-          withComment: {
-            value: 'registerScenes',
-            leading: true,
-          }
-        }
-      )
-      .removeExports()
-      .addFunctionCall(
-        'SceneManager',
-        'registerEntryScene',
-        [{
-          type: 'Literal',
-          value: sceneName,
-        }],
-        { appendToBody: true, }
-      )
-      .addExport(true, {
-        type: 'CallExpression',
-        expression: [
-          'SceneManager',
-          'getEntryScene',
-          []
-        ]
-      })
-    } else {
-      mod.addFunctionCall(
-          'SceneManager',
-          'registerScene',
-          [
-            {type: 'Literal', value: sceneName},
-            {type: 'Identifier', value: sceneName}
-          ],
-          {
-            afterCommentMatching: 'registerScenes'
-          }
-        )
-    }
-
+    storyboardMod.addScene(mod, sceneName, relativePath)
     return createChange(doc, mod)
   }
 
   static removeSceneFromStoryboard(doc, sceneName, relativePath) {
     const mod = CodeMod(doc.code)
-    mod.removeImport(relativePath, {
-      preserveComments: true,
-    })
-    const scenesRemaining = mod.getAllMatchingFunctionCalls(
-      'SceneManager',
-      'registerScene'
-    ).length
-    //remove comment marker if this is the last comment
-    const preserveComments = scenesRemaining > 1
-    const removeEntryScene = scenesRemaining == 1
+    storyboardMod.removeScene(mod, sceneName, relativePath)
+    return createChange(doc, mod)
+  }
 
-    mod.removeFunctionCall(
-        'SceneManager',
-        'registerScene',
-        [
-          {type: 'Literal', value: sceneName},
-          {type: 'Identifier', value: sceneName},
-        ],
-        { preserveComments, }
-      )
-
-    if (removeEntryScene) {
-      mod.removeFunctionCall(
-        'SceneManager',
-        'registerEntryScene'
-      )
+  static renameSceneInStoryboard(doc, oldSceneName, oldPath, newSceneName, newPath) {
+    const mod = CodeMod(doc.code)
+    const info = getSceneInformationForStoryboardCode(doc.code)
+    storyboardMod.removeScene(mod, oldSceneName, oldPath)
+    storyboardMod.addScene(mod, newSceneName, newPath)
+    if (info && info.entry && info.entry == oldSceneName) {
+      storyboardMod.updateEntryScene(mod, newSceneName)
     }
-
     return createChange(doc, mod)
   }
 
@@ -127,30 +61,11 @@ class StoryboardChangeFactory {
 
   static updateEntryScene(doc, sceneName) {
     const mod = CodeMod(doc.code)
-      .removeExports()
-      .removeFunctionCall(
-        'SceneManager',
-        'registerEntryScene'
-      )
-      .addFunctionCall(
-        'SceneManager',
-        'registerEntryScene',
-        [{
-          type: 'Literal',
-          value: sceneName,
-        }],
-        { appendToBody: true, }
-      )
-      .addExport(true, {
-        type: 'CallExpression',
-        expression: [
-          'SceneManager',
-          'getEntryScene',
-          []
-        ]
-      })
+    storyboardMod.updateEntryScene(mod, sceneName)
     return createChange(doc, mod)
   }
 }
+
+
 
 export default StoryboardChangeFactory
