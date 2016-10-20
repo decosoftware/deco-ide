@@ -26,16 +26,19 @@ import Simulacra from 'deco-simulacra'
 class SyncServiceController {
   constructor() {
     this.syncService = null
-    process.on('SIGINT', this.closeService)
-    process.on('close', this.closeService)
-    process.on('exit', this.closeService)
+    this.noRestart = false
+    process.on('SIGINT', this.closeService.bind(this, true))
+    process.on('close', this.closeService.bind(this, true))
+    process.on('exit', this.closeService.bind(this, true))
   }
-  closeService = () => {
+  closeService = (noRestart) => {
+    this.noRestart = noRestart
     if (this.syncService) {
       try {
         if (!this.syncService.killed) {
           this.syncService.kill('SIGINT')
         }
+        this.syncService = null
       } catch (e) {
         this.syncService = null
       }
@@ -44,6 +47,10 @@ class SyncServiceController {
   start = () => {
     this.syncService = Simulacra.run()
     this.syncService.on('error', (err) => {
+      closeService()
+      this.start()
+    })
+    this.syncService.on('close', (err) => {
       closeService()
       this.start()
     })
