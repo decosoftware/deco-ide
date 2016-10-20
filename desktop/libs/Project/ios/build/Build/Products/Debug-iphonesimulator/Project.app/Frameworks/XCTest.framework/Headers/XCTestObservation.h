@@ -68,11 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filePath The path of file where the failure occurred, nil if unknown.
  * @param lineNumber The line where the failure was reported.
  */
-#if XCT_NULLABLE_AVAILABLE
 - (void)testSuite:(XCTestSuite *)testSuite didFailWithDescription:(NSString *)description inFile:(nullable NSString *)filePath atLine:(NSUInteger)lineNumber;
-#else
-- (void)testSuite:(XCTestSuite *)testSuite didFailWithDescription:(NSString *)description inFile:(NSString *)filePath atLine:(NSUInteger)lineNumber;
-#endif
 
 /*!
  * @method -testSuiteDidFinish:
@@ -102,11 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param filePath The path of file where the failure occurred, nil if unknown.
  * @param lineNumber The line where the failure was reported.
  */
-#if XCT_NULLABLE_AVAILABLE
 - (void)testCase:(XCTestCase *)testCase didFailWithDescription:(NSString *)description inFile:(nullable NSString *)filePath atLine:(NSUInteger)lineNumber;
-#else
-- (void)testCase:(XCTestCase *)testCase didFailWithDescription:(NSString *)description inFile:(NSString *)filePath atLine:(NSUInteger)lineNumber;
-#endif
 
 /*!
  * @method -testCaseDidFinish:

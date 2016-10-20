@@ -59,12 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCTestSuite : XCTest {
 #ifndef __OBJC2__
 @private
-    NSString *_name;
-#if XCT_GENERICS_AVAILABLE
-    NSMutableArray <__kindof XCTest *> *_tests;
-#else
-    NSMutableArray *_tests;
-#endif
+    id _internalImplementation;
 #endif
 }
 
@@ -74,15 +69,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)testSuiteForTestCaseClass:(Class)testCaseClass;
 
 + (instancetype)testSuiteWithName:(NSString *)name;
-- (instancetype)initWithName:(NSString *)name;
+- (instancetype)initWithName:(NSString *)name NS_DESIGNATED_INITIALIZER;
 
 - (void)addTest:(XCTest *)test;
 
-#if XCT_GENERICS_AVAILABLE
 @property (readonly, copy) NSArray <__kindof XCTest *> *tests;
-#else
-@property (readonly, copy) NSArray *tests;
-#endif
 
 @end
 

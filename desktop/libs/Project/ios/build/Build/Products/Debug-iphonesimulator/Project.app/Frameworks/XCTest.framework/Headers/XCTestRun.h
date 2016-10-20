@@ -88,21 +88,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @property startDate
  * The time at which the test run was started, or nil.
  */
-#if XCT_NULLABLE_AVAILABLE
 @property (readonly, copy, nullable) NSDate *startDate;
-#else
-@property (readonly, copy) NSDate *startDate;
-#endif
 
 /*!
  * @property stopDate
  * The time at which the test run was stopped, or nil.
  */
-#if XCT_NULLABLE_AVAILABLE
 @property (readonly, copy, nullable) NSDate *stopDate;
-#else
-@property (readonly, copy) NSDate *stopDate;
-#endif
 
 /*!
  * @property totalDuration
@@ -169,11 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
  * NO if it was the result of an uncaught exception.
  *
  */
-#if XCT_NULLABLE_AVAILABLE
 - (void)recordFailureWithDescription:(NSString *)description inFile:(nullable NSString *)filePath atLine:(NSUInteger)lineNumber expected:(BOOL)expected;
-#else
-- (void)recordFailureWithDescription:(NSString *)description inFile:(NSString *)filePath atLine:(NSUInteger)lineNumber expected:(BOOL)expected;
-#endif
 
 @end
 

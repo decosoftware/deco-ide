@@ -72,23 +72,13 @@ NS_ASSUME_NONNULL_BEGIN
  * @property testRun
  * The test run object that executed the test, an instance of testRunClass. If the test has not yet been run, this will be nil.
  */
-#if XCT_NULLABLE_AVAILABLE
 @property (readonly, nullable) XCTestRun *testRun;
-#else
-@property (readonly) XCTestRun *testRun;
-#endif
 
 /*!
  * @method -performTest:
  * The method through which tests are executed. Must be overridden by subclasses.
  */
 - (void)performTest:(XCTestRun *)run;
-
-/*!
- * @method -run
- * Deprecated: use -runTest instead.
- */
-- (XCTestRun *)run DEPRECATED_ATTRIBUTE;
 
 /*!
  * @method -runTest
