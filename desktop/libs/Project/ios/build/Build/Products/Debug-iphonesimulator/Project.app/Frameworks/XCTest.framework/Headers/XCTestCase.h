@@ -104,25 +104,17 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  * @method +testCaseWithInvocation:
  */
-#if XCT_NULLABLE_AVAILABLE
 + (instancetype)testCaseWithInvocation:(nullable NSInvocation *)invocation;
-#else
-+ (instancetype)testCaseWithInvocation:(NSInvocation *)invocation;
-#endif
 
 /*!
  * @method -initWithInvocation:
  */
-#if XCT_NULLABLE_AVAILABLE
 - (instancetype)initWithInvocation:(nullable NSInvocation *)invocation;
-#else
-- (instancetype)initWithInvocation:(NSInvocation *)invocation;
-#endif
 
 /*!
  * @method +testCaseWithSelector:
  */
-+ (instancetype)testCaseWithSelector:(SEL)selector;
++ (nullable instancetype)testCaseWithSelector:(SEL)selector;
 
 /*!
  * @method -initWithSelector:
@@ -133,11 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @property invocation
  * The invocation used when this test is run.
  */
-#if XCT_NULLABLE_AVAILABLE
 @property (strong, nullable) NSInvocation *invocation;
-#else
-@property (strong) NSInvocation *invocation;
-#endif
 
 /*!
  * @method -invokeTest
@@ -174,11 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @method +testInvocations
  * Invocations for each test method in the test case.
  */
-#if XCT_GENERICS_AVAILABLE
 + (NSArray <NSInvocation *> *)testInvocations;
-#else
-+ (NSArray *)testInvocations;
-#endif
 
 #pragma mark - Measuring Performance Metrics
 
@@ -192,11 +176,7 @@ XCT_EXPORT NSString * const XCTPerformanceMetric_WallClockTime;
  * @method +defaultPerformanceMetrics
  * The names of the performance metrics to measure when invoking -measureBlock:. Returns XCTPerformanceMetric_WallClockTime by default. Subclasses can override this to change the behavior of -measureBlock:
  */
-#if XCT_GENERICS_AVAILABLE
 + (NSArray <NSString *> *)defaultPerformanceMetrics;
-#else
-+ (NSArray *)defaultPerformanceMetrics;
-#endif
 
 /*!
  * @method -measureBlock:
@@ -256,11 +236,7 @@ XCT_EXPORT NSString * const XCTPerformanceMetric_WallClockTime;
  *
  * @param block A block whose performance to measure.
  */
-#if XCT_GENERICS_AVAILABLE
 - (void)measureMetrics:(NSArray <NSString *> *)metrics automaticallyStartMeasuring:(BOOL)automaticallyStartMeasuring forBlock:(void (^)(void))block;
-#else
-- (void)measureMetrics:(NSArray *)metrics automaticallyStartMeasuring:(BOOL)automaticallyStartMeasuring forBlock:(void (^)(void))block;
-#endif
 
 /*!
  * @method -startMeasuring

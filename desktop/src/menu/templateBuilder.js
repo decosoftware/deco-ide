@@ -58,7 +58,6 @@ import {
   toggleTerm,
   shouldCloseTab,
   openInstallModuleDialog,
-  openImportTemplateDialog,
   openFile,
 } from '../actions/acceleratorActions'
 

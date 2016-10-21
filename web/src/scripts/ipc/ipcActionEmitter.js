@@ -59,7 +59,6 @@ const {
   SHOULD_SAVE_PROJECT,
   SHOULD_SAVE_PROJECT_AS,
   OPEN_INSTALL_MODULE_DIALOG,
-  OPEN_IMPORT_TEMPLATE_DIALOG,
   OPEN_FILE,
 } = AcceleratorConstants
 
@@ -130,10 +129,6 @@ const ipcActionEmitter = (store) => {
 
   ipc.on(OPEN_INSTALL_MODULE_DIALOG, () => {
     store.dispatch(openInstallModuleDialog())
-  })
-
-  ipc.on(OPEN_IMPORT_TEMPLATE_DIALOG, () => {
-    store.dispatch(openImportTemplateDialog())
   })
 
   ipc.on(SHOULD_OPEN_PROJECT_DIALOG, () => {

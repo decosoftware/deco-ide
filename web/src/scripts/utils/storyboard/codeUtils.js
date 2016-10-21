@@ -74,7 +74,7 @@ export const buildElementTree = (code) => {
  * Returns an object of scenes, sceneNames, entryScene, whatever
  */
 export const getSceneInformationForStoryboardCode = (code) => {
-  const mod = new CodeMod(code)
+  const mod = CodeMod(code)
 
   const entryCall = mod.getAllMatchingFunctionCalls('SceneManager', 'registerEntryScene')
   const entryName = _.get(entryCall, '[0].args[0].value')

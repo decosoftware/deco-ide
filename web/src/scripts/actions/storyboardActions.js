@@ -107,10 +107,15 @@ export const createScene = (storyboardPath) => async (dispatch, getState) => {
 }
 
 export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getState) => {
-  const {id, name, filePath} = await storyboardActions.deleteScene(sceneId)
 
   // Delete the file corresponding to the removed scene
-  dispatch(fileTreeCompositeActions.deleteFile(filePath))
+  const {scenes: oldScenes} = storyboardStore.getStoryboardState()
+  const filePath = _.get(_.filter(oldScenes, (scene) => scene.id == sceneId), '[0].filePath')
+  if (!filePath) return
+  const {shouldDelete} = await dispatch(fileTreeCompositeActions.deleteFile(filePath))
+  if (!shouldDelete) return //don't do anything
+
+  const {id, name} = await storyboardActions.deleteScene(sceneId)
 
   // Remove scene references from .storyboard.js file:
   // - import NewScene from 'NewScene'
@@ -128,6 +133,24 @@ export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getStat
     // Choose the first scene, arbitrarily, as the new entry scene
     dispatch(updateEntryScene(storyboardPath, scenes[0].id))
   }
+}
+
+//TODO what about renaming files for other storyboards?
+export const updateSceneName = (storyboardPath, oldName, newName) => async (dispatch, getState) => {
+  // first check if this is necessary
+  const {directory: {rootPath}} = getState()
+  const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
+  const {scenes: oldScenes} = parseStoryboardCode(decoDoc.code, rootPath)
+  if (!_.find(oldScenes, (scene) => scene.name == oldName)) {
+    return //the file renamed wasn't in this storyboard
+  }
+
+  // similar to openStoryboard, we'll make a decoChange then reparse the storyboard file
+  // update the deco doc
+  const decoChange = StoryboardChangeFactory.renameSceneInStoryboard(decoDoc, oldName, `./${oldName}`, newName, `./${newName}`)
+  await dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+
+  dispatch(openStoryboard(storyboardPath))
 }
 
 const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, getState) => {

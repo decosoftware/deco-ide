@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2013-2015 Apple Inc. All rights reserved.
+// Copyright (c) 2013-2016 Apple Inc. All rights reserved.
 //
 // Copyright (c) 1997-2005, Sen:te (Sente SA).  All rights reserved.
 //
@@ -38,6 +38,7 @@
 #import <XCTest/XCTestCase.h>
 #import <XCTest/XCTestCase+AsynchronousTesting.h>
 #import <XCTest/XCTestCaseRun.h>
+#import <XCTest/XCTestExpectation.h>
 #import <XCTest/XCTestLog.h>
 #import <XCTest/XCTestObserver.h>
 #import <XCTest/XCTestObservationCenter.h>

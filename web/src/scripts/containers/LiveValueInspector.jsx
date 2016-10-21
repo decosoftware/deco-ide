@@ -19,6 +19,7 @@ import _ from 'lodash'
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
+import * as selectors from '../selectors'
 import PaneHeader from '../components/headers/PaneHeader'
 import NoContent from '../components/display/NoContent'
 import LiveValue from '../components/inspector/LiveValue'
@@ -128,7 +129,7 @@ class LiveValueInspector extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const doc = ownProps.decoDoc
+  let doc = selectors.currentDoc(state)
   let liveValues = null
   let groups = null
 

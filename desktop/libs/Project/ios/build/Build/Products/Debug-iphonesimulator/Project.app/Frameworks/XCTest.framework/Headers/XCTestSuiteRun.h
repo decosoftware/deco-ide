@@ -36,19 +36,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface XCTestSuiteRun : XCTestRun {
 #ifndef __OBJC2__
 @private
-#if XCT_GENERICS_AVAILABLE
     NSMutableArray <XCTestRun *> *_testRuns;
-#else
-    NSMutableArray *_testRuns;
-#endif
 #endif
 }
 
-#if XCT_GENERICS_AVAILABLE
 @property (readonly, copy) NSArray <XCTestRun *> *testRuns;
-#else
-@property (readonly, copy) NSArray *testRuns;
-#endif
 
 - (void)addTestRun:(XCTestRun *)testRun;
 

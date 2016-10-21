@@ -50,6 +50,6 @@ DEPRECATED_ATTRIBUTE
 @end
 
 /*!
- * XCTestObserverClassKey is deprecated.
+ * XCTestObserverClassKey is deprecated and ignored.
  */
 XCT_EXPORT NSString * const XCTestObserverClassKey DEPRECATED_ATTRIBUTE;

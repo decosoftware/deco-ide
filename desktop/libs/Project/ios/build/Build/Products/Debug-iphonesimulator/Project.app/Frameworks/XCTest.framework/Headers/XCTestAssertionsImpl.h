@@ -37,11 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface _XCTestCaseInterruptionException : NSException
 @end
 
-#if XCT_NULLABLE_AVAILABLE
 XCT_EXPORT void _XCTFailureHandler(XCTestCase *test, BOOL expected, const char *filePath, NSUInteger lineNumber, NSString *condition, NSString * __nullable format, ...) NS_FORMAT_FUNCTION(6,7);
-#else
-XCT_EXPORT void _XCTFailureHandler(XCTestCase *test, BOOL expected, const char *filePath, NSUInteger lineNumber, NSString *condition, NSString *format, ...) NS_FORMAT_FUNCTION(6,7);
-#endif
 
 XCT_EXPORT void _XCTPreformattedFailureHandler(XCTestCase *test, BOOL expected, NSString *filePath, NSUInteger lineNumber, NSString *condition, NSString *message);
 

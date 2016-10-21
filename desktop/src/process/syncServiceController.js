@@ -36,6 +36,7 @@ class SyncServiceController {
         if (!this.syncService.killed) {
           this.syncService.kill('SIGINT')
         }
+        this.syncService = null
       } catch (e) {
         this.syncService = null
       }
@@ -44,6 +45,10 @@ class SyncServiceController {
   start = () => {
     this.syncService = Simulacra.run()
     this.syncService.on('error', (err) => {
+      closeService()
+      this.start()
+    })
+    this.syncService.on('close', (err) => {
       closeService()
       this.start()
     })
