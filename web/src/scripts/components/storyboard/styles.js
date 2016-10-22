@@ -1,0 +1,70 @@
+const styles = {
+  newSceneButton: {
+    position: 'absolute',
+    background: 'black',
+    width: '30px',
+    height: '30px',
+    borderRadius: '25%',
+    top: '20px',
+    right: '20px',
+    zIndex: 1,
+    textAlign: 'center',
+    paddingTop: '3px',
+    color: 'white',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+  sceneHeader: {
+    height: 22,
+    paddingLeft: 5,
+    marginBottom: 5,
+    color: '#CCCCCC',
+    lineHeight: '22px',
+    fontSize: 12,
+    fontWeight: 300,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'pre',
+  },
+  deleteSceneButton: {
+    width: '20px',
+    height: '20px',
+    position: 'absolute',
+    borderRadius: '50%',
+    lineHeight: '14px',
+    left: '-20px',
+    top: '-10px',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: '14px',
+    cursor: 'default',
+  },
+  quickOpenCodeButton: {
+    position: 'absolute',
+    right: '-10px',
+    top: '-10px',
+    minWidth: 0,
+    minHeight: 0,
+    cursor: 'default',
+    flex: '1 1 auto',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  fileIcon: {
+    width: 14,
+    height: 14,
+    position: 'absolute',
+    left: '-30px',
+    top: '20px',
+    alignSelf: 'center',
+    WebkitMaskPosition: 'left',
+    WebkitMaskSize: 'contain',
+    WebkitMaskRepeat: 'no-repeat',
+    WebkitMaskImage: `-webkit-image-set(` +
+      `url('./icons/icon-file.png') 1x, ` +
+      `url('./icons/icon-file@2x.png') 2x` +
+    `)`,
+  }
+}
+
+export default styles

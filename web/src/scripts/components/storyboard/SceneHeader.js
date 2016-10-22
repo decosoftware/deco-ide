@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react'
 import pureRender from 'pure-render-decorator'
 
+import styles from './styles'
+
 @pureRender
 export default class SceneHeader extends Component {
 
@@ -28,16 +30,8 @@ export default class SceneHeader extends Component {
     }
 
     const headerStyle = {
-      height: 22,
+      ...styles.sceneHeader,
       width: width * scale,
-      paddingLeft: 5,
-      color: '#CCCCCC',
-      lineHeight: `${22}px`,
-      fontSize: 12,
-      fontWeight: 300,
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      whiteSpace: 'pre',
     }
 
     return (

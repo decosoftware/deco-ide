@@ -22,14 +22,15 @@ import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import { StylesEnhancer } from 'react-styles-provider'
 import YOPS from 'yops'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
 import path from 'path'
 import { ViewportUtils } from 'react-scene-graph'
 const desktopBackground = Electron.remote.require('./utils/desktopBackground.js')
 
 import * as ContentLoader from '../api/ContentLoader'
 import * as URIUtils from '../utils/URIUtils'
-import { storyboardActions } from '../actions'
-import { DeleteSceneButton, SceneHeader, NewSceneButton } from '../components/storyboard'
+import { storyboardActions, tabActions } from '../actions'
+import { DeleteSceneButton, SceneHeader, NewSceneButton, QuickOpenCodeButton } from '../components/storyboard'
 
 const stylesCreator = ({colors}) => {
   const {availWidth, availHeight} = window.screen
@@ -72,6 +73,7 @@ const stylesCreator = ({colors}) => {
 
 const mapDispatchToProps = (dispatch) => ({
   storyboardActions: bindActionCreators(storyboardActions, dispatch),
+  tabActions: bindActionCreators(tabActions, dispatch),
 })
 
 const mapStateToProps = (state) => createSelector(
@@ -116,6 +118,8 @@ class Storyboard extends Component {
 
   createScene = () => this.props.storyboardActions.createScene(this.props.fileId)
 
+  openSceneInTab = (filePath) => this.props.tabActions.splitRight(CONTENT_PANES.CENTER, URIUtils.filePathToURI(filePath))
+
   deleteScene = (sceneId) => this.props.storyboardActions.deleteScene(this.props.fileId, sceneId)
 
   updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
@@ -124,6 +128,7 @@ class Storyboard extends Component {
     return (
       <div onClick={() => this.updateEntryScene(id)}>
         <DeleteSceneButton onClick={() => this.deleteScene(id)} />
+        <QuickOpenCodeButton onClick={() => this.openSceneInTab(headerProps.filePath)}/>
         <SceneHeader {...headerProps} />
       </div>
     )

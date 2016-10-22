@@ -18,6 +18,8 @@
 import React, { Component, PropTypes, } from 'react'
 import pureRender from 'pure-render-decorator'
 
+import styles from './styles'
+
 @pureRender
 export default class NewSceneButton extends Component {
   static propTypes = {
@@ -25,24 +27,8 @@ export default class NewSceneButton extends Component {
   }
 
   render() {
-    const style = {
-      position: 'absolute',
-      background: 'black',
-      width: '30px',
-      height: '30px',
-      borderRadius: '25%',
-      top: '20px',
-      right: '20px',
-      zIndex: 1,
-      textAlign: 'center',
-      paddingTop: '3px',
-      color: 'white',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-    }
-
     return (
-      <div style={style} onClick={this.props.onClick}>
+      <div style={styles.newSceneButton} onClick={this.props.onClick}>
         +
       </div>
     )
