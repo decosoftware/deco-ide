@@ -83,27 +83,30 @@ const mapStateToProps = (state) => createSelector(
 
 @StylesEnhancer(stylesCreator)
 class Storyboard extends Component {
-  centeredSceneId = null
   keyMap = {
     resetScale: 'command+0',
-    centerNextScene: 'command+right',
-    centerPrevScene: 'command+left',
+    resetScaleAndCenter: 'command+1',
+    resetScaleAndCenterActive: 'command+2',
   }
   keyHandlers = {
     resetScale: (e) => {
       const {viewport,activeScene} = storyboardStore.getStoryboardState()
       extStoryboardActions.setViewportScale(1)
-      extStoryboardActions.centerScene(activeScene)
     },
-    centerNextScene: (e) => this.selectAdjacentScene('next'),
-    centerPrevScene: (e) => this.selectAdjacentScene('prev'),
+    resetScaleAndCenter: (e) => {
+      extStoryboardActions.setViewportScale(1)
+      extStoryboardActions.centerViewport()
+    },
+    resetScaleAndCenterActive: (e) => {
+      const {viewport,activeScene} = storyboardStore.getStoryboardState()
+      extStoryboardActions.setViewportScale(1)
+      extStoryboardActions.centerSceneInViewport(activeScene)
+    },
   }
 
   constructor(props) {
     super()
-
     const {width, height} = props
-
     extStoryboardActions.initializeViewportWithSize({width, height})
   }
 
@@ -130,32 +133,6 @@ class Storyboard extends Component {
     return scene
   }
 
-  selectAdjacentScene = (direction = 'next') => {
-    const {scenes, activeScene} = storyboardStore.getStoryboardState()
-    if (!this.centeredSceneId) {
-      const sceneToCenter = activeScene || scenes[0]
-      if (!sceneToCenter) return
-      this.centeredSceneId = sceneToCenter
-    }
-    const indexOfCenterScene = _.findIndex(scenes, (scene) => scene.id == this.centeredSceneId)
-    let scene = null
-    switch (direction) {
-      case 'next': {
-        scene = scenes[(indexOfCenterScene + 1) % scenes.length]
-        break
-      }
-      case 'prev': {
-        scene = scenes[(indexOfCenterScene == 0 ? scenes.length - 1 : indexOfCenterScene - 1)]
-        break
-      }
-      default:
-        // do nothing
-    }
-    if (!scene) return
-    this.centeredSceneId = scene.id
-    extStoryboardActions.centerScene(this.centeredSceneId)
-  }
-
   createScene = () => this.props.storyboardActions.createScene(this.props.fileId)
 
   openSceneInTab = (filePath) => this.props.tabActions.addTabToFocusedGroup(CONTENT_PANES.CENTER, URIUtils.filePathToURI(filePath))
@@ -176,7 +153,7 @@ class Storyboard extends Component {
           const scene = this.getSceneInfo(id)
           if (scene) {
             this.openSceneInTab(scene.filePath).then(() => {
-              this.centerScene(id)
+              this.centerSceneInViewport(id)
             })
           }
         }}/>
