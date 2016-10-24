@@ -35,6 +35,23 @@ export const addTab = (containerId, tabId, groupIndex, index) => async (dispatch
   dispatch({type: at.ADD_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
+export const addTabToFocusedGroup = (containerId, tabId) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  if (!container) {
+    dispatch(splitRight(containerId, tabId))
+  } else {
+    const focusedGroupIndex = container.focusedGroupIndex
+    const focusedGroup = container.groups[focusedGroupIndex]
+    if (focusedGroup.focusedTabId.indexOf('.storyboard.js') != -1) {
+      dispatch(makeTabPermanent(containerId, focusedGroup.focusedTabId, focusedGroupIndex + 1))
+      dispatch(addTab(containerId, tabId, focusedGroupIndex + 1))
+    } else {
+      dispatch(makeTabPermanent(containerId, focusedGroup.focusedTabId, focusedGroupIndex))
+      dispatch(addTab(containerId, tabId, focusedGroupIndex))
+    }
+  }
+}
+
 export const splitRight = (containerId, tabId) => async (dispatch, getState) => {
   const container = getState().ui.tabs[containerId]
   const groupIndex = container ? container.groups.length : 0

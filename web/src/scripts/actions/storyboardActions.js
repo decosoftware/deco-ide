@@ -104,6 +104,7 @@ export const createScene = (storyboardPath) => async (dispatch, getState) => {
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
   storyboardActions.addScene({id, name, filePath})
+  storyboardActions.centerScene(id)
 }
 
 export const deleteScene = (storyboardPath, sceneId) => async (dispatch, getState) => {
