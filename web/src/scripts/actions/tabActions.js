@@ -35,6 +35,23 @@ export const addTab = (containerId, tabId, groupIndex, index) => async (dispatch
   dispatch({type: at.ADD_TAB, payload: {containerId, tabId, groupIndex, index}})
 }
 
+export const addTabToFocusedGroup = (containerId, tabId) => async (dispatch, getState) => {
+  const container = getState().ui.tabs[containerId]
+  if (!container) {
+    //no files open, just default to splitRight behavior
+    dispatch(splitRight(containerId, tabId))
+  } else {
+    const focusedGroupIndex = container.focusedGroupIndex
+    const focusedGroup = container.groups[focusedGroupIndex]
+    // if the focus is on storyboard, add the tab to the adjacent group
+    if (focusedGroup.focusedTabId.includes('.storyboard.js')) {
+      dispatch(addTab(containerId, tabId, focusedGroupIndex + 1))
+    } else { // else we add it to the current focused group
+      dispatch(addTab(containerId, tabId, focusedGroupIndex))
+    }
+  }
+}
+
 export const splitRight = (containerId, tabId) => async (dispatch, getState) => {
   const container = getState().ui.tabs[containerId]
   const groupIndex = container ? container.groups.length : 0
