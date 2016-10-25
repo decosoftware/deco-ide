@@ -41,7 +41,7 @@ export default class {
     const {valueStart, valueEnd} = elementProp
     const text = this.computePropCode(elementProp, value)
     const range = new CodeMirrorRange(valueStart, valueEnd)
-    const newValue = toValue(text)
+    const newValue = elementProp.template ? value : toValue(text)
 
     return {text, range, value: newValue}
   }

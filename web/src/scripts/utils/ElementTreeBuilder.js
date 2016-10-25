@@ -26,6 +26,7 @@ const AST_TYPES = {
   'BooleanLiteral': 'boolean',
   'NumericLiteral': 'number',
   'StringLiteral': 'string',
+  'ObjectExpression': 'object',
 }
 
 export default class {
@@ -143,6 +144,51 @@ export default class {
     }
   }
 
+  static buildObjectProp(attribute) {
+    const {value: {expression}} = attribute
+    const {type, loc: {start, end}, properties} = expression
+    const inferAstType = (value) => {
+      const typeOfValue = typeof value
+      switch (typeOfValue) {
+        case "number": {
+          return AST_TYPES.NumericLiteral
+        }
+        case "string": {
+          return AST_TYPES.StringLiteral
+        }
+        case "boolean": {
+          return AST_TYPES.BooleanLiteral
+        }
+      }
+    }
+    const objectProperties = properties.map((prop) => {
+      const {value, key: {name}, loc: {start, end}} = prop
+      //TODO dirty hack to accommodate the comma (we assume no spacing and return char)
+      end.column += 1000
+      const type = inferAstType(value.value)
+      const template = type != AST_TYPES.StringLiteral ? (
+        name + ': ${value},'
+      ) : (
+        name + ': \'${value}\','
+      )
+      return {        
+        name,
+        template,
+        type,
+        value: value.value,
+        valueStart: this.convertLoc(start),
+        valueEnd: this.convertLoc(end),
+      }
+    })
+    return {
+      ...this.buildPropBase(attribute),
+      value: objectProperties,
+      type: AST_TYPES.ObjectExpression,
+      valueStart: this.convertLoc(start),
+      valueEnd: this.convertLoc(end),
+    }
+  }
+
   // <Tag prop={require('foo')} />
   static buildRequireProp(attribute) {
     const {value: {expression}} = attribute
@@ -198,6 +244,10 @@ export default class {
 
     if (type == 'CallExpression') {
       return this.buildRequireProp(attribute)
+    }
+
+    if (type == 'ObjectExpression') {
+      return this.buildObjectProp(attribute)
     }
 
     return this.buildNormalProp(attribute)
