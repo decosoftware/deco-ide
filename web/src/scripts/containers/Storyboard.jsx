@@ -127,6 +127,12 @@ class Storyboard extends Component {
     storyboardActions.openStoryboard(fileId)
   }
 
+  convertYopsElementIdToDecoElementPath = (elementId) => {
+    const split = elementId.split('.')
+    const pathElements = split.slice(1, split.length - 1)
+    return '.' + pathElements.join('.')
+  }
+
   getScene = (id) => {
     const {scenes} = storyboardStore.getStoryboardState()
     return scenes.find(scene => scene.id == id)
@@ -139,6 +145,14 @@ class Storyboard extends Component {
   deleteScene = (sceneId) => this.props.storyboardActions.deleteScene(this.props.fileId, sceneId)
 
   updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
+
+  selectElement = (element) => {
+    const { activeScene } = storyboardStore.getStoryboardState()
+    if (!activeScene) return
+    const { id } = element
+    const pathToElement = this.convertYopsElementIdToDecoElementPath(id)
+    this.props.storyboardActions.selectElement(activeScene, pathToElement)
+  }
 
   renderHeader = (headerProps) => {
     const {id} = headerProps
@@ -183,6 +197,7 @@ class Storyboard extends Component {
           style={styles.storyboard}
           onDeleteScene={this.deleteScene}
           onClickScene={this.updateEntryScene}
+          onClickElement={this.selectElement}
           syncServiceAddress={syncServiceAddress}
           onLayoutUpdate={onLayoutUpdate}
           renderHeader={this.renderHeader}

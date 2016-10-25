@@ -17,13 +17,19 @@
 
 import _ from 'lodash'
 import path from 'path'
+import { batchActions } from 'redux-batched-subscribe'
 import { storyboardActions, storyboardStore } from 'yops'
 
 import * as editorActions from '../actions/editorActions'
 import * as storyUtils from '../utils/storyboard'
 import StoryboardChangeFactory from '../factories/storyboard/StoryboardChangeFactory'
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-import { fileTreeCompositeActions, textEditorCompositeActions } from '../actions'
+import {
+  fileTreeCompositeActions,
+  textEditorCompositeActions,
+  uiActions,
+  elementTreeActions
+} from '../actions'
 
 const getImportedScenes = (storyboardCode, rootPath) => {
   return storyUtils
@@ -155,6 +161,10 @@ export const updateSceneName = (storyboardPath, oldName, newName) => async (disp
 }
 
 const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, getState) => {
+  const {activeScene} = storyboardStore.getStoryboardState()
+  if (activeScene === sceneId) {
+    return
+  }
   const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
 
   const decoChange = operation === 'add' ?
@@ -164,6 +174,18 @@ const setEntryScene = (storyboardPath, sceneId, operation) => async (dispatch, g
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
 
   storyboardActions.setActiveScene(sceneId)
+}
+
+export const selectElement = (sceneId, pathToElement) => async (dispatch, getState) => {
+  const {scenes} = storyboardStore.getStoryboardState()
+  const scene = scenes.find(x => x.id == sceneId)
+  if (scene) {
+    const { filePath } = scene
+    dispatch(batchActions([
+      elementTreeActions.selectElementByPath(filePath, pathToElement),
+      uiActions.setSidebarContext()
+    ]))
+  }
 }
 
 export const addEntryScene = (storyboardPath, sceneId) => async (dispatch) => {
