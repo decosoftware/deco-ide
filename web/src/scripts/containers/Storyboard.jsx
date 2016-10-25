@@ -127,10 +127,9 @@ class Storyboard extends Component {
     storyboardActions.openStoryboard(fileId)
   }
 
-  getSceneInfo = (id) => {
+  getScene = (id) => {
     const {scenes} = storyboardStore.getStoryboardState()
-    const scene = _.find(scenes, (scene) => scene.id == id)
-    return scene
+    return scenes.find(scene => scene.id == id)
   }
 
   createScene = () => this.props.storyboardActions.createScene(this.props.fileId)
@@ -139,10 +138,7 @@ class Storyboard extends Component {
 
   deleteScene = (sceneId) => this.props.storyboardActions.deleteScene(this.props.fileId, sceneId)
 
-  updateEntryScene = (sceneId) => {
-    this.centeredSceneId = sceneId
-    return this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
-  }
+  updateEntryScene = (sceneId) => this.props.storyboardActions.updateEntryScene(this.props.fileId, sceneId)
 
   renderHeader = (headerProps) => {
     const {id} = headerProps
@@ -150,11 +146,10 @@ class Storyboard extends Component {
       <div onClick={() => this.updateEntryScene(id)}>
         <DeleteSceneButton onClick={() => this.deleteScene(id)} />
         <QuickOpenCodeButton onClick={() => {
-          const scene = this.getSceneInfo(id)
+          const scene = this.getScene(id)
           if (scene) {
-            this.openSceneInTab(scene.filePath).then(() => {
-              this.centerSceneInViewport(id)
-            })
+            extStoryboardActions.centerSceneInViewport(id)
+            this.openSceneInTab(scene.filePath)
           }
         }}/>
         <SceneHeader {...headerProps} />

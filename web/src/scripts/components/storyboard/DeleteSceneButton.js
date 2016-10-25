@@ -3,11 +3,20 @@ import { storyboardActions, storyboardStore } from 'yops'
 import pureRender from 'pure-render-decorator'
 import { StylesEnhancer } from 'react-styles-provider'
 
-import styles from './styles'
-
 const stylesCreator = ({colors, fonts}) => {
   const styles = {
-    deleteButtonColor: {
+    deleteSceneButton: {
+      width: '20px',
+      height: '20px',
+      position: 'absolute',
+      borderRadius: '50%',
+      lineHeight: '14px',
+      left: '-20px',
+      top: '-10px',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      fontSize: '14px',
+      cursor: 'default',
       color: colors.fileTree.icon,
       border: `2px solid ${colors.fileTree.icon}`
     }
@@ -23,12 +32,9 @@ export default class DeleteSceneButton extends Component {
   }
 
   render() {
-    const buttonStyle = {
-      ...styles.deleteSceneButton,
-      ...this.props.styles.deleteButtonColor,
-    }
+    const { styles } = this.props
     return (
-      <div style={buttonStyle} onClick={this.props.onClick}>
+      <div style={styles.deleteSceneButton} onClick={this.props.onClick}>
         ⨉
       </div>
     )

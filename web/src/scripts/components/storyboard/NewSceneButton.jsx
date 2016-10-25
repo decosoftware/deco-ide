@@ -18,7 +18,23 @@
 import React, { Component, PropTypes, } from 'react'
 import pureRender from 'pure-render-decorator'
 
-import styles from './styles'
+const styles = {
+  newSceneButton: {
+    position: 'absolute',
+    background: 'black',
+    width: '30px',
+    height: '30px',
+    borderRadius: '25%',
+    top: '20px',
+    right: '20px',
+    zIndex: 1,
+    textAlign: 'center',
+    paddingTop: '3px',
+    color: 'white',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  },
+}
 
 @pureRender
 export default class NewSceneButton extends Component {
