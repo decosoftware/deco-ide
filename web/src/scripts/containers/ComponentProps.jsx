@@ -66,7 +66,7 @@ const stylesCreator = ({fonts}) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
-  selectors.currentDoc,
+  selectors.docForSelectedElement,
   selectors.selectedElement,
   selectors.selectedComponent,
   (decoDoc, element, component) => ({

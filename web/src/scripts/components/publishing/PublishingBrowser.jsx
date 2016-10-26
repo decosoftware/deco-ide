@@ -107,7 +107,7 @@ export default class PublishingBrowser extends Component {
           type={'main'}
           onClick={onCreateComponent}
         >
-          New Component
+          New Primitive 
         </InspectorButton>
       </div>,
     ]

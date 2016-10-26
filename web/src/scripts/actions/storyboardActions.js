@@ -20,15 +20,18 @@ import path from 'path'
 import { batchActions } from 'redux-batched-subscribe'
 import { storyboardActions, storyboardStore } from 'yops'
 
+const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 import * as editorActions from '../actions/editorActions'
 import * as storyUtils from '../utils/storyboard'
+import ElementTreeBuilder from '../utils/ElementTreeBuilder'
 import StoryboardChangeFactory from '../factories/storyboard/StoryboardChangeFactory'
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
 import {
   fileTreeCompositeActions,
   textEditorCompositeActions,
   uiActions,
-  elementTreeActions
+  elementTreeActions,
+  astActions,
 } from '../actions'
 
 const getImportedScenes = (storyboardCode, rootPath) => {
@@ -58,6 +61,27 @@ const loadSceneDocuments = (scenes, dispatch) => {
   return Promise.all(scenes.map(loadScene))
 }
 
+const parseSceneDocument = (decoDoc) => async (dispatch, getState) => {
+  const { id: filename, code } = decoDoc
+
+  let astString
+
+  try {
+    astString = await CodeMod.getAST(code)
+  } catch (e) {
+    console.log('Failed to parse AST', e)
+    return
+  }
+
+  const ast = JSON.parse(astString)
+  const elementTree = ElementTreeBuilder.elementTreeFromAST(ast)
+
+  dispatch(batchActions([
+    astActions.setAST(filename, ast),
+    elementTreeActions.setElementTree(filename, elementTree),
+  ]))
+}
+
 const buildSceneConnections = (sceneDecoDocs) => {
   return _.chain(sceneDecoDocs)
     .map(({code}) => storyUtils.getConnectionsInCode(code))
@@ -74,6 +98,7 @@ export const openStoryboard = (storyboardPath) => async (dispatch, getState) => 
 
   // Open imported scenes and parse their connections
   const sceneDecoDocs = await loadSceneDocuments(scenes, dispatch)
+  sceneDecoDocs.map(doc => dispatch(parseSceneDocument(doc)))
   const connections = buildSceneConnections(sceneDecoDocs)
 
   storyboardActions.setScenes(_.keyBy(scenes, 'id'))
@@ -108,6 +133,7 @@ export const createScene = (storyboardPath) => async (dispatch, getState) => {
   const decoDoc = await dispatch(editorActions.getDocument(storyboardPath))
   const decoChange = StoryboardChangeFactory.addSceneToStoryboard(decoDoc, name, `./${name}`)
   dispatch(textEditorCompositeActions.edit(decoDoc.id, decoChange))
+  dispatch(parseSceneDocument(decoDoc))
 
   storyboardActions.addScene({id, name, filePath})
   storyboardActions.centerSceneInViewport(id)
@@ -183,7 +209,7 @@ export const selectElement = (sceneId, pathToElement) => async (dispatch, getSta
     const { filePath } = scene
     dispatch(batchActions([
       elementTreeActions.selectElementByPath(filePath, pathToElement),
-      uiActions.setSidebarContext()
+      uiActions.setSidebarContext(filePath)
     ]))
   }
 }
