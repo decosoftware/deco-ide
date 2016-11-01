@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react'
+import { DragSource, DropTarget } from 'react-dnd'
 import shallowCompare from 'react-addons-shallow-compare'
 import memoize from 'fast-memoize'
 
@@ -7,6 +8,42 @@ import PlusButtonWithDropdown from './PlusButtonWithDropdown'
 import PlayButton from './PlayButton'
 import styles, { getPaddedStyle } from './styles'
 import { StylesEnhancer } from 'react-styles-provider'
+
+
+const source = {
+  beginDrag(props) {
+    return {
+      node: props.node
+    }
+  }
+}
+
+const target = {
+  canDrop(props, monitor) {
+    return isDirectory(props.node.type)
+  },
+
+  drop(props, monitor) {
+    const item = monitor.getItem()
+    props.onDrop(item.node, props.node)
+  }
+}
+
+
+function collectSource(connect, monitor) {
+  return {
+    connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview(),
+    isDragging: monitor.isDragging(),
+  }
+}
+
+function collectTarget(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isDraggingOver: monitor.isOver()
+  }
+}
 
 const isDirectory = (type) => {
   return type === 'directory'
@@ -84,6 +121,8 @@ const stylesCreator = ({colors, fonts}) => {
   return styles
 }
 
+@DropTarget('NODE', target, collectTarget)
+@DragSource('NODE', source, collectSource)
 @StylesEnhancer(stylesCreator)
 export default class Node extends Component {
 
@@ -137,27 +176,31 @@ export default class Node extends Component {
   onMouseLeave = () => this.setState({hover: false})
 
   render() {
-    const {styles, node, metadata, depth} = this.props
+    const {styles, node, metadata, depth, connectDragSource, connectDropTarget, isDraggingOver} = this.props
     const {type, name, path} = node
     const {expanded, selected} = metadata
 
     const {hover} = this.state
 
+    const needsDropHighlight = isDirectory(type) && isDraggingOver
+
     return (
-      <div
-        style={styles.getNodeStyle(depth, selected, hover)}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-      >
-        {isDirectory(type) && (
-          <NodeCaret expanded={expanded}/>
-        )}
-        <div style={isDirectory(type) ? styles.folderIcon : styles.fileIcon} />
-        <div className={'flex-variable'} style={styles.nodeText}>
-          {name}
+      connectDragSource(connectDropTarget(
+        <div
+          style={styles.getNodeStyle(depth, selected, hover || needsDropHighlight)}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+        >
+          {isDirectory(type) && (
+            <NodeCaret expanded={expanded}/>
+          )}
+          <div style={isDirectory(type) ? styles.folderIcon : styles.fileIcon} />
+          <div className={'flex-variable'} style={styles.nodeText}>
+            {name}
+          </div>
+          {this.renderButton()}
         </div>
-        {this.renderButton()}
-      </div>
+      ))
     )
   }
 }

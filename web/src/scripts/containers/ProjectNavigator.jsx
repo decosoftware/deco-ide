@@ -117,6 +117,12 @@ class ProjectNavigator extends Component {
     textEditorCompositeActions.updateDecoEntryRequire(requireText)
   }
 
+  handleDrop = (sourceNode, targetNode) => {
+    const action = sourceNode.type === 'file' ? 'renameFile' : 'renameDir'
+
+    this.props.fileTreeCompositeActions[action](sourceNode.path, path.join(targetNode.path, sourceNode.name))
+  }
+
   renderNode = (props) => {
     const {node} = props
     const {currentPreview} = this.state
@@ -127,6 +133,7 @@ class ProjectNavigator extends Component {
         isPreviewActive={currentPreview === node.path}
         scaffolds={SCAFFOLDS}
         createFileScaffold={this.onCreateFile}
+        onDrop={this.handleDrop.bind(this)}
       />
     )
   }
