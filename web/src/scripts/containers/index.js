@@ -1,3 +1,3 @@
 require('./ComponentEditor').registerLoader()
-require('./Storyboard').registerLoader()
+SHOW_STORYBOARD && require('./Storyboard').registerLoader()
 require('./Editor').registerLoader()

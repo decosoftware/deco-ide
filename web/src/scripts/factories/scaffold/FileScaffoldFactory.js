@@ -30,10 +30,9 @@ const scaffolds = _.map(requireAll(context), (scaffold, i) => {
   }
 })
 
-const scaffoldMetadata = _.map(scaffolds, ({name, id}) => {
+const scaffoldMetadata = _.filter(_.map(scaffolds, ({name, id}) => {
   return {name, id}
-})
-
+}), ({name}) => SHOW_STORYBOARD || name !== 'Storyboard')
 const scaffoldsById = _.keyBy(scaffolds, 'id')
 const scaffoldsByName = _.keyBy(scaffolds, 'name')
 

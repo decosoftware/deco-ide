@@ -27,6 +27,7 @@ const DECO = require('deco-tool')
 const PROJECT_SETTING = DECO.setting
 
 const checkEnvironmentOK = () => {
+  process.env.SHOW_STORYBOARD = true
   if (!process.env.ANDROID_HOME) {
     const defaultSDKPath = `/Users/${process.env['USER']}/Library/Android/sdk`
     try {

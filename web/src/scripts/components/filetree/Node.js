@@ -104,18 +104,17 @@ export default class Node extends Component {
     const {hover, menuVisible} = this.state
     const {type} = node
 
-    if (!(menuVisible || hover || isPreviewActive)) {
+    if (!(menuVisible || hover)) {
       return null
     }
-
     if (!isDirectory(type)) {
-      return (
+      return SHOW_STORYBOARD && !isPreviewActive ? (
         <div style={styles.plusContainer} onClick={this.stopPropagation}>
           <PlayButton
             isActive={isPreviewActive}
             onClick={onPreviewClick}/>
         </div>
-      )
+      ) : null
     }
 
     return (

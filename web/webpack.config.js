@@ -39,7 +39,7 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.IgnorePlugin(/vertx/), // https://github.com/webpack/webpack/issues/353
     new webpack.DefinePlugin({
-      "DECO_DEBUG": 1,
+      "SHOW_STORYBOARD": 0,
       "process.env": {
         NODE_ENV: JSON.stringify("local")
       }
