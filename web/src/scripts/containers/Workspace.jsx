@@ -58,10 +58,13 @@ const stylesCreator = (theme) => {
       width: 290,
       maxWidth: 400,
     },
-    leftPaneTop: {
+    leftPaneInner: {
       flex: 1,
     },
-    leftPaneBottom: {
+    rightPaneTop: {
+      flex: 1,
+    },
+    rightPaneBottom: {
       flex: 0,
       minHeight: 100,
       height: 300,
@@ -69,6 +72,9 @@ const stylesCreator = (theme) => {
       borderTopWidth: 1,
       borderTopColor: colors.dividerInverted,
       borderTopStyle: 'solid',
+    },
+    rightPaneBottomInner: {
+      flex: 1,
     },
     rightPane: {
       flex: 0,
@@ -137,28 +143,41 @@ export default class Workspace extends Component {
   renderInspector() {
     const {styles, decoDoc, rightSidebarContent, publishingFeature} = this.props
 
-    switch (rightSidebarContent) {
+    if (rightSidebarContent === RIGHT_SIDEBAR_CONTENT.NONE) {
+      return null
+    }
 
-      case RIGHT_SIDEBAR_CONTENT.NONE:
-        return null
+    if (publishingFeature) {
 
-      case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
-        return publishingFeature ? (
-          <ComponentInspector
-            style={styles.rightPane}
-          />
-        ) : (
+      switch (rightSidebarContent) {
+
+        case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
+          return (
+            <ComponentInspector
+              style={styles.rightPane}
+            />
+          )
+
+        case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
+          return (
+            <Publishing
+              style={styles.rightPane}
+            />
+          )
+      }
+    } else {
+      return (
+        <div style={styles.rightPane} data-resizable>
           <LiveValueInspector
-            style={styles.rightPane}            
+            style={styles.rightPaneTop}
           />
-        )
-
-      case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
-        return (
-          <Publishing
-            style={styles.rightPane}
-          />
-        )
+          <div style={styles.rightPaneBottom}>
+            <Publishing
+              style={styles.rightPaneBottomInner}
+            />
+          </div>
+        </div>
+      )
     }
   }
 
@@ -197,7 +216,7 @@ export default class Workspace extends Component {
             <div style={styles.leftPane} data-resizable>
               <ProjectNavigator
                 className={'subpixel-antialiased helvetica-smooth'}
-                style={styles.leftPaneTop}
+                style={styles.leftPaneInner}
               />
             </div>
           )}

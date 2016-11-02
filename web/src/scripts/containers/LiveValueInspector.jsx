@@ -128,7 +128,7 @@ class LiveValueInspector extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   let doc = selectors.currentDoc(state)
   let liveValues = null
   let groups = null
@@ -148,9 +148,9 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   return {
+    decoDoc: doc,
     groups,
     liveValues,
-    ...ownProps,
   }
 }
 
