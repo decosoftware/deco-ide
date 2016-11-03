@@ -143,11 +143,24 @@ export default class Node extends Component {
     const {hover, menuVisible} = this.state
     const {type} = node
 
-    if (!(menuVisible || hover || isPreviewActive)) {
+    if (!(menuVisible || hover)) {
       return null
     }
 
-    if (!isDirectory(type)) {
+    if (isDirectory(type)) {
+      return (
+        <div style={styles.plusContainer}>
+          <PlusButtonWithDropdown
+            node={node}
+            menuType={'platform'}
+            scaffolds={scaffolds}
+            visible={menuVisible}
+            createFileScaffold={createFileScaffold}
+            onVisibilityChange={this.handleVisibilityChange}
+          />
+        </div>
+      )
+    } else if (SHOW_STORYBOARD && isPreviewActive) {
       return (
         <div style={styles.plusContainer} onClick={this.stopPropagation}>
           <PlayButton
@@ -155,20 +168,9 @@ export default class Node extends Component {
             onClick={onPreviewClick}/>
         </div>
       )
+    } else {
+      return null
     }
-
-    return (
-      <div style={styles.plusContainer}>
-        <PlusButtonWithDropdown
-          node={node}
-          menuType={'platform'}
-          scaffolds={scaffolds}
-          visible={menuVisible}
-          createFileScaffold={createFileScaffold}
-          onVisibilityChange={this.handleVisibilityChange}
-        />
-      </div>
-    )
   }
 
   onMouseEnter = () => this.setState({hover: true})

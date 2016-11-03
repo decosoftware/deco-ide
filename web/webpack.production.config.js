@@ -24,6 +24,7 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
+      "SHOW_STORYBOARD": 0,
       // This has effect on the react lib size.
       "process.env": {
         NODE_ENV: JSON.stringify("production")
