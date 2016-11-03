@@ -61,7 +61,7 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   //setup environment variables
   app.commandLine.appendSwitch('js-flags', '--harmony')
-  app.commandLine.appendSwitch('--enable-experimental-web-platform-features'); 
+  app.commandLine.appendSwitch('--enable-experimental-web-platform-features');
 
   Logger.info('Deco initializing...')
 
@@ -74,7 +74,8 @@ app.on('ready', function() {
   //set the work area size for window manager
   global.workArea = size
   const version = app.getVersion()
-  SyncServiceController.start()
+  // Add sync service back when we turn on storyboards
+  // SyncServiceController.start()
 
   installDevTools()
 
