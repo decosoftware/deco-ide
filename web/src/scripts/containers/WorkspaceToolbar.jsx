@@ -37,7 +37,7 @@ import { setPreference, savePreferences } from '../actions/preferencesActions'
 import {
   setConsoleVisibility,
   setLeftSidebarVisibility,
-  setRightSidebarContent,
+  setRightSidebarVisibility,
   setSimulatorMenuPlatform,
 } from '../actions/uiActions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
@@ -188,13 +188,9 @@ class WorkspaceToolbar extends Component {
 
 
   toggleRightPane = (content) => {
-    const {rightSidebarContent} = this.props
+    const {rightSidebarVisible} = this.props
 
-    const updated = rightSidebarContent === RIGHT_SIDEBAR_CONTENT.NONE ?
-      RIGHT_SIDEBAR_CONTENT.PROPERTIES :
-      RIGHT_SIDEBAR_CONTENT.NONE
-
-    this.props.dispatch(setRightSidebarContent(updated))
+    this.props.dispatch(setRightSidebarVisibility(!rightSidebarVisible))
   }
 
   renderLeftSection() {
@@ -257,7 +253,7 @@ class WorkspaceToolbar extends Component {
   }
 
   renderRightSection() {
-    const {styles, projectNavigatorVisible, consoleVisible, rightSidebarContent} = this.props
+    const {styles, projectNavigatorVisible, consoleVisible, rightSidebarVisible} = this.props
 
     return (
       <div style={styles.rightSection}>
@@ -276,7 +272,7 @@ class WorkspaceToolbar extends Component {
           />
           <ThemedToolbarButton
             icon={'right-pane'}
-            active={rightSidebarContent !== RIGHT_SIDEBAR_CONTENT.NONE}
+            active={rightSidebarVisible}
             onClick={this.toggleRightPane}
             minWidth={0}
           />
@@ -305,7 +301,7 @@ const mapStateToProps = (state) => {
     title: state.directory.rootName,
     consoleVisible: state.ui.consoleVisible,
     projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
-    rightSidebarContent: state.ui.rightSidebarContent,
+    rightSidebarVisible: state.ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     simulatorMenuPlatform: state.ui.simulatorMenuPlatform,
     packagerIsOff: state.application.packagerStatus == ProcessStatus.OFF,
     simulatorProjectActive: state.application.simulatorStatus == ProcessStatus.ON,
