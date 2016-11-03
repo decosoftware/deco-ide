@@ -27,7 +27,7 @@ class ToolbarButtonGroup extends Component {
 
   render() {
     // Normalize to array and filter falsy children
-    const normalized = React.Children.map(this.props.children, child => child).filter(child => child)
+    const normalized = React.Children.toArray(this.props.children).filter(child => child)
     const childCount = normalized.length
 
     const clonedChildren = normalized.map((child, i) => {
