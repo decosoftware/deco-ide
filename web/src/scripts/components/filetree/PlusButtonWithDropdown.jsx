@@ -16,6 +16,7 @@
  */
 
 import React, { Component, PropTypes, } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
 
 import NavigatorHeaderButton from './NavigatorHeaderButton'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
@@ -23,55 +24,88 @@ import TwoStateButton from '../buttons/TwoStateButton'
 import LandingButton from '../buttons/LandingButton'
 import NewIcon from '../display/NewIcon'
 
-export default ({
-  node, scaffolds, createFileScaffold, onVisibilityChange, visible, menuType, captureBackground,
-}) => {
-  const scaffoldOptions = scaffolds.map(({name, id}) => {
-    return {
-      text: `New ${name}`,
-      action: () => createFileScaffold(node, id),
-    }
-  })
+const stylesCreator = ({colors}) => ({
+  plusIcon: {
+    marginRight: 10,
+    height: 12,
+    width: 12,
+    WebkitMaskPosition: 'center',
+    WebkitMaskImage: `-webkit-image-set(
+      url('./icons/icon-plus.png') 1x,
+      url('./icons/icon-plus@2x.png') 2x
+    )`,
+    backgroundColor: colors.fileTree.icon,
+  },
+  option: {
+    marginRight: 10,
+    marginLeft: 10,
+  },
+  hoveredButton: {
+    opacity: 0.75,
+  },
+  enabledButton: {
+    opacity: 0.5,
+  },
+})
 
-  const options = [
-    { text: 'New File', action: () => createFileScaffold(node) },
-    ...scaffoldOptions,
-  ]
+@StylesEnhancer(stylesCreator)
+export default class PlusButtonWithDropdown extends Component {
+  render() {
+    const {
+      captureBackground,
+      createFileScaffold,
+      menuType,
+      node,
+      onVisibilityChange,
+      scaffolds,
+      styles,
+      visible,
+    } = this.props
 
-  return (
-    <DropdownMenuButton
-      menuType={menuType}
-      captureBackground={captureBackground}
-      onVisibilityChange={onVisibilityChange}
-      renderContent={() =>
-        <div className={'helvetica-smooth'}>
-          {_.map(options, ({text, action}, i) => (
-            <div key={i}
-              style={{
-                marginBottom: i === options.length - 1 ? 0 : 6,
-                marginRight: 10,
-                marginLeft: 10,
-              }}>
-              <LandingButton
-                align={'flex-start'}
-                onClick={action}>
-                <NewIcon />
-                {text}
-              </LandingButton>
-            </div>
-          ))}
-        </div>
-      }>
-      <TwoStateButton
-        enabled={visible}
-        hoverStyle={{ opacity: 0.75 }}
-        enabledStyle={{ opacity: 0.5 }}>
-        <div>
-          <NavigatorHeaderButton
-            buttonClass={'icon-plus'}
-          />
-        </div>
-      </TwoStateButton>
-    </DropdownMenuButton>
-  )
+    const scaffoldOptions = scaffolds.map(({name, id}) => {
+      return {
+        text: `New ${name}`,
+        action: () => createFileScaffold(node, id),
+      }
+    })
+
+    const options = [
+      { text: 'New File', action: () => createFileScaffold(node) },
+      ...scaffoldOptions,
+    ]
+
+    return (
+      <DropdownMenuButton
+        menuType={menuType}
+        captureBackground={captureBackground}
+        onVisibilityChange={onVisibilityChange}
+        renderContent={() =>
+          <div className={'helvetica-smooth'}>
+            {_.map(options, ({text, action}, i) => (
+              <div key={i}
+                style={{
+                  ...styles.option,
+                  marginBottom: i === options.length - 1 ? 0 : 6,
+                }}>
+                <LandingButton
+                  align={'flex-start'}
+                  onClick={action}>
+                  <NewIcon />
+                  {text}
+                </LandingButton>
+              </div>
+            ))}
+          </div>
+        }>
+        <TwoStateButton
+          enabled={visible}
+          hoverStyle={styles.hoveredButton}
+          enabledStyle={styles.enabledButton}>
+          <div>
+            <div style={styles.plusIcon}/>
+          </div>
+        </TwoStateButton>
+      </DropdownMenuButton>
+    )
+  }
 }
