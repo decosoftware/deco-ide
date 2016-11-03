@@ -34,9 +34,7 @@ import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
 import { StylesEnhancer } from 'react-styles-provider'
 
-const stylesCreator = (theme) => {
-  const {colors} = theme
-
+const stylesCreator = ({colors}) => {
   return {
     container: {
       flex: 1,
@@ -87,6 +85,7 @@ const stylesCreator = (theme) => {
     },
     centerPane: {
       flex: 1,
+      background: colors.editor.background,
     },
   }
 }
