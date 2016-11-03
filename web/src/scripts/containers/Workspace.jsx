@@ -32,6 +32,7 @@ import LiveValueInspector from './LiveValueInspector'
 import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
+import ComponentBrowser from './ComponentBrowser'
 import { StylesEnhancer } from 'react-styles-provider'
 
 const stylesCreator = ({colors}) => {
@@ -170,7 +171,7 @@ export default class Workspace extends Component {
             style={styles.rightPaneTop}
           />
           <div style={styles.rightPaneBottom}>
-            <Publishing
+            <ComponentBrowser
               style={styles.rightPaneBottomInner}
             />
           </div>
