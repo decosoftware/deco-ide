@@ -32,6 +32,8 @@ const stylesCreator = ({colors, fonts}, {collapsedHeight, expandedHeight}) => {
       maxHeight: expandedHeight,
       minHeight: collapsedHeight,
       overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
     },
     termBar: {
       height: collapsedHeight,
@@ -40,7 +42,7 @@ const stylesCreator = ({colors, fonts}, {collapsedHeight, expandedHeight}) => {
       cursor: 'pointer',
       overflow: 'hidden',
       display: 'flex',
-      flex: 1,
+      flex: '0 0 auto',
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -100,7 +102,7 @@ class Console extends Component {
 
     return (
       <div className={containerClass} style={styles.termContainer}>
-        <div className='flex-fixed' style={styles.termBar} onClick={toggleConsole}>
+        <div style={styles.termBar} onClick={toggleConsole}>
           <div style={iconStyle} />
           <div style={styles.termTitleText}>{'Console Output'}</div>
           <div style={styles.switchContainer}>
