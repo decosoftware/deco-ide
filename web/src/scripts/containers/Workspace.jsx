@@ -45,7 +45,7 @@ const stylesCreator = (theme) => {
     },
     toolbar: {
       flex: 0,
-      height: 71,
+      height: 38,
     },
     content: {
       flex: 1,
@@ -210,7 +210,9 @@ export default class Workspace extends Component {
 
     return (
       <div style={containerStyle}>
-        <WorkspaceToolbar style={styles.toolbar} />
+        <WorkspaceToolbar
+          style={styles.toolbar}
+        />
         <div style={styles.content} data-resizable>
           { projectNavigatorVisible && (
             <div style={styles.leftPane} data-resizable>

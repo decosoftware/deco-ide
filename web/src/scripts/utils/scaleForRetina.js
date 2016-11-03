@@ -51,6 +51,10 @@ const scaleMultipleProperty = (value) => {
 const propertyTransforms = {
   width: scaleProperty,
   height: scaleProperty,
+  top: scaleProperty,
+  right: scaleProperty,
+  bottom: scaleProperty,
+  left: scaleProperty,
   borderRadius: scaleProperty,
   borderTopRightRadius: scaleProperty,
   borderTopLeftRadius: scaleProperty,
