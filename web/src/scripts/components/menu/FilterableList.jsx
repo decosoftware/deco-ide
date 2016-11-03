@@ -21,7 +21,6 @@ import ReactDOM from 'react-dom'
 import { HotKeys } from 'react-hotkeys'
 import { AutoSizer, VirtualScroll } from 'react-virtualized'
 
-import ComponentMenuItem from './ComponentMenuItem'
 import FilterableInputList from './FilterableInputList'
 
 const styles = {
@@ -213,7 +212,7 @@ export default class FilterableList extends Component {
     }
 
     const item = list[index]
-    const {name, displayName, tags} = item
+    const {name, displayName, tags, thumbnail} = item
 
     return (
       <ItemComponent
@@ -225,7 +224,8 @@ export default class FilterableList extends Component {
         onMouseEnter={this._onItemMouseEnter.bind(this, index)}
         active={index === activeIndex}
         name={displayName || name}
-        tags={tags}
+        // tags={tags} // TODO enable tags?
+        thumbnail={thumbnail}
         item={item}
         transparentBackground={transparentBackground}
       />
