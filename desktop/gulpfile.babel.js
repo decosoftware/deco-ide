@@ -13,7 +13,8 @@ const fse = require('fs-extra')
 const mocha = require('gulp-mocha')
 
 // Utility functions
-const {execSync: es} = child_process
+const {execSync} = child_process
+const es = (cmd, options = {}) => execSync(cmd, Object.assign({stdio: 'inherit'}, options))
 const cwd = (...args) => path.join(__dirname, ...args)
 
 const BUILD_VERSION = "0.7.1"
@@ -257,50 +258,45 @@ gulp.task('default', function() {
   return gulp.start('pack');
 });
 
-gulp.task('process-new-project-template', function(callback) {
-  var oldProjectPath = path.join(__dirname, 'libs/Project');
-  var newProjectPath = gutil.env.projectPath;
-  var nodeModulesPath = path.join(__dirname, 'libs/Project/node_modules');
-  var nodeModulesArchive = path.join(__dirname, 'libs/modules.tar.bz2');
-  var projectBinary = path.join(__dirname, 'libs/Project/Project.app');
-  var binaryDestination = path.join(__dirname, 'libs/Project/ios/build/Build/Products/Debug-iphonesimulator');
+// NOTE:
+// This task doesn't work correctly when called via `npm run ...`
+// Call directly with gulp as: ./node_modules/.bin/gulp create-project-template
+gulp.task('create-project-template', function(callback) {
+  const pp = {
+    libs               : cwd('libs'),
+    project            : cwd('libs/Project'),
+    compressed_modules : cwd('libs/modules.tar.bz2'),
+    node_modules       : cwd('libs/Project/node_modules'),
+  }
 
-  fs.stat(newProjectPath, function(err, stat) {
-    if (err == null) {
-      console.log('Preparing project directory...');
-      child_process.execSync('rm -rf ' + oldProjectPath);
-      child_process.execSync('cp -rf ' + newProjectPath + ' ' + oldProjectPath);
+  // Remove existing Project and compressed modules
+  es(`rm -rf ${pp.project}`)
+  es(`rm -rf ${pp.compressed_modules}`)
 
-      fs.stat(projectBinary, function(err, stat) {
-        if (err == null) {
-          console.log('Creating the modules archive...');
-          child_process.execSync('tar -cvjf ' + nodeModulesArchive + ' -C ' + oldProjectPath + ' node_modules');
+  // Update to latest react-native-cli
+  es(`npm install -g react-native-cli`)
 
-          console.log('Copying the binary...');
-          child_process.execSync('mkdir -p ' + binaryDestination);
-          child_process.execSync('cp -rf ' + projectBinary + ' ' + binaryDestination + '/Project.app');
+  // Create Project
+  es(`react-native init Project`, {cwd: pp.libs})
 
-          console.log('Cleaning up...');
-          child_process.execSync('rm -rf ' + projectBinary);
-          child_process.execSync('rm -rf ' + nodeModulesPath);
+  // Build iOS binary
+  es(`react-native run-ios --simulator "iPhone 6"`, {cwd: pp.project})
 
-          callback();
-        } else {
-          console.log('Error: Please copy the "Project.app" binary file into the root of your "Project" dir.');
-          callback(err);
-        }
-      });
-    } else {
-      console.log('Error: Nothing found at the path specified.');
-      callback(err);
-    }
-  });
+  // Compress node_modules
+  // (use -C to change to project dir, and refer to node_modules relatively)
+  es(`tar -cjf ${pp.compressed_modules} -C ${pp.project} node_modules`)
 
-});
+  // Delete node_modules
+  es(`rm -rf ${pp.node_modules}`)
 
-gulp.task('upgrade-project-template', function() {
-  runSequence('process-new-project-template', 'dev-unpack-lib');
-});
+  callback()
+})
+
+// See NOTE on create-project-template
+gulp.task('project-template', [
+  'create-project-template',
+  'dev-unpack-lib',
+])
 
 gulp.task('pack', [
   'clean',

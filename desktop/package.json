@@ -36,7 +36,6 @@
     "pack": "gulp pack",
     "debug": "gulp debug",
     "copy-libs": "gulp dev-unpack-lib",
-    "upgrade-project-template": "gulp upgrade-project-template",
     "postinstall": "gulp rebuild-native-modules",
     "test": "gulp test-integration"
   },
