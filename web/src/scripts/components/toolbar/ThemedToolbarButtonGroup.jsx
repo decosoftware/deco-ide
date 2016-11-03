@@ -71,6 +71,7 @@ export default class ThemedToolbarButtonGroup extends Component {
       // Add groupPosition prop
       .map((child, i, list) => {
         return React.cloneElement(child, {
+          key: i,
           groupPosition: this.getButtonPosition(i, list.length)
         })
       })
@@ -81,7 +82,7 @@ export default class ThemedToolbarButtonGroup extends Component {
 
         if (i < list.length - 1) {
           acc.push(
-            <div style={styles.divider}>
+            <div style={styles.divider} key={`s${i}`}>
               <div style={styles.dividerInner} />
             </div>
           )
