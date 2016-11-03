@@ -98,6 +98,7 @@ const mapStateToProps = (state) => createSelector(
   }),
   ({ui}) => ({
     projectNavigatorVisible: ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    rightSidebarVisible: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     rightSidebarContent: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
   }),
   ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
@@ -141,11 +142,9 @@ export default class Workspace extends Component {
   }
 
   renderInspector() {
-    const {styles, decoDoc, rightSidebarContent, publishingFeature} = this.props
+    const {styles, decoDoc, rightSidebarContent, rightSidebarVisible, publishingFeature} = this.props
 
-    if (rightSidebarContent === RIGHT_SIDEBAR_CONTENT.NONE) {
-      return null
-    }
+    if (!rightSidebarVisible) return null
 
     if (publishingFeature) {
 
