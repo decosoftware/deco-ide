@@ -63,7 +63,7 @@ const stylesCreator = ({colors}, transparentBackground) => {
     badge: {
       normal: {
         color: '#aaa',
-        backgroundColor: "rgba(239,239,239,1)",
+        backgroundColor: "rgba(170,170,170,0.1)",
         display: 'inline-block',
         fontSize: '9px',
         lineHeight: '14px',

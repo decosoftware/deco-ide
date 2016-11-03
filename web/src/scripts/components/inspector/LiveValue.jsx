@@ -33,6 +33,20 @@ import ColorInput from '../input/ColorInput'
 
 const INPUT_WIDTH = INPUT_WIDTH
 
+const styles = {
+  numberInputSpacer: {
+    marginRight: 10,
+  },
+  numberInputField: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    flex: '1 1 auto',
+    minWidth: 0,
+    minHeight: 0,
+  }
+}
+
 export default class extends Component {
 
   static propTypes = {
@@ -111,13 +125,17 @@ export default class extends Component {
           />,
           <div
             key={'Spacer'}
-            style={{marginRight: 10}}
+            style={styles.numberInputSpacer}
           />,
-          <NumberInput
+          <div
+            style={styles.numberInputField}
             key={'NumberInput'}
-            value={value}
-            onChange={onChange}
-          />,
+          >
+            <NumberInput
+              value={value}
+              onChange={onChange}
+            />
+          </div>,
         ]
       break
       case PrimitiveTypes.BOOLEAN:

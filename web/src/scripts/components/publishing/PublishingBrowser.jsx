@@ -113,12 +113,17 @@ export default class PublishingBrowser extends Component {
     ]
   }
 
+  renderHeader() {
+    const {signedIn} = this.props
+
+    return signedIn ? this.renderSignedIn() : this.renderSignedOut()
+  }
+
   render() {
-    const {styles, signedIn, user, onSelectComponent, onOpenComponent} = this.props
+    const {styles, user, onSelectComponent, onOpenComponent} = this.props
 
     return (
       <div style={styles.container}>
-        {signedIn ? this.renderSignedIn() : this.renderSignedOut()}
         <ComponentBrowser
           onClickItem={onSelectComponent}
           onDoubleClickItem={onOpenComponent}

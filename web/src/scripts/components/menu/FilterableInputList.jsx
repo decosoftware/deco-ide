@@ -99,7 +99,7 @@ export default class extends Component {
           type={'search'}
           ref={'filterInput'}
           style={styles.input}
-          placeholder={'Filter'}
+          placeholder={'Filter Components'}
           value={searchText}
           onClick={this.handleClick}
           onChange={this.handleChange}
