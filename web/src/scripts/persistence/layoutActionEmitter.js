@@ -22,6 +22,7 @@ import {
   setRightSidebarContent,
   setConsoleVisibility,
   setLeftSidebarVisibility,
+  setRightSidebarVisibility,
   setSimulatorMenuPlatform,
 } from '../actions/uiActions'
 import { LAYOUT_KEY, LAYOUT_FIELDS } from '../constants/LayoutConstants'
@@ -30,6 +31,7 @@ const ACTION_MAP = {
   [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: setRightSidebarContent,
   [LAYOUT_FIELDS.CONSOLE_VISIBLE]: setConsoleVisibility,
   [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: setLeftSidebarVisibility,
+  [LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE]: setRightSidebarVisibility,
   [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: setSimulatorMenuPlatform,
 }
 

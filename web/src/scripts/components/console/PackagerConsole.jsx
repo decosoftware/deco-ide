@@ -22,10 +22,10 @@ const style = {
   innerContainer: {
     color: 'rgba(255,255,255,0.8)',
     width: '100%',
-    height: '300px',
+    flex: '1 1 auto',
     overflow: 'auto',
     paddingLeft: 9,
-    paddingBottom: '40px',
+    paddingBottom: 9,
     margin: 0,
     WebkitUserSelect: 'text',
     fontSize: 12,

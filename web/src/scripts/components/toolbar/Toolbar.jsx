@@ -16,28 +16,11 @@
  */
 
 import React, { Component, } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-const containerStyle = {
-  display: 'flex',
-  flexDirection: 'row',
-  WebkitAppRegion: 'drag',
-  width: '100%',
-  justifyContent: 'space-between',
-  paddingBottom: 5,
-}
-
-const titleStyle = {
-  WebkitAppRegion: 'drag',
-  textAlign: 'center',
-  height: 10,
-  lineHeight: '14px',
-  fontSize: 14,
-  color: 'rgb(58, 58, 58)',
-  paddingTop: 4,
-}
-
-const Toolbar = ({children, title, height, style}) => {
-  const newStyle = {
+const stylesCreator = (theme, {style, height}) => ({
+  container: {
     ...style,
     height,
     background: 'linear-gradient(rgb(238,237,238), rgb(231,230,231))',
@@ -48,24 +31,52 @@ const Toolbar = ({children, title, height, style}) => {
     flexDirection: 'column',
     alignItems: 'stretch',
     justifyContent: 'space-between',
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'row',
+    WebkitAppRegion: 'drag',
+    width: '100%',
+    justifyContent: 'space-between',
+    paddingBottom: 5,
+  },
+  title: {
+    WebkitAppRegion: 'drag',
+    textAlign: 'center',
+    height: 10,
+    lineHeight: '14px',
+    fontSize: 14,
+    color: 'rgb(58, 58, 58)',
+    paddingTop: 4,
+  },
+})
+
+@StylesEnhancer(stylesCreator, ({style, height}) => ({style, height}))
+@pureRender
+export default class Toolbar extends React.Component {
+
+  static defaultProps = {
+    height: 60,
+    title: '',
   }
 
-  return (
-    <div className={'helvetica-smooth'}
-      style={newStyle}>
-      <div style={titleStyle}>
-        {title}
-      </div>
-      <div style={containerStyle}>
-        {children}
-      </div>
-    </div>
-  )
-}
+  render() {
+    const {styles, children, title, height} = this.props
 
-Toolbar.defaultProps = {
-  height: 60,
-  title: '',
+    return (
+      <div
+        className={'helvetica-smooth'}
+        style={styles.container}
+      >
+        {title && (
+          <div style={styles.title}>
+            {title}
+          </div>
+        )}
+        <div style={styles.content}>
+          {children}
+        </div>
+      </div>
+    )
+  }
 }
-
-export default Toolbar

@@ -36,6 +36,7 @@ const _saveLayout = (uiState) => {
     [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
     [LAYOUT_FIELDS.CONSOLE_VISIBLE]: uiState[LAYOUT_FIELDS.CONSOLE_VISIBLE],
     [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    [LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: uiState[LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM],
   }
   const saved = LocalStorage.loadObject(LAYOUT_KEY)
@@ -84,6 +85,14 @@ export const SET_LEFT_SIDEBAR_VISIBILITY = 'SET_LEFT_SIDEBAR_VISIBILITY'
 export const setLeftSidebarVisibility = saveLayout((visible) => {
   return {
     type: SET_LEFT_SIDEBAR_VISIBILITY,
+    payload: visible,
+  }
+})
+
+export const SET_RIGHT_SIDEBAR_VISIBILITY = 'SET_RIGHT_SIDEBAR_VISIBILITY'
+export const setRightSidebarVisibility = saveLayout((visible) => {
+  return {
+    type: SET_RIGHT_SIDEBAR_VISIBILITY,
     payload: visible,
   }
 })

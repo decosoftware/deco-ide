@@ -110,7 +110,6 @@ const mapStateToProps = (state) => createSelector(
     packagerOutput: application.packagerOutput,
     packagerStatus: application.packagerStatus,
     configError: application.configError,
-    flowError: application.flowError,
   }),
   ({metadata}) => metadata.liveValues.liveValuesById,
   ({preferences}) => ({
@@ -315,7 +314,7 @@ class TabbedEditor extends Component {
   }
 
   renderToast() {
-    const {configError, flowError} = this.props
+    const {configError} = this.props
 
     if (configError !== '') {
       return (
@@ -325,8 +324,6 @@ class TabbedEditor extends Component {
           onClose={this.onCloseConfigErrorToast}
         />
       )
-    } else if (flowError && flowError.code === PACKAGE_ERROR.MISSING) {
-      return this.renderFlowInstallationToast()
     } else {
       return null
     }

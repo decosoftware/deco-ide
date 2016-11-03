@@ -151,7 +151,7 @@ var WindowManager = {
         width: width || global.workArea.width,
         height: height || global.workArea.height,
         show: show || true,
-        titleBarStyle: 'hidden',
+        titleBarStyle: 'hidden-inset',
         icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png'),
         webPreferences: {
           experimentalFeatures: true,

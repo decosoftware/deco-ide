@@ -16,40 +16,39 @@
  */
 
 import React, { Component, } from 'react'
-import Enum from '../../utils/Enum'
 import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
 
-const stylesCreator = ({colors}) => {
-  return {
-    main: {
-      fontSize: 14,
-      color: 'rgba(255,255,255,0.35)',
-      textShadow: '0 1px 0 rgba(0,0,0,0.2)',
-      paddingBottom: 20,
-      textAlign: 'center',
-      WebkitFontSmoothing: 'antialiased',
-    },
-    container: {
-      display: 'flex',
-      flex: '1 0 auto',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20,
-    }
+export const STOPLIGHT_BUTTONS_WIDTH = 78
+
+const stylesCreator = (theme, {height}) => ({
+  container: {
+    WebkitAppRegion: 'drag',
+    height,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    background: 'linear-gradient(rgb(245,244,245), rgb(210,208,210))',
+    borderBottom: '1px solid rgb(195,195,195)',
+    paddingLeft: STOPLIGHT_BUTTONS_WIDTH,
+    paddingRight: 7,
+  },
+})
+
+@StylesEnhancer(stylesCreator, ({height}) => ({height}))
+@pureRender
+export default class Toolbar extends React.Component {
+
+  static defaultProps = {
+    height: 40,
   }
-}
-
-@StylesEnhancer(stylesCreator)
-export default class extends Component {
 
   render() {
-    const {styles, children} = this.props
+    const {styles, children, height} = this.props
 
     return (
       <div style={styles.container}>
-        <div style={styles.main}>
-          {children}
-        </div>
+        {children}
       </div>
     )
   }

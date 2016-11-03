@@ -22,13 +22,13 @@ export const LAYOUT_KEY = 'LAYOUT'
 export const LAYOUT_FIELDS = {
   RIGHT_SIDEBAR_CONTENT: 'rightSidebarContent',
   LEFT_SIDEBAR_VISIBLE: 'leftSidebarVisible',
+  RIGHT_SIDEBAR_VISIBLE: 'rightSidebarVisible',
   CONSOLE_VISIBLE: 'consoleVisible',
   WINDOW_BOUNDS: 'windowBounds',
   SIMULATOR_MENU_PLATFORM: 'simulatorMenuPlatform',
 }
 
 export const RIGHT_SIDEBAR_CONTENT = _.mapKeys([
-  'NONE',
   'PROPERTIES',
   'PUBLISHING',
 ])

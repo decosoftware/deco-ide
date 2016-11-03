@@ -43,7 +43,7 @@ const stylesCreator = ({colors}) => {
     },
     toolbar: {
       flex: 0,
-      height: 71,
+      height: 38,
     },
     content: {
       flex: 1,
@@ -56,10 +56,13 @@ const stylesCreator = ({colors}) => {
       width: 290,
       maxWidth: 400,
     },
-    leftPaneTop: {
+    leftPaneInner: {
       flex: 1,
     },
-    leftPaneBottom: {
+    rightPaneTop: {
+      flex: 1,
+    },
+    rightPaneBottom: {
       flex: 0,
       minHeight: 100,
       height: 300,
@@ -67,6 +70,9 @@ const stylesCreator = ({colors}) => {
       borderTopWidth: 1,
       borderTopColor: colors.dividerInverted,
       borderTopStyle: 'solid',
+    },
+    rightPaneBottomInner: {
+      flex: 1,
     },
     rightPane: {
       flex: 0,
@@ -91,6 +97,7 @@ const mapStateToProps = (state) => createSelector(
   }),
   ({ui}) => ({
     projectNavigatorVisible: ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    rightSidebarVisible: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     rightSidebarContent: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
   }),
   ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
@@ -134,30 +141,41 @@ export default class Workspace extends Component {
   }
 
   renderInspector() {
-    const {styles, decoDoc, rightSidebarContent, publishingFeature} = this.props
+    const {styles, decoDoc, rightSidebarContent, rightSidebarVisible, publishingFeature} = this.props
 
-    switch (rightSidebarContent) {
+    if (!rightSidebarVisible) return null
 
-      case RIGHT_SIDEBAR_CONTENT.NONE:
-        return null
+    if (publishingFeature) {
 
-      case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
-        return publishingFeature ? (
-          <ComponentInspector
-            style={styles.rightPane}
-          />
-        ) : (
+      switch (rightSidebarContent) {
+
+        case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
+          return (
+            <ComponentInspector
+              style={styles.rightPane}
+            />
+          )
+
+        case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
+          return (
+            <Publishing
+              style={styles.rightPane}
+            />
+          )
+      }
+    } else {
+      return (
+        <div style={styles.rightPane} data-resizable>
           <LiveValueInspector
-            style={styles.rightPane}
+            style={styles.rightPaneTop}
           />
-        )
-
-      case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
-        return (
-          <Publishing
-            style={styles.rightPane}
-          />
-        )
+          <div style={styles.rightPaneBottom}>
+            <Publishing
+              style={styles.rightPaneBottomInner}
+            />
+          </div>
+        </div>
+      )
     }
   }
 
@@ -190,13 +208,15 @@ export default class Workspace extends Component {
 
     return (
       <div style={containerStyle}>
-        <WorkspaceToolbar style={styles.toolbar} />
+        <WorkspaceToolbar
+          style={styles.toolbar}
+        />
         <div style={styles.content} data-resizable>
           { projectNavigatorVisible && (
             <div style={styles.leftPane} data-resizable>
               <ProjectNavigator
                 className={'subpixel-antialiased helvetica-smooth'}
-                style={styles.leftPaneTop}
+                style={styles.leftPaneInner}
               />
             </div>
           )}
