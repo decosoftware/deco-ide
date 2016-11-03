@@ -106,7 +106,7 @@ class WorkspaceToolbar extends Component {
     shell.openExternal("https://decoslackin.herokuapp.com/")
   }
 
-  launchSimulatorOfType(simInfo, platform) {
+  launchSimulatorOfType = (simInfo, platform) => {
     if (this.props.packagerIsOff) {
       this.props.dispatch(runPackager())
     }
@@ -139,7 +139,8 @@ class WorkspaceToolbar extends Component {
         }}
         ios={this.props.availableSimulatorsIOS}
         android={this.props.availableSimulatorsAndroid}
-        onClick={this.launchSimulatorOfType.bind(this)}/>
+        onClick={this.launchSimulatorOfType}
+      />
     )
   }
 

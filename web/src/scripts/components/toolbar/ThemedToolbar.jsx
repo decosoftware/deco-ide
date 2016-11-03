@@ -21,7 +21,7 @@ import pureRender from 'pure-render-decorator'
 
 export const STOPLIGHT_BUTTONS_WIDTH = 78
 
-const stylesCreator = (theme, {style, height, type}) => ({
+const stylesCreator = (theme, {height}) => ({
   container: {
     WebkitAppRegion: 'drag',
     height,
@@ -35,7 +35,7 @@ const stylesCreator = (theme, {style, height, type}) => ({
   },
 })
 
-@StylesEnhancer(stylesCreator, ({style, height, type}) => ({style, height, type}))
+@StylesEnhancer(stylesCreator, ({height}) => ({height}))
 @pureRender
 export default class Toolbar extends React.Component {
 
