@@ -1,4 +1,3 @@
 {
-  "presets": ["react-native"],
-  "plugins": ["transform-react-jsx-source"]
+"presets": ["react-native"]
 }
