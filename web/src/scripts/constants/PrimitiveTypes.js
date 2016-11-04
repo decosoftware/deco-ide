@@ -15,7 +15,7 @@
  *
  */
 
-export default {
+const types = {
   STRING: 'string',
   NUMBER: 'number',
   BOOLEAN: 'boolean',
@@ -24,6 +24,8 @@ export default {
   FUNCTION: 'function',
   RAW: 'raw',
 }
+
+export default types
 
 export const DISPLAY_NAMES = {
   STRING: 'String',
@@ -34,3 +36,8 @@ export const DISPLAY_NAMES = {
   FUNCTION: 'Function',
   RAW: 'Raw',
 }
+
+export const OPTIONS = Object.keys(types).map(key => ({
+  value: types[key],
+  displayName: DISPLAY_NAMES[key],
+}))

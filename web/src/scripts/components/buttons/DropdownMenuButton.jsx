@@ -31,25 +31,19 @@ class DropdownMenuButton extends Component {
     },
     renderContent: () => <div />,
     onVisibilityChange: () => {},
+    hideOnClick: true,
   }
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      showMenu: false,
-      menuPosition: {
-        x: 0,
-        y: 0,
-      }
-    }
-
-    this.setMenuVisibility = this.setMenuVisibility.bind(this)
-    this.setMenuVisibility = _.throttle(this.setMenuVisibility, 100, {
-      leading: true,
-      trailing: false
-    })
+  state = {
+    showMenu: false,
+    menuPosition: {x: 0, y: 0}
   }
+
+  setMenuVisibility = _.throttle(
+    (visible) => this.setState({showMenu: visible}),
+    100,
+    {leading: true, trailing: false}
+  )
 
   componentDidMount() {
     const {x, y} = this.calculatePosition()
@@ -87,12 +81,6 @@ class DropdownMenuButton extends Component {
     }
   }
 
-  setMenuVisibility(visible) {
-    this.setState({
-      showMenu: visible
-    })
-  }
-
   render() {
     const {
       style,
@@ -101,7 +89,9 @@ class DropdownMenuButton extends Component {
       renderContent,
       offset,
       menuType,
+      menuStyle,
       captureBackground,
+      hideOnClick,
     } = this.props
 
     const {
@@ -124,11 +114,12 @@ class DropdownMenuButton extends Component {
         {children}
         <DropdownMenu
           show={showMenu}
+          style={menuStyle}
           caret={true}
           type={menuType}
           captureBackground={captureBackground}
           positionX={'center'}
-          hideOnClick={true}
+          hideOnClick={hideOnClick}
           requestClose={this.setMenuVisibility.bind(null, false)}
           anchorPosition={{
             x: menuPosition.x + offset.x,

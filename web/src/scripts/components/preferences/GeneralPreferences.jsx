@@ -70,7 +70,7 @@ export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, and
           placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP].defaultValue}
         />
       </FormRow>
-      <FormRow
+      {/* <FormRow
         label={'Enable Experimental Component Publishing'}
         labelWidth={LABEL_WIDTH}
       >
@@ -79,7 +79,7 @@ export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, and
           type={'platform'}
           onChange={onPreferenceChange.bind(null, PREFERENCES.GENERAL.PUBLISHING_FEATURE)}
         />
-      </FormRow>
+      </FormRow> */}
     </div>
   )
 }

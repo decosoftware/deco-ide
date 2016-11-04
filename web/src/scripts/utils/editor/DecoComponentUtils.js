@@ -227,8 +227,8 @@ class DecoComponentUtils {
     )
   }
 
-  static createChangeToInsertTemplate(decoDoc, text, decoRanges) {
-    return insertComponentAtCursor(text, decoDoc.cmDoc, decoRanges)
+  static createChangeToInsertTemplate(decoDoc, linkedDocId, text, decoRanges) {
+    return insertComponentAtCursor(text, decoDoc.findLinkedDocById(linkedDocId), decoRanges)
   }
 
   static createChangeToInsertComponent(componentInfo, metadata, decoDoc, newDecoRanges) {

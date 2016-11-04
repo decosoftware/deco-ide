@@ -1,11 +1,16 @@
 import _ from 'lodash'
 import React from 'react'
+import { batchActions } from 'redux-batched-subscribe'
 
-const remote = Electron.remote;
+const remote = Electron.remote
 const path = remote.require('path')
-const Menu = remote.Menu;
-const MenuItem = remote.MenuItem;
+const Menu = remote.Menu
+const MenuItem = remote.MenuItem
 
+import * as ContentLoader from '../api/ContentLoader'
+import * as URIUtils from '../utils/URIUtils'
+import { CONTENT_PANES } from '../constants/LayoutConstants'
+import { tabActions, fileActions, compositeFileActions } from '../actions'
 import { fileTreeController as controller } from './index'
 import {
   renameFile,
@@ -21,27 +26,29 @@ import {
 
 import NamingBanner from '../components/modal/NamingBanner'
 
-export const showContextMenu = (dispatch, e, node, nodeMetadata, index) => {
+export const showContextMenu = (dispatch, rootPath, e, node, nodeMetadata, index) => {
   e.preventDefault()
   const { type } = node
-  buildMenu(type, dispatch, node).popup(remote.getCurrentWindow())
+  buildMenu(type, dispatch, rootPath, node).popup(remote.getCurrentWindow())
 }
 
 const ShowNamingBanner = (props) => {
   return pushModal(<NamingBanner {...props} />, true)
 }
 
-const buildFileMenu = (dispatch, node) => {
+const buildFileMenu = (dispatch, rootPath, node) => {
   const { name, path: filePath, type } = node
+  const uri = URIUtils.filePathToURI(filePath)
+
   return [
     new MenuItem({
       label: 'Rename',
       click: () => {
         dispatch(ShowNamingBanner({
           bannerText: `Rename file ${name}`,
-          initialValue: name,
+          initialValue: path.relative(rootPath, filePath),
           onTextDone: (newPath) => {
-            const absoluteNewPath = path.join(path.dirname(filePath), newPath)
+            const absoluteNewPath = path.join(rootPath, newPath)
             dispatch(renameFile(filePath, absoluteNewPath))
           },
         }))
@@ -53,6 +60,34 @@ const buildFileMenu = (dispatch, node) => {
         dispatch(deleteFile(filePath))
       }
     }),
+    new MenuItem({ type: 'separator' }),
+    new MenuItem({
+      label: 'Split Right',
+      click: () => {
+        dispatch(fileActions.registerPath(filePath))
+        dispatch(tabActions.splitRight(CONTENT_PANES.CENTER, uri))
+      }
+    }),
+    new MenuItem({ type: 'separator' }),
+    ...ContentLoader.filterLoaders(uri).map(loader => {
+      const {name, id} = loader
+
+      return new MenuItem({
+        label: `Open as ${name}`,
+        click: () => {
+          const uriWithLoader = ContentLoader.getURIWithLoader(uri, id)
+
+          // Make the previous tab permanent, open the new tab, and make it permanent too
+          dispatch(batchActions([
+            fileActions.registerPath(filePath),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER),
+            tabActions.addTab(CONTENT_PANES.CENTER, uriWithLoader),
+            tabActions.makeTabPermanent(CONTENT_PANES.CENTER, uriWithLoader),
+          ]))
+        }
+      })
+    }),
+    new MenuItem({ type: 'separator' }),
     new MenuItem({
       label: 'Show in Finder',
       click: () => {
@@ -70,9 +105,11 @@ const buildDirectoryMenu = (dispatch, node) => {
       click: () => {
         dispatch(ShowNamingBanner({
           bannerText: `Create new file in ${name}`,
-          onTextDone: (fileName) => {
+          onTextDone: async (fileName) => {
             const newFilePath = path.join(dirPath, fileName)
-            dispatch(createFile(newFilePath))
+
+            await dispatch(createFile(newFilePath))
+            dispatch(compositeFileActions.openFile(newFilePath))
           }
         }))
       }
@@ -118,12 +155,12 @@ const buildDirectoryMenu = (dispatch, node) => {
   ]
 }
 
-const buildMenu = (type, dispatch, node) => {
+const buildMenu = (type, dispatch, rootPath, node) => {
   const _menu = new Menu()
   let menuItems = []
   switch (type) {
     case 'file':
-      menuItems = buildFileMenu(dispatch, node)
+      menuItems = buildFileMenu(dispatch, rootPath, node)
       break
     case 'directory':
       menuItems = buildDirectoryMenu(dispatch, node)

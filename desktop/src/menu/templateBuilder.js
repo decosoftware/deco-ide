@@ -58,7 +58,6 @@ import {
   toggleTerm,
   shouldCloseTab,
   openInstallModuleDialog,
-  openImportTemplateDialog,
   openFile,
 } from '../actions/acceleratorActions'
 
@@ -308,7 +307,7 @@ const TemplateBuilder = function(platform) {
       }
     }, {
       label: 'Clean',
-      accelerator: 'Command+K',
+      accelerator: 'CommandOrCtrl+Alt+K',
       click: function() {
         try {
           const root = fileHandler.getWatchedPath()

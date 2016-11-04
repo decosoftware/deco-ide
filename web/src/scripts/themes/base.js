@@ -22,6 +22,18 @@ export const fonts = {
     letterSpacing: 0.3,
     ...smoothing,
   },
+  toolbarButton: {
+    fontFamily: fontFamily.main,
+    fontSize: 13,
+    letterSpacing: 0.3,
+    color: 'rgb(80,80,80)',
+    textRendering: 'optimizeLegibility',
+  },
+}
+
+fonts.buttonSmall = {
+  ...fonts.regular,
+  fontSize: 10,
 }
 
 export const input = {

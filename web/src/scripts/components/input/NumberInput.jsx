@@ -21,24 +21,15 @@ import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
-const stylesCreator = ({input}, {type, width, disabled}) => {
-  const styles = {
-    input: {
-      ...(type === 'platform' ? input.platform : input.regular),
-      display: 'flex',
-      flex: width ? `0 0 ${width}px` : '1 0 0px',
-      width: width ? width : 0,
-    },
-  }
-
-  styles.inputDisabled = {
-    ...styles.input,
-    background: 'rgb(250,250,250)',
-    color: 'rgb(154,154,154)',
-  }
-
-  return styles
-}
+const stylesCreator = ({input}, {type, width, disabled}) => ({
+  input: {
+    ...(type === 'platform' ? input.platform : input.regular),
+    display: 'flex',
+    flex: width ? `0 0 ${width}px` : '1 0 0px',
+    width: width ? width : 0,
+    opacity: disabled ? 0.4 : 1,
+  },
+})
 
 @StylesEnhancer(stylesCreator, ({type, width, disabled}) => ({type, width, disabled}))
 @pureRender
@@ -185,7 +176,7 @@ export default class NumberInput extends Component {
       <input
         ref={"input"}
         type={"text"}
-        style={disabled ? styles.inputDisabled : styles.input}
+        style={styles.input}
         disabled={disabled}
         value={this.state.internalValue}
         onChange={this.onInputChange}

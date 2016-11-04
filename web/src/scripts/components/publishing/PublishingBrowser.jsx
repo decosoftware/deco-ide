@@ -16,11 +16,18 @@
  */
 
 import React, { Component } from 'react'
+import { StylesEnhancer } from 'react-styles-provider'
+import pureRender from 'pure-render-decorator'
+
+const { remote } = Electron
+const { Menu, MenuItem } = remote
 
 import InspectorButton from '../buttons/InspectorButton'
 import UserDetailsBanner from '../user/UserDetailsBanner'
+import ComponentBrowser from '../../containers/ComponentBrowser'
+import PublishingSignIn from './PublishingSignIn'
 
-const styles = {
+const stylesCreator = ({colors, fonts}) => ({
   container: {
     display: 'flex',
     flex: '1 0 auto',
@@ -28,10 +35,10 @@ const styles = {
     alignItems: 'stretch',
   },
   inner: {
-    flex: 1,
+    flex: 0,
     overflowY: 'auto',
     padding: 10,
-    paddingTop: 15,
+    borderBottom: `1px solid ${colors.dividerInverted}`,
   },
   header: {
     color: 'rgb(114,114,114)',
@@ -44,39 +51,85 @@ const styles = {
     whiteSpace: 'pre',
     color: 'rgb(180,180,180)',
   },
-}
+})
 
-export default ({user, components, onSelectComponent, onCreateComponent}) => {
-  const {name, username, thumbnail} = user
-  const downloadCount = components.reduce((sum, component) => sum + (component.downloads || 0), 0)
+@StylesEnhancer(stylesCreator)
+@pureRender
+export default class PublishingBrowser extends Component {
 
-  return (
-    <div style={styles.container}>
+  buildContextMenu(component) {
+    const {onOpenComponent} = this.props
+
+    const menu = new Menu()
+
+    const items = [{
+      label: 'Split Right',
+      click: onOpenComponent.bind(null, component, true),
+    }]
+
+    items.forEach(item => menu.append(new MenuItem(item)))
+
+    return menu
+  }
+
+  showContextMenu = (component) => {
+    const menu = this.buildContextMenu(component)
+    menu.popup(remote.getCurrentWindow())
+  }
+
+  renderSignedOut() {
+    const {onSignIn} = this.props
+
+    return (
+      <PublishingSignIn
+        onClickSignIn={onSignIn}
+      />
+    )
+  }
+
+  renderSignedIn() {
+    const {styles, user, components, onCreateComponent, onSignOut} = this.props
+    const {name, username, thumbnail} = user
+    const downloadCount = components.reduce((sum, component) => sum + (component.downloads || 0), 0)
+
+    return [
       <UserDetailsBanner
+        key={'user'}
         name={name}
         username={username}
         thumbnail={thumbnail}
         componentCount={components.length}
         downloadCount={downloadCount}
-      />
-      <div style={styles.inner}>
-        <InspectorButton type={'main'} onClick={onCreateComponent}>
+        onSignOut={onSignOut}
+      />,
+      <div key={'inner'} style={styles.inner}>
+        <InspectorButton
+          type={'main'}
+          onClick={onCreateComponent}
+        >
           New Component
         </InspectorButton>
-        <div style={{marginBottom: 20}} />
-        <div style={styles.header}>Published Components</div>
-        {components.map(({name, repository, id}, i) => {
-          const style = {marginBottom: i === components.length ? 0 : 10}
+      </div>,
+    ]
+  }
 
-          return (
-            <div style={style} key={id} onClick={onSelectComponent.bind(null, id)}>
-              <InspectorButton align={'left'}>
-                {name}<span style={styles.componentDetails}>{/* | {repository}*/}</span>
-              </InspectorButton>
-            </div>
-          )
-        })}
+  renderHeader() {
+    const {signedIn} = this.props
+
+    return signedIn ? this.renderSignedIn() : this.renderSignedOut()
+  }
+
+  render() {
+    const {styles, user, onSelectComponent, onOpenComponent} = this.props
+
+    return (
+      <div style={styles.container}>
+        <ComponentBrowser
+          onClickItem={onSelectComponent}
+          onDoubleClickItem={onOpenComponent}
+          onContextMenuItem={this.showContextMenu}
+        />
       </div>
-    </div>
-  )
+    )
+  }
 }

@@ -24,19 +24,20 @@ import FileTree from 'react-file-tree'
 import path from 'path'
 
 import FileScaffoldFactory from '../factories/scaffold/FileScaffoldFactory'
-import { tabActions } from '../actions'
+import { tabActions, textEditorCompositeActions, compositeFileActions } from '../actions'
 import * as fileActions from '../actions/fileActions'
 import * as fileTreeCompositeActions from '../actions/fileTreeCompositeActions'
-import * as compositeFileActions from '../actions/compositeFileActions'
 import * as uiActions from '../actions/uiActions'
 import { fileTreeController, PLUGINS } from '../filetree'
 import { showContextMenu } from '../filetree/contextMenu'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { PaneHeader, Node, NamingBanner } from '../components'
+import * as URIUtils from '../utils/URIUtils'
 
 const SCAFFOLDS = FileScaffoldFactory.getScaffolds()
 
 const mapStateToProps = (state) => ({
+  rootPath: state.directory.rootPath,
   tree: state.directory.fileTree,
   version: state.directory.version,
 })
@@ -45,6 +46,7 @@ const mapDispatchToProps = (dispatch) => ({
   tabActions: bindActionCreators(tabActions, dispatch),
   fileActions: bindActionCreators(fileActions, dispatch),
   fileTreeCompositeActions: bindActionCreators(fileTreeCompositeActions, dispatch),
+  textEditorCompositeActions: bindActionCreators(textEditorCompositeActions, dispatch),
   compositeFileActions: bindActionCreators(compositeFileActions, dispatch),
   uiActions: bindActionCreators(uiActions, dispatch),
   dispatch,
@@ -57,8 +59,12 @@ class ProjectNavigator extends Component {
     style: {},
   }
 
+  state = {
+    currentPreview: ''
+  }
+
   componentWillMount() {
-    this.showContextMenu = showContextMenu.bind(this, this.props.dispatch)
+    this.showContextMenu = showContextMenu.bind(this, this.props.dispatch, this.props.rootPath)
   }
 
   onSelectFile = (e, node, nodeMetadata, index) => {
@@ -73,10 +79,10 @@ class ProjectNavigator extends Component {
   onDoubleSelectFile = (e, node) => {
     const {path: filepath, type} = node
 
-    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, filepath)
+    this.props.tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(filepath))
   }
 
-  onNameFile = (dirpath, scaffoldId, filename) => {
+  onNameFile = async (dirpath, scaffoldId, filename) => {
     let text = ''
 
     if (typeof scaffoldId !== 'undefined') {
@@ -84,7 +90,10 @@ class ProjectNavigator extends Component {
       text = FileScaffoldFactory.generateScaffold(scaffoldId, {filename})
     }
 
-    this.props.fileTreeCompositeActions.createFile(path.join(dirpath, filename), text)
+    const filepath = path.join(dirpath, filename)
+
+    await this.props.fileTreeCompositeActions.createFile(filepath, text)
+    this.props.compositeFileActions.openFile(filepath)
   }
 
   onCreateFile = (node, scaffoldId) => {
@@ -100,12 +109,31 @@ class ProjectNavigator extends Component {
     this.props.uiActions.pushModal(banner, true)
   }
 
+  handlePreviewClick = async (node) => {
+    const {rootPath, textEditorCompositeActions} = this.props
+    this.setState({currentPreview: node.path})
+    const relativePath = node.path.replace(rootPath, '.')
+    const requireText = relativePath.replace(path.extname(relativePath), '')
+    textEditorCompositeActions.updateDecoEntryRequire(requireText)
+  }
+
+  handleDrop = (sourceNode, targetNode) => {
+    const action = sourceNode.type === 'file' ? 'renameFile' : 'renameDir'
+
+    this.props.fileTreeCompositeActions[action](sourceNode.path, path.join(targetNode.path, sourceNode.name))
+  }
+
   renderNode = (props) => {
+    const {node} = props
+    const {currentPreview} = this.state
     return (
       <Node
         {...props}
+        onPreviewClick={this.handlePreviewClick.bind(this, node)}
+        isPreviewActive={currentPreview === node.path}
         scaffolds={SCAFFOLDS}
         createFileScaffold={this.onCreateFile}
+        onDrop={this.handleDrop.bind(this)}
       />
     )
   }

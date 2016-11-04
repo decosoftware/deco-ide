@@ -20,16 +20,17 @@ import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
-const stylesCreator = ({input}, {type, width}) => ({
+const stylesCreator = ({input}, {type, width, disabled}) => ({
   input: {
     ...(type === 'platform' ? input.platform : input.regular),
     display: 'flex',
     flex: '1 0 0px',
     width: width ? width : 0,
+    opacity: disabled ? 0.4 : 1,
   },
 })
 
-@StylesEnhancer(stylesCreator, ({type, width}) => ({type, width}))
+@StylesEnhancer(stylesCreator, ({type, width, disabled}) => ({type, width, disabled}))
 @pureRender
 export default class StringInput extends Component {
 
@@ -42,12 +43,14 @@ export default class StringInput extends Component {
       React.PropTypes.string,
       React.PropTypes.number,
     ]),
+    disabled: React.PropTypes.bool,
   }
 
   static defaultProps = {
     className: '',
     style: {},
     onSubmit: () => {},
+    disabled: false,
   }
 
   state = {}
@@ -101,7 +104,7 @@ export default class StringInput extends Component {
   }
 
   render() {
-    const {styles, value, placeholder, width} = this.props
+    const {styles, value, placeholder, width, disabled} = this.props
 
     return (
       <input
@@ -110,6 +113,7 @@ export default class StringInput extends Component {
         style={styles.input}
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={this.onInputChange}
         onKeyDown={this.onKeyDown}
         onBlur={this.onBlur}

@@ -17,10 +17,11 @@
 
 import _ from 'lodash'
 
+import * as selectors from '../selectors'
 import request from '../ipc/Request'
 import LocalStorage from '../persistence/LocalStorage'
-import { LAYOUT_KEY, LAYOUT_FIELDS } from '../constants/LayoutConstants'
-import {RESIZE, CONFIRM_DELETE_DIALOG} from 'shared/constants/ipc/WindowConstants'
+import { LAYOUT_KEY, LAYOUT_FIELDS, RIGHT_SIDEBAR_CONTENT } from '../constants/LayoutConstants'
+import { RESIZE, CONFIRM_DELETE_DIALOG } from 'shared/constants/ipc/WindowConstants'
 
 const _saveWindowBounds = (uiState) => {
   const data = {
@@ -35,6 +36,7 @@ const _saveLayout = (uiState) => {
     [LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
     [LAYOUT_FIELDS.CONSOLE_VISIBLE]: uiState[LAYOUT_FIELDS.CONSOLE_VISIBLE],
     [LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    [LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE]: uiState[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     [LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM]: uiState[LAYOUT_FIELDS.SIMULATOR_MENU_PLATFORM],
   }
   const saved = LocalStorage.loadObject(LAYOUT_KEY)
@@ -87,6 +89,14 @@ export const setLeftSidebarVisibility = saveLayout((visible) => {
   }
 })
 
+export const SET_RIGHT_SIDEBAR_VISIBILITY = 'SET_RIGHT_SIDEBAR_VISIBILITY'
+export const setRightSidebarVisibility = saveLayout((visible) => {
+  return {
+    type: SET_RIGHT_SIDEBAR_VISIBILITY,
+    payload: visible,
+  }
+})
+
 export const SET_CONSOLE_SCROLL_HEIGHT = 'CONSOLE_SCROLL_HEIGHT'
 export const setConsoleScrollHeight = (scrollHeight) => {
   return {
@@ -110,6 +120,16 @@ export const setRightSidebarContent = saveLayout((content) => {
     payload: content,
   }
 })
+
+export const setSidebarContext = () => async (dispatch, getState) => {
+  const element = selectors.selectedElement(getState())
+
+  if (element) {
+    return dispatch(setRightSidebarContent(RIGHT_SIDEBAR_CONTENT.PROPERTIES))
+  } else {
+    return dispatch(setRightSidebarContent(RIGHT_SIDEBAR_CONTENT.PUBLISHING))
+  }
+}
 
 export const POP_MODAL = 'POP_MODAL'
 export const popModal = () => {
@@ -172,11 +192,9 @@ export const upgradeStatus = (status) => {
   }
 }
 
-export const confirmDelete = (deletePath) => {
-  return (dispatch, getState) => {
-    return request({
-      type: CONFIRM_DELETE_DIALOG,
-      deletePath,      
-    })
-  }
+export const confirmDelete = (deletePath) => async (dispatch, getState) => {
+  return request({
+    type: CONFIRM_DELETE_DIALOG,
+    deletePath,
+  })
 }

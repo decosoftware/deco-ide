@@ -43,20 +43,22 @@ export default class PropertyStringInput extends Component {
   }
 
   render() {
-    const {styles, title, value, onChange} = this.props
+    const {styles, title, value, onChange, actions, dividerType, disabled} = this.props
 
     return (
       <PropertyField
         title={title}
+        actions={actions}
+        dividerType={dividerType}
       >
         <div style={styles.row}>
           <StringInput
             value={value}
             width={'100%'}
             onChange={onChange}
+            disabled={disabled}
           />
         </div>
-        <PropertyDivider />
       </PropertyField>
     )
   }

@@ -35,13 +35,7 @@ import {
   openImportTemplateDialog,
 } from '../actions/dialogActions'
 
-import {
-  cacheDoc,
-  markClean,
-  clearEditorState,
-  insertComponent,
-  insertTemplate,
-} from '../actions/editorActions'
+import * as editorActions from '../actions/editorActions'
 
 import { updateFileTreeVersion } from '../actions/fileActions'
 import { openFile } from '../actions/compositeFileActions'
@@ -65,7 +59,6 @@ const {
   SHOULD_SAVE_PROJECT,
   SHOULD_SAVE_PROJECT_AS,
   OPEN_INSTALL_MODULE_DIALOG,
-  OPEN_IMPORT_TEMPLATE_DIALOG,
   OPEN_FILE,
 } = AcceleratorConstants
 
@@ -121,7 +114,7 @@ const ipcActionEmitter = (store) => {
       query.temp = true
     }
     store.dispatch(clearFileState())
-    store.dispatch(clearEditorState())
+    store.dispatch(editorActions.clearEditorState())
     store.dispatch(tabActions.closeAllTabs())
     const state = store.getState()
     store.dispatch(routeActions.push({
@@ -136,10 +129,6 @@ const ipcActionEmitter = (store) => {
 
   ipc.on(OPEN_INSTALL_MODULE_DIALOG, () => {
     store.dispatch(openInstallModuleDialog())
-  })
-
-  ipc.on(OPEN_IMPORT_TEMPLATE_DIALOG, () => {
-    store.dispatch(openImportTemplateDialog())
   })
 
   ipc.on(SHOULD_OPEN_PROJECT_DIALOG, () => {
@@ -164,11 +153,11 @@ const ipcActionEmitter = (store) => {
   })
 
   ipc.on(ON_FILE_DATA, (evt, payload) => {
-    store.dispatch(cacheDoc(payload))
+    store.dispatch(editorActions.loadDoc(payload))
   })
 
   ipc.on(SAVE_SUCCESSFUL, (evt, payload) => {
-    store.dispatch(markClean(payload.filePath))
+    store.dispatch(editorActions.markClean(payload.filePath))
     store.dispatch(markSaved(payload.filePath))
   })
 
@@ -178,8 +167,7 @@ const ipcActionEmitter = (store) => {
   })
 
   ipc.on(SHOULD_CLOSE_TAB, () => {
-    const tabs = store.getState().ui.tabs
-    store.dispatch(closeTabWindow(tabs.CENTER.focusedTabId))
+    store.dispatch(closeTabWindow())
   })
 
   ipc.on(SHOULD_SAVE_PROJECT, () => {

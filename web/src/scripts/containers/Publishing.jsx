@@ -21,15 +21,19 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 
-import { componentActions, userActions, publishingActions } from '../actions'
-import { PaneHeader, PublishingSignIn, PublishingBrowser } from '../components'
+import * as selectors from '../selectors'
+import * as URIUtils from '../utils/URIUtils'
+import { componentActions, userActions, publishingActions, tabActions } from '../actions'
+import { PaneHeader, PublishingBrowser, PublishingMetadata } from '../components'
 
 const styles = {
   container: {
     display: 'flex',
-    flex: '1 0 auto',
+    flex: '1 1 auto',
     flexDirection: 'column',
     alignItems: 'stretch',
+    minWidth: 0,
+    minHeight: 0,
   },
   inner: {
     overflowY: 'auto',
@@ -49,12 +53,12 @@ const mapStateToProps = (state) => createSelector(
   ({ui: {publishing}}) => ({
     currentComponentId: publishing.currentComponentId
   }),
-  (components, signedIn, user, publishing) => ({
+  selectors.tabContainerId,
+  (components, signedIn, user, publishing, tabContainerId) => ({
     components: _.filter(components, ['authorId', user.authorId]),
     signedIn,
     user,
-    currentComponent: publishing.currentComponentId ?
-      _.find(components, ['id', publishing.currentComponentId]) : null
+    tabContainerId,
   })
 )
 
@@ -62,40 +66,49 @@ const mapDispatchToProps = (dispatch) => ({
   publishingActions: bindActionCreators(publishingActions, dispatch),
   componentActions: bindActionCreators(componentActions, dispatch),
   userActions: bindActionCreators(userActions, dispatch),
+  tabActions: bindActionCreators(tabActions, dispatch),
 })
 
 class Publishing extends Component {
 
-  constructor(props) {
-    super()
+  componentWillMount() {
+    const {componentActions, userActions, signedIn} = this.props
 
-    props.componentActions.fetchComponents()
+    componentActions.fetchComponents()
 
-    if (props.signedIn) {
-      props.userActions.fetchUserInfo()
+    if (signedIn) {
+      userActions.fetchUserInfo()
     }
   }
 
   createComponent = async () => {
-    const {id} = await this.props.componentActions.createComponent()
-    this.props.publishingActions.setCurrentComponent(id)
+    const {componentActions, tabActions, tabContainerId} = this.props
+
+    const {id} = await componentActions.createComponent()
+    const uri = URIUtils.componentIdToURI(id)
+
+    tabActions.addTab(tabContainerId, uri)
+    tabActions.makeTabPermanent(tabContainerId, uri)
   }
 
-  updateComponent = (component) => {
-    this.props.componentActions.updateComponent(component)
+  selectComponent = (component) => {
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
+
+    tabActions.addTab(tabContainerId, uri)
   }
 
-  deleteComponent = (component) => {
-    this.props.publishingActions.setCurrentComponent(null)
-    this.props.componentActions.deleteComponent(component)
-  }
+  openComponent = (component, newTab = false) => {
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
 
-  selectComponent = (currentComponentId) => {
-    this.props.publishingActions.setCurrentComponent(currentComponentId)
-  }
+    if (newTab) {
+      tabActions.splitRight(tabContainerId, uri)
+    } else {
+      tabActions.addTab(tabContainerId, uri)
+    }
 
-  deselectCurrentComponent = () => {
-    this.props.publishingActions.setCurrentComponent(null)
+    tabActions.makeTabPermanent(tabContainerId, uri)
   }
 
   signIn = () => {
@@ -107,39 +120,20 @@ class Publishing extends Component {
   }
 
   render() {
-    const {currentComponent, components, signedIn, user, width} = this.props
+    const {components, signedIn, user, width} = this.props
 
     return (
       <div style={styles.container}>
-        <PaneHeader
-          text={'Publishing'}
-          leftTitle={currentComponent ? 'Back' : null}
-          onClickLeftTitle={this.deselectCurrentComponent}
-          rightTitle={signedIn ? 'Sign out' : null}
-          onClickRightTitle={this.signOut}
+        <PublishingBrowser
+          signedIn={signedIn}
+          user={user}
+          components={components}
+          onSignIn={this.signIn}
+          onSignOut={this.signOut}
+          onSelectComponent={this.selectComponent}
+          onCreateComponent={this.createComponent}
+          onOpenComponent={this.openComponent}
         />
-        {signedIn ? (
-          currentComponent ? (
-            <div // TODO should be PublishingMetadata, after cleanup
-              user={user}
-              component={currentComponent}
-              width={width}
-              onUpdateComponent={this.updateComponent}
-              onDeleteComponent={this.deleteComponent}
-            />
-          ) : (
-            <PublishingBrowser
-              user={user}
-              components={components}
-              onSelectComponent={this.selectComponent}
-              onCreateComponent={this.createComponent}
-            />
-          )
-        ) : (
-          <PublishingSignIn
-            onClickSignIn={this.signIn}
-          />
-        )}
       </div>
     )
   }

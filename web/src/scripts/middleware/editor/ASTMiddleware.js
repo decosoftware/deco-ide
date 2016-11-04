@@ -20,52 +20,77 @@ import CodeMirror from 'codemirror'
 import { bindActionCreators } from 'redux'
 import { batchActions } from 'redux-batched-subscribe'
 
-const FlowController = Electron.remote.require('./process/flowController.js')
+const CodeMod = Electron.remote.require('./utils/codemod/index.js')
 import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import Pos from '../../models/editor/CodeMirrorPos'
 import ASTUtils from '../../utils/ASTUtils'
 import ElementTreeBuilder from '../../utils/ElementTreeBuilder'
 import { astActions, elementTreeActions } from '../../actions'
+import * as uiActions from '../../actions/uiActions'
+import * as ChangeUtils from '../../utils/Editor/ChangeUtils'
 
 /**
  * Middleware for building an AST from the file
  */
-class ASTMiddleware extends Middleware {
+export default class ASTMiddleware extends Middleware {
 
   constructor() {
     super()
 
-    this.keyMap = {
+    this.eventListeners = {
       [EventTypes.changes]: this.changes,
-      [EventTypes.swapDoc]: this.changes,
+      [EventTypes.swapDoc]: this.swapDoc,
       [EventTypes.cursorActivity]: this.cursorActivity,
     }
   }
 
-  get eventListeners() {
-    return this.keyMap
-  }
-
   cursorActivity = (cm) => {
-    if (!this.enabled) return
-
-    const {filename} = this
+    const {decoDoc: {id: filename}} = this
 
     const selections = cm.listSelections()
     const selection = selections[0]
 
     if (selections.length === 1 && selection.empty()) {
-      this.dispatch(elementTreeActions.selectElementFromPos(filename, selection.from()))
+      this.dispatch(batchActions([
+        elementTreeActions.selectElementFromPos(filename, selection.from()),
+        uiActions.setSidebarContext(),
+      ]))
     }
   }
 
-  changes = async (cm) => {
-    if (!this.enabled) return
+  changes = (cm, changes) => {
 
-    const {decoDoc, filename} = this
-    const raw = await FlowController.getAST(decoDoc.code, filename)
-    const ast = JSON.parse(raw)
+    // TODO:
+    // Only rebuild the elementTree for the linked doc in the active tab,
+    // or perhaps instead when the AST is stale.
+    // Currently this breaks when adding/removing props, since these affect the AST,
+    // so we rebuild even if the doc is open in multiple tabs.
+    // if (!cm.hasFocus()) return
+
+    // Don't rebuild the elementTree when changing a prop - we do this manually.
+    if (ChangeUtils.containsDecoPropChange(changes)) return
+
+    this.analyze(cm, changes)
+  }
+
+  swapDoc = (cm) => {
+    this.analyze(cm)
+  }
+
+  analyze = async (cm) => {
+    const {decoDoc, decoDoc: {id: filename}} = this
+
+    let astString
+
+    try {
+      astString = await CodeMod.getAST(decoDoc.code)
+    } catch (e) {
+      console.log('ASTMiddleware failed to parse AST', e)
+      return
+    }
+
+    const ast = JSON.parse(astString)
     const elementTree = ElementTreeBuilder.elementTreeFromAST(ast)
 
     this.dispatch(batchActions([
@@ -74,29 +99,4 @@ class ASTMiddleware extends Middleware {
     ]))
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this.decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this.decoDoc) {
-      return
-    }
-
-    this.decoDoc = null
-  }
-
-}
-
-const middleware = new ASTMiddleware()
-
-export default (dispatch, filename, enabled) => {
-  middleware.setDispatchFunction(dispatch)
-  middleware.filename = filename
-  middleware.enabled = enabled
-  return middleware
 }

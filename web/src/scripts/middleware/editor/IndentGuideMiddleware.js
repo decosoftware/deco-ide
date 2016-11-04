@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash'
+import { EventEmitter } from 'events'
 import CodeMirror from 'codemirror'
 
 import Middleware from '../Middleware'
@@ -24,59 +25,121 @@ import Pos from '../../models/editor/CodeMirrorPos'
 import StyleNode from '../../utils/StyleNode'
 
 const MAX_GUIDE_DEPTH = 32
-const CHAR_WIDTH = 7.1875
-const LINE_PADDING = 4
 const WORK_PER_FRAME = 2
+
+// Emit changes on CodeMirror option changes
+const optionsEmitter = new EventEmitter()
+
+CodeMirror.defineOption('showIndentGuides', false, (cm, val, old) => {
+
+  const prev = old && old != CodeMirror.Init;
+  if (val && ! prev) {
+    const indentUnit = cm.getOption('indentUnit')
+
+    // Reset CodeMirror's cached character dimensions, since they may be stale
+    cm.display.cachedCharWidth = null
+    cm.display.cachedTextHeight = null
+
+    // Get character dimensions
+    const charWidth = cm.defaultCharWidth()
+    const textHeight = cm.defaultTextHeight()
+
+    optionsEmitter.emit('enabled', cm, indentUnit, charWidth, textHeight)
+  } else if (! val && prev) {
+    optionsEmitter.emit('disabled', cm)
+  }
+})
+
 
 /**
  * Middleware for showing indent guides
  */
-class IndentGuideMiddleware extends Middleware {
+export default class IndentGuideMiddleware extends Middleware {
 
   constructor() {
     super()
 
     this.styleNode = new StyleNode()
 
-    this._indentSize = 2
-    this._showIndentGuides = false
+    this.indentSize = 2
 
     // ClassNames to add
-    this._classQueue = {}
+    this.classQueue = {}
 
     // Existing classes on lines - current state of the DOM
-    this._lineCache = {}
+    this.lineCache = {}
 
     // ClassNames to delete
-    this._deletionQueue = {}
+    this.deletionQueue = {}
 
-    this._keyMap = {
-      [EventTypes.viewportChange]: this._viewportChange.bind(this),
-      [EventTypes.swapDoc]: this._swapDoc.bind(this),
-      [EventTypes.changes]: this._changes.bind(this),
+    this.eventListeners = {
+      [EventTypes.renderLine]: this.renderLine,
     }
   }
 
-  get eventListeners() {
-    return this._keyMap
+  getClassName = (text) => {
+    const {indentSize} = this
+
+    const whitespace = typeof text === 'number' ? text : text.search(/\S|$/) + 1
+    const indentCount = Math.floor(whitespace / indentSize) * indentSize
+
+    return `cm-indent-guide-${indentCount}`
   }
 
-  setIndentGuides(value) {
-    this._showIndentGuides = value
+  renderLine = (cm, lineHandle, element) => {
+    const {text, stateAfter} = lineHandle
+
+    let className
+
+    // If there are any non-whitespace characters, count indentation and determine className
+    if (text.match(/\S/)) {
+      className = this.getClassName(text)
+
+    // Else, use syntax highlighter's indentation level
+    } else {
+      const indent = _.get(stateAfter, 'context.state.indented', 0)
+      className = this.getClassName(indent)
+    }
+
+    element.classList.add(className)
+  }
+
+  enable = (cm, indentUnit, charWidth, textHeight) => {
+    this.showIndentGuides = true
+    this.attachStyles(indentUnit, charWidth, textHeight)
+  }
+
+  disable = (cm) => {
+    this.showIndentGuides = false
+    this.detachStyles()
+  }
+
+  attach(...args) {
+    super.attach(...args)
+
+    optionsEmitter.on('enabled', this.enable)
+    optionsEmitter.on('disabled', this.disable)
+  }
+
+  detach() {
+    optionsEmitter.removeListener('enabled', this.enable)
+    optionsEmitter.removeListener('disabled', this.disable)
+
+    super.detach()
   }
 
   // Generate an indent guide
-  _getBackgroundStyles(i, charWidth, textHeight) {
+  getBackgroundStyles(i, charWidth, textHeight) {
     return {
       ['background']: `linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1))`,
       ['background-size']: `1px ${textHeight}px`,
       ['background-repeat']: `no-repeat`,
-      ['background-position']: `${LINE_PADDING + i * charWidth}px 0px`,
+      ['background-position']: `${charWidth * i}px 0px`,
     }
   }
 
   // Use multiple backgrounds to make `n` indent guides
-  _getBackgroundStylesRepeated(n, indentSize, charWidth, textHeight) {
+  getBackgroundStylesRepeated(n, indentSize, charWidth, textHeight) {
     const styles = {
       ['background']: [],
       ['background-size']: [],
@@ -89,7 +152,7 @@ class IndentGuideMiddleware extends Middleware {
         continue
       }
 
-      const style = this._getBackgroundStyles(i, charWidth, textHeight)
+      const style = this.getBackgroundStyles(i, charWidth, textHeight)
       styles['background'].push(style['background'])
       styles['background-size'].push(style['background-size'])
       styles['background-repeat'].push(style['background-repeat'])
@@ -111,7 +174,7 @@ class IndentGuideMiddleware extends Middleware {
         continue
       }
 
-      const styles = this._getBackgroundStylesRepeated(i - 1, indentSize, charWidth, textHeight)
+      const styles = this.getBackgroundStylesRepeated(i - 1, indentSize, charWidth, textHeight)
       rules.push(
         `.cm-indent-guide-${i}::before {
           position: absolute;
@@ -134,219 +197,4 @@ class IndentGuideMiddleware extends Middleware {
     this.styleNode.detach()
   }
 
-  // Add and remove classes from the DOM.
-  // Distribute over multiple frames so scrolling remains fast.
-  _updateClasses(cm) {
-    const addedLineIndexes = []
-    const deletedLineIndexes = []
-    let addedCount = 0
-    let deletedCount = 0
-    let shouldCallAgain = false
-
-    // Remove classes from the DOM
-    _.each(this._deletionQueue, (_, i) => {
-
-      // Cast i to number (it's an object key initially)
-      i = +i
-
-      cm.removeLineClass(i, 'background', this._lineCache[i])
-      delete this._lineCache[i]
-
-      deletedLineIndexes.push(i)
-      deletedCount++
-
-      if (deletedCount > WORK_PER_FRAME) {
-        shouldCallAgain = true
-
-        // Exit iteration early
-        return false
-      }
-    })
-
-    // Add classes to the DOM
-    _.each(this._classQueue, (className, i) => {
-
-      // Cast i to number (it's an object key initially)
-      i = +i
-
-      // Remove previous className
-      if (this._lineCache[i]) {
-        cm.removeLineClass(i, 'background', this._lineCache[i])
-      }
-
-      cm.addLineClass(i, 'background', className)
-      this._lineCache[i] = className
-      addedLineIndexes.push(i)
-      addedCount++
-
-      if (addedCount > WORK_PER_FRAME) {
-        shouldCallAgain = true
-
-        // Exit iteration early
-        return false
-      }
-    })
-
-    // Update the queue
-    _.each(addedLineIndexes, (key) => {
-      delete this._classQueue[key]
-    })
-
-    // Update the queue
-    _.each(deletedLineIndexes, (key) => {
-      delete this._deletionQueue[key]
-    })
-
-    if (shouldCallAgain) {
-      window.requestAnimationFrame(this._updateClasses.bind(this, cm))
-    }
-  }
-
-  _enqueueClassUpdates(cm, fromLine, toLine) {
-    if (! this._showIndentGuides) {
-      return
-    }
-
-    _.each(this._lineCache, (_, i) => {
-      i = +i
-
-      if (i <= fromLine || i >= toLine) {
-        this._deletionQueue[i] = true
-      }
-    })
-
-    _.each(this._classQueue, (_, i) => {
-      i = +i
-
-      if (i <= fromLine || i >= toLine) {
-        delete this._classQueue[i]
-      }
-    })
-
-    for (let i = fromLine; i <= toLine; i++) {
-      const text = cm.getRange({line: i, ch: 0}, {line: i, ch: MAX_GUIDE_DEPTH + 1})
-
-      let className
-
-      // If empty line, use previous line's indent count
-      if (text === '') {
-        className = this._classQueue[i - 1] || this._lineCache[i - 1]
-
-      // Else, count indentation and determine className
-      } else {
-        const whitespace = text.search(/\S|$/) + 1
-        const indentCount = Math.floor(whitespace / this._indentSize) * this._indentSize
-        className = 'cm-indent-guide-' + indentCount
-      }
-
-      // Add the className to the queue, if it doesn't already exist
-      if (className &&
-          className !== this._classQueue[i] &&
-          (className !== this._lineCache[i] || this._deletionQueue[i])) {
-
-        this._classQueue[i] = className
-      }
-    }
-
-    if (_.size(this._classQueue) || _.size(this._deletionQueue)) {
-      window.requestAnimationFrame(this._updateClasses.bind(this, cm))
-    }
-  }
-
-  enqueueRemoveAllClasses(cm) {
-    this._classQueue = {}
-
-    // Mark all existing classes for deletion
-    Object.assign(this._deletionQueue, this._lineCache)
-
-    if (_.size(this._deletionQueue)) {
-      window.requestAnimationFrame(this._updateClasses.bind(this, cm))
-    }
-  }
-
-  enqueueViewportUpdate(cm) {
-    const {from, to} = cm.getViewport()
-    this._enqueueClassUpdates(cm, from, to)
-  }
-
-  _viewportChange(cm, fromLine, toLine) {
-    this._enqueueClassUpdates(cm, fromLine, toLine)
-  }
-
-  // On change, invalidate all lines below the start of the change closest to
-  // the top of the file.
-  _changes(cm, changes) {
-    const sortedChanges = _.sortBy(changes, ['from.line'])
-    const fromLine = sortedChanges[0].from.line
-
-    _.each(this._lineCache, (_, i) => {
-      i = +i
-
-      if (i >= fromLine) {
-        this._deletionQueue[i] = true
-      }
-    })
-
-    _.each(this._classQueue, (_, i) => {
-      i = +i
-
-      if (i >= fromLine) {
-        delete this._classQueue[i]
-      }
-    })
-
-    this.enqueueViewportUpdate(cm)
-  }
-
-  _swapDoc(cm) {
-    this._classQueue = {}
-    this.enqueueViewportUpdate(cm)
-  }
-
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this._decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this._decoDoc) {
-      return
-    }
-
-    this._decoDoc = null
-  }
-
-}
-
-const middleware = new IndentGuideMiddleware()
-
-CodeMirror.defineOption('showIndentGuides', false, (cm, val, old) => {
-  middleware.setIndentGuides(val)
-
-  const prev = old && old != CodeMirror.Init;
-  if (val && ! prev) {
-    const indentUnit = cm.getOption('indentUnit')
-
-    // Reset CodeMirror's cached character dimensions, since they may be stale
-    cm.display.cachedCharWidth = null
-    cm.display.cachedTextHeight = null
-
-    // Get character dimensions
-    const charWidth = cm.defaultCharWidth()
-    const textHeight = cm.defaultTextHeight()
-
-    middleware.attachStyles(indentUnit, charWidth, textHeight)
-    middleware.enqueueViewportUpdate(cm)
-  } else if (! val && prev) {
-    middleware.detachStyles()
-    middleware.enqueueRemoveAllClasses(cm)
-  }
-})
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

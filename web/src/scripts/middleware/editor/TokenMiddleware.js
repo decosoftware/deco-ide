@@ -17,10 +17,7 @@
 
 import CodeMirror from 'codemirror'
 
-import {
-  addDecoRangeFromCMToken,
-} from '../../actions/editorActions'
-
+import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 import Middleware from '../Middleware'
 import { EventTypes } from '../../constants/CodeMirrorTypes'
 import CodeMirrorToken from '../../models/editor/CodeMirrorToken'
@@ -35,18 +32,14 @@ const TOKEN_TYPES = [
 /**
  * Middleware for highlighting and clicking specific token types
  */
-class TokenMiddleware extends Middleware {
+export default class TokenMiddleware extends Middleware {
 
   constructor() {
     super()
 
-    this._keyMap = {
+    this.eventListeners = {
       [EventTypes.mouseDown]: this.mouseDown.bind(this),
     }
-  }
-
-  get eventListeners() {
-    return this._keyMap
   }
 
   getTokenAt(cm, pos, precise = false) {
@@ -68,47 +61,22 @@ class TokenMiddleware extends Middleware {
   }
 
   mouseDown(cm, e) {
-    if (e.altKey) {
-      e.stopPropagation()
-      e.preventDefault()
+    if (!e.altKey) return
 
-      const clickCoords = {
-        left: e.pageX,
-        top: e.pageY,
-      }
+    e.stopPropagation()
+    e.preventDefault()
 
-      const clickPos = cm.coordsChar(clickCoords, 'page')
-      const token = this.findNearestLiteralToken(cm, clickPos)
+    const clickCoords = {
+      left: e.pageX,
+      top: e.pageY,
+    }
 
-      if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
-        // console.log('click token', clickPos, token)
-        this.dispatch(addDecoRangeFromCMToken(this._decoDoc.id, token))
-      }
+    const clickPos = cm.coordsChar(clickCoords, 'page')
+    const token = this.findNearestLiteralToken(cm, clickPos)
 
+    if (token.type && TOKEN_TYPES.indexOf(token.type) >= 0) {
+      this.dispatch(textEditorCompositeActions.addDecoRangeFromCMToken(this.decoDoc.id, token))
     }
   }
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this._decoDoc = decoDoc
-  }
-
-  detach() {
-    if (!this._decoDoc) {
-      return
-    }
-
-    this._decoDoc = null
-  }
-
-}
-
-const middleware = new TokenMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

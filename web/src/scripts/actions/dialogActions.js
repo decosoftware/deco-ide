@@ -20,7 +20,7 @@ import { pushModal } from '../actions/uiActions'
 import {
   importModule,
   fetchTemplateText
-} from '../api/ModuleClient'
+} from '../clients/ModuleClient'
 import {
   insertTemplate
 } from '../actions/editorActions'
@@ -36,23 +36,6 @@ export const openInstallModuleDialog = () => (dispatch, getState) => {
         const state = getState()
         const registry = state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY]
         importModule(name, 'latest', getRootPath(state), registry)
-      }} />
-  )
-  dispatch(pushModal(dialog, true))
-}
-
-export const openImportTemplateDialog = () => (dispatch, getState) => {
-  const dialog = (
-    <NamingBanner
-      bannerText={'Import template'}
-      onTextDone={(url) => {
-        dispatch(fetchTemplateText(url)).then((text) => {
-          const {openDocId, docCache} = getState().editor
-
-          if (docCache && docCache[openDocId]) {
-            dispatch(insertTemplate(docCache[openDocId], text))
-          }
-        })
       }} />
   )
   dispatch(pushModal(dialog, true))

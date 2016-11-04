@@ -16,6 +16,7 @@
  */
 
 // Buttons
+export DropdownMenuButton from './buttons/DropdownMenuButton'
 export InspectorButton from './buttons/InspectorButton'
 export LoginButton from './buttons/LoginButton'
 export SimpleButton from './buttons/SimpleButton'
@@ -28,11 +29,14 @@ export Console from './console/Console'
 export NoContent from './display/NoContent'
 export Callout from './display/Callout'
 export ProgressBar from './display/ProgressBar'
+export TabContent from './display/TabContent'
 
 // Editor
 export AutocompleteHint from './editor/AutocompleteHint'
+export CodeMirrorComponent from './editor/CodeMirrorComponent'
 export EditorDropTarget from './editor/EditorDropTarget'
 export EditorToast from './editor/EditorToast'
+export Minimap from './editor/Minimap'
 
 // File Tree
 export Node from './filetree/Node'
@@ -66,6 +70,7 @@ export PropertyStringInput from './inspector/PropertyStringInput'
 // Layout
 export Pane from './layout/Pane'
 export TabContainer from './layout/TabContainer'
+export Splitter from './layout/Splitter'
 
 // Menu
 export ComponentMenuItem from './menu/ComponentMenuItem'
@@ -77,8 +82,9 @@ export SearchMenu from './menu/SearchMenu'
 export NamingBanner from './modal/NamingBanner'
 
 // Publishing
-export PublishingSignIn from './publishing/PublishingSignIn'
 export PublishingBrowser from './publishing/PublishingBrowser'
+export PublishingMetadata from './publishing/PublishingMetadata'
+export PublishingSignIn from './publishing/PublishingSignIn'
 
 // User
 export UserDetailsBanner from './user/UserDetailsBanner'

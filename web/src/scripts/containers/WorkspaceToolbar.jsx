@@ -20,7 +20,8 @@ const shell = window.Electron.shell
 import _ from 'lodash'
 import React, { Component, } from 'react'
 import { Link, } from 'react-router'
-import { connect} from 'react-redux'
+import { connect } from 'react-redux'
+import { StylesEnhancer } from 'react-styles-provider'
 
 import {
   save,
@@ -30,22 +31,20 @@ import {
   getAvailableSimulators,
 } from '../actions/applicationActions'
 
-
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { setPreference, savePreferences } from '../actions/preferencesActions'
 
 import {
   setConsoleVisibility,
   setLeftSidebarVisibility,
-  setRightSidebarContent,
+  setRightSidebarVisibility,
   setSimulatorMenuPlatform,
 } from '../actions/uiActions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 
-import SaveToolbarButton from '../components/buttons/SaveToolbarButton'
-import Toolbar from '../components/toolbar/Toolbar'
-import ToolbarButton from '../components/buttons/ToolbarButton'
-import ToolbarButtonGroup from '../components/buttons/ToolbarButtonGroup'
+import ThemedToolbar, { STOPLIGHT_BUTTONS_WIDTH } from '../components/toolbar/ThemedToolbar'
+import ThemedToolbarButton from '../components/toolbar/ThemedToolbarButton'
+import ThemedToolbarButtonGroup from '../components/toolbar/ThemedToolbarButtonGroup'
 import DropdownMenuButton from '../components/buttons/DropdownMenuButton'
 import LandingButton from '../components/buttons/LandingButton'
 import { ProcessStatus, } from '../constants/ProcessStatus'
@@ -53,81 +52,61 @@ import OnboardingUtils from '../utils/OnboardingUtils'
 import SimulatorUtils from '../utils/SimulatorUtils'
 import SimulatorMenu from '../components/menu/SimulatorMenu'
 
-const sectionStyle = {
-  WebkitAppRegion: 'drag',
-  display: 'flex',
-  flexDirection: 'row',
-}
-
-const SIZE = {
-  SEP_LARGE: 54,
-  SEP_SMALL: 18,
-  BTN_LARGE: 60,
-  BTN_SMALL: 52,
-}
-
-const separatorLargeStyle = {
-  marginRight: SIZE.SEP_LARGE,
-}
-
-const separatorSmallStyle = {
-  marginRight: SIZE.SEP_SMALL,
-}
-
 const dropdownMenuOffset = {
   x: 0,
-  y: -14,
+  y: -2,
 }
 
-const emptySimulatorMenuStyle = {
-  width: 300,
-  height: 280,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  flexDirection: 'column',
-  padding: '15px 10px 0px 10px',
+const stylesCreator = (theme) => {
+  const section = {
+    WebkitAppRegion: 'drag',
+    display: 'flex',
+    flexDirection: 'row',
+  }
+
+  return {
+    container: {
+      display: 'flex',
+      flex: '1 1 auto',
+      justifyContent: 'space-between',
+    },
+    leftSection: {
+      ...section,
+      justifyContent: 'flex-start',
+      minWidth: 150,
+    },
+    centerSection: {
+      ...section,
+    },
+    rightSection: {
+      ...section,
+      justifyContent: 'flex-end',
+      minWidth: 150 + STOPLIGHT_BUTTONS_WIDTH,
+    },
+    buttonGroupSeparator: {
+      width: 7,
+    },
+  }
 }
 
+@StylesEnhancer(stylesCreator)
 class WorkspaceToolbar extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {}
 
-    this.discussMenuOptions = [
-      {
-        text: 'Open Deco Slack',
-        action: this._openDiscuss.bind(this)
-      },
-      {
-        text: 'Create Slack Account',
-        action: this._openCreateDiscussAccount.bind(this)
-      },
-    ]
-  }
+  state = {}
 
-  _processStatusToButtonState(statusType) {
-    switch(statusType) {
-      case ProcessStatus.ON:
-        return ToolbarButton.BUTTON_STATE.ACTIVE
-      default:
-        return ToolbarButton.BUTTON_STATE.DEFAULT
-    }
-  }
-
-  _openDiscuss() {
+  openDiscuss = () => {
     shell.openExternal("https://decoslack.slack.com/messages/deco/")
   }
 
-  _openDocs() {
+  openDocs = () => {
     shell.openExternal("https://www.decosoftware.com/docs")
   }
 
-  _openCreateDiscussAccount() {
+  openCreateDiscussAccount = () => {
     shell.openExternal("https://decoslackin.herokuapp.com/")
   }
 
-  _launchSimulatorOfType(simInfo, platform) {
+  launchSimulatorOfType = (simInfo, platform) => {
     if (this.props.packagerIsOff) {
       this.props.dispatch(runPackager())
     }
@@ -139,7 +118,7 @@ class WorkspaceToolbar extends Component {
     }
   }
 
-  _renderSimulatorMenu() {
+  renderSimulatorMenu = () => {
     return (
       <SimulatorMenu
         setAndroidEmulationOption={(option) => {
@@ -160,11 +139,17 @@ class WorkspaceToolbar extends Component {
         }}
         ios={this.props.availableSimulatorsIOS}
         android={this.props.availableSimulatorsAndroid}
-        onClick={this._launchSimulatorOfType.bind(this)}/>
+        onClick={this.launchSimulatorOfType}
+      />
     )
   }
 
-  _renderDropdownMenu(options) {
+  renderDropdownMenu = () => {
+    const options = [
+      { text: 'Open Deco Slack', action: this.openDiscuss },
+      { text: 'Create Slack Account', action: this.openCreateDiscussAccount },
+    ]
+
     return (
       <div className={'helvetica-smooth'}>
         {_.map(options, ({text, action}, i) => (
@@ -183,176 +168,132 @@ class WorkspaceToolbar extends Component {
     )
   }
 
-  // RENDER
-  _renderLeftSection() {
+  setDiscussMenuVisibility = (visible) => this.setState({discussMenuOpen: visible})
+
+  reloadSimulator = () => this.props.dispatch(hardReloadSimulator())
+
+  setSimulatorMenuVisibility = (visible) => this.setState({simulatorMenuOpen: visible})
+
+  toggleLeftPane = () => {
+    const {projectNavigatorVisible} = this.props
+
+    this.props.dispatch(setLeftSidebarVisibility(!projectNavigatorVisible))
+  }
+
+  toggleBottomPane = () => {
+    const {consoleVisible} = this.props
+
+    this.props.dispatch(setConsoleVisibility(!consoleVisible))
+  }
+
+
+  toggleRightPane = (content) => {
+    const {rightSidebarVisible} = this.props
+
+    this.props.dispatch(setRightSidebarVisibility(!rightSidebarVisible))
+  }
+
+  renderLeftSection() {
+    const {styles} = this.props
+
     return (
-      <div style={sectionStyle}>
-        <ToolbarButtonGroup
-          style={separatorLargeStyle}
-          activeIndexes={[
-            this.props.projectNavigatorVisible,
-            this.props.consoleVisible, ]}>
-          <ToolbarButton
-            text={'Project'}
-            icon={'project'}
-            id={'project-btn'}
-            onClick={() => {
-              const visibility = ! this.props.projectNavigatorVisible
-              this.props.dispatch(setLeftSidebarVisibility(visibility))
-            }}
-            width={SIZE.BTN_LARGE} />
-          <ToolbarButton
-            text={'Console'}
-            icon={'console'}
-            id={'console-btn'}
-            onClick={() => {
-              const visibility = ! this.props.consoleVisible
-              this.props.dispatch(setConsoleVisibility(visibility))
-            }}
-            width={SIZE.BTN_LARGE} />
-        </ToolbarButtonGroup>
-        <ToolbarButtonGroup
-          style={separatorSmallStyle}>
-          <ToolbarButton
+      <div style={styles.leftSection}>
+        <ThemedToolbarButtonGroup>
+          <ThemedToolbarButton
             text={'Docs'}
-            icon={'docs'}
-            onClick={this._openDocs.bind(this)} />
-        </ToolbarButtonGroup>
-        <ToolbarButtonGroup
-          style={separatorSmallStyle}>
-          <DropdownMenuButton
-            menuType={'platform'}
-            offset={dropdownMenuOffset}
-            onVisibilityChange={(visible) => this.setState({discussMenuOpen: visible})}
-            renderContent={() => this._renderDropdownMenu(this.discussMenuOptions)}>
-            <ToolbarButton
-              text={'Discuss'}
-              icon={'chat'}
-              pressed={this.state.discussMenuOpen}
-            />
-          </DropdownMenuButton>
-        </ToolbarButtonGroup>
-      </div>
-    )
-  }
-
-  _renderCenterSection() {
-    const simulatorButtonState = this.props.simulatorProjectActive ?
-        ToolbarButton.BUTTON_STATE.ACTIVE :
-        ToolbarButton.BUTTON_STATE.DEFAULT
-
-    return (
-      <div style={sectionStyle}>
-        <ToolbarButtonGroup
-          style={separatorSmallStyle}
-          activeIndexes={[
-            this.props.simulatorProjectActive,
-            false,
-          ]}>
-          <DropdownMenuButton
-            menuType={'platform'}
-            offset={dropdownMenuOffset}
-            onVisibilityChange={(visible) => this.setState({simulatorMenuOpen: visible})}
-            renderContent={() => this._renderSimulatorMenu()}>
-            <ToolbarButton
-              text={'Simulator'}
-              id={'simulator-btn'}
-              icon={'phone'}
-              buttonState={simulatorButtonState}
-              groupPosition={ToolbarButton.GROUP_POSITION.LEFT}
-              pressed={this.state.simulatorMenuOpen} />
-          </DropdownMenuButton>
-          <ToolbarButton
-            text={'Reload'}
-            icon={'refresh'}
-            onClick={() => {
-              this.props.dispatch(hardReloadSimulator())
-            }} />
-        </ToolbarButtonGroup>
-      </div>
-    )
-  }
-
-  _renderRightSection() {
-    const handleSidebarToggleClick = (content) => {
-      const value = this.props.rightSidebarContent === content ?
-        RIGHT_SIDEBAR_CONTENT.NONE : content
-      this.props.dispatch(setRightSidebarContent(value))
-    }
-
-    // Left & right must have equal width for best flexboxing
-    const spacer = SIZE.BTN_LARGE + SIZE.BTN_SMALL * 2 + SIZE.SEP_SMALL +
-      (this.props.publishingFeature ? 0 : SIZE.SEP_LARGE)
-
-    return (
-      <div style={sectionStyle}>
-        <div style={{width: spacer}}></div>
-        <ToolbarButtonGroup
-          theme={this.props.publishingFeature ? ToolbarButtonGroup.THEME.DARK : ToolbarButtonGroup.THEME.LIGHT}
-          activeIndexes={[
-            this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PROPERTIES,
-            this.props.rightSidebarContent === RIGHT_SIDEBAR_CONTENT.PUBLISHING,
-          ]}>
-          <ToolbarButton
-            text={'Properties'}
-            icon={'properties'}
-            id={'properties-btn'}
-            onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PROPERTIES)}
-            width={SIZE.BTN_LARGE}
+            onClick={this.openDocs}
           />
-          {this.props.publishingFeature && (
-            <ToolbarButton
-              text={'Publishing'}
-              icon={'publish'}
-              onClick={handleSidebarToggleClick.bind(this, RIGHT_SIDEBAR_CONTENT.PUBLISHING)}
-              width={SIZE.BTN_LARGE}
+        </ThemedToolbarButtonGroup>
+        <div style={styles.buttonGroupSeparator} />
+        <ThemedToolbarButtonGroup>
+          <DropdownMenuButton
+            menuType={'platform'}
+            offset={dropdownMenuOffset}
+            onVisibilityChange={this.setDiscussMenuVisibility}
+            renderContent={this.renderDropdownMenu}
+          >
+            <ThemedToolbarButton
+              text={'Deco Slack'}
+              opened={this.state.discussMenuOpen}
             />
-          )}
-        </ToolbarButtonGroup>
+          </DropdownMenuButton>
+        </ThemedToolbarButtonGroup>
+      </div>
+    )
+  }
+
+  renderCenterSection() {
+    const {styles, simulatorProjectActive} = this.props
+    const {simulatorMenuOpen} = this.state
+
+    return (
+      <div style={styles.centerSection}>
+        <ThemedToolbarButtonGroup>
+          <DropdownMenuButton
+            menuType={'platform'}
+            offset={dropdownMenuOffset}
+            onVisibilityChange={this.setSimulatorMenuVisibility}
+            renderContent={this.renderSimulatorMenu}
+          >
+            <ThemedToolbarButton
+              id={'simulator-btn'}
+              active={simulatorProjectActive}
+              icon={'phone'}
+              groupPosition={'left'}
+              opened={simulatorMenuOpen}
+            />
+          </DropdownMenuButton>
+          <ThemedToolbarButton
+            icon={'refresh'}
+            onClick={this.reloadSimulator}
+          />
+        </ThemedToolbarButtonGroup>
+      </div>
+    )
+  }
+
+  renderRightSection() {
+    const {styles, projectNavigatorVisible, consoleVisible, rightSidebarVisible} = this.props
+
+    return (
+      <div style={styles.rightSection}>
+        <ThemedToolbarButtonGroup>
+          <ThemedToolbarButton
+            icon={'left-pane'}
+            active={projectNavigatorVisible}
+            onClick={this.toggleLeftPane}
+            minWidth={0}
+          />
+          <ThemedToolbarButton
+            icon={'bottom-pane'}
+            active={consoleVisible}
+            onClick={this.toggleBottomPane}
+            minWidth={0}
+          />
+          <ThemedToolbarButton
+            icon={'right-pane'}
+            active={rightSidebarVisible}
+            onClick={this.toggleRightPane}
+            minWidth={0}
+          />
+        </ThemedToolbarButtonGroup>
       </div>
     )
   }
 
   render() {
-    const {style, title, height, isTempProject} = this.props
-
-    const leftContainerStyle = {
-      display: 'flex',
-      flexDirection: 'row',
-      alignSelf: 'flex-end',
-      marginLeft: 10,
-      WebkitAppRegion: 'drag',
-    }
-
-    const rightContainerStyle = {
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-end',
-      marginRight: 10,
-      WebkitAppRegion: 'drag',
-    }
+    const {styles} = this.props
 
     return (
-      <Toolbar
-        style={style}
-        title={title + (isTempProject ? ' (Temporary until saved)' : '')}
-        height={height}>
-        <span style={leftContainerStyle}>
-          {this._renderLeftSection()}
-        </span>
-        {this._renderCenterSection()}
-        <span style={rightContainerStyle}>
-          {this._renderRightSection()}
-        </span>
-      </Toolbar>
+      <ThemedToolbar>
+        <div style={styles.container}>
+          {this.renderLeftSection()}
+          {this.renderCenterSection()}
+          {this.renderRightSection()}
+        </div>
+      </ThemedToolbar>
     )
   }
-}
-
-WorkspaceToolbar.defaultProps = {
-  className: '',
-  style: {},
-  title: 'Untitled',
 }
 
 const mapStateToProps = (state) => {
@@ -360,11 +301,10 @@ const mapStateToProps = (state) => {
     title: state.directory.rootName,
     consoleVisible: state.ui.consoleVisible,
     projectNavigatorVisible: state.ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
-    rightSidebarContent: state.ui.rightSidebarContent,
+    rightSidebarVisible: state.ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     simulatorMenuPlatform: state.ui.simulatorMenuPlatform,
     packagerIsOff: state.application.packagerStatus == ProcessStatus.OFF,
     simulatorProjectActive: state.application.simulatorStatus == ProcessStatus.ON,
-    isTempProject: state.routing.location.query && state.routing.location.query.temp,
     availableSimulatorsIOS: state.application.availableSimulatorsIOS,
     availableSimulatorsAndroid: state.application.availableSimulatorsAndroid,
     useGenymotion: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION],

@@ -15,38 +15,29 @@
  *
  */
 
+import * as selectors from '../selectors'
 import * as tabActions from '../actions/tabActions'
 import * as editorActions from '../actions/editorActions'
 import FileTreeActions from '../filetree/actions'
 import TabUtils from '../utils/TabUtils'
+import * as URIUtils from '../utils/URIUtils'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 
-export const openFile = (path) => async (dispatch, getState) => {
-  try {
-    await dispatch(editorActions.openDocument(path))
-
-  // Attempt to show the tab even if opening the doc failed
-  } catch (e) {
-    dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
-    return
-  }
-
+export const openFile = (path, tabGroupIndex) => async (dispatch, getState) => {
+  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, URIUtils.filePathToURI(path), tabGroupIndex))
   FileTreeActions.selectFile(path)
-  dispatch(tabActions.addTab(CONTENT_PANES.CENTER, path))
 }
 
-export const closeTabWindow = (closeTabId) => async (dispatch, getState) => {
-  dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId))
+export const closeTabWindow = (closeTabId, tabGroupIndex) => async (dispatch, getState) => {
+  closeTabId = closeTabId || selectors.focusedTabId(getState())
 
-	const tabs = getState().ui.tabs
-	const tabToFocus = tabs.CENTER && TabUtils.determineTabToFocus(tabs.CENTER.tabIds, closeTabId, tabs.CENTER.focusedTabId)
+  await dispatch(tabActions.closeTab(CONTENT_PANES.CENTER, closeTabId, tabGroupIndex))
 
-	// If there's another tab to open, open the file for it
-  if (tabToFocus) {
-    const filePath = getState().directory.filesById[tabToFocus].path
-    dispatch(openFile(filePath))
+  const focusedFileId = selectors.focusedFileId(getState())
+
+  if (focusedFileId) {
+    FileTreeActions.selectFile(focusedFileId)
   } else {
-    dispatch(tabActions.clearFocusedTab(CONTENT_PANES.CENTER))
     dispatch(editorActions.clearCurrentDoc())
     FileTreeActions.clearSelections()
   }

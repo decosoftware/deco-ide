@@ -19,7 +19,6 @@ const { shell } = Electron
 
 import _ from 'lodash'
 import React, { Component, PropTypes } from 'react'
-import ReactDOM from 'react-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
@@ -27,37 +26,39 @@ import { StylesEnhancer } from 'react-styles-provider'
 import { HotKeys } from 'react-hotkeys'
 import path from 'path'
 
-import HistoryMiddleware from '../middleware/editor/HistoryMiddleware'
-import TokenMiddleware from '../middleware/editor/TokenMiddleware'
-import ClipboardMiddleware from '../middleware/editor/ClipboardMiddleware'
-import AutocompleteMiddleware from '../middleware/editor/AutocompleteMiddleware'
-import IndentGuideMiddleware from '../middleware/editor/IndentGuideMiddleware'
-import DragAndDropMiddleware from '../middleware/editor/DragAndDropMiddleware'
-import ASTMiddleware from '../middleware/editor/ASTMiddleware'
+import * as URIUtils from '../utils/URIUtils'
 import * as selectors from '../selectors'
-import * as uiActions from '../actions/uiActions'
-import * as applicationActions from '../actions/applicationActions'
-import * as editorActions from '../actions/editorActions'
-import * as compositeFileActions from '../actions/compositeFileActions'
-import { fetchTemplateAndImportDependencies } from '../api/ModuleClient'
 import { installAndStartFlow } from '../utils/FlowUtils'
 import { PACKAGE_ERROR } from '../utils/PackageUtils'
 import { CATEGORIES, METADATA, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
+import TabSplitter from './TabSplitter'
+import { getTrackedFiles } from '../filetree'
 
 import {
-  EditorDropTarget,
-  NoContent,
+  uiActions,
+  applicationActions,
+  textEditorCompositeActions,
+  compositeFileActions,
+  tabActions,
+} from '../actions'
+
+import {
   ProgressBar,
   Console,
   SearchMenu,
   ComponentMenuItem,
   TabContainer,
   Tab,
+  TabContent,
   EditorToast,
 } from '../components'
 
 const DEFAULT_NPM_REGISTRY = METADATA[CATEGORIES.EDITOR][PREFERENCES[CATEGORIES.EDITOR].NPM_REGISTRY].defaultValue
+const CONSOLE_COLLAPSED_HEIGHT = 36
+const CONSOLE_EXPANDED_HEIGHT = 300
+const MENU_FILE_SEARCH = 'fileSearch'
+const MENU_INSERT = 'insert'
 
 const stylesCreator = ({colors}) => {
   const tabBarHeight = 36
@@ -75,24 +76,6 @@ const stylesCreator = ({colors}) => {
       display: 'flex',
       flexDirection: 'column',
       position: 'relative',
-      borderWidth: 1,
-      borderTopWidth: 0,
-      borderStyle: 'solid',
-      borderColor: colors.editor.divider,
-    },
-    editor: {
-      flex: '1 1 auto',
-      top: 0,
-      bottom: 0,
-      left: 0,
-      right: 0,
-      zIndex: 1000,
-      position: 'relative',
-      overflow: 'auto',
-    },
-    tabContainer: {
-      height: tabBarHeight,
-      borderBottom: '1px solid rgb(16,16,16)',
     },
     progressBar: {
       position: 'absolute',
@@ -106,24 +89,18 @@ const stylesCreator = ({colors}) => {
     link: {
       textDecoration: 'underline',
     },
+    tabContainer: {
+      flex: 1,
+    },
   }
 }
 
 const emptyTabs = []
 
 const mapStateToProps = (state) => createSelector(
-  selectors.editorOptions,
-  selectors.filesByTabId,
+  selectors.currentDoc,
   ({directory}) => directory.rootPath,
-  ({ui: {tabs}}) => ({
-    focusedTabId: _.get(tabs, `${CONTENT_PANES.CENTER}.focusedTabId`),
-    tabIds: _.get(tabs, `${CONTENT_PANES.CENTER}.tabIds`, emptyTabs),
-  }),
-  ({components, modules, preferences}) => {
-    const publishingFeature = preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
-
-    return publishingFeature ? components.list : modules.modules
-  },
+  selectors.componentList,
   ({ui}) => ({
     consoleVisible: ui.consoleVisible,
     savedScrollHeight: ui.scrollHeight,
@@ -133,23 +110,21 @@ const mapStateToProps = (state) => createSelector(
     packagerOutput: application.packagerOutput,
     packagerStatus: application.packagerStatus,
     configError: application.configError,
-    flowError: application.flowError,
   }),
   ({metadata}) => metadata.liveValues.liveValuesById,
   ({preferences}) => ({
     npmRegistry: preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY],
-    publishingFeature: preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
   }),
-  (editorOptions, filesByTabId, rootPath, tabs, componentList, ui, application, liveValuesById, preferences) => ({
-    options: editorOptions,
-    filesByTabId,
+  selectors.tabContainerId,
+  (decoDoc, rootPath, componentList, ui, application, liveValuesById, preferences, tabContainerId) => ({
+    decoDoc,
     rootPath,
-    ...tabs,
     componentList,
     ...ui,
     ...application,
     liveValuesById,
     ...preferences,
+    tabContainerId,
   })
 )
 
@@ -168,22 +143,71 @@ class TabbedEditor extends Component {
   }
 
   state = {
-    showMenu: false,
+    menu: null,
     menuPosition: {x: 0, y: 0},
   }
 
   keyMap = {
     openInsertMenu: 'command+i',
+
+    // TODO consider also using command+t (which currently conflicts with a CM command)
+    openFileSearch: 'command+p',
+    focusNextTab: 'command+shift+]',
+    focusPrevTab: 'command+shift+[',
+    openInNewTab: 'command+shift+\\',
+    focusNextGroup: 'command+k command+right',
+    focusPrevGroup: 'command+k command+left',
   }
 
   keyHandlers = {
-    openInsertMenu: (e) => {
-      const {showMenu} = this.state
+    openInsertMenu: (e) => this.props.decoDoc && this.openMenu(MENU_INSERT),
+    openFileSearch: (e) => {
+      const files = getTrackedFiles().map(node => ({
+        node,
+        name: node.path,
+        displayName: `${node.name} - ${node.path}`,
+      }))
 
-      if (!showMenu) {
-        this.setState({showMenu: true})
-      }
+      this.setState({files})
+      this.openMenu(MENU_FILE_SEARCH)
+    },
+    focusNextGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'next')),
+    focusPrevGroup: (e) => this.props.dispatch(tabActions.focusAdjacentGroup(CONTENT_PANES.CENTER, 'prev')),
+    focusNextTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'next')),
+    focusPrevTab: (e) => this.props.dispatch(tabActions.focusAdjacentTab(CONTENT_PANES.CENTER, 'prev')),
+    openInNewTab: (e) => this.props.dispatch(tabActions.splitRight(CONTENT_PANES.CENTER)),
+  }
+
+  constructor(props) {
+    super(props)
+
+    for (let key = 1; key <= 9; key++) {
+      const index = key - 1
+      const focusTabHotkey = `focusTab${key}`
+      const focusGroupHotkey = `focusGroup${key}`
+
+      this.keyMap[focusTabHotkey] = `command+${key}`
+      this.keyMap[focusGroupHotkey] = `command+k command+${key}`
+
+      this.keyHandlers[focusTabHotkey] = this.focusTabByIndex.bind(this, index)
+      this.keyHandlers[focusGroupHotkey] = this.focusGroupByIndex.bind(this, index)
     }
+  }
+
+  focusTabByIndex = (index) => this.props.dispatch(tabActions.focusTabByIndex(CONTENT_PANES.CENTER, index))
+
+  focusGroupByIndex = (index) => this.props.dispatch(tabActions.focusGroup(CONTENT_PANES.CENTER, index))
+
+  openMenu(menu) {
+    const {decoDoc} = this.props
+
+    // Return if this menu is already open
+    if (menu === this.state.menu) return
+
+    this.setState({
+      menu,
+      linkedDocId: decoDoc && decoDoc.getFocusedLinkedDoc().id
+    })
   }
 
   calculatePositions() {
@@ -205,36 +229,20 @@ class TabbedEditor extends Component {
     }
   }
 
-  onImportItem = (item) => {
-    const {options, rootPath, npmRegistry} = this.props
+  onOpenFile = ({node}) => {
+    const {dispatch, tabContainerId} = this.props
 
-    fetchTemplateAndImportDependencies(
-      item.dependencies,
-      item.template && item.template.text,
-      item.template && item.template.metadata,
-      rootPath,
-      npmRegistry,
-      item
-    ).then(({text, metadata}) => {
-      const {decoDoc} = this.props
-
-      if (! decoDoc) {
-        return
-      }
-
-      this.props.dispatch(editorActions.insertTemplate(
-        decoDoc,
-        text,
-        metadata,
-        item.imports,
-        _.get(item, 'inspector.group')
-      ))
-    })
+    dispatch(tabActions.addTab(tabContainerId, URIUtils.filePathToURI(node.path)))
   }
 
-  onFocusTab = (tabId) => this.props.dispatch(compositeFileActions.openFile(this.props.filesByTabId[tabId].path))
+  onImportItem = (component) => {
+    const {decoDoc} = this.props
+    const {linkedDocId} = this.state
 
-  onCloseTab = (tabId) => this.props.dispatch(compositeFileActions.closeTabWindow(tabId))
+    if (!decoDoc) return
+
+    this.props.dispatch(textEditorCompositeActions.insertComponent(decoDoc.id, linkedDocId, component))
+  }
 
   onCloseConfigErrorToast = () => this.props.dispatch(applicationActions.clearConfigError())
 
@@ -263,14 +271,19 @@ class TabbedEditor extends Component {
 
   saveScrollHeight = (scrollHeight) => this.props.dispatch(uiActions.setConsoleScrollHeight(scrollHeight))
 
-  // Delay allows key events to finish first?
   // TODO: move search menu to top level and take care of this on that refactor
   onRequestCloseSearchMenu = () => {
-    setTimeout(() => {
-      this.refs.editor.getDecoratedComponentInstance().focus()
-    }, 200)
+    const {decoDoc} = this.props
+    const {linkedDocId} = this.state
 
-    this.setState({showMenu: false})
+    if (decoDoc && linkedDocId) {
+      const linkedDoc = decoDoc.findLinkedDocById(linkedDocId)
+      const editor = linkedDoc && linkedDoc.getEditor()
+
+      editor && editor.focus()
+    }
+
+    this.setState({menu: null})
   }
 
   renderFlowInstallationToast() {
@@ -300,24 +313,8 @@ class TabbedEditor extends Component {
     )
   }
 
-  renderTabs() {
-    const {tabIds} = this.props
-
-    return tabIds.map((tabId) => {
-      const filename = path.basename(tabId)
-
-      return (
-        <Tab
-          key={tabId}
-          title={filename}
-          tabId={tabId}>{filename}
-        </Tab>
-      )
-    })
-  }
-
   renderToast() {
-    const {configError, flowError} = this.props
+    const {configError} = this.props
 
     if (configError !== '') {
       return (
@@ -327,8 +324,6 @@ class TabbedEditor extends Component {
           onClose={this.onCloseConfigErrorToast}
         />
       )
-    } else if (flowError && flowError.code === PACKAGE_ERROR.MISSING) {
-      return this.renderFlowInstallationToast()
     } else {
       return null
     }
@@ -339,20 +334,24 @@ class TabbedEditor extends Component {
       styles,
       style,
       npmRegistry,
-      focusedTabId,
       width,
-      options,
+      height,
       decoDoc,
       liveValuesById,
-      publishingFeature,
       progressBar,
       componentList,
+      consoleVisible,
+      packagerOutput,
+      packagerStatus,
+      savedScrollHeight,
     } = this.props
 
-    const {showMenu, menuPosition} = this.state
+    const {menu, menuPosition, files} = this.state
 
     // Show npm registry only if it's not the default
     const showNpmRegistry = npmRegistry && npmRegistry !== DEFAULT_NPM_REGISTRY
+
+    const consoleHeight = consoleVisible ? CONSOLE_EXPANDED_HEIGHT : CONSOLE_COLLAPSED_HEIGHT
 
     return (
       <HotKeys
@@ -366,49 +365,21 @@ class TabbedEditor extends Component {
           ref={'position'}
           style={style}
         >
-          <TabContainer
-            style={styles.tabContainer}
-            focusedTabId={focusedTabId}
-            onFocusTab={this.onFocusTab}
-            onCloseTab={this.onCloseTab}
-            width={width}
-          >
-            {this.renderTabs()}
-          </TabContainer>
           {this.renderToast()}
           <div style={styles.contentContainer}>
-            {decoDoc ? (
-              <EditorDropTarget
-                className={'flex-variable editor'}
-                ref={'editor'}
-                middleware={[
-                  DragAndDropMiddleware(this.props.dispatch),
-                  HistoryMiddleware(this.props.dispatch),
-                  TokenMiddleware(this.props.dispatch),
-                  ClipboardMiddleware(this.props.dispatch, liveValuesById),
-                  AutocompleteMiddleware(this.props.dispatch, focusedTabId),
-                  IndentGuideMiddleware(this.props.dispatch),
-                  ASTMiddleware(this.props.dispatch, focusedTabId, publishingFeature),
-                ]}
-                onImportItem={this.onImportItem}
-                options={options}
-                decoDoc={decoDoc}
-                style={styles.editor}
-              />
-            ) : (
-              <NoContent>
-                Welcome to Deco
-                <br />
-                <br />
-                Open a file in the Project Browser on the left to get started.
-              </NoContent>
-            )}
+            <TabSplitter
+              style={styles.tabContainer}
+              width={width}
+              height={height - consoleHeight}
+            />
           </div>
           <Console
-            consoleOpen={this.props.consoleVisible}
-            packagerOutput={this.props.packagerOutput}
-            packagerStatus={this.props.packagerStatus}
-            initialScrollHeight={this.props.savedScrollHeight}
+            collapsedHeight={CONSOLE_COLLAPSED_HEIGHT}
+            expandedHeight={CONSOLE_EXPANDED_HEIGHT}
+            consoleOpen={consoleVisible}
+            packagerOutput={packagerOutput}
+            packagerStatus={packagerStatus}
+            initialScrollHeight={savedScrollHeight}
             toggleConsole={this.toggleConsole}
             togglePackager={this.togglePackager}
             saveScrollHeight={this.saveScrollHeight}
@@ -426,8 +397,16 @@ class TabbedEditor extends Component {
           <SearchMenu
             ItemComponent={ComponentMenuItem}
             items={componentList}
-            onItemClick={this.onImportItem.bind(this)}
-            show={showMenu}
+            onClickItem={this.onImportItem}
+            show={menu === MENU_INSERT}
+            anchorPosition={menuPosition}
+            requestClose={this.onRequestCloseSearchMenu}
+          />
+          <SearchMenu
+            ItemComponent={ComponentMenuItem}
+            items={files}
+            onClickItem={this.onOpenFile}
+            show={menu === MENU_FILE_SEARCH}
             anchorPosition={menuPosition}
             requestClose={this.onRequestCloseSearchMenu}
           />

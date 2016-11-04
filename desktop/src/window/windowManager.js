@@ -151,8 +151,11 @@ var WindowManager = {
         width: width || global.workArea.width,
         height: height || global.workArea.height,
         show: show || true,
-        titleBarStyle: 'hidden',
-        icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png')
+        titleBarStyle: 'hidden-inset',
+        icon: path.join(PUBLIC_FOLDER, '/images/deco-icon.png'),
+        webPreferences: {
+          experimentalFeatures: true,
+        },
       });
 
       intializeMainWindow(browserWindow);

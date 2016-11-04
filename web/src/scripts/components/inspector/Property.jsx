@@ -32,6 +32,7 @@ const stylesCreator = () => ({})
 export default class Property extends Component {
 
   static defaultProps = {
+    disabled: false,
     prop: {},
     onChange: () => {},
     onValueChange: () => {}
@@ -53,13 +54,15 @@ export default class Property extends Component {
   }
 
   render() {
-    const {styles, prop, onChange} = this.props
+    const {styles, prop, onChange, actions, disabled} = this.props
     const {name, value, type, editWith} = prop
 
     const inputProps = {
       value,
       title: name,
       onChange: this.onChange,
+      actions,
+      disabled,
     }
 
     switch (type) {

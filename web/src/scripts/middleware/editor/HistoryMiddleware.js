@@ -18,7 +18,9 @@
 import CodeMirror from 'codemirror'
 import { batchActions } from 'redux-batched-subscribe'
 
-import {edit, undo, redo, markDirty} from '../../actions/editorActions'
+import * as URIUtils from '../../utils/URIUtils'
+import * as editorActions from '../../actions/editorActions'
+import * as textEditorCompositeActions from '../../actions/textEditorCompositeActions'
 import { markUnsaved } from '../../actions/fileActions'
 import { tabActions } from '../../actions'
 import { CONTENT_PANES } from '../../constants/LayoutConstants'
@@ -27,78 +29,70 @@ import { EventTypes } from '../../constants/CodeMirrorTypes'
 import DecoChangeFactory from '../../factories/editor/DecoChangeFactory'
 import CodeMirrorChange from '../../models/editor/CodeMirrorChange'
 
-
 /**
  * Middleware for custom history management
  */
-class HistoryMiddleware extends Middleware {
+export default class HistoryMiddleware extends Middleware {
 
   constructor() {
     super()
-    this._keyMap = {
-      [EventTypes.beforeChange]: this._onBeforeChange.bind(this),
-      [EventTypes.changes]: this._onChanges.bind(this),
+
+    this.eventListeners = {
+      [EventTypes.beforeChange]: this.onBeforeChange,
+      [EventTypes.changes]: this.onChanges,
     }
   }
 
-  get eventListeners() {
-    return this._keyMap
-  }
+  attach(decoDoc, linkedDoc) {
+    super.attach(decoDoc, linkedDoc)
 
-  attach(decoDoc) {
-    if (!decoDoc) {
-      return
-    }
-
-    this._decoDoc = decoDoc
-    this._changeId = null
-
-    this._oldCommands = {
+    this.changeId = null
+    this.oldCommands = {
       undo: CodeMirror.commands.undo,
       redo: CodeMirror.commands.redo,
     }
 
-    CodeMirror.commands.undo = this._undo.bind(this)
-    CodeMirror.commands.redo = this._redo.bind(this)
+    CodeMirror.commands.undo = this.undo
+    CodeMirror.commands.redo = this.redo
   }
 
   detach() {
-    if (!this._decoDoc) {
-      return
-    }
+    if (!this.decoDoc) return
 
-    this._decoDoc = null
-    this._changeId = null
+    super.detach()
 
-    CodeMirror.commands.undo = this._oldCommands.undo
-    CodeMirror.commands.redo = this._oldCommands.redo
+    CodeMirror.commands.undo = this.oldCommands.undo
+    CodeMirror.commands.redo = this.oldCommands.redo
+
+    this.changeId = null
+    this.oldCommands = null
   }
 
-  _undo() {
-    this.dispatch(undo(this._decoDoc.id))
+  undo = () => {
+    this.dispatch(textEditorCompositeActions.undo(this.decoDoc.id))
   }
 
-  _redo() {
-    this.dispatch(redo(this._decoDoc.id))
+  redo = () => {
+    this.dispatch(textEditorCompositeActions.redo(this.decoDoc.id))
   }
 
   // A batched version of onChange, for performance
-  _onChanges() {
-    if (this._decoDoc.isClean() || !this._changeId) {
-      const {id} = this._decoDoc
+  onChanges = () => {
+    if (this.decoDoc.isClean() || !this.changeId) {
+      const {id} = this.decoDoc
 
-      this._changeId = this._decoDoc.changeGeneration()
+      this.changeId = this.decoDoc.changeGeneration()
 
       this.dispatch(batchActions([
         markUnsaved(id),
-        markDirty(id),
-        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, id),
+        editorActions.markDirty(id),
+        tabActions.makeTabPermanent(CONTENT_PANES.CENTER, URIUtils.filePathToURI(id)),
       ]))
     }
   }
 
-  _onBeforeChange(cm, change) {
-    if (! this._decoDoc.locked) {
+  onBeforeChange = (cm, change) => {
+    if (!this.decoDoc.locked) {
       change.cancel()
 
       const cmChange = new CodeMirrorChange(
@@ -110,17 +104,10 @@ class HistoryMiddleware extends Middleware {
       )
 
       const decoChange = DecoChangeFactory.createChangeFromCMChange(cmChange)
-      this.dispatch(edit(this._decoDoc.id, decoChange))
+      this.dispatch(textEditorCompositeActions.edit(this.decoDoc.id, decoChange))
 
       return
     }
   }
 
-}
-
-const middleware = new HistoryMiddleware()
-
-export default (dispatch) => {
-  middleware.setDispatchFunction(dispatch)
-  return middleware
 }

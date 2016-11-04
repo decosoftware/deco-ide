@@ -26,7 +26,6 @@ const {
   SHOULD_TOGGLE_TERM,
   SHOULD_CLOSE_TAB,
   OPEN_INSTALL_MODULE_DIALOG,
-  OPEN_IMPORT_TEMPLATE_DIALOG,
   OPEN_FILE,
 } = AcceleratorConstants
 
@@ -76,11 +75,5 @@ export const openFile = (filePath) => {
 export const openInstallModuleDialog = () => {
   return {
     type: OPEN_INSTALL_MODULE_DIALOG,
-  }
-}
-
-export const openImportTemplateDialog = () => {
-  return {
-    type: OPEN_IMPORT_TEMPLATE_DIALOG,
   }
 }

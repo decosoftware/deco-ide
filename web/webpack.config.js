@@ -6,6 +6,8 @@ var alias = {
   // react end up with the same instance of it.
   react: path.join(__dirname, 'node_modules/react'),
   shared: path.join(__dirname, '../shared/src'),
+  yops: path.join(__dirname, 'node_modules/yops'),
+  'react-dnd': path.join(__dirname, 'node_modules/react-dnd')
 };
 
 // Framer components can require other Framer components.
@@ -13,6 +15,10 @@ var alias = {
 // TODO: Move into gulpfile?
 
 module.exports = {
+  stats: {
+     // Configure the console output
+     errorDetails: true, //this does show errors
+  },
   entry: [
     "webpack-dev-server/client?http://0.0.0.0:8080",
     'webpack/hot/only-dev-server',
@@ -33,7 +39,7 @@ module.exports = {
     new webpack.NoErrorsPlugin(),
     new webpack.IgnorePlugin(/vertx/), // https://github.com/webpack/webpack/issues/353
     new webpack.DefinePlugin({
-      "DECO_DEBUG": 1,
+      "SHOW_STORYBOARD": 0,
       "process.env": {
         NODE_ENV: JSON.stringify("local")
       }

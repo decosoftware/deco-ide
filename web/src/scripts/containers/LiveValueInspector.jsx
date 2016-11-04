@@ -19,6 +19,7 @@ import _ from 'lodash'
 import React, { Component, } from 'react'
 import { connect } from 'react-redux'
 
+import * as selectors from '../selectors'
 import PaneHeader from '../components/headers/PaneHeader'
 import NoContent from '../components/display/NoContent'
 import LiveValue from '../components/inspector/LiveValue'
@@ -58,6 +59,7 @@ class LiveValueInspector extends Component {
   }
 
   handleLiveValueChange(id, value, updatedValue) {
+    const {decoDoc} = this.props
 
     // Prevent excessive changes
     if (value === updatedValue) {
@@ -65,7 +67,8 @@ class LiveValueInspector extends Component {
     }
 
     const code = toCode(updatedValue)
-    this.props.dispatch(setLiveValueCode(this.props.decoDoc.id, id, code))
+    const range = decoDoc.getDecoRange(id)
+    this.props.dispatch(setLiveValueCode(decoDoc.id, range, code))
   }
 
   handleLiveValueMetadataChange(id, metadata, fieldName, updatedValue) {
@@ -125,8 +128,8 @@ class LiveValueInspector extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const doc = ownProps.decoDoc
+const mapStateToProps = (state) => {
+  let doc = selectors.currentDoc(state)
   let liveValues = null
   let groups = null
 
@@ -145,9 +148,9 @@ const mapStateToProps = (state, ownProps) => {
   }
 
   return {
+    decoDoc: doc,
     groups,
     liveValues,
-    ...ownProps,
   }
 }
 

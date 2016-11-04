@@ -45,6 +45,52 @@ import 'codemirror/keymap/sublime'
 import '../../utils/decoParserMode'
 import '../../utils/editor/ShowInvisiblesPlugin'
 
+const COMMENT_OPTIONS = {
+  xml: {
+    blockCommentStart: '{/* ',
+    blockCommentEnd: ' */}',
+    lineComment: '// ',
+  },
+  javascript: {
+    blockCommentStart: '/* ',
+    blockCommentEnd: ' */',
+    blockCommentLead: ' * ',
+    lineComment: '// ',
+  },
+}
+
+const EXTRA_KEYS = {
+  sublime: {
+    'Tab': 'indentMore',
+    'Ctrl-Space': 'autocomplete',
+    'Alt-Left': 'goGroupLeft',
+    'Alt-Right': 'goGroupRight',
+    'Cmd-/': (cm) => {
+      _.each(cm.listSelections(), (selection) => {
+        const from = selection.from()
+        const to = selection.to()
+        const mode = cm.getModeAt({line: from.line, ch: 0})
+        const commentOptions = COMMENT_OPTIONS[mode.name]
+
+        switch (mode.name) {
+          case 'xml': {
+            if (selection.empty() || from.line === to.line) {
+              cm.lineComment(from, to, commentOptions)
+            } else {
+              cm.blockComment(from, to, commentOptions)
+            }
+            break
+          }
+          case 'javascript': {
+            cm.toggleComment(from, to, commentOptions)
+            break
+          }
+        }
+      })
+    },
+  },
+}
+
 export default class CodeMirrorComponent extends Component {
 
   static propTypes = {
@@ -53,8 +99,12 @@ export default class CodeMirrorComponent extends Component {
 
   static defaultProps = {
     options: {},
-    doc: new CodeMirror.Doc('javascript'),
+    doc: new CodeMirror.Doc('', 'jsx'),
     style: {},
+    eventListeners: [],
+    onFocus: () => {},
+    onBlur: () => {},
+    scrollToLine: null,
   }
 
   constructor() {
@@ -63,7 +113,14 @@ export default class CodeMirrorComponent extends Component {
     this.styleNode = new StyleNode()
   }
 
+  onFocus = () => this.props.onFocus()
+
+  onBlur = () => this.props.onBlur()
+
   _attachEventListeners(cm, listeners) {
+    cm.on('focus', this.onFocus)
+    cm.on('blur', this.onBlur)
+
     _.each(listeners, (listener) => {
       _.each(listener, (fn, eventName) => {
         cm.on(eventName, fn)
@@ -72,6 +129,9 @@ export default class CodeMirrorComponent extends Component {
   }
 
   _detachEventListeners(cm, listeners) {
+    cm.off('focus', this.onFocus)
+    cm.off('blur', this.onBlur)
+
     _.each(listeners, (listener) => {
       _.each(listener, (fn, eventName) => {
         cm.off(eventName, fn)
@@ -100,26 +160,9 @@ export default class CodeMirrorComponent extends Component {
       styleActiveLine: true, // pref
       showIndentGuides: true, // pref
       showCursorWhenSelecting: true,
+      lineWiseCopyCut: true,
       hint: CodeMirror.hint.anyword,
-      extraKeys: {
-        'Tab': 'indentMore',
-        'Ctrl-Space': 'autocomplete',
-        'Cmd-/': () => {
-          _.each(this.codeMirror.listSelections(), (selection) => {
-            const mode = this.codeMirror.getModeAt(selection.from())
-            switch (mode.name) {
-              case 'xml':
-                return this.codeMirror.toggleComment({
-                  lineComment: '//',
-                })
-              case 'javascript':
-                return this.codeMirror.toggleComment({
-                  lineComment: '//',
-                })
-            }
-          })
-        },
-      },
+      extraKeys: EXTRA_KEYS[options.keyMap] || {},
     })
   }
 
@@ -132,6 +175,15 @@ export default class CodeMirrorComponent extends Component {
     this.codeMirror.swapDoc(new CodeMirror.Doc(''))
     this.codeMirror.toTextArea()
     this.codeMirror = null
+  }
+
+  scrollToLine(line) {
+    const {codeMirror} = this
+
+    if (!(typeof line === 'number' && codeMirror)) return
+
+    const clamped = Math.max(0, Math.min(line, codeMirror.lastLine()))
+    codeMirror.scrollIntoView({line: clamped, ch: 0}, 500)
   }
 
   //LIFECYCLE METHODS
@@ -160,6 +212,8 @@ export default class CodeMirrorComponent extends Component {
       if (this.props.doc != this.codeMirror.getDoc()) {
         this.codeMirror.swapDoc(this.props.doc)
       }
+
+      this.scrollToLine(this.props.scrollToLine)
     } else {
       console.error('CodeMirrorComponent instantiated without doc')
     }
@@ -182,6 +236,10 @@ export default class CodeMirrorComponent extends Component {
       if (nextProps.doc != this.codeMirror.getDoc()) {
         this.codeMirror.swapDoc(nextProps.doc)
       }
+    }
+
+    if (nextProps.scrollToLine !== this.props.scrollToLine) {
+      this.scrollToLine(nextProps.scrollToLine)
     }
   }
 

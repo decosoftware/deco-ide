@@ -39,27 +39,6 @@ const THEME = Enum(
   'PLAIN'
 )
 
-function renderCaret(caretProp) {
-  if (caretProp) {
-    const caretStyle = {
-      width: '0',
-      height: '0',
-      borderStyle: 'solid',
-      borderWidth: '4px 3px 0 3px',
-      borderColor: '#7c7c7c transparent transparent transparent',
-      position: 'absolute',
-      top: '18px',
-      left: '26px',
-    }
-
-    return (
-      <div style={caretStyle} />
-    )
-  } else {
-    return null
-  }
-}
-
 class ToolbarButton extends Component {
 
   constructor(props) {
@@ -311,7 +290,6 @@ class ToolbarButton extends Component {
         <div style={textStyle}>
           {this.props.text}
         </div>
-        {renderCaret()}
       </span>
     )
   }

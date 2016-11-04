@@ -44,11 +44,13 @@ const stylesCreator = ({colors}, {type}) => {
       boxShadow: '0 0 45px rgba(0,0,0,0.3)',
       borderRadius: 4,
       WebkitFilter: 'saturate(220%)',
+      zIndex: -1,
     },
     imageBackgroundContainer: {
       position: 'absolute',
       overflow: 'hidden',
       borderRadius: 4,
+      zIndex: -1,
     },
     imageBackground: {
       position: 'absolute',

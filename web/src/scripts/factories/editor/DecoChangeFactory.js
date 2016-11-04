@@ -31,6 +31,13 @@ const CONSTRUCTORS = {
 
 class DecoChangeFactory {
 
+  static createChangeFromRange(decoDoc, range, text, origin) {
+    const originalText = decoDoc.getCodeForRange(range)
+    const {from, to} = range
+
+    return this.createChangeToSetText(from, to, text, originalText, origin)
+  }
+
   static createChangeFromCMChange(cmChange) {
     return new DecoTextChange(cmChange)
   }
@@ -60,9 +67,19 @@ class DecoChangeFactory {
     return new DecoCompositeChange(decoChanges)
   }
 
-  static createChangeToSetText(from, to, text, originalText) {
-    const cmChange = new CodeMirrorChange(from, to, text, originalText)
-    return new DecoTextChange(cmChange)
+  static createChangeToSetText(from, to, text, originalText, origin) {
+    const cmChange = new CodeMirrorChange(from, to, text, originalText, origin)
+    return new DecoTextChange(cmChange, origin)
+  }
+
+  static createChangeToReplaceAllText(doc, text) {
+    const {cmDoc} = doc
+    const from = { line: cmDoc.firstLine(), ch: 0 }
+    const last = cmDoc.lastLine()
+    const to = { line: last, ch: cmDoc.getLine(last).length }
+    return DecoChangeFactory.createChangeToSetText(
+      from, to, text, doc.code
+    )
   }
 
   static createChangeFromJSON(json) {

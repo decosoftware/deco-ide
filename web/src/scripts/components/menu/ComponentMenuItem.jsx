@@ -21,7 +21,7 @@ import pureRender from 'pure-render-decorator'
 
 import { StylesEnhancer } from 'react-styles-provider'
 
-const stylesCreator = ({colors}, transparentBackground) => {
+const stylesCreator = ({colors}, {thumbnail, transparentBackground}) => {
   let styles = {
     row: {
       normal: {
@@ -63,7 +63,7 @@ const stylesCreator = ({colors}, transparentBackground) => {
     badge: {
       normal: {
         color: '#aaa',
-        backgroundColor: "rgba(239,239,239,1)",
+        backgroundColor: 'rgba(170,170,170,0.1)',
         display: 'inline-block',
         fontSize: '9px',
         lineHeight: '14px',
@@ -77,7 +77,18 @@ const stylesCreator = ({colors}, transparentBackground) => {
       overflow: 'hidden',
       whiteSpace: 'normal',
       lineHeight: '0px',
-    }
+    },
+    thumbnail: {
+      width: 36,
+      height: 36,
+      backgroundImage: `url(${thumbnail})`,
+      backgroundSize: 'cover',
+      backgroundColor: 'rgba(170,170,170,0.1)',
+      borderWidth: 1,
+      borderColor: 'rgba(170,170,170,0.2)',
+      borderStyle: 'solid',
+      marginRight: 8,
+    },
   }
 
   styles = {
@@ -118,7 +129,7 @@ const stylesCreator = ({colors}, transparentBackground) => {
   return styles
 }
 
-const selectProps = ({transparentBackground}) => transparentBackground
+const selectProps = ({thumbnail, transparentBackground}) => ({thumbnail, transparentBackground})
 
 @StylesEnhancer(stylesCreator, selectProps)
 @pureRender
@@ -126,23 +137,36 @@ export default class extends Component {
 
   static defaultProps = {
     onClick: () => {},
+    onDoubleClick: () => {},
     onMouseEnter: () => {},
+    onContextMenu: () => {},
     name: '',
     tags: [],
     active: false,
   }
 
+  onClick = () => this.props.onClick(this.props.item)
+
+  onDoubleClick = () => this.props.onDoubleClick(this.props.item)
+
+  onMouseEnter = () => this.props.onMouseEnter(this.props.item)
+
+  onContextMenu = () => this.props.onContextMenu(this.props.item)
+
   render() {
-    const {styles, name, tags, active, onClick, onMouseEnter, item} = this.props
+    const {styles, name, tags, active} = this.props
     const selector = active ? 'active' : 'normal'
 
     return (
       <div
         style={styles.row[selector]}
-        onClick={onClick.bind(this, item)}
-        onMouseEnter={onMouseEnter.bind(this, item)}
+        onClick={this.onClick}
+        onDoubleClick={this.onDoubleClick}
+        onMouseEnter={this.onMouseEnter}
+        onContextMenu={this.onContextMenu}
       >
         <div style={styles.content[selector]}>
+          <div style={styles.thumbnail} />
           <span style={styles.name[selector]}>
             {name}
           </span>

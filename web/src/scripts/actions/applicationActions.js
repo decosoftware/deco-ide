@@ -332,7 +332,7 @@ const saveAllFiles = (state, dispatch) => {
   //TODO this is fine for small projects, but we'll need some kind of way to guarantee
   // the copy happens only after all files are saved.
   _.each(state.editor.docCache, (doc, id) => {
-    if (!doc.isClean(0)) {
+    if (doc && !doc.isClean(0)) {
       // TODO possibly a race condition if file data saves before metadata
       dispatch(saveMetadata(id))
 

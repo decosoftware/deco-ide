@@ -15,14 +15,14 @@
  *
  */
 
-import React, { Component, } from 'react'
+import React, { Component, PropTypes, } from 'react'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { createSelector } from 'reselect'
 import WorkspaceEnhancer from 'react-workspace'
 
-import * as uiActions from '../actions/uiActions'
+import { uiActions } from '../actions'
 import { RIGHT_SIDEBAR_CONTENT, LAYOUT_FIELDS } from '../constants/LayoutConstants'
 import { CATEGORIES, PREFERENCES } from 'shared/constants/PreferencesConstants'
 import * as WindowSizeUtils from '../utils/WindowSizeUtils'
@@ -33,12 +33,9 @@ import Publishing from './Publishing'
 import ProjectNavigator from './ProjectNavigator'
 import ComponentInspector from './ComponentInspector'
 import ComponentBrowser from './ComponentBrowser'
-import { Pane, InspectorPane } from '../components'
 import { StylesEnhancer } from 'react-styles-provider'
 
-const stylesCreator = (theme) => {
-  const {colors} = theme
-
+const stylesCreator = ({colors}) => {
   return {
     container: {
       flex: 1,
@@ -47,7 +44,7 @@ const stylesCreator = (theme) => {
     },
     toolbar: {
       flex: 0,
-      height: 71,
+      height: 38,
     },
     content: {
       flex: 1,
@@ -60,10 +57,13 @@ const stylesCreator = (theme) => {
       width: 290,
       maxWidth: 400,
     },
-    leftPaneTop: {
+    leftPaneInner: {
       flex: 1,
     },
-    leftPaneBottom: {
+    rightPaneTop: {
+      flex: 1,
+    },
+    rightPaneBottom: {
       flex: 0,
       minHeight: 100,
       height: 300,
@@ -71,6 +71,9 @@ const stylesCreator = (theme) => {
       borderTopWidth: 1,
       borderTopColor: colors.dividerInverted,
       borderTopStyle: 'solid',
+    },
+    rightPaneBottomInner: {
+      flex: 1,
     },
     rightPane: {
       flex: 0,
@@ -83,23 +86,23 @@ const stylesCreator = (theme) => {
     },
     centerPane: {
       flex: 1,
+      background: colors.editor.background,
     },
   }
 }
 
 const mapStateToProps = (state) => createSelector(
-  ({editor: {openDocId, docCache}}) => openDocId ? docCache[openDocId] : null,
   ({ui}) => ({
     width: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].width,
     height: ui[LAYOUT_FIELDS.WINDOW_BOUNDS].height,
   }),
   ({ui}) => ({
     projectNavigatorVisible: ui[LAYOUT_FIELDS.LEFT_SIDEBAR_VISIBLE],
+    rightSidebarVisible: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_VISIBLE],
     rightSidebarContent: ui[LAYOUT_FIELDS.RIGHT_SIDEBAR_CONTENT],
   }),
   ({preferences}) => preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
-  (decoDoc, windowBounds, ui, publishingFeature) => ({
-    decoDoc,
+  (windowBounds, ui, publishingFeature) => ({
     ...windowBounds,
     ...ui,
     publishingFeature,
@@ -110,7 +113,10 @@ const mapDispatchToProps = (dispatch) => ({
   uiActions: bindActionCreators(uiActions, dispatch),
 })
 
-class Workspace extends Component {
+@connect(mapStateToProps, mapDispatchToProps)
+@StylesEnhancer(stylesCreator)
+@WorkspaceEnhancer('main-workspace')
+export default class Workspace extends Component {
 
   componentWillMount() {
     this.resize()
@@ -136,43 +142,69 @@ class Workspace extends Component {
   }
 
   renderInspector() {
-    const {styles, decoDoc, rightSidebarContent, publishingFeature} = this.props
+    const {styles, decoDoc, rightSidebarContent, rightSidebarVisible, publishingFeature} = this.props
 
-    switch (rightSidebarContent) {
+    if (!rightSidebarVisible) return null
 
-      case RIGHT_SIDEBAR_CONTENT.NONE:
-        return null
+    if (publishingFeature) {
 
-      case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
-        return publishingFeature ? (
-          <ComponentInspector
-            style={styles.rightPane}
-            decoDoc={decoDoc}
-          />
-        ) : (
+      switch (rightSidebarContent) {
+
+        case RIGHT_SIDEBAR_CONTENT.PROPERTIES:
+          return (
+            <ComponentInspector
+              style={styles.rightPane}
+            />
+          )
+
+        case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
+          return (
+            <Publishing
+              style={styles.rightPane}
+            />
+          )
+      }
+    } else {
+      return (
+        <div style={styles.rightPane} data-resizable>
           <LiveValueInspector
-            style={styles.rightPane}
-            decoDoc={decoDoc}
+            style={styles.rightPaneTop}
           />
-        )
-
-      case RIGHT_SIDEBAR_CONTENT.PUBLISHING:
-        return (
-          <Publishing
-            style={styles.rightPane}
-            decoDoc={decoDoc}
-          />
-        )
+          <div style={styles.rightPaneBottom}>
+            <ComponentBrowser
+              style={styles.rightPaneBottomInner}
+            />
+          </div>
+        </div>
+      )
     }
   }
 
+  renderEditor = () => {
+    const {styles} = this.props
+
+    return (
+      <TabbedEditor
+        key={'tabbed-editor'}
+        style={styles.centerPane}
+      />
+    )
+  }
+
   render() {
-    const {styles, decoDoc, width, height, projectNavigatorVisible} = this.props
+    const {
+      styles,
+      decoDoc,
+      width,
+      height,
+      projectNavigatorVisible,
+    } = this.props
 
     const containerStyle = {
       ...styles.container,
       width: width || window.innerWidth,
       height: height || window.innerHeight,
+      position: 'relative',
     }
 
     return (
@@ -181,30 +213,18 @@ class Workspace extends Component {
           style={styles.toolbar}
         />
         <div style={styles.content} data-resizable>
-          {projectNavigatorVisible && (
+          { projectNavigatorVisible && (
             <div style={styles.leftPane} data-resizable>
               <ProjectNavigator
                 className={'subpixel-antialiased helvetica-smooth'}
-                style={styles.leftPaneTop}
-              />
-              <ComponentBrowser
-                className={'subpixel-antialiased'}
-                style={styles.leftPaneBottom}
+                style={styles.leftPaneInner}
               />
             </div>
           )}
-          <TabbedEditor
-            key={'tabbed-editor'}
-            style={styles.centerPane}
-            decoDoc={decoDoc}
-          />
-          {this.renderInspector()}
+          { this.renderEditor() }
+          { this.renderInspector() }
         </div>
       </div>
     )
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  StylesEnhancer(stylesCreator)(WorkspaceEnhancer(Workspace, 'main-workspace')),
-)

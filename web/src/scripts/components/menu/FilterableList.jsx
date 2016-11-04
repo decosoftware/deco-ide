@@ -21,7 +21,6 @@ import ReactDOM from 'react-dom'
 import { HotKeys } from 'react-hotkeys'
 import { AutoSizer, VirtualScroll } from 'react-virtualized'
 
-import ComponentMenuItem from './ComponentMenuItem'
 import FilterableInputList from './FilterableInputList'
 
 const styles = {
@@ -42,16 +41,23 @@ const styles = {
   },
 }
 
-class FilterableList extends Component {
-  constructor(props) {
-    super(props)
+export default class FilterableList extends Component {
 
-    this.renderItem = this.renderItem.bind(this)
-    this.handleMouseLeave = this.handleMouseLeave.bind(this)
+  static defaultProps = {
+    items: [],
+    hideMenu: () => {},
+    onClickItem: () => {},
+    onSelectItem: () => {},
+    onDoubleClickItem: () => {},
+    onContextMenuItem: () => {},
+  }
+
+  constructor(props) {
+    super()
 
     this.state = {
       searchText: '',
-      activeIndex: this.props.autoSelectFirst ? 0 : -1,
+      activeIndex: props.autoSelectFirst ? 0 : -1,
       filteredListItems: props.items,
       lastMoveTime: Date.now(),
     }
@@ -103,7 +109,7 @@ class FilterableList extends Component {
         if (pkg.onClick) {
           pkg.onClick()
         } else {
-          this.props.onItemClick(pkg)
+          this.props.onClickItem(pkg)
         }
       },
       escape: (e) => {
@@ -112,9 +118,6 @@ class FilterableList extends Component {
         e.preventDefault()
       }
     }
-  }
-
-  componentDidUpdate() {
   }
 
   //TODO: move this somewhere else and make it more legit
@@ -186,15 +189,15 @@ class FilterableList extends Component {
     onSelectItem(list[index])
   }
 
-  handleMouseLeave() {
+  handleMouseLeave = () => {
     this.setState({
       activeIndex: -1,
     })
     this._handleSelectItem(-1)
   }
 
-  renderItem({index}) {
-    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
+  renderItem = ({index}) => {
+    const {items, onClickItem, onDoubleClickItem, onContextMenuItem, ItemComponent, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -209,17 +212,20 @@ class FilterableList extends Component {
     }
 
     const item = list[index]
-    const {name, displayName, tags} = item
+    const {name, displayName, tags, thumbnail} = item
 
     return (
       <ItemComponent
         key={item.id}
         ref={index}
-        onClick={onItemClick}
+        onClick={onClickItem}
+        onDoubleClick={onDoubleClickItem}
+        onContextMenu={onContextMenuItem}
         onMouseEnter={this._onItemMouseEnter.bind(this, index)}
         active={index === activeIndex}
         name={displayName || name}
-        tags={tags}
+        // tags={tags} // TODO enable tags?
+        thumbnail={thumbnail}
         item={item}
         transparentBackground={transparentBackground}
       />
@@ -228,7 +234,7 @@ class FilterableList extends Component {
 
   render() {
     const {keyMap, keyHandlers, _onSearchTextChange} = this
-    const {items, onItemClick, ItemComponent, transparentBackground} = this.props
+    const {items, ItemComponent, autoFocus, transparentBackground} = this.props
     const {searchText, filteredListItems, activeIndex} = this.state
     const list = searchText ? filteredListItems : items
 
@@ -239,6 +245,7 @@ class FilterableList extends Component {
         style={styles.main}
       >
         <FilterableInputList
+          autoFocus={autoFocus}
           searchText={searchText}
           handleSearchTextChange={_onSearchTextChange.bind(this)}
           transparentBackground={transparentBackground}
@@ -268,11 +275,3 @@ class FilterableList extends Component {
     )
   }
 }
-
-FilterableList.defaultProps = {
-  items: [],
-  hideMenu: () => {},
-  onSelectItem: () => {},
-}
-
-export default FilterableList

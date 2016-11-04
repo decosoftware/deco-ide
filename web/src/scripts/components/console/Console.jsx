@@ -24,23 +24,25 @@ import { StylesEnhancer } from 'react-styles-provider'
 
 const tabBarHeight = 36
 
-const stylesCreator = ({colors, fonts}) => {
+const stylesCreator = ({colors, fonts}, {collapsedHeight, expandedHeight}) => {
   return {
     termContainer: {
       zIndex: '5',
       backgroundColor: colors.console.background,
-      maxHeight: '300px',
-      minHeight: tabBarHeight,
+      maxHeight: expandedHeight,
+      minHeight: collapsedHeight,
       overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
     },
     termBar: {
-      height: tabBarHeight,
+      height: collapsedHeight,
       backgroundColor: colors.console.background,
       paddingLeft: 10,
       cursor: 'pointer',
       overflow: 'hidden',
       display: 'flex',
-      flex: 1,
+      flex: '0 0 auto',
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -65,7 +67,7 @@ const stylesCreator = ({colors, fonts}) => {
   }
 }
 
-@StylesEnhancer(stylesCreator)
+@StylesEnhancer(stylesCreator, ({collapsedHeight, expandedHeight}) => ({collapsedHeight, expandedHeight}))
 class Console extends Component {
 
   renderPackagerDisplay() {
@@ -100,7 +102,7 @@ class Console extends Component {
 
     return (
       <div className={containerClass} style={styles.termContainer}>
-        <div className='flex-fixed' style={styles.termBar} onClick={toggleConsole}>
+        <div style={styles.termBar} onClick={toggleConsole}>
           <div style={iconStyle} />
           <div style={styles.termTitleText}>{'Console Output'}</div>
           <div style={styles.switchContainer}>
@@ -126,6 +128,8 @@ Console.propTypes = {
   consoleOpen: PropTypes.bool.isRequired,
   initialScrollHeight: PropTypes.number.isRequired,
   saveScrollHeight: PropTypes.func.isRequired,
+  collapsedHeight: PropTypes.number.isRequired,
+  expandedHeight: PropTypes.number.isRequired,
 }
 
 export default Console

@@ -65,14 +65,46 @@ class DecoDoc extends CodeMirrorDocWrapper {
 
   /*** EDITING ***/
 
+  createLinkedDoc() {
+    return this.cmDoc.linkedDoc({sharedHist: true})
+  }
+
+  releaseLinkedDoc(cmDoc) {
+    this.cmDoc.unlinkDoc(cmDoc)
+  }
+
+  getLinkedDocs() {
+    const linkedDocs = []
+
+    this.cmDoc.iterLinkedDocs(doc => linkedDocs.push(doc))
+
+    return linkedDocs
+  }
+
+  getFocusedLinkedDoc() {
+    return this.getLinkedDocs().find(doc => doc.cm && doc.cm.hasFocus())
+  }
+
+  findLinkedDocById(id) {
+    return this.getLinkedDocs().find(doc => id === doc.id)
+  }
+
   edit(decoChange) {
 
-    // Batch changes in an operation - CodeMirror will only refresh the DOM
-    // and fire certain events once all changes have completed. This dramatically
-    // improves the performance of composite changes
-    this._nativeDoc.cm.operation(() => {
+    // _nativeDoc.cm will only exist if the document has been loaded into a CM editor.
+    // If it doesn't exist, there's no need to run an operation because batching
+    // is just for DOM performance
+    if (this._nativeDoc.cm) {
+
+      // Batch changes in an operation - CodeMirror will only refresh the DOM
+      // and fire certain events once all changes have completed. This dramatically
+      // improves the performance of composite changes
+      this._nativeDoc.cm.operation(() => {
+        this._edit(decoChange)
+      })
+    } else {
       this._edit(decoChange)
-    })
+    }
   }
 
   _edit(decoChange) {
@@ -178,6 +210,10 @@ class DecoDoc extends CodeMirrorDocWrapper {
   getCodeForDecoRange(id) {
     const decoRange = this.getDecoRange(id)
     return this.cmDoc.getRange(decoRange.from, decoRange.to)
+  }
+
+  getCodeForRange(cmRange) {
+    return this.cmDoc.getRange(cmRange.from, cmRange.to)
   }
 
   /*** SERIALIZATION ***/
