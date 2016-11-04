@@ -58,7 +58,7 @@
     "node-dir": "^0.1.11",
     "nodobjc": "^2.1.0",
     "npm": "github:dabbott/npm#progress-api",
-    "deco-simulacra": "github:decosoftware/simulacra",
+    "deco-simulacra": "1.0.0",
     "once": "^1.3.3",
     "raven": "^0.10.0",
     "sane": "^1.3.3",
