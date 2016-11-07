@@ -40,39 +40,30 @@ export default class HistoryMiddleware extends Middleware {
     this.eventListeners = {
       [EventTypes.beforeChange]: this.onBeforeChange,
       [EventTypes.changes]: this.onChanges,
+      [EventTypes.undo]: this.undo,
+      [EventTypes.redo]: this.redo,
     }
   }
 
   attach(decoDoc, linkedDoc) {
     super.attach(decoDoc, linkedDoc)
-
     this.changeId = null
-    this.oldCommands = {
-      undo: CodeMirror.commands.undo,
-      redo: CodeMirror.commands.redo,
-    }
-
-    CodeMirror.commands.undo = this.undo
-    CodeMirror.commands.redo = this.redo
   }
 
   detach() {
     if (!this.decoDoc) return
 
     super.detach()
-
-    CodeMirror.commands.undo = this.oldCommands.undo
-    CodeMirror.commands.redo = this.oldCommands.redo
-
     this.changeId = null
-    this.oldCommands = null
   }
 
-  undo = () => {
+  undo = (cm, cancel) => {
+    cancel()
     this.dispatch(textEditorCompositeActions.undo(this.decoDoc.id))
   }
 
-  redo = () => {
+  redo = (cm, cancel) => {
+    cancel()
     this.dispatch(textEditorCompositeActions.redo(this.decoDoc.id))
   }
 

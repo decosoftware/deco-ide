@@ -20,11 +20,32 @@
 import React, { Component, PropTypes, } from 'react'
 import _ from 'lodash'
 import CodeMirror from 'codemirror'
+
 import TextUtils from '../../utils/editor/TextUtils'
 import ThemeUtils from '../../utils/editor/ThemeUtils'
 import StyleNode from '../../utils/StyleNode'
 
 CodeMirror.commands.indentMore = TextUtils.indent.bind(TextUtils)
+
+const eventCommands = ['undo', 'redo']
+
+// Wrap CodeMirror commands, firing them as cancelable events
+eventCommands.forEach((name) => {
+  const oldCommand = CodeMirror.commands[name]
+
+  CodeMirror.commands[name] = (cm) => {
+    let canceled = false
+    const cancel = () => canceled = true
+
+    // Emit the event, including a cancel function
+    CodeMirror.signal(cm, name, cm, cancel)
+
+    // If the event is not canceled, use the unmodified command
+    if (!canceled) {
+      oldCommand(cm)
+    }
+  }
+})
 
 import 'codemirror/mode/jsx/jsx'
 import 'codemirror/keymap/vim'

@@ -29,4 +29,8 @@ export const EventTypes = {
   focus: 'focus',
   blur: 'blur',
   renderLine: 'renderLine',
+
+  // Custom
+  undo: 'undo',
+  redo: 'redo',
 }
