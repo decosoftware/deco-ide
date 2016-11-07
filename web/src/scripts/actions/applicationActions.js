@@ -53,9 +53,11 @@ const {
 const FlowController = Electron.remote.require('./process/flowController.js')
 import { ProcessStatus, } from '../constants/ProcessStatus'
 import { mergeSystemPreferences, savePreferences } from './preferencesActions'
+import { restoreTabs } from './tabActions'
 import { saveMetadata } from './metadataActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
 import { getLocalVersion } from '../utils/PackageUtils'
+import LocalStorage from '../persistence/LocalStorage'
 import { shouldPromptForFlowInstallation, didPromptForFlowInstallation } from '../utils/FlowUtils'
 
 import { PREFERENCES, CATEGORIES } from 'shared/constants/PreferencesConstants'
@@ -75,7 +77,7 @@ function _openProjectDialog() {
 }
 
 export function openProject(projectPath = null) {
-  return function(dispatch) {
+  return function(dispatch, getState) {
     ga('send', {
       hitType: 'event',
       eventCategory: 'Project',
@@ -85,6 +87,7 @@ export function openProject(projectPath = null) {
     const open = (path) => {
       request(_openProject(path)).then(() => {
         RecentProjectUtils.addProjectPath(path)
+        dispatch(restoreTabs())
       })
     }
 

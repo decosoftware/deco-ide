@@ -29,8 +29,10 @@ import fileTreeActionEmitter from '../ipc/fileTreeActionEmitter'
 import preferencesActionEmitter from '../persistence/preferencesActionEmitter'
 import layoutActionEmitter from '../persistence/layoutActionEmitter'
 import moduleActionEmitter from '../persistence/moduleActionEmitter'
+import LocalStorage from '../persistence/LocalStorage'
 import { storeEnhancer as contentLoader } from '../api/ContentLoader'
 import applyActionEmitters from './applyActionEmitters'
+import applyTabsListener from './applyTabsListener'
 
 const enhancer = compose(
   applyMiddleware(batchMiddleware, thunk, syncHistory(hashHistory), loggingMiddleware),
@@ -47,5 +49,6 @@ export default function configureStore() {
     moduleActionEmitter,
     contentLoader
   )
+  applyTabsListener(store)
   return store
 }
