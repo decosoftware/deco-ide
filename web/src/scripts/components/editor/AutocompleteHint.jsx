@@ -75,7 +75,7 @@ export default class extends Component {
     return (
       <div style={styles.item}>
         <div style={styles.left}>
-          <b>{wordToComplete}</b>
+          <b>{text.slice(0, wordToComplete.length)}</b>
           <div style={styles.lighterText}>
             {text.slice(wordToComplete.length)}
           </div>
