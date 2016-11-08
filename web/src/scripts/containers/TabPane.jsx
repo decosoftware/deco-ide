@@ -105,12 +105,12 @@ class TabPane extends Component {
     const {tabIds = []} = this.props
 
     return tabIds.map((tabId) => {
-      const name = ContentLoader.getResourceName(tabId)
+      const {name, path} = ContentLoader.getResourceNameAndPath(tabId)
 
       return (
         <Tab
           key={tabId}
-          title={name}
+          title={path}
           tabId={tabId}
         >
           {name}
