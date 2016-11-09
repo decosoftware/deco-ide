@@ -79,8 +79,9 @@ export default class AutocompleteMiddleware extends Middleware {
     for (let i=0; i < strToCheck.length; i++) {
       const workingIndex = highestMatchedIndex + 1
       const index = base.substring(workingIndex).indexOf(strToCheck[i]) + workingIndex
-      if (index <= highestMatchedIndex)
+      if (index <= highestMatchedIndex) {
         return false
+      }
       highestMatchedIndex = index
     }
     return true
