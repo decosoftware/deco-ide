@@ -70,6 +70,31 @@ export default class AutocompleteMiddleware extends Middleware {
     ReactDOM.render(root, node)
   }
 
+  // If base = initialString
+  // strToCheck = ini returns true
+  // strToCheck = iNtsr returns true
+  // strToCheck = initsa returns false
+  containsLettersInOrder(base, strToCheck) {
+    // base = base.toLowerCase()
+    // strToCheck = strToCheck.toLowerCase()
+    let highestMatchedIndex = -1
+    for (let i=0; i < strToCheck.length; i++) {
+      const workingIndex = highestMatchedIndex + 1
+      const index = base.substring(workingIndex).indexOf(strToCheck[i]) + workingIndex
+      console.log("base", base)
+      console.log("base.substring(workingIndex)", base.substring(workingIndex))
+      console.log("strToCheck", strToCheck)
+      console.log("strToCheck[i]", strToCheck[i])
+      console.log("workingIndex", workingIndex)
+      console.log("index", index)
+      console.log("highestMatchedIndex", highestMatchedIndex)
+      if (index <= highestMatchedIndex)
+        return false
+      highestMatchedIndex = index
+    }
+    return true
+  }
+
   prepareHint(pos, wordToComplete, completion) {
 
     // Get basic completions from nearby text
@@ -83,7 +108,8 @@ export default class AutocompleteMiddleware extends Middleware {
       // disregarding case
       .filter((item) => {
         return item.name !== wordToComplete &&
-        item.name.toLowerCase().startsWith(wordToComplete.toLowerCase())
+        this.containsLettersInOrder(item.name.toLowerCase(), wordToComplete.toLowerCase())
+        // item.name.toLowerCase().startsWith(wordToComplete.toLowerCase())
       })
 
       // Remove duplicates
