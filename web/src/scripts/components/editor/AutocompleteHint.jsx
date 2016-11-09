@@ -36,22 +36,31 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  lighterText: {
-    color: 'rgba(255,255,255,0.5)',
+  text: {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
   },
 }
 
+styles.boldText = {
+  ...styles.text,
+  fontWeight: 'bold',
+}
+
+styles.lighterText = {
+  ...styles.text,
+  color: 'rgba(255,255,255,0.5)',
+}
+
 export default class extends Component {
-  getFunctionSnippet(functionDetails) {
+  getFunctionSnippet = (functionDetails) => {
     const {params, return_type} = functionDetails
     const paramsSnippet = params.map(param => param.name).join(', ')
     return `(${paramsSnippet}) => ${return_type}`
   }
 
-  renderSnippet(functionDetails, type) {
+  renderSnippet = (functionDetails, type) => {
     if (functionDetails) {
       return (
         <div style={styles.lighterText}>
@@ -69,16 +78,27 @@ export default class extends Component {
     }
   }
 
+  renderHighlightedWord = (text, wordToComplete) => {
+    let result = []
+    let wtcIndex = 0
+    for (let i=0; i<text.length; i++) {
+      if (wordToComplete[wtcIndex] === text[i].toLowerCase()) {
+        result.push(<div key={i} style={styles.boldText}> {text[i]} </div>)
+        wtcIndex++
+      } else {
+        result.push(<div key={i} style={styles.lighterText}> {text[i]} </div>)
+      }
+    }
+    return result
+  }
+
   render() {
     const {text, wordToComplete, type, functionDetails} = this.props
 
     return (
       <div style={styles.item}>
         <div style={styles.left}>
-          <b>{text.slice(0, wordToComplete.length)}</b>
-          <div style={styles.lighterText}>
-            {text.slice(wordToComplete.length)}
-          </div>
+          {this.renderHighlightedWord(text, wordToComplete.toLowerCase())}
         </div>
         <div style={styles.right}>
           {this.renderSnippet(functionDetails, type)}
