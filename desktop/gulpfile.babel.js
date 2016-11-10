@@ -267,6 +267,7 @@ gulp.task('create-project-template', function(callback) {
     project            : cwd('libs/Project'),
     compressed_modules : cwd('libs/modules.tar.bz2'),
     node_modules       : cwd('libs/Project/node_modules'),
+    ios_binary         : cwd('libs/Project/ios/build/Build/Products/Debug-iphonesimulator'),
   }
 
   // Remove existing Project and compressed modules
@@ -288,6 +289,11 @@ gulp.task('create-project-template', function(callback) {
 
   // Delete node_modules
   es(`rm -rf ${pp.node_modules}`)
+
+  // Git add project binaries. RN project has a .gitignore that
+  // ignores build/ and trumps shallower .gitignore
+  es(`git add -u ${pp.project} ${pp.compressed_modules}`)
+  es(`git add -fu ${pp.ios_binary}`)
 
   callback()
 })
