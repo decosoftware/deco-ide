@@ -20,6 +20,7 @@ import { batchActions } from 'redux-batched-subscribe'
 
 import TabUtils from '../utils/TabUtils'
 import * as URIUtils from '../utils/URIUtils'
+import LocalStorage from '../persistence/LocalStorage'
 
 export const at = {
   ADD_TAB: 'ADD_TAB',
@@ -29,6 +30,7 @@ export const at = {
   SWAP_TAB: 'SWAP_TAB',
   CLOSE_ALL_TABS: 'CLOSE_ALL_TABS',
   MAKE_TAB_PERMANENT: 'MAKE_TAB_PERMANENT',
+  RESTORE_TABS: 'RESTORE_TABS'
 }
 
 export const addTab = (containerId, tabId, groupIndex, index) => async (dispatch) => {
@@ -172,4 +174,9 @@ export const makeTabPermanent = (containerId, tabId, groupIndex) => async (dispa
   if (ephemeralTabId && (ephemeralTabId === tabId || !tabId)) {
     dispatch({type: at.MAKE_TAB_PERMANENT, payload: {containerId, groupIndex}})
   }
+}
+
+export const restoreTabs = () => async (dispatch, getState) => {
+  const path = getState().directory.rootPath
+  dispatch({type: at.RESTORE_TABS, payload: {tabs: LocalStorage.loadObject(path)}})
 }
