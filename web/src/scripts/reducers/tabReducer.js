@@ -76,6 +76,11 @@ const tabReducer = (state = initialState, action) => {
       }
     }
 
+    case at.RESTORE_TABS: {
+      const {tabs} = payload
+      return tabs
+    }
+
     default: {
       return state
     }
