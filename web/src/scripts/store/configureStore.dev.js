@@ -31,6 +31,7 @@ import layoutActionEmitter from '../persistence/layoutActionEmitter'
 import moduleActionEmitter from '../persistence/moduleActionEmitter'
 import { storeEnhancer as contentLoader } from '../api/ContentLoader'
 import applyActionEmitters from './applyActionEmitters'
+import applyTabsListener from './applyTabsListener'
 
 //DEV
 import DevTools from '../containers/DevTools'
@@ -57,6 +58,7 @@ export default function configureStore() {
     moduleActionEmitter,
     contentLoader
   )
+  applyTabsListener(store)
   reduxRouterMiddleware.listenForReplays(store)
 
   // Hot reload reducers (requires Webpack or Browserify HMR to be enabled)
