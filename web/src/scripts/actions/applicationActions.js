@@ -173,8 +173,9 @@ function _resumePackager(rootPath) {
   }
 }
 
-export function stopPackager() {
-  return function(dispatch, getState) {
+export const stopPackager = () => async (dispatch, getState) => {
+  if (getState().application.packagerStatus) {
+    console.log("getting in there")
     request(_stopPackager()).then((err) => {
       dispatch(setPackagerStatus(ProcessStatus.OFF))
     })
@@ -363,23 +364,19 @@ export const save = () => {
   }
 }
 
-export const saveAs = () => {
-  return function(dispatch, getState) {
-    //should save files first
-    const state = getState()
-    saveAllFiles(state, dispatch)
-    const rootPath = state.directory.rootPath
-    const waitToOpenDialog = () => {
-      if (_.keys(getState().directory.unsaved).length == 0) {
-        request(_saveAsDialog(rootPath)).then((resp) => {
-          RecentProjectUtils.addProjectPath(resp.path)
-          let resumeState = true
-          request(_openProject(resp.path, resumeState))
-        })
-        return
-      }
-      setTimeout(waitToOpenDialog, 100)
-    }
-    setTimeout(waitToOpenDialog, 100)
+export const saveAs = () => async (dispatch, getState) => {
+  const state = getState()
+  const {directory: rootPath, application: packagerStatus} = state
+  if (packagerStatus) {
+    await dispatch(stopPackager())
   }
+  await saveAllFiles(state, dispatch)
+  request(_saveAsDialog(state.directory.rootPath)).then((resp) => {
+    RecentProjectUtils.addProjectPath(resp.path)
+    if (packagerStatus) {
+      dispatch(runPackager(resp.path))
+    }
+    let resumeState = true
+    request(_openProject(resp.path, resumeState))
+  })
 }
