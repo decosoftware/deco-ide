@@ -678,6 +678,13 @@ input[type=button] {
 	}
 }
 
+// For whatever reason, codemirror's dialog.css
+// is leaving replace button text as white, with
+// white background, so it looks broken
+.CodeMirror-dialog button {
+  color: rgb(63,63,63);
+}
+
 @keyframes progress-bar-flicker {
   0%   { background-color: rgb(35,36,38); }
 	50%  { background-color: lighten(rgb(35,36,38), 10); }
