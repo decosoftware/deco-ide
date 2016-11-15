@@ -1,8 +1,12 @@
 machine:
   environment:
     DEVELOPER_NAME: "Mac Distribution: Deco Desktop Production (M5Y2HY4UM2)"
-    PROFILE_NAME: Deco_Desktop_Production
-    SIGN_DECO_PACKAGE: true
+    PROFILE_NAME: "Deco_Desktop_Production"
+    SIGN_DECO_PACKAGE: "true"
+    # CircleCI only technically supports MacOS and IOS apps,
+    # so they require an xcode scheme.
+    XCODE_SCHEME: symbolicator
+    XCODE_WORKSPACE: symbolicator
   node:
     version: 5.7.0
 dependencies:
