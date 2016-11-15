@@ -5,6 +5,8 @@ machine:
     SIGN_DECO_PACKAGE: "true"
     # CircleCI only technically supports MacOS and IOS apps,
     # so they require an xcode scheme.
+    XCODE_SCHEME: "desktop/libs/Project/ios/"
+    XCODE_WORKSPACE: "desktop/libs/Project/ios/"
   node:
     version: 5.7.0
 dependencies:
