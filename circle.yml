@@ -1,0 +1,32 @@
+machine:
+  environment:
+    DEVELOPER_NAME: "Mac Distribution: Deco Desktop Production (M5Y2HY4UM2)"
+    PROFILE_NAME: Deco_Desktop_Production
+    SIGN_DECO_PACKAGE: true
+  node:
+    version: 5.7.0
+dependencies:
+  override:
+    - ./build/install-dependencies.sh
+  post:
+    - ./build/run-pack.sh
+  cache_directories:
+    - "shared/node_modules"
+    - "desktop/node_modules"
+    - "web/node_modules"
+deployment:
+  staging:
+    branch: staging
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs-staging --delete
+  production:
+    branch: release
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs --delete
+  bleeding_edge:
+    branch: master
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs-bleeding-edge --delete
