@@ -1,0 +1,515 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		003C870E1DDB9B8200416F8F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C870D1DDB9B8200416F8F /* AppDelegate.swift */; };
+		003C87101DDB9B8200416F8F /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C870F1DDB9B8200416F8F /* RootViewController.swift */; };
+		003C87121DDB9B8200416F8F /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C87111DDB9B8200416F8F /* DataViewController.swift */; };
+		003C87141DDB9B8200416F8F /* ModelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C87131DDB9B8200416F8F /* ModelController.swift */; };
+		003C87171DDB9B8200416F8F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003C87151DDB9B8200416F8F /* Main.storyboard */; };
+		003C87191DDB9B8200416F8F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 003C87181DDB9B8200416F8F /* Assets.xcassets */; };
+		003C871C1DDB9B8200416F8F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 003C871A1DDB9B8200416F8F /* LaunchScreen.storyboard */; };
+		003C87271DDB9B8200416F8F /* PhonyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C87261DDB9B8200416F8F /* PhonyTests.swift */; };
+		003C87321DDB9B8200416F8F /* PhonyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C87311DDB9B8200416F8F /* PhonyUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		003C87231DDB9B8200416F8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 003C87021DDB9B8200416F8F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 003C87091DDB9B8200416F8F;
+			remoteInfo = Phony;
+		};
+		003C872E1DDB9B8200416F8F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 003C87021DDB9B8200416F8F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 003C87091DDB9B8200416F8F;
+			remoteInfo = Phony;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		003C870A1DDB9B8200416F8F /* Phony.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Phony.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		003C870D1DDB9B8200416F8F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		003C870F1DDB9B8200416F8F /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
+		003C87111DDB9B8200416F8F /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
+		003C87131DDB9B8200416F8F /* ModelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelController.swift; sourceTree = "<group>"; };
+		003C87161DDB9B8200416F8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		003C87181DDB9B8200416F8F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		003C871B1DDB9B8200416F8F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		003C871D1DDB9B8200416F8F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		003C87221DDB9B8200416F8F /* PhonyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhonyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		003C87261DDB9B8200416F8F /* PhonyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonyTests.swift; sourceTree = "<group>"; };
+		003C87281DDB9B8200416F8F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		003C872D1DDB9B8200416F8F /* PhonyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhonyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		003C87311DDB9B8200416F8F /* PhonyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonyUITests.swift; sourceTree = "<group>"; };
+		003C87331DDB9B8200416F8F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		003C87071DDB9B8200416F8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C871F1DDB9B8200416F8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C872A1DDB9B8200416F8F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		003C87011DDB9B8200416F8F = {
+			isa = PBXGroup;
+			children = (
+				003C870C1DDB9B8200416F8F /* Phony */,
+				003C87251DDB9B8200416F8F /* PhonyTests */,
+				003C87301DDB9B8200416F8F /* PhonyUITests */,
+				003C870B1DDB9B8200416F8F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		003C870B1DDB9B8200416F8F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				003C870A1DDB9B8200416F8F /* Phony.app */,
+				003C87221DDB9B8200416F8F /* PhonyTests.xctest */,
+				003C872D1DDB9B8200416F8F /* PhonyUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		003C870C1DDB9B8200416F8F /* Phony */ = {
+			isa = PBXGroup;
+			children = (
+				003C870D1DDB9B8200416F8F /* AppDelegate.swift */,
+				003C870F1DDB9B8200416F8F /* RootViewController.swift */,
+				003C87111DDB9B8200416F8F /* DataViewController.swift */,
+				003C87131DDB9B8200416F8F /* ModelController.swift */,
+				003C87151DDB9B8200416F8F /* Main.storyboard */,
+				003C87181DDB9B8200416F8F /* Assets.xcassets */,
+				003C871A1DDB9B8200416F8F /* LaunchScreen.storyboard */,
+				003C871D1DDB9B8200416F8F /* Info.plist */,
+			);
+			path = Phony;
+			sourceTree = "<group>";
+		};
+		003C87251DDB9B8200416F8F /* PhonyTests */ = {
+			isa = PBXGroup;
+			children = (
+				003C87261DDB9B8200416F8F /* PhonyTests.swift */,
+				003C87281DDB9B8200416F8F /* Info.plist */,
+			);
+			path = PhonyTests;
+			sourceTree = "<group>";
+		};
+		003C87301DDB9B8200416F8F /* PhonyUITests */ = {
+			isa = PBXGroup;
+			children = (
+				003C87311DDB9B8200416F8F /* PhonyUITests.swift */,
+				003C87331DDB9B8200416F8F /* Info.plist */,
+			);
+			path = PhonyUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		003C87091DDB9B8200416F8F /* Phony */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 003C87361DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "Phony" */;
+			buildPhases = (
+				003C87061DDB9B8200416F8F /* Sources */,
+				003C87071DDB9B8200416F8F /* Frameworks */,
+				003C87081DDB9B8200416F8F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Phony;
+			productName = Phony;
+			productReference = 003C870A1DDB9B8200416F8F /* Phony.app */;
+			productType = "com.apple.product-type.application";
+		};
+		003C87211DDB9B8200416F8F /* PhonyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 003C87391DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "PhonyTests" */;
+			buildPhases = (
+				003C871E1DDB9B8200416F8F /* Sources */,
+				003C871F1DDB9B8200416F8F /* Frameworks */,
+				003C87201DDB9B8200416F8F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				003C87241DDB9B8200416F8F /* PBXTargetDependency */,
+			);
+			name = PhonyTests;
+			productName = PhonyTests;
+			productReference = 003C87221DDB9B8200416F8F /* PhonyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		003C872C1DDB9B8200416F8F /* PhonyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 003C873C1DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "PhonyUITests" */;
+			buildPhases = (
+				003C87291DDB9B8200416F8F /* Sources */,
+				003C872A1DDB9B8200416F8F /* Frameworks */,
+				003C872B1DDB9B8200416F8F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				003C872F1DDB9B8200416F8F /* PBXTargetDependency */,
+			);
+			name = PhonyUITests;
+			productName = PhonyUITests;
+			productReference = 003C872D1DDB9B8200416F8F /* PhonyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		003C87021DDB9B8200416F8F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Gabe G'Sell";
+				TargetAttributes = {
+					003C87091DDB9B8200416F8F = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					003C87211DDB9B8200416F8F = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = 003C87091DDB9B8200416F8F;
+					};
+					003C872C1DDB9B8200416F8F = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = 003C87091DDB9B8200416F8F;
+					};
+				};
+			};
+			buildConfigurationList = 003C87051DDB9B8200416F8F /* Build configuration list for PBXProject "Phony" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 003C87011DDB9B8200416F8F;
+			productRefGroup = 003C870B1DDB9B8200416F8F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				003C87091DDB9B8200416F8F /* Phony */,
+				003C87211DDB9B8200416F8F /* PhonyTests */,
+				003C872C1DDB9B8200416F8F /* PhonyUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		003C87081DDB9B8200416F8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003C871C1DDB9B8200416F8F /* LaunchScreen.storyboard in Resources */,
+				003C87191DDB9B8200416F8F /* Assets.xcassets in Resources */,
+				003C87171DDB9B8200416F8F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C87201DDB9B8200416F8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C872B1DDB9B8200416F8F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		003C87061DDB9B8200416F8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003C87101DDB9B8200416F8F /* RootViewController.swift in Sources */,
+				003C87141DDB9B8200416F8F /* ModelController.swift in Sources */,
+				003C87121DDB9B8200416F8F /* DataViewController.swift in Sources */,
+				003C870E1DDB9B8200416F8F /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C871E1DDB9B8200416F8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003C87271DDB9B8200416F8F /* PhonyTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		003C87291DDB9B8200416F8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				003C87321DDB9B8200416F8F /* PhonyUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		003C87241DDB9B8200416F8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 003C87091DDB9B8200416F8F /* Phony */;
+			targetProxy = 003C87231DDB9B8200416F8F /* PBXContainerItemProxy */;
+		};
+		003C872F1DDB9B8200416F8F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 003C87091DDB9B8200416F8F /* Phony */;
+			targetProxy = 003C872E1DDB9B8200416F8F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		003C87151DDB9B8200416F8F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				003C87161DDB9B8200416F8F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		003C871A1DDB9B8200416F8F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				003C871B1DDB9B8200416F8F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		003C87341DDB9B8200416F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		003C87351DDB9B8200416F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		003C87371DDB9B8200416F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Phony/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.Phony;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		003C87381DDB9B8200416F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Phony/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.Phony;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		003C873A1DDB9B8200416F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = PhonyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.PhonyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Phony.app/Phony";
+			};
+			name = Debug;
+		};
+		003C873B1DDB9B8200416F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = PhonyTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.PhonyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Phony.app/Phony";
+			};
+			name = Release;
+		};
+		003C873D1DDB9B8200416F8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PhonyUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.PhonyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Phony;
+			};
+			name = Debug;
+		};
+		003C873E1DDB9B8200416F8F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = PhonyUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.decosoftware.PhonyUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Phony;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		003C87051DDB9B8200416F8F /* Build configuration list for PBXProject "Phony" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003C87341DDB9B8200416F8F /* Debug */,
+				003C87351DDB9B8200416F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		003C87361DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "Phony" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003C87371DDB9B8200416F8F /* Debug */,
+				003C87381DDB9B8200416F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		003C87391DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "PhonyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003C873A1DDB9B8200416F8F /* Debug */,
+				003C873B1DDB9B8200416F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		003C873C1DDB9B8200416F8F /* Build configuration list for PBXNativeTarget "PhonyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				003C873D1DDB9B8200416F8F /* Debug */,
+				003C873E1DDB9B8200416F8F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 003C87021DDB9B8200416F8F /* Project object */;
+}
