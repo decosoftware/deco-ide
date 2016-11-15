@@ -6,7 +6,7 @@ machine:
     NODE_VERSION: "5.7"
     # CircleCI only technically supports MacOS and IOS apps,
     # so they require an xcode scheme.
-    # XCODE_SCHEME: Phony.xcscheme
+    XCODE_SCHEME: Phony.xcscheme
 dependencies:
   pre:
     - brew update
