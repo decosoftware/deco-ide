@@ -3,13 +3,18 @@ machine:
     DEVELOPER_NAME: "Mac Distribution: Deco Desktop Production (M5Y2HY4UM2)"
     PROFILE_NAME: "Deco_Desktop_Production"
     SIGN_DECO_PACKAGE: "true"
+    NODE_VERSION: "5.7"
     # CircleCI only technically supports MacOS and IOS apps,
     # so they require an xcode scheme.
-    XCODE_SCHEME: "desktop/libs/Project/ios/"
-    XCODE_WORKSPACE: "desktop/libs/Project/ios/"
-  node:
-    version: 5.7.0
+    XCODE_SCHEME: Phony.xcscheme
+    XCODE_SCHEME: phony.xcworkspace
+    # XCODE_SCHEME: "desktop/libs/Project/ios/Project.xcodeproj/xcshareddata/xcschemes/Project.xcscheme"
 dependencies:
+  pre:
+    - brew update
+    - brew install curl
+    - git clone https://github.com/creationix/nvm.git /tmp/.nvm; source /tmp/.nvm/nvm.sh;
+    - nvm install $NODE_VERSION; nvm use --delete-prefix $NODE_VERSION;
   override:
     - ./build/install-dependencies.sh
   post:
