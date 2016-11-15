@@ -59,11 +59,17 @@ export const getResourceName = (uri) => {
 
   if (loader && loader.getResourceName) {
     const state = getState()
-
     return loader.getResourceName(uri, state)
   } else {
     return path.basename(URIUtils.withoutProtocolOrParams(uri))
   }
+}
+
+export const getResourceNameAndPath = (uri) => {
+  return {
+    name: getResourceName(uri),
+    path: URIUtils.withoutProtocol(uri),
+  };
 }
 
 export const getURIWithLoader = (uri, id) => {

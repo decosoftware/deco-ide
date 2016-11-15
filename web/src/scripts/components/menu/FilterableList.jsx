@@ -138,6 +138,11 @@ export default class FilterableList extends Component {
 
     return _.orderBy(filteredList, [
       (pkg) => {
+        if (pkg.name) {
+          return pkg.name.split('/').length
+        }
+      },
+      (pkg) => {
         const name = pkg.displayName || pkg.name
         if (name) {
           return name.toLowerCase()
@@ -148,7 +153,7 @@ export default class FilterableList extends Component {
           return true
         }
       }
-    ], ['asc', 'asc'])
+    ], ['asc', 'asc', 'asc'])
   }
 
   _onSearchTextChange(searchText) {

@@ -129,47 +129,31 @@ class PackagerController {
   }
 
   runPackager(opts) {
-    try {
-      this.promiseKillPackager()
-        .then(() => {
-          this._runPackager(opts)
-        }).catch(() => {
-          this._runPackager(opts)
-        })
-    } catch (e) {
-      Logger.error(e)
-    }
+    this.promiseKillPackager()
+      .then(() => {
+        this._runPackager(opts)
+      }).catch(() => {
+        this._runPackager(opts)
+      })
   }
 
   promiseKillPackager() {
     return new Promise((resolve, reject) => {
-      const tryToKill = () => {
-        if (!!this._packagerProcess) {
-          try {
-            this._packagerProcess.kill('SIGINT')
-          } catch(e) {
-            Logger.error(e)
-          }
-        }
-      }
       let killCounter = 0
       const repeatedlyKill = setInterval(() => {
         if (killCounter > 3) {
           reject()
-        } else if (!this._packagerProcess) {
-          resolve()
-          this.emitPackagerState({ isAlive: false })
-        } else if (this._packagerProcess.killed) {
+        } else if (!this._packagerProcess || this._packagerProcess.killed) {
           resolve()
           this.emitPackagerState({ isAlive: false })
         } else {
           killCounter += 1
-          tryToKill() // try to kill again
+          this.killPackager() // try to kill again
           return
         }
         clearInterval(repeatedlyKill)
       }, 150)
-      tryToKill()
+      this.killPackager()
     })
   }
 
