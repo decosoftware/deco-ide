@@ -124,7 +124,7 @@ var WindowManager = {
 
         upgradeWindow.loadURL(WindowManager.getProjectBaseURL() + '#/upgrading')
         var id = new Date().getTime().toString();
-        global.openWindows[id] = upgradeWindow;
+        global.openWindows[id] = upgradeWindow;        
 
         upgradeWindow.webContents.on('did-finish-load', function() {
           upgradeWindow.show()
