@@ -17,7 +17,7 @@ const {execSync} = child_process
 const es = (cmd, options = {}) => execSync(cmd, Object.assign({stdio: 'inherit'}, options))
 const cwd = (...args) => path.join(__dirname, ...args)
 
-const BUILD_VERSION = "0.7.1"
+const BUILD_VERSION = "0.8.0-beta1"
 const NODE_MODULES_VERSION = 50
 
 const SIGN_PACKAGE = process.env['SIGN_DECO_PACKAGE'] == 'true'
@@ -135,7 +135,12 @@ gulp.task('electron-pack', ['setup-pack-folder'], function(callback) {
     asar: false
   };
   if (SIGN_PACKAGE) {
-    opts.sign = 'Developer ID Application: Deco Software Inc. (M5Y2HY4UM2)'
+    opts['osx-sign'] = {
+      identity: 'Developer ID Application: Deco Software Inc. (M5Y2HY4UM2)',
+      keychain: 'login',
+      version: '0.8.0-beta1',
+      ignore: function (p) { return p.indexOf('node_modules') !== -1 },
+    }
   }
 
   opts['app-bundle-id'] = 'com.decosoftware.deco';

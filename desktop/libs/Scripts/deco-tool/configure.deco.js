@@ -148,47 +148,55 @@ DECO.on('list-ios-sim', function(args) {
     }
   }
 
-  const devices = []
-  var currentOS = null
+  try {
+    const devices = []
+    var currentOS = null
 
-  text.split('\n').forEach((line) => {
-    var section = line.match(/^-- (.+) --$/)
-    if (section) {
-      var header = section[1].match(/^iOS (.+)$/)
-      if (header) {
-        currentOS = header[1]
-      } else {
-        currentOS = null
+    text.split('\n').forEach((line) => {
+      var section = line.match(/^-- (.+) --$/)
+      if (section) {
+        var header = section[1].match(/^iOS (.+)$/)
+        if (header) {
+          currentOS = header[1]
+        } else {
+          currentOS = null
+        }
+        return
       }
-      return
+
+      const device = line.match(/^[ ]*([^()]+) \(([^()]+)\)/)
+      if (device && currentOS) {
+        var name = device[1]
+        var deviceId = device[2]
+        devices.push({deviceId, name, version: currentOS,})
+      }
+    })
+    const uniqueSims = _.chain(devices)
+        .orderBy('version', 'desc')
+        .unionBy('name')
+        .reverse()
+        .value()
+
+    if (uniqueSims.length == 0) {
+      return Promise.reject({
+        payload: [
+          'No simulators available.',
+          'Please open Xcode and download iOS simulators.'
+        ]
+      })
     }
 
-    const device = line.match(/^[ ]*([^()]+) \(([^()]+)\)/)
-    if (device && currentOS) {
-      var name = device[1]
-      var deviceId = device[2]
-      devices.push({deviceId, name, version: currentOS,})
-    }
-  })
-  const uniqueSims = _.chain(devices)
-      .orderBy('version', 'desc')
-      .unionBy('name')
-      .reverse()
-      .value()
+    const iphones = _.filter(uniqueSims, s => s.name.match(/iPhone/))
+    const ipads = _.filter(uniqueSims, s => s.name.match(/iPad/))
 
-  if (uniqueSims.length == 0) {
+    return Promise.resolve({ payload: iphones.concat(ipads) })
+  } catch (e) {
     return Promise.reject({
       payload: [
-        'No simulators available.',
-        'Please open Xcode and download iOS simulators.'
+        'Something went wrong fetching the iOS simulator list.',
       ]
     })
   }
-
-  const iphones = _.filter(uniqueSims, s => s.name.match(/iPhone/))
-  const ipads = _.filter(uniqueSims, s => s.name.match(/iPad/))
-
-  return Promise.resolve({ payload: iphones.concat(ipads) })
 })
 
 /**
@@ -206,29 +214,36 @@ DECO.on('sim-ios', function(args) {
    // but we want it to only launch the simulator
   }
 
-  child_process.spawnSync('xcrun', ['simctl', 'install', 'booted', targetPath], {stdio: 'inherit'});
+  try {
+    child_process.spawnSync('xcrun', ['simctl', 'install', 'booted', targetPath], {stdio: 'inherit'});
 
-  var bundleID = child_process.execFileSync(
-   '/usr/libexec/PlistBuddy',
-   ['-c', 'Print:CFBundleIdentifier', path.join(targetPath, 'Info.plist')],
-   {encoding: 'utf8'}
-  ).trim();
+    var bundleID = child_process.execFileSync(
+     '/usr/libexec/PlistBuddy',
+     ['-c', 'Print:CFBundleIdentifier', path.join(targetPath, 'Info.plist')],
+     {encoding: 'utf8'}
+    ).trim();
 
-  child_process.spawnSync('xcrun', ['simctl', 'launch', 'booted', bundleID], {stdio: 'inherit'});
-  return Promise.resolve()
+    child_process.spawnSync('xcrun', ['simctl', 'launch', 'booted', bundleID], {stdio: 'inherit'});
+    return Promise.resolve()
+  } catch (e) {
+    return Promise.reject()
+  }
 })
 
 DECO.on('reload-ios-app', function(args) {
-  const targetPath = path.join(process.cwd(), PROJECT_SETTING.iosTarget)
-  var bundleID = child_process.execFileSync(
-   '/usr/libexec/PlistBuddy',
-   ['-c', 'Print:CFBundleIdentifier', path.join(targetPath, 'Info.plist')],
-   {encoding: 'utf8'}
-  ).trim();
-  child_process.spawnSync('xcrun', ['simctl', 'install', 'booted', targetPath], {stdio: 'inherit'});
-  child_process.spawnSync('xcrun', ['simctl', 'launch', 'booted', bundleID], {stdio: 'inherit'});
-
-  return Promise.resolve()
+  try {
+    const targetPath = path.join(process.cwd(), PROJECT_SETTING.iosTarget)
+    var bundleID = child_process.execFileSync(
+     '/usr/libexec/PlistBuddy',
+     ['-c', 'Print:CFBundleIdentifier', path.join(targetPath, 'Info.plist')],
+     {encoding: 'utf8'}
+    ).trim();
+    child_process.spawnSync('xcrun', ['simctl', 'install', 'booted', targetPath], {stdio: 'inherit'});
+    child_process.spawnSync('xcrun', ['simctl', 'launch', 'booted', bundleID], {stdio: 'inherit'});
+    return Promise.resolve()
+  } catch (e) {
+    return Promise.reject()
+  }
 })
 
 /**
@@ -322,26 +337,31 @@ DECO.on('reload-android-app', function(args) {
   if (!checkEnvironmentOK()) {
     return Promise.resolve()
   }
-  const packageName = fs.readFileSync(
-    PROJECT_SETTING.androidManifest,
-    'utf8'
-    ).match(/package="(.+?)"/)[1]
 
-  const devices = adb.getDevices()
+  try {
+    const packageName = fs.readFileSync(
+      PROJECT_SETTING.androidManifest,
+      'utf8'
+      ).match(/package="(.+?)"/)[1]
 
-  if (devices && devices.length > 0) {
-    _.each(devices, (device) => {
-      child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'force-stop', packageName], {stdio: 'inherit'});
-      child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'start', '-n', packageName + '/.MainActivity'], {stdio: 'inherit'});
-    })
-  } else {
-    _.each(devices, (device) => {
-      child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'force-stop', packageName], {stdio: 'inherit'});
-    })
-    child_process.spawnSync('adb', ['shell', 'am', 'start', '-n', packageName + '/.MainActivity'], {stdio: 'inherit'});
+    const devices = adb.getDevices()
+
+    if (devices && devices.length > 0) {
+      _.each(devices, (device) => {
+        child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'force-stop', packageName], {stdio: 'inherit'});
+        child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'start', '-n', packageName + '/.MainActivity'], {stdio: 'inherit'});
+      })
+    } else {
+      _.each(devices, (device) => {
+        child_process.spawnSync('adb', ['-s', device, 'shell', 'am', 'force-stop', packageName], {stdio: 'inherit'});
+      })
+      child_process.spawnSync('adb', ['shell', 'am', 'start', '-n', packageName + '/.MainActivity'], {stdio: 'inherit'});
+    }
+
+    return Promise.resolve()
+  } catch (e) {
+    return Promise.reject()
   }
-
-  return Promise.resolve()
 })
 
 

@@ -17,6 +17,7 @@
 
 'use strict'
 
+const path = require('path')
 const autoUpdater = require('electron').autoUpdater
 const dialog = require('electron').dialog
 
@@ -36,7 +37,9 @@ class UpdateManager {
       return
     }
 
-    autoUpdater.setFeedURL('https://deco-nuts.herokuapp.com/update/' + platform + '/' + version)
+    const betaFeedUrl = `http://ec2-54-191-131-104.us-west-2.compute.amazonaws.com:5014/update/${platform}/${version}/beta`
+    // const stableFeedUrl = `https://deco-nuts.herokuapp.com/update?version=${version}&platform=${platform}`
+    autoUpdater.setFeedURL(betaFeedUrl)
     autoUpdater.on('update-not-available', this._updateNotAvailable.bind(this))
     autoUpdater.on('update-downloaded', this._updateDownloaded.bind(this))
     autoUpdater.on('error', this._onError.bind(this))
