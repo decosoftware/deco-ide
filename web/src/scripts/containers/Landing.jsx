@@ -24,15 +24,15 @@ import { resizeWindow, } from '../actions/uiActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
 
 import LandingPage from '../components/pages/LandingPage'
+import TemplatesPage from '../components/pages/TemplatesPage'
 
 class Landing extends Component {
-  constructor(props) {
-    super(props)
 
-    this.state = {
-      recentProjects: RecentProjectUtils.getProjectPaths(),
-    }
+  state = {
+    recentProjects: RecentProjectUtils.getProjectPaths(),
+    page: 'landing',
   }
+
   componentWillMount() {
     this.props.dispatch(resizeWindow({
       width: 640,
@@ -40,7 +40,33 @@ class Landing extends Component {
       center: true,
     }))
   }
-  render() {
+
+  onViewLanding = () => this.setState({page: 'landing'})
+
+  onViewTemplates = () => this.setState({page: 'templates'})
+
+  onCreateProject = (category, template) => {
+    const {dispatch} = this.props
+
+    console.log('Creating project', category, template)
+
+    if (category === 'React Native') {
+      dispatch(createProject())
+    } else {
+      // ... exponent stuff ...
+    }
+  }
+
+  renderTemplatesPage = () => {
+    return (
+      <TemplatesPage
+        onCreateProject={this.onCreateProject}
+        onBack={this.onViewLanding}
+      />
+    )
+  }
+
+  renderLandingPage = () => {
     const {recentProjects} = this.state
 
     return (
@@ -51,8 +77,20 @@ class Landing extends Component {
         }}
         onCreateNew={() => {
           this.props.dispatch(createProject())
-        }} />
+        }}
+        onViewTemplates={this.onViewTemplates}
+      />
     )
+  }
+
+  render() {
+    const {page} = this.state
+
+    if (page === 'templates') {
+      return this.renderTemplatesPage()
+    } else {
+      return this.renderLandingPage()
+    }
   }
 }
 

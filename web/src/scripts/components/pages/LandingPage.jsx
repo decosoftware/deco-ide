@@ -44,13 +44,13 @@ const topStyle = {
 
 const bottomStyle = {
   display: 'flex',
-  flex: '0 0 100px',
+  flex: '0 0 auto',
   backgroundColor: 'rgb(250,250,250)',
   borderTop: '1px solid #E7E7E7',
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'stretch',
-  padding: '0px 100px',
+  padding: '20px 100px',
 }
 
 const projectListStyle = {
@@ -71,9 +71,13 @@ const logoWrapperStyle = {
   alignItems: 'center',
 }
 
-const LandingPage = ({ onOpen, onCreateNew, recentProjects }) => {
+const buttonDividerStyle = {
+  height: 15,
+}
+
+const LandingPage = ({ onOpen, onCreateNew, recentProjects, onViewTemplates }) => {
   return (
-    <div className='vbox helvetica-smooth' style={style}>
+    <div className='helvetica-smooth' style={style}>
       <div style={topStyle}>
         <div style={logoWrapperStyle}>
           <DecoLogo/>
@@ -106,6 +110,10 @@ const LandingPage = ({ onOpen, onCreateNew, recentProjects }) => {
           onClick={onCreateNew}>
           <NewIcon />
           New Project
+        </LandingButton>
+        <div style={buttonDividerStyle} />
+        <LandingButton onClick={onViewTemplates}>
+          Project Templates...
         </LandingButton>
       </div>
     </div>
