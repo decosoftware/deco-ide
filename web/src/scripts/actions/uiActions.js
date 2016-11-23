@@ -121,8 +121,8 @@ export const setRightSidebarContent = saveLayout((content) => {
   }
 })
 
-export const setSidebarContext = () => async (dispatch, getState) => {
-  const element = selectors.selectedElement(getState())
+export const setSidebarContext = (fileId) => async (dispatch, getState) => {
+  const element = fileId ? selectors.selectedElementForFile(getState(), {fileId}) : selectors.selectedElement(getState())
 
   if (element) {
     return dispatch(setRightSidebarContent(RIGHT_SIDEBAR_CONTENT.PROPERTIES))

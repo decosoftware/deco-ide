@@ -47,6 +47,21 @@ export const selectElementFromPos = (filename, pos) => async (dispatch, getState
   return dispatch(deselectElement(filename))
 }
 
+export const selectElementByPath = (filename, elementPath) => async (dispatch, getState) => {
+  //TODO: Assumes the document is available and open, what if there is no document??
+  const {editor:{docCache}, elementTree: {elementTreeForFile}} = getState()
+  const decoDoc = docCache[filename]
+  const elementTree = elementTreeForFile[filename]
+  if (decoDoc && elementTree) {
+    const element = ElementTreeUtils.getElementByPath(elementTree, elementPath)
+    const {openStart} = element
+    decoDoc.getLinkedDocs().forEach((doc) => {
+      doc.setCursor(openStart)
+    })
+  }
+  return dispatch({type: at.SELECT_ELEMENT, payload: {filename, elementPath}})
+}
+
 export const updateProp = (filename, element, prop, value, text) => async (dispatch, getState) => {
   const elementTree = getState().elementTree.elementTreeForFile[filename]
 

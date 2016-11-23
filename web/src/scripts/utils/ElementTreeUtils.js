@@ -59,13 +59,28 @@ export const deepUpdateProp = (tree, elementPath, propName, value, text) => {
   const element = getElementByPath(newTree, elementPath)
 
   const {props = []} = element
-  const prop = props.find(x => x.name === propName)
+  let objectProp = null
+  const prop = props.find(x => {
+    if (x.type != 'object') {
+      return x.name == propName
+    } else {
+      const subProp = x.value.find(p => p.name == propName)
+      if (subProp) {
+        objectProp = subProp
+        return true
+      }
+    }
+  })
 
-  const oldLength = prop.valueEnd.ch - prop.valueStart.ch
-  const newLength = text.length
-
-  // Update the prop's value
-  prop.value = value
+  let oldLength = prop.valueEnd.ch - prop.valueStart.ch
+  let newLength = text.length
+  if (objectProp) {
+    newLength = oldLength //no change in length
+    // Update the prop's value
+    objectProp.value = value
+  } else {
+    prop.value = value
+  }
 
   if (newLength !== oldLength) {
     offsetTreePositions(newTree, prop.valueStart, {ch: newLength - oldLength})

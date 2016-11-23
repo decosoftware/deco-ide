@@ -20,6 +20,7 @@ import update from 'react-addons-update'
 import { elementTreeConstants as at } from '../actions'
 
 const initialState = {
+  fileForSelectedElement: null,
   elementTreeForFile: {},
   selectedElementPathForFile: {},
 }
@@ -46,6 +47,7 @@ export default (state = initialState, action) => {
       const {filename, elementPath} = payload
 
       return update(state, {
+        fileForSelectedElement: {$set: filename},
         selectedElementPathForFile: {
           [filename]: {$set: elementPath}
         }

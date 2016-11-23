@@ -134,13 +134,11 @@ export default class PublishingMetadata extends Component {
         <div style={styles.footer}>
           <ComponentCodePreview component={component} />
           <div style={styles.spacerSmall} />
-          <InspectorButton type={'main'}>Publish Component</InspectorButton>
-          <div style={styles.spacerSmall} />
           <InspectorButton
             type={'destructive'}
             onClick={onDeleteComponent.bind(null, component)}
           >
-            Delete Component
+            Delete Primitive
           </InspectorButton>
         </div>
       </div>

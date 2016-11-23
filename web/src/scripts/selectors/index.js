@@ -53,6 +53,11 @@ export const focusedFileId = createSelector(
   (focusedTabId) => focusedTabId && URIUtils.withoutProtocolOrParams(focusedTabId)
 )
 
+export const fileForSelectedElement = createSelector(
+  ({elementTree}) => elementTree,
+  (elementTree) => elementTree.fileForSelectedElement
+)
+
 const emptyArray = []
 
 export const tabIds = createSelector(
@@ -79,12 +84,27 @@ export const filesByTabId = createSelector(
   }
 )
 
-export const selectedElement = createSelector(
-  focusedFileId,
+export const selectedElementForFile = createSelector(
+  (state, props) => props.fileId,
   ({elementTree}) => elementTree,
-  (focusedFileId, elementTree) => {
-    const tree = elementTree.elementTreeForFile[focusedFileId]
-    const elementPath = elementTree.selectedElementPathForFile[focusedFileId]
+  (fileId, elementTree) => {
+    const tree = elementTree.elementTreeForFile[fileId]
+    const elementPath = elementTree.selectedElementPathForFile[fileId]
+
+    if (tree && elementPath) {
+      return ElementTreeUtils.getElementByPath(tree, elementPath)
+    } else {
+      return null
+    }
+  }
+)
+
+export const selectedElement = createSelector(
+  fileForSelectedElement,
+  ({elementTree}) => elementTree,
+  (fileForSelectedElement, elementTree) => {
+    const tree = elementTree.elementTreeForFile[fileForSelectedElement]
+    const elementPath = elementTree.selectedElementPathForFile[fileForSelectedElement]
 
     if (tree && elementPath) {
       return ElementTreeUtils.getElementByPath(tree, elementPath)
@@ -121,6 +141,12 @@ export const componentList = createSelector(
   ({components}) => components.list,
   ({modules}) => modules.modules,
   (publishingFeature, components, modules) => publishingFeature ? components : modules
+)
+
+export const docForSelectedElement = createSelector(
+  ({editor: {docCache}}) => docCache,
+  fileForSelectedElement,
+  (docCache, fileForSelectedElement) => fileForSelectedElement ? docCache[fileForSelectedElement] : null
 )
 
 export const currentDoc = createSelector(

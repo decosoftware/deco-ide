@@ -66,7 +66,7 @@ const stylesCreator = ({fonts}) => ({
 })
 
 const mapStateToProps = (state) => createSelector(
-  selectors.currentDoc,
+  selectors.docForSelectedElement,
   selectors.selectedElement,
   selectors.selectedComponent,
   (decoDoc, element, component) => ({
@@ -145,7 +145,24 @@ class ComponentProps extends Component {
     if (!prop) return
 
     const {styles} = this.props
-    const {name} = prop
+    const {name, type} = prop
+
+    if (type === 'object') {
+      const subProps = []
+      prop.value.forEach((value, i) => {
+        subProps.push((
+          <Property
+            key={value.name}
+            prop={value}
+            disabled={!exists}
+            onValueChange={this.handleValueChange.bind(this, value)}
+            actions={this.renderPropActions(value, exists)}
+          />
+        ))
+        subProps.push((<div key={i} style={styles.spacer} />))
+      })
+      return subProps
+    }
 
     return (
       <Property
