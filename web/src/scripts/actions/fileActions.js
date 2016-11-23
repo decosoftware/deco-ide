@@ -17,6 +17,7 @@
 
 import request from '../ipc/Request'
 import { fileTreeController } from '../filetree'
+import * as ProjectTemplateUtils from '../utils/ProjectTemplateUtils'
 
 import FileConstants from 'shared/constants/ipc/FileConstants'
 import ProjectConstants from 'shared/constants/ipc/ProjectConstants'
@@ -44,17 +45,26 @@ export const _setTopDir = (rootPath) => {
   }
 }
 
+export const SET_PROJECT_TEMPLATE_TYPE = 'SET_PROJECT_TEMPLATE_TYPE'
+export const setProjectTemplateType = (templateType) => async (dispatch, getState) => {
+  ProjectTemplateUtils.setApplicationMenuForTemplate(templateType)
+
+  dispatch({type: SET_PROJECT_TEMPLATE_TYPE, payload: templateType})
+}
+
 export const CLEAR_FILE_STATE = 'CLEAR_FILE_STATE'
 export const clearFileState = () => {
   return { type: CLEAR_FILE_STATE }
 }
 
-export function setTopDir(rootPath) {
-  return (dispatch) => {
-    dispatch(_setTopDir(rootPath))
-    const reset = true
-    fileTreeController.setRootPath(rootPath, reset)
-  }
+export const setTopDir = (rootPath) => (dispatch) => {
+  dispatch(_setTopDir(rootPath))
+
+  const templateType = ProjectTemplateUtils.detectTemplate(rootPath)
+  dispatch(setProjectTemplateType(templateType))
+
+  const reset = true
+  fileTreeController.setRootPath(rootPath, reset)
 }
 
 const _registerPath = (filePath, info) => {

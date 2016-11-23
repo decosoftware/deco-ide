@@ -73,7 +73,7 @@ const stylesCreator = (theme) => {
     leftSection: {
       ...section,
       justifyContent: 'flex-start',
-      minWidth: 150,
+      minWidth: 255,
     },
     centerSection: {
       ...section,
@@ -81,7 +81,7 @@ const stylesCreator = (theme) => {
     rightSection: {
       ...section,
       justifyContent: 'flex-end',
-      minWidth: 150 + STOPLIGHT_BUTTONS_WIDTH,
+      minWidth: 255 + STOPLIGHT_BUTTONS_WIDTH,
     },
     buttonGroupSeparator: {
       width: 7,
@@ -98,12 +98,24 @@ class WorkspaceToolbar extends Component {
     shell.openExternal("https://decoslack.slack.com/messages/deco/")
   }
 
-  openDocs = () => {
+  openDecoDocs = () => {
     shell.openExternal("https://www.decosoftware.com/docs")
+  }
+
+  openReactNativeDocs = () => {
+    shell.openExternal("https://facebook.github.io/react-native/docs/getting-started.html")
   }
 
   openCreateDiscussAccount = () => {
     shell.openExternal("https://decoslackin.herokuapp.com/")
+  }
+
+  openExponentDocs = () => {
+    shell.openExternal("https://docs.getexponent.com/versions/v11.0.0/sdk/index.html#exponent-sdk")
+  }
+
+  openExponentSlack = () => {
+    shell.openExternal("https://exponentjs.slack.com/")
   }
 
   launchSimulatorOfType = (simInfo, platform) => {
@@ -144,18 +156,13 @@ class WorkspaceToolbar extends Component {
     )
   }
 
-  renderDropdownMenu = () => {
-    const options = [
-      { text: 'Open Deco Slack', action: this.openDiscuss },
-      { text: 'Create Slack Account', action: this.openCreateDiscussAccount },
-    ]
-
+  renderDropdownMenu = (options) => {
     return (
       <div className={'helvetica-smooth'}>
-        {_.map(options, ({text, action}, i) => (
+        {_.map(options, ({text, action}, i, list) => (
           <div key={i}
             style={{
-              marginBottom: i === options.length - 1 ? 0 : 6,
+              marginBottom: i === list.length - 1 ? 0 : 6,
               marginRight: 10,
               marginLeft: 10,
             }}>
@@ -169,6 +176,10 @@ class WorkspaceToolbar extends Component {
   }
 
   setDiscussMenuVisibility = (visible) => this.setState({discussMenuOpen: visible})
+
+  setExponentMenuVisibility = (visible) => this.setState({exponentMenuOpen: visible})
+
+  setDocsMenuVisibility = (visible) => this.setState({docsMenuOpen: visible})
 
   reloadSimulator = () => this.props.dispatch(hardReloadSimulator())
 
@@ -194,15 +205,41 @@ class WorkspaceToolbar extends Component {
   }
 
   renderLeftSection() {
-    const {styles} = this.props
+    const {styles, projectTemplateType} = this.props
+
+    const isExponentProject = projectTemplateType === 'Exponent'
+
+    const docsOptions = [
+      {text: 'Deco Docs', action: this.openDecoDocs},
+      {text: 'React Native Docs', action: this.openReactNativeDocs},
+      ...isExponentProject && [
+        {text: 'Exponent Docs', action: this.openExponentDocs}
+      ],
+    ]
+
+    const decoSlackOptions = [
+      {text: 'Open Deco Slack', action: this.openDiscuss},
+      {text: 'Create Slack Account', action: this.openCreateDiscussAccount},
+    ]
+
+    const exponentOptions = [
+      {text: 'Open Exponent Slack', action: this.openExponentSlack},
+    ]
 
     return (
       <div style={styles.leftSection}>
         <ThemedToolbarButtonGroup>
-          <ThemedToolbarButton
-            text={'Docs'}
-            onClick={this.openDocs}
-          />
+          <DropdownMenuButton
+            menuType={'platform'}
+            offset={dropdownMenuOffset}
+            onVisibilityChange={this.setDocsMenuVisibility}
+            renderContent={this.renderDropdownMenu.bind(this, docsOptions)}
+          >
+            <ThemedToolbarButton
+              text={'Docs'}
+              opened={this.state.docsMenuOpen}
+            />
+          </DropdownMenuButton>
         </ThemedToolbarButtonGroup>
         <div style={styles.buttonGroupSeparator} />
         <ThemedToolbarButtonGroup>
@@ -210,7 +247,7 @@ class WorkspaceToolbar extends Component {
             menuType={'platform'}
             offset={dropdownMenuOffset}
             onVisibilityChange={this.setDiscussMenuVisibility}
-            renderContent={this.renderDropdownMenu}
+            renderContent={this.renderDropdownMenu.bind(this, decoSlackOptions)}
           >
             <ThemedToolbarButton
               text={'Deco Slack'}
@@ -218,6 +255,22 @@ class WorkspaceToolbar extends Component {
             />
           </DropdownMenuButton>
         </ThemedToolbarButtonGroup>
+        <div style={styles.buttonGroupSeparator} />
+        {isExponentProject && (
+          <ThemedToolbarButtonGroup>
+            <DropdownMenuButton
+              menuType={'platform'}
+              offset={dropdownMenuOffset}
+              onVisibilityChange={this.setExponentMenuVisibility}
+              renderContent={this.renderDropdownMenu.bind(this, exponentOptions)}
+            >
+              <ThemedToolbarButton
+                text={'Exponent Slack'}
+                opened={this.state.exponentMenuOpen}
+              />
+            </DropdownMenuButton>
+          </ThemedToolbarButtonGroup>
+        )}
       </div>
     )
   }
@@ -308,7 +361,8 @@ const mapStateToProps = (state) => {
     availableSimulatorsIOS: state.application.availableSimulatorsIOS,
     availableSimulatorsAndroid: state.application.availableSimulatorsAndroid,
     useGenymotion: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.USE_GENYMOTION],
-    publishingFeature: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE]
+    publishingFeature: state.preferences[CATEGORIES.GENERAL][PREFERENCES.GENERAL.PUBLISHING_FEATURE],
+    projectTemplateType: state.directory.projectTemplateType,
   }
 }
 
