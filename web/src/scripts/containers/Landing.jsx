@@ -18,19 +18,65 @@
 import React, { Component, PropTypes } from 'react'
 import { routeActions, } from 'react-router-redux'
 import { connect } from 'react-redux'
+import { StylesProvider } from 'react-styles-provider'
+const { app } = Electron.remote
 
+import * as themes from '../themes'
 import { createProject, openProject, } from '../actions/applicationActions'
 import { resizeWindow, } from '../actions/uiActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
 
 import LandingPage from '../components/pages/LandingPage'
 import TemplatesPage from '../components/pages/TemplatesPage'
+import ProjectCreationPage from '../components/pages/ProjectCreationPage'
+
+const reactNative = [
+  {
+    "id": "blank",
+    "name": "Blank",
+    "description": "The Blank project template includes the minimum dependencies to run and an empty root component.",
+    "version": "0.36.0",
+    "iconUrl": "https://s3.amazonaws.com/exp-starter-apps/template_icon_blank.png"
+  }
+]
+
+const exponent = [
+  {
+    "id": "blank",
+    "name": "Blank",
+    "description": "The Blank project template includes the minimum dependencies to run and an empty root component.",
+    "version": "1.7.4",
+    "iconUrl": "https://s3.amazonaws.com/exp-starter-apps/template_icon_blank.png"
+  },
+  {
+    "id": "tabs",
+    "name": "Tab Navigation",
+    "description": "The Tab Navigation project template includes several example screens.",
+    "version": "1.7.4",
+    "iconUrl": "https://s3.amazonaws.com/exp-starter-apps/template_icon_tabs.png"
+  }
+]
+
+const CATEGORIES = [
+  'React Native',
+  'Exponent',
+]
+
+const TEMPLATES_FOR_CATEGORY = {
+  'React Native': reactNative,
+  'Exponent': exponent,
+}
 
 class Landing extends Component {
 
   state = {
     recentProjects: RecentProjectUtils.getProjectPaths(),
     page: 'landing',
+    template: null,
+    selectedCategory: CATEGORIES[0],
+    selectedTemplateIndex: null,
+    projectName: 'AwesomeProject',
+    projectDirectory: app.getPath('home'),
   }
 
   componentWillMount() {
@@ -41,26 +87,58 @@ class Landing extends Component {
     }))
   }
 
+  onSelectCategory = (selectedCategory) => this.setState({selectedCategory})
+
   onViewLanding = () => this.setState({page: 'landing'})
 
   onViewTemplates = () => this.setState({page: 'templates'})
 
-  onCreateProject = (category, template) => {
-    const {dispatch} = this.props
+  onProjectNameChange = (projectName) => this.setState({projectName})
 
-    console.log('Creating project', category, template)
+  onProjectDirectoryChange = (projectDirectory) => this.setState({projectDirectory})
 
-    if (category === 'React Native') {
-      dispatch(createProject())
-    } else {
-      // ... exponent stuff ...
-    }
+  onSelectTemplate = (selectedTemplateIndex) => {
+    this.setState({
+      page: 'projectCreation',
+      selectedTemplateIndex,
+    })
+  }
+
+  onCreateProject = () => {
+    const {selectedCategory, selectedTemplateIndex, projectName, projectDirectory} = this.state
+    const template = TEMPLATES_FOR_CATEGORY[selectedCategory][selectedTemplateIndex]
+
+    console.log('create project', projectName, projectDirectory, template)
+
+    // TODO Actually create project
+  }
+
+  renderProjectCreationPage = () => {
+    const {selectedCategory, selectedTemplateIndex, projectName, projectDirectory} = this.state
+
+    return (
+      <ProjectCreationPage
+        projectName={projectName}
+        projectDirectory={projectDirectory}
+        template={TEMPLATES_FOR_CATEGORY[selectedCategory][selectedTemplateIndex]}
+        onProjectNameChange={this.onProjectNameChange}
+        onProjectDirectoryChange={this.onProjectDirectoryChange}
+        onCreateProject={this.onCreateProject}
+        onBack={this.onViewTemplates}
+      />
+    )
   }
 
   renderTemplatesPage = () => {
+    const {selectedCategory} = this.state
+
     return (
       <TemplatesPage
-        onCreateProject={this.onCreateProject}
+        categories={CATEGORIES}
+        templates={TEMPLATES_FOR_CATEGORY[selectedCategory]}
+        selectedCategory={selectedCategory}
+        onSelectCategory={this.onSelectCategory}
+        onSelectTemplate={this.onSelectTemplate}
         onBack={this.onViewLanding}
       />
     )
@@ -72,25 +150,32 @@ class Landing extends Component {
     return (
       <LandingPage
         recentProjects={recentProjects}
-        onOpen={(path) => {
-          this.props.dispatch(openProject(path))
-        }}
-        onCreateNew={() => {
-          this.props.dispatch(createProject())
-        }}
+        onOpen={(path) => this.props.dispatch(openProject(path))}
+        onCreateNew={() => this.props.dispatch(createProject())}
         onViewTemplates={this.onViewTemplates}
       />
     )
   }
 
-  render() {
+  renderPage = () => {
     const {page} = this.state
 
-    if (page === 'templates') {
-      return this.renderTemplatesPage()
-    } else {
-      return this.renderLandingPage()
+    switch (page) {
+      case 'templates':
+        return this.renderTemplatesPage()
+      case 'projectCreation':
+        return this.renderProjectCreationPage()
+      default:
+        return this.renderLandingPage()
     }
+  }
+
+  render() {
+    return (
+      <StylesProvider theme={themes.light}>
+        {this.renderPage()}
+      </StylesProvider>
+    )
   }
 }
 

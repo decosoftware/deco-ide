@@ -16,10 +16,14 @@
  */
 
 import React, { Component, PropTypes } from 'react'
+import path from 'path'
 
 import DecoLogo from '../display/DecoLogo'
 import LandingButton from '../buttons/LandingButton'
 import ProjectListItem from '../buttons/ProjectListItem'
+import NewIcon from '../display/NewIcon'
+import PropertyStringInput from '../inspector/PropertyStringInput'
+import PropertyFileInput from '../inspector/PropertyFileInput'
 
 const styles = {
   container: {
@@ -59,15 +63,7 @@ const styles = {
     borderTop: '1px solid #E7E7E7',
   },
   categoriesPane: {
-    flex: '0 0 180px',
-    overflowY: 'auto',
-    borderRight: '1px solid rgba(0,0,0,0.05)',
-  },
-  category: {
-    padding: '20px 25px',
-    fontSize: 14,
-    fontWeight: 300,
-    borderBottom: '1px solid rgba(0,0,0,0.05)',
+    flex: '0 0 auto',
   },
   logoContainer: {
     flex: '0 0 auto',
@@ -77,14 +73,10 @@ const styles = {
     alignItems: 'center',
     WebkitAppRegion: 'drag',
   },
-  templatesPane: {
+  detailsPane: {
     flex: '1 1 auto',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 0,
-    minWidth: 0,
-    paddingLeft: 20,
+    paddingTop: 30,
+    paddingRight: 30,
   },
   template: {
     padding: 30,
@@ -101,45 +93,16 @@ const styles = {
     boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
     backgroundSize: 'cover',
   },
+  propertySpacer: {
+    marginBottom: 30,
+  },
 }
 
-styles.categoryActive = {
-  ...styles.category,
-  fontWeight: 'bold',
-  backgroundColor: 'rgba(0,0,0,0.05)',
-}
+export default class ProjectCreationPage extends Component {
 
-styles.templateActive = {
-  ...styles.template,
-  backgroundColor: 'rgb(79,139,229)',
-  color: 'white',
-}
-
-export default class TemplatesPage extends Component {
-
-  renderCategory = (title, i) => {
-    const {selectedCategory, onSelectCategory} = this.props
-
+  renderTemplate = ({name, iconUrl}) => {
     return (
-      <div
-        key={i}
-        style={title === selectedCategory ? styles.categoryActive : styles.category}
-        onClick={onSelectCategory.bind(this, title)}
-      >
-        {title}
-      </div>
-    )
-  }
-
-  renderTemplate = ({name, iconUrl}, i) => {
-    const {selectedTemplateIndex, onSelectTemplate} = this.props
-
-    return (
-      <div
-        key={i}
-        style={i === selectedTemplateIndex ? styles.templateActive : styles.template}
-        onClick={onSelectTemplate.bind(this, i)}
-      >
+      <div style={styles.template}>
         <div style={styles.templateTitle}>
           {name}
         </div>
@@ -149,8 +112,15 @@ export default class TemplatesPage extends Component {
   }
 
   render() {
-    const {selectedCategory, onBack, categories, templates} = this.props
-    const {} = this.props
+    const {
+      onBack,
+      template,
+      onProjectNameChange,
+      onProjectDirectoryChange,
+      onCreateProject,
+      projectName,
+      projectDirectory,
+    } = this.props
 
     return (
       <div className='helvetica-smooth' style={styles.container}>
@@ -160,16 +130,32 @@ export default class TemplatesPage extends Component {
           </div>
           <div style={styles.paneContainer}>
             <div style={styles.categoriesPane}>
-              {categories.map(this.renderCategory)}
+              {this.renderTemplate(template)}
             </div>
-            <div style={styles.templatesPane}>
-              {templates.map(this.renderTemplate)}
+            <div style={styles.detailsPane}>
+              <PropertyStringInput
+                title={'Project Name'}
+                value={projectName}
+                onChange={onProjectNameChange}
+                autoFocus={true}
+              />
+              <div style={styles.propertySpacer} />
+              <PropertyFileInput
+                title={'Project Location'}
+                value={path.resolve(projectDirectory, projectName)}
+                onChange={onProjectDirectoryChange}
+                disabled={true}
+              />
             </div>
           </div>
         </div>
         <div style={styles.bottom}>
           <LandingButton onClick={onBack}>
             Back
+          </LandingButton>
+          <LandingButton onClick={onCreateProject}>
+            <NewIcon />
+            Create Project
           </LandingButton>
         </div>
       </div>
