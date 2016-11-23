@@ -1,0 +1,41 @@
+machine:
+  environment:
+    DEVELOPER_NAME: "Mac Distribution: Deco Desktop Production (M5Y2HY4UM2)"
+    PROFILE_NAME: "Deco_Desktop_Production"
+    SIGN_DECO_PACKAGE: "true"
+    NODE_VERSION: "5.7"
+    # CircleCI only technically supports MacOS and IOS apps,
+    # so they require an xcode scheme.
+    XCODE_SCHEME: Phony.xcscheme
+dependencies:
+  pre:
+    - brew update
+    - brew install curl
+    - git clone https://github.com/creationix/nvm.git /tmp/.nvm; source /tmp/.nvm/nvm.sh; nvm install $NODE_VERSION; nvm use --delete-prefix $NODE_VERSION;
+  override:
+    - ./build/install-dependencies.sh
+  post:
+    - ./build/run-pack.sh
+  cache_directories:
+    - "shared/node_modules"
+    - "desktop/node_modules"
+    - "web/node_modules"
+test:
+  override:
+    - echo "Skipping tests"
+deployment:
+  staging:
+    branch: staging
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs-staging --delete
+  production:
+    branch: release
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs --delete
+  bleeding_edge:
+    branch: master
+    owner: decosoftware
+    commands:
+      - aws s3 sync dist s3://decopkgs-bleeding-edge --delete
