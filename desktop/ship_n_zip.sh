@@ -45,6 +45,6 @@ popd
 
 if [ "$SIGN_PACKAGE" = "true" ]; then
   pushd ../dist/osx
-  codesign -fs "$APP_KEY" $ZIP_FILE
+  codesign --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" $ZIP_FILE
   popd
 fi
