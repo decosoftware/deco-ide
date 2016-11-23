@@ -33,7 +33,7 @@ pkgbuild --quiet --component "$APP_PATH" --ownership preserve --scripts "./libs/
 
 if [ "$SIGN_PACKAGE" = "true" ]; then
   codesign --force --keychain ~/Library/Keychains/mac-build.keychain --sign "$APP_KEY" "$RESULT_COMP_PATH"
-  productbuild --quiet --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --sign "$INSTALLER_KEY" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
+  productbuild --quiet --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --sign "$INSTALLER_KEY" --keychain ~/Library/Keychains/mac-build.keychain --package-path "$PACKAGE_PATH" "$RESULT_PATH"
 else
   productbuild --quiet --distribution "./installer/osx/mpkg/Distribution" --resources "./installer/osx/mpkg/Resources" --plugins "./installer/osx/mpkg/Plugins" --package-path "$PACKAGE_PATH" "$RESULT_PATH"
 fi
