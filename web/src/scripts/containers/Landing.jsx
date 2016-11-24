@@ -149,7 +149,7 @@ class Landing extends Component {
     })
   }
 
-  onCreateProject = () => {
+  onCreateProject = async () => {
     const {selectedCategory, selectedTemplateIndex, projectName, projectDirectory} = this.state
     const template = TEMPLATES_FOR_CATEGORY[selectedCategory][selectedTemplateIndex]
 
@@ -157,22 +157,29 @@ class Landing extends Component {
 
     console.log('create project', projectName, projectDirectory, template)
 
-    this.setState({page: 'loading'})
+    this.setState({page: 'loading', loadingText: 'Downloading and extracting project'})
 
     if (selectedCategory === 'React Native') {
       // dispatch(createProject())
     } else {
-      this._createExponentProject(projectName, projectDirectory, template);
+      await this._createExponentProjectAsync(projectName, projectDirectory, template);
     }
-    this.installDependencies()
+
+    await this.installDependenciesAsync()
+
+    selectProject({
+      type: SET_PROJECT_DIR,
+      absolutePath: new Buffer(projectDirectory + '/'+ projectName).toString('hex'),
+      isTemp: false,
+    } , this.props.dispatch);
   }
 
-  installDependencies = async () => {
+  installDependenciesAsync = async () => {
     const {projectDirectory, projectName} = this.state
 
     await ModuleClient.importModule({
       name: '@exponent/minimal-packager',
-      path: projectDirectory,
+      path: projectDirectory + '/' + projectName,
     }, (({percent}) => {
       this.setState({loadingText: `Installing packages (${Math.ceil(percent * 100)})`})
     }))
@@ -198,7 +205,7 @@ class Landing extends Component {
 
   // Currently this only accepts template but it will accept name and/or path (name can be
   // inferred from path if we just take the last part of path).
-  async _createExponentProject(projectName, projectDirectory, template) {
+  async _createExponentProjectAsync(projectName, projectDirectory, template) {
     try {
       // IS USER SIGNED IN? USE THEIR ACCOUNT. OTHERWISE USE OUR DUMB ACCOUNT.
       // NOTE THAT THIS LOOKS IT UP IN ~/.exponent
@@ -217,13 +224,6 @@ class Landing extends Component {
         {},                   // Any extra fields to add to package.json
         {name: projectName}   // Options, currently only name is supported
       );
-
-      // SWITCH TO THE PROJECT
-      selectProject({
-        type: SET_PROJECT_DIR,
-        absolutePath: new Buffer(projectDirectory + '/'+ projectName).toString('hex'),
-        isTemp: false,
-      } , this.props.dispatch);
     } catch(e) {
       alert(e.message);
     }
