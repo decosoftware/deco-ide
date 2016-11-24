@@ -30,6 +30,7 @@ import PropertyListInput from './PropertyListInput'
 import DropdownMenuButton from '../buttons/DropdownMenuButton'
 import PropertyRemoveButton from './PropertyRemoveButton'
 import PropertySettingsButton from './PropertySettingsButton'
+import PropertySettingsDropdown from './PropertySettingsDropdown'
 import * as Parser from '../../utils/Parser'
 import PrimitiveTypes, { OPTIONS } from '../../constants/PrimitiveTypes'
 
@@ -93,19 +94,13 @@ export default class PropertyComponentPropsInput extends Component {
 
   renderSettingsDropdown = (prop, actions) => {
     const {styles} = this.props
-    const {type} = prop
 
     return (
-      <div style={styles.dropdownMenuInner}>
-        <PropertySelectInput
-          title={'Type'}
-          value={type}
-          onChange={this.changePropType.bind(this, prop, actions)}
-          options={OPTIONS}
-          showValueAsOption={false}
-          dividerType={'vibrant'}
-        />
-      </div>
+      <PropertySettingsDropdown
+        prop={prop}
+        onChange={actions.change}
+        onChangeKey={actions.changeKey}
+      />
     )
   }
 
