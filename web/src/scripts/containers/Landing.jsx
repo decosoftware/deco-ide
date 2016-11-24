@@ -75,7 +75,7 @@ class Landing extends Component {
     template: null,
     selectedCategory: CATEGORIES[0],
     selectedTemplateIndex: null,
-    projectName: 'AwesomeProject',
+    projectName: 'Project',
     projectDirectory: app.getPath('home'),
   }
 
@@ -87,26 +87,59 @@ class Landing extends Component {
     }))
   }
 
+  isValidProjectName = (projectName) => {
+    const {selectedCategory} = this.state
+
+    if (projectName.length === 0) {
+      return false
+    }
+
+    if (selectedCategory === 'Exponent') {
+      return !!projectName[0].match(/[a-z]/)
+    }
+
+    return !!projectName[0].match(/[A-Z]/)
+  }
+
+  sanitizeProjectName = (projectName) => {
+    const {selectedCategory} = this.state
+
+    if (selectedCategory === 'Exponent') {
+      return projectName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-')
+    }
+
+    const upperFirstName = projectName.length > 0
+      ? projectName[0].toUpperCase() + projectName.slice(1)
+      : projectName
+
+    return upperFirstName.replace(/[^a-zA-Z0-9_-]/g, '')
+  }
+
   onSelectCategory = (selectedCategory) => this.setState({selectedCategory})
 
   onViewLanding = () => this.setState({page: 'landing'})
 
   onViewTemplates = () => this.setState({page: 'templates'})
 
-  onProjectNameChange = (projectName) => this.setState({projectName})
+  onProjectNameChange = (projectName) => this.setState({projectName: this.sanitizeProjectName(projectName)})
 
   onProjectDirectoryChange = (projectDirectory) => this.setState({projectDirectory})
 
   onSelectTemplate = (selectedTemplateIndex) => {
+    const {projectName} = this.state
+
     this.setState({
       page: 'projectCreation',
       selectedTemplateIndex,
+      projectName: this.sanitizeProjectName(projectName),
     })
   }
 
   onCreateProject = () => {
     const {selectedCategory, selectedTemplateIndex, projectName, projectDirectory} = this.state
     const template = TEMPLATES_FOR_CATEGORY[selectedCategory][selectedTemplateIndex]
+
+    if (!this.isValidProjectName(projectName)) return
 
     console.log('create project', projectName, projectDirectory, template)
 
