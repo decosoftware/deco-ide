@@ -16,44 +16,18 @@
  */
 
 import _ from 'lodash'
-import fs from 'fs'
 import path from 'path'
-import jsonfile from 'jsonfile'
 import dir from 'node-dir'
 
 import Logger from '../log/logger'
-import npm from '../process/npmController'
 import bridge from '../bridge'
-import { onSuccess, onError } from '../actions/genericActions'
-import { startProgressBar, updateProgressBar, endProgressBar } from '../actions/uiActions'
 import { foundRegistries } from '../actions/moduleActions'
 import ModuleConstants from 'shared/constants/ipc/ModuleConstants'
 
 class ModuleHandler {
 
   register() {
-    bridge.on(ModuleConstants.IMPORT_MODULE, this.importModule.bind(this))
     bridge.on(ModuleConstants.SCAN_PROJECT_FOR_REGISTRIES, this.scanPathForRegistries.bind(this))
-  }
-
-  readPackageJSON(projectPath) {
-    const packagePath = path.join(projectPath, 'package.json')
-    return new Promise((resolve, reject) => {
-      try {
-        jsonfile.readFile(packagePath, (err, obj) => {
-          if (err && err.code !== 'ENOENT') {
-            Logger.info('Failed to read package.json')
-            Logger.error(err)
-            reject(err)
-          } else {
-            resolve(obj)
-          }
-        })
-      } catch (e) {
-        Logger.error(e)
-        reject(e)
-      }
-    })
   }
 
   /**
@@ -154,60 +128,6 @@ class ModuleHandler {
       respond(foundRegistries(registryMap))
     })
   }
-
-  importModule(options, respond) {
-
-    options.version = options.version || 'latest'
-
-    const {name, version, path: installPath } = options
-
-    this.readPackageJSON(options.path).then((packageJSON = {}) => {
-      const {dependencies} = packageJSON
-
-      // If the dependency exists, and the version is compatible
-      if (dependencies && dependencies[name] &&
-          (version === '*' || version === dependencies[name])) {
-        Logger.info(`npm: dependency ${name}@${version} already installed`)
-        respond(onSuccess(ModuleConstants.IMPORT_MODULE))
-      } else {
-        const progressCallback = _.throttle((percent) => {
-          bridge.send(updateProgressBar(name, percent * 100))
-        }, 250)
-
-        bridge.send(startProgressBar(name, 0))
-
-        try {
-          const command = [
-            'install', '-S', `${name}@${version}`,
-            ...options.registry && ['--registry', options.registry]
-          ]
-
-          Logger.info(`npm ${command.join(' ')}`)
-
-          npm.run(command, {cwd: installPath}, (err) => {
-
-            // Ensure a trailing throttled call doesn't fire
-            progressCallback.cancel()
-
-            bridge.send(endProgressBar(name, 100))
-
-            if (err) {
-              Logger.info(`npm: dependency ${name}@${version} failed to install`)
-              respond(onError(ModuleConstants.IMPORT_MODULE))
-            } else {
-              Logger.info(`npm: dependency ${name}@${version} installed successfully`)
-              respond(onSuccess(ModuleConstants.IMPORT_MODULE))
-            }
-          }, progressCallback)
-        } catch(e) {
-          Logger.error(e)
-          respond(onError(ModuleConstants.IMPORT_MODULE))
-        }
-      }
-    })
-
-  }
-
 }
 
-export default new ModuleHandler()
+module.exports = new ModuleHandler()

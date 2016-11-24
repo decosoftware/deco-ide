@@ -35,7 +35,12 @@ export const openInstallModuleDialog = () => (dispatch, getState) => {
       onTextDone={(name) => {
         const state = getState()
         const registry = state.preferences[CATEGORIES.EDITOR][PREFERENCES.EDITOR.NPM_REGISTRY]
-        importModule(name, 'latest', getRootPath(state), registry)
+        importModule({
+          name,
+          version: 'latest',
+          path: getRootPath(state),
+          registry,
+        })
       }} />
   )
   dispatch(pushModal(dialog, true))

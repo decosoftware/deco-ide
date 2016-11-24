@@ -24,10 +24,12 @@ import { importModule } from '../clients/ModuleClient'
 const FLOW_KEY = 'FLOW'
 
 export default {
-  installAndStartFlow(rootPath, npmRegistry) {
+  installAndStartFlow(path, registry) {
+    const name = 'flow-bin'
+
     FlowController.getFlowConfigVersion()
-      .then(version => importModule('flow-bin', version, rootPath, npmRegistry))
-      .catch(() => importModule('flow-bin', 'latest', rootPath, npmRegistry))
+      .then(version => importModule({name, version, path, registry}))
+      .catch(() => importModule({name, version: 'latest', path, registry}))
       .then(() => FlowController.startServer())
   },
   shouldPromptForFlowInstallation(projectPath) {

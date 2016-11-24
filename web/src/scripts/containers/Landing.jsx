@@ -19,12 +19,14 @@ import React, { Component, PropTypes } from 'react'
 import { routeActions, } from 'react-router-redux'
 import { connect } from 'react-redux'
 import { StylesProvider } from 'react-styles-provider'
+import path from 'path'
 const { app } = Electron.remote
 
 import * as themes from '../themes'
 import { createProject, openProject, } from '../actions/applicationActions'
-import { resizeWindow, } from '../actions/uiActions'
+import { resizeWindow } from '../actions/uiActions'
 import RecentProjectUtils from '../utils/RecentProjectUtils'
+import * as ModuleClient from '../clients/ModuleClient'
 
 import LandingPage from '../components/pages/LandingPage'
 import TemplatesPage from '../components/pages/TemplatesPage'
@@ -78,6 +80,7 @@ class Landing extends Component {
     selectedTemplateIndex: null,
     projectName: 'Project',
     projectDirectory: app.getPath('home'),
+    loadingText: 'Loading...'
   }
 
   componentWillMount() {
@@ -144,9 +147,32 @@ class Landing extends Component {
 
     console.log('create project', projectName, projectDirectory, template)
 
-    // TODO Actually create project
-
     this.setState({page: 'loading'})
+    this.installDependencies()
+  }
+
+  installDependencies = async () => {
+    const {projectDirectory, projectName} = this.state
+
+    // TODO not this
+    const fs = Electron.remote.require('fs')
+    fs.mkdirSync(path.resolve(projectDirectory, projectName))
+
+    await ModuleClient.importModule({
+      name: 'lodash',
+      path: projectDirectory,
+    }, (({percent}) => {
+      this.setState({loadingText: `Installing lodash (${Math.ceil(percent * 100)})`})
+    }))
+
+    await ModuleClient.importModule({
+      name: 'underscore',
+      path: projectDirectory,
+    }, (({percent}) => {
+      this.setState({loadingText: `Installing underscore (${Math.ceil(percent * 100)})`})
+    }))
+
+    this.setState({loadingText: `All done!?`})
   }
 
   renderProjectCreationPage = () => {
@@ -181,10 +207,10 @@ class Landing extends Component {
   }
 
   renderLoadingPage = () => {
+    const {loadingText} = this.state
+
     return (
-      <LoadingPage
-        text={'Loading...'}
-      />
+      <LoadingPage text={loadingText} />
     )
   }
 

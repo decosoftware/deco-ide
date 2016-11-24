@@ -20,12 +20,12 @@ import { fork } from 'child_process'
 import path from 'path'
 
 class npm {
-  static run(cmd = [], opts = {}, cb, progress) {
+  static spawn(cmd = [], opts = {}, cb, progress) {
     cb = once(cb)
 
-    var execPath = path.join(__dirname, '../node_modules/npm/bin/npm-cli.js')
+    const execPath = path.join(__dirname, '../node_modules/npm/bin/npm-cli.js')
 
-    var child = fork(execPath, cmd, opts)
+    const child = fork(execPath, cmd, opts)
 
     child.on('error', cb)
 
@@ -43,6 +43,24 @@ class npm {
 
     return child
   }
+
+  static run(cmd, opts, progress) {
+    return new Promise((resolve, reject) => {
+      const done = (err, code) => {
+        if (err) {
+          reject({type: 'failed', error: err})
+        } else {
+          resolve(code)
+        }
+      }
+
+      try {
+        npm.spawn(cmd, opts, done, progress)
+      } catch (e) {
+        reject({type: 'crashed', error: e})
+      }
+    })
+  }
 }
 
-export default npm
+module.exports = npm
