@@ -56,7 +56,7 @@ export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, and
       >
         <FileSelectorInput
           value={androidHome}
-          onClickButton={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.ANDROID_HOME, 'openDirectory', 'Choose Android SDK Location')}
+          onSelectFile={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.ANDROID_HOME, 'openDirectory', 'Choose Android SDK Location')}
           placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].ANDROID_HOME].defaultValue}
         />
       </FormRow>
@@ -66,7 +66,7 @@ export default ({onPreferenceChange, setSystemLocationPreference, decoTheme, and
       >
         <FileSelectorInput
           value={pathToGenymotionApp}
-          onClickButton={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.GENYMOTION_APP, 'openFile', 'Choose Genymotion Install Location')}
+          onSelectFile={setSystemLocationPreference.bind(null, PREFERENCES.GENERAL.GENYMOTION_APP, 'openFile', 'Choose Genymotion Install Location')}
           placeholder={METADATA[CATEGORIES.GENERAL][PREFERENCES[CATEGORIES.GENERAL].GENYMOTION_APP].defaultValue}
         />
       </FormRow>

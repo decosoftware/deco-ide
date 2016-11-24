@@ -57,7 +57,6 @@ class WindowHandler {
     bridge.on(SAVE_AS_DIALOG, this.saveAsDialog.bind(this))
     bridge.on(RESIZE, this.resizeWindow.bind(this))
     bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
-    bridge.on(OPEN_PATH_CHOOSER_DIALOG, this.openPathChooserDialog.bind(this))
     bridge.on(CONFIRM_DELETE_DIALOG, this.showDeleteDialog.bind(this))
   }
 
