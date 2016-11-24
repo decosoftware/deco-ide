@@ -70,6 +70,16 @@ const TEMPLATES_FOR_CATEGORY = {
   'Exponent': exponent,
 }
 
+import selectProject from '../utils/selectProject';
+
+import { SET_PROJECT_DIR } from 'shared/constants/ipc/ProjectConstants'
+
+const xdl = Electron.remote.require('xdl');
+const {
+  User,
+  Exp,
+} = xdl;
+
 class Landing extends Component {
 
   state = {
@@ -148,28 +158,23 @@ class Landing extends Component {
     console.log('create project', projectName, projectDirectory, template)
 
     this.setState({page: 'loading'})
+
+    if (selectedCategory === 'React Native') {
+      // dispatch(createProject())
+    } else {
+      this._createExponentProject(projectName, projectDirectory, template);
+    }
     this.installDependencies()
   }
 
   installDependencies = async () => {
     const {projectDirectory, projectName} = this.state
 
-    // TODO not this
-    const fs = Electron.remote.require('fs')
-    fs.mkdirSync(path.resolve(projectDirectory, projectName))
-
     await ModuleClient.importModule({
-      name: 'lodash',
+      name: '@exponent/minimal-packager',
       path: projectDirectory,
     }, (({percent}) => {
-      this.setState({loadingText: `Installing lodash (${Math.ceil(percent * 100)})`})
-    }))
-
-    await ModuleClient.importModule({
-      name: 'underscore',
-      path: projectDirectory,
-    }, (({percent}) => {
-      this.setState({loadingText: `Installing underscore (${Math.ceil(percent * 100)})`})
+      this.setState({loadingText: `Installing packages (${Math.ceil(percent * 100)})`})
     }))
 
     this.setState({loadingText: `All done!?`})
@@ -189,6 +194,39 @@ class Landing extends Component {
         onBack={this.onViewTemplates}
       />
     )
+  }
+
+  // Currently this only accepts template but it will accept name and/or path (name can be
+  // inferred from path if we just take the last part of path).
+  async _createExponentProject(projectName, projectDirectory, template) {
+    try {
+      // IS USER SIGNED IN? USE THEIR ACCOUNT. OTHERWISE USE OUR DUMB ACCOUNT.
+      // NOTE THAT THIS LOOKS IT UP IN ~/.exponent
+      let user = await User.getCurrentUserAsync();
+
+      if (!user) {
+        user = await User.loginAsync({
+          username: 'deco', password: 'password'
+        });
+      }
+
+      // ACTUALLY CREATE THE PROJECT
+      let projectRoot = await Exp.createNewExpAsync(
+        template.id,          // Template id
+        projectDirectory,     // Parent directory where to place the project
+        {},                   // Any extra fields to add to package.json
+        {name: projectName}   // Options, currently only name is supported
+      );
+
+      // SWITCH TO THE PROJECT
+      selectProject({
+        type: SET_PROJECT_DIR,
+        absolutePath: new Buffer(projectDirectory + '/'+ projectName).toString('hex'),
+        isTemp: false,
+      } , this.props.dispatch);
+    } catch(e) {
+      alert(e.message);
+    }
   }
 
   renderTemplatesPage = () => {

@@ -7,6 +7,7 @@ var path = require('path')
 var Deco = require('deco-tool')
 
 // These are settings from the local projects .deco/.settings JSON file
+const client = Deco.setting.client
 const iosTarget = Deco.setting.iosTarget
 const iosProject = Deco.setting.iosProject
 const iosBuildScheme = Deco.setting.iosBuildScheme
@@ -15,7 +16,7 @@ const packagerPort = Deco.setting.packagerPort
 
 /**
  *
- * HOW TO USE THIS FILE (https://github.com/decosoftware/deco-ide/blob/master/desktop/CONFIGURE.MD)
+ * HOW TO USE THIS FILE (https://github.com/decosoftware/deco-ide/blob/master/desktop/CONFIGURE.md)
  *
  * Runs a registered function in an isolated NodeJS environment when that function's corresponding
  * command is triggered from within the Deco application or when run from shell as a 'deco-tool' command

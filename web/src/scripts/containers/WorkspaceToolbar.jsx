@@ -118,6 +118,10 @@ class WorkspaceToolbar extends Component {
     shell.openExternal("https://exponentjs.slack.com/")
   }
 
+  openCreateExponentSlackAccount = () => {
+    shell.openExternal("https://slack.getexponent.com/")
+  }
+
   launchSimulatorOfType = (simInfo, platform) => {
     if (this.props.packagerIsOff) {
       this.props.dispatch(runPackager())
@@ -224,6 +228,7 @@ class WorkspaceToolbar extends Component {
 
     const exponentOptions = [
       {text: 'Open Exponent Slack', action: this.openExponentSlack},
+      {text: 'Create Slack Account', action: this.openCreateExponentSlackAccount},
     ]
 
     return (

@@ -53,6 +53,9 @@ import PackagerController from '../process/packagerController'
 import findXcodeProject from '../process/utils/findXcodeProject'
 
 import Logger from '../log/logger'
+import {
+  User,
+} from 'xdl';
 
 let unsavedMap = {}
 
@@ -159,34 +162,65 @@ class ProjectHandler {
     }
   }
 
-  createNewProject(payload, respond) {
+  async createNewProject(payload, respond) {
     this._resetProcessState()
     try {
-      payload.path = TEMP_PROJECT_FOLDER
-      this._deleteProject(payload.path)
-      const createProj = () => {
-        fs.rename(TEMP_PROJECT_FOLDER_TEMPLATE, TEMP_PROJECT_FOLDER, (err) => {
-          if (err) {
-            Logger.error(err)
-            respond(onError(err))
-            return
-          }
-          respond(onSuccess(CREATE_NEW_PROJECT))
-          bridge.send(setProject(payload.path, payload.tmp))
-          this._createTemplateFolder()
-        })
-        unsavedMap = {}
+      // Exponent
+      unsavedMap = {};
+      const EXPONENT_PROJECT_PATH = '/Users/brent/coding/butter-bot';
+
+      // SHOW LOADING INDICATOR
+      console.log('Loading');
+
+      // IS USER SIGNED IN? NO, THEN SIGN IN
+      let user = await User.getCurrentUserAsync();
+
+      if (!user) {
+        await User.loginAsync('deco', 'password');
+        user = await User.getCurrentUserAsync();
       }
 
-      try {
-        fs.statSync(TEMP_PROJECT_FOLDER_TEMPLATE)
-      } catch (e) {
-        this._createTemplateFolder().then(() => {
-          createProj()
-        })
-        return
+      if (!user) {
+        alert('Sorry this is broken?');
       }
-      createProj()
+
+      console.log(JSON.stringify(user));
+
+      // USER IS SIGNED IN: CREATE PROJECT
+        // Download the project
+        // Unzip it to the destination
+
+      // respond(onSuccess(CREATE_NEW_PROJECT));
+      // bridge.send(setProject(EXPONENT_PROJECT_PATH, false));
+
+      // ORIGINAL
+      // payload.path = TEMP_PROJECT_FOLDER
+      // this._deleteProject(payload.path)
+
+      // const createProj = () => {
+      //   // Rename template to /.Deco/tmp/Project
+      //   fs.rename(TEMP_PROJECT_FOLDER_TEMPLATE, TEMP_PROJECT_FOLDER, (err) => {
+      //     if (err) {
+      //       Logger.error(err)
+      //       respond(onError(err))
+      //       return
+      //     }
+      //     respond(onSuccess(CREATE_NEW_PROJECT))
+      //     bridge.send(setProject(payload.path, payload.tmp))
+      //     this._createTemplateFolder()
+      //   })
+      //   unsavedMap = {}
+      // }
+
+      // try {
+      //   fs.statSync(TEMP_PROJECT_FOLDER_TEMPLATE)
+      // } catch (e) {
+      //   this._createTemplateFolder().then(() => {
+      //     createProj()
+      //   })
+      //   return
+      // }
+      // createProj()
 
     } catch (e) {
       Logger.error(e)

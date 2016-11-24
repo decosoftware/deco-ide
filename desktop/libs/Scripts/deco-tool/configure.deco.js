@@ -53,6 +53,15 @@ const checkEnvironmentOK = () => {
   return true
 }
 
+const checkIsExponent = () => {
+  try {
+    fs.statSync(path.join(process.cwd(), 'exp.json'));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
 const checkGenymotionOK = () => {
   if (!process.env.GENYMOTION_APP) {
     const defaultGenymotionPath = `/Applications/Genymotion.app`
@@ -133,18 +142,20 @@ DECO.on('list-ios-sim', function(args) {
     })
   }
 
-  const targetAppPath = path.join(process.cwd(), path.dirname(PROJECT_SETTING.iosTarget))
-  try {
-    fs.statSync(targetAppPath)
-  } catch (e) {
-    if (e.code == 'ENOENT') {
-      return Promise.reject({
-        payload: [
-          'iOS simulator cannot launch without building your project.',
-          'Please hit cmd + B or Tools > Build Native Modules to build your project.',
-          'If you have a custom build outside of Deco, go to Deco > Project Settings and change the "iosTarget" to your .app file location'
-        ]
-      })
+  if (!checkIsExponent()) {
+    const targetAppPath = path.join(process.cwd(), path.dirname(PROJECT_SETTING.iosTarget))
+    try {
+      fs.statSync(targetAppPath)
+    } catch (e) {
+      if (e.code == 'ENOENT') {
+        return Promise.reject({
+          payload: [
+            'iOS simulator cannot launch without building your project.',
+            'Please hit cmd + B or Tools > Build Native Modules to build your project.',
+            'If you have a custom build outside of Deco, go to Deco > Project Settings and change the "iosTarget" to your .app file location'
+          ]
+        })
+      }
     }
   }
 
@@ -436,3 +447,7 @@ DECO.on('init-template', function (args) {
     .pipe(fs.createWriteStream(path.join(process.cwd(), 'configure.deco.js')))
   return Promise.resolve()
 })
+
+if (checkIsExponent()) {
+  require('./exponent.configure.deco.js')
+}
