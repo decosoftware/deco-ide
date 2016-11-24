@@ -29,6 +29,7 @@ import RecentProjectUtils from '../utils/RecentProjectUtils'
 import LandingPage from '../components/pages/LandingPage'
 import TemplatesPage from '../components/pages/TemplatesPage'
 import ProjectCreationPage from '../components/pages/ProjectCreationPage'
+import LoadingPage from '../components/pages/LoadingPage'
 
 const reactNative = [
   {
@@ -144,6 +145,8 @@ class Landing extends Component {
     console.log('create project', projectName, projectDirectory, template)
 
     // TODO Actually create project
+
+    this.setState({page: 'loading'})
   }
 
   renderProjectCreationPage = () => {
@@ -177,6 +180,14 @@ class Landing extends Component {
     )
   }
 
+  renderLoadingPage = () => {
+    return (
+      <LoadingPage
+        text={'Loading...'}
+      />
+    )
+  }
+
   renderLandingPage = () => {
     const {recentProjects} = this.state
 
@@ -198,6 +209,8 @@ class Landing extends Component {
         return this.renderTemplatesPage()
       case 'projectCreation':
         return this.renderProjectCreationPage()
+      case 'loading':
+        return this.renderLoadingPage()
       default:
         return this.renderLandingPage()
     }
