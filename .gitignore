@@ -5,3 +5,5 @@
 /app
 /dist
 /desktop/tests/integration/snapshot/tmp
+
+tools/.hyperinstall-state.json

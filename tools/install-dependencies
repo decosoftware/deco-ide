@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -eu
+
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd $ROOT
+
+./npm-hyperinstall
+
+pushd ../web
+command -v bundle >/dev/null 2>&1 || {
+echo >&2 "Bundler is not in your PATH; run "gem install bundler"";
+exit 1;
+}
+bundle install
+popd
+
+pushd ../desktop
+npm run copy-libs

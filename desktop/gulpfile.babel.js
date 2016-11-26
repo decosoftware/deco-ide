@@ -82,7 +82,7 @@ gulp.task('dist', ['modify-plist'], (callback) => {
 })
 
 gulp.task('rebuild-native-modules', () => {
-  const modules = ['git-utils', 'nodobjc', 'ffi', 'ref', 'ref-struct']
+  const modules = ['git-utils', 'nodobjc', 'ffi', 'ref', 'ref-struct', 'dtrace-provider']
 
   modules.forEach(module => {
     console.log('Building native module', module, 'for version', NODE_MODULES_VERSION)
