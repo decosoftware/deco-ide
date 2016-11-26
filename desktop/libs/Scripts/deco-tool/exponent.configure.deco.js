@@ -21,8 +21,6 @@ const projectRoot = process.cwd()
 const child_process = require('child_process')
 const path = require('path')
 const DECO = require('deco-tool')
-const xdl = require(`${projectRoot}/node_modules/xdl`)
-const { Android, Project, Simulator } = xdl
 
 DECO.on('run-packager', function(args) {
   return new Promise((resolve, reject) => {
@@ -67,7 +65,9 @@ DECO.on('reload-ios-app', function(args) {
 
 function openAppOnAndroid() {
   return new Promise((resolve, reject) => {
-    Android.openProjectAsync(projectRoot).then(() => {
+    const xdl = require(`${projectRoot}/node_modules/xdl`)
+
+    xdl.Android.openProjectAsync(projectRoot).then(() => {
       resolve('Opened project on Android')
     }).catch(e => {
       reject(`Error opening project on Android: ${e.message}`)
@@ -77,8 +77,10 @@ function openAppOnAndroid() {
 
 function openAppOnIOS() {
   return new Promise((resolve, reject) => {
-    Project.getUrlAsync(projectRoot).then(url => {
-      Simulator.openUrlInSimulatorSafeAsync(url).then(() => {
+    const xdl = require(`${projectRoot}/node_modules/xdl`)
+
+    xdl.Project.getUrlAsync(projectRoot).then(url => {
+      xdl.Simulator.openUrlInSimulatorSafeAsync(url).then(() => {
         resolve('Opened project in iOS simulator')
       }).catch(e => {
         reject(`Error opening project in iOS simulator: ${e.message}`)
