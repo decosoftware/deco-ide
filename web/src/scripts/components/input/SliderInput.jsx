@@ -209,7 +209,6 @@ export default class SliderInput extends Component {
     const {styles} = this.props
     const knobDistance = this.getTrackWidth() * this.getPercentValue()
 
-    console.log("SliderInput", this.props)
     return (
       <div
         ref={SLIDER_REF}

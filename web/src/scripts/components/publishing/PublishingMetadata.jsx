@@ -109,12 +109,9 @@ export default class PublishingMetadata extends Component {
           <PropertyComponentPropsInput
             title={'Props'}
             value={component.props}
-            onChange={(value) => {
-              console.log("saving props: ", value)
-              return this.save(update(component, {
-                props: {$set: value},
-              }))
-            }}
+            onChange={(value) => this.save(update(component, {
+              props: {$set: value},
+            }))}
           />
           <div style={styles.spacer} />
           <PropertyDependenciesInput
