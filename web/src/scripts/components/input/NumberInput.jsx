@@ -21,6 +21,8 @@ import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
+import { getLockedValue } from '../../utils/NumberUtils'
+
 const stylesCreator = ({input}, {type, width, disabled}) => ({
   input: {
     ...(type === 'platform' ? input.platform : input.regular),
@@ -45,7 +47,6 @@ export default class NumberInput extends Component {
   static defaultProps = {
     className: '',
     style: {},
-    step: 5,
     disabled: false,
     onSubmit: () => {},
   }
@@ -90,7 +91,7 @@ export default class NumberInput extends Component {
   }
 
   onKeyDown = (e) => {
-    const {step} = this.props
+    const {step, max, min} = this.props
     let stopPropagation = false
     let incrementBy = 0
 
@@ -148,6 +149,7 @@ export default class NumberInput extends Component {
     }
 
     value = this.roundInput(value)
+    value = getLockedValue(value, min, max, step)
 
     this.props.onChange(value)
 
