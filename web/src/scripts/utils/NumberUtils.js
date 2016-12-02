@@ -36,8 +36,10 @@ export const conditionalClamp = (val, min, max) => {
 
 export const getLockedValue = (val, min, max, step) => {
   const stepCount = val / step
+  const nearestLower = Math.max(Math.floor(stepCount) * step, min)
+  const nearestUpper = Math.min(Math.ceil(stepCount) * step, max)
   // If step=.1, value=.82, this gets us .8
-  const newValue = getNearestValue(stepCount, Math.floor(stepCount), Math.ceil(stepCount)) * step
+  const newValue = getNearestValue(val, nearestLower, nearestUpper)
   // Clip value to step's decimals, and then remove trailing 0s
   return Number(conditionalClamp(newValue, min, max).toFixed(getDecimalCount(step)))
 }
