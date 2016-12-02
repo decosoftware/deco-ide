@@ -1,0 +1,3 @@
+This is not a real XCode scheme. We need to include this so that CircleCI will build on OS X without breaking.
+
+https://discuss.circleci.com/t/is-there-a-way-to-force-building-on-os-x/4079/13
