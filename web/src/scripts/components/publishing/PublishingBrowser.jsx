@@ -124,6 +124,7 @@ export default class PublishingBrowser extends Component {
 
     return (
       <div style={styles.container}>
+        { this.renderHeader() }
         <ComponentBrowser
           onClickItem={onSelectComponent}
           onDoubleClickItem={onOpenComponent}

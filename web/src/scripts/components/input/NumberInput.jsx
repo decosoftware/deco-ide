@@ -45,6 +45,7 @@ export default class NumberInput extends Component {
   static defaultProps = {
     className: '',
     style: {},
+    step: 5,
     disabled: false,
     onSubmit: () => {},
   }
@@ -89,23 +90,28 @@ export default class NumberInput extends Component {
   }
 
   onKeyDown = (e) => {
+    const {step} = this.props
     let stopPropagation = false
     let incrementBy = 0
 
     switch (e.keyCode) {
+      // Tab
       case 9:
         ;
       break
+      // Enter
       case 13:
         stopPropagation = true
         this.props.onSubmit(e.target.value)
       break
+      // Up arrow
       case 38:
-        incrementBy = 1
+        incrementBy = step || 1
         stopPropagation = true
       break
+      // Down arrow
       case 40:
-        incrementBy = -1
+        incrementBy = step ? step * -1 : -1
         stopPropagation = true
       break
       default:

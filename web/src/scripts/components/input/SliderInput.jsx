@@ -22,6 +22,15 @@ import pureRender from 'pure-render-decorator'
 
 let SLIDER_REF = 'slider'
 
+const getNearestValue = (val, low, high) => {
+  return Math.abs(val - low) < Math.abs(val - high) ? low : high
+}
+
+const getDecimalCount = (num) => {
+  const decSplitArr = num.toString().split('.')
+  return decSplitArr[1] ? decSplitArr[1].length : 0
+}
+
 const stylesCreator = ({input, colors}, {type, width, height, trackHeight, disabled, knobWidth}) => {
   height = type === 'platform' ? 20 : height
   const trackRadius = trackHeight / 2
@@ -89,6 +98,7 @@ export default class SliderInput extends Component {
     value: React.PropTypes.number,
     min: React.PropTypes.number,
     max: React.PropTypes.number,
+    step: React.PropTypes.number,
     onChange: React.PropTypes.func,
     disabled: React.PropTypes.bool,
   }
@@ -97,6 +107,7 @@ export default class SliderInput extends Component {
     value: 0,
     min: 0,
     max: 100,
+    step: 1,
     height: 30,
     trackHeight: 3,
     knobWidth: 12,
@@ -168,7 +179,7 @@ export default class SliderInput extends Component {
 
   calculateValueFromPosition(position, bounds) {
     const trackWidth = this.getTrackWidth(bounds)
-    const {min, max, knobWidth} = this.props
+    const {min, max, knobWidth, step} = this.props
 
     // Prevent division by 0
     if (trackWidth === 0) {
@@ -180,7 +191,11 @@ export default class SliderInput extends Component {
     const percent = (position - bounds.min) / trackWidth
     const range = max - min
     const value = (percent * range) + min
-    return Math.round(_.clamp(value, min, max))
+    const stepCount = value / step
+    // If step=.1, value=.82, this gets us .8
+    const newValue = getNearestValue(stepCount, Math.floor(stepCount), Math.ceil(stepCount)) * step
+    // Clip value to step's decimals, and then remove trailing 0s
+    return Number(_.clamp(newValue, min, max).toFixed(getDecimalCount(step)))
   }
 
   getPercentValue() {

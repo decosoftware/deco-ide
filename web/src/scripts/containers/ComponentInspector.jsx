@@ -25,6 +25,8 @@ import { StylesEnhancer } from 'react-styles-provider'
 
 import { elementTreeActions } from '../actions'
 import * as uiActions from '../actions/uiActions'
+import * as tabActions from '../actions/tabActions'
+import * as URIUtils from '../utils/URIUtils'
 import * as selectors from '../selectors'
 import { ComponentMenuItem, PaneHeader } from '../components'
 import ComponentProps from './ComponentProps'
@@ -48,15 +50,18 @@ const mapStateToProps = (state) => createSelector(
   selectors.selectedElement,
   selectors.selectedComponent,
   selectors.focusedFileId,
-  (element, component, focusedFileId) => ({
+  selectors.tabContainerId,
+  (element, component, focusedFileId, tabContainerId) => ({
     component: component || element,
     focusedFileId,
+    tabContainerId,
   })
 )
 
 const mapDispatchToProps = (dispatch) => ({
   elementTreeActions: bindActionCreators(elementTreeActions, dispatch),
   uiActions: bindActionCreators(uiActions, dispatch),
+  tabActions: bindActionCreators(tabActions, dispatch),
 })
 
 @StylesEnhancer(stylesCreator, ({style}) => ({style}))
@@ -67,6 +72,15 @@ class ComponentInspector extends Component {
 
     elementTreeActions.deselectElement(focusedFileId)
     uiActions.setSidebarContext()
+  }
+
+  onTitleClick = (component) => {
+    // TODO: if we're not in dev mode or with correct permissions, return instead
+    const {tabActions, tabContainerId} = this.props
+    const uri = URIUtils.componentIdToURI(component.id)
+
+    this.onBack()
+    tabActions.addTab(tabContainerId, uri)
   }
 
   render() {
@@ -80,6 +94,7 @@ class ComponentInspector extends Component {
         />
         {component && (
           <ComponentMenuItem
+            onClick={this.onTitleClick}
             name={component.name}
             item={component}
           />
