@@ -101,7 +101,7 @@ import { ProcessStatus } from '../constants/ProcessStatus'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { closeTabWindow } from '../actions/compositeFileActions'
 import { clearFileState, markSaved } from '../actions/fileActions'
-import selectProject from '../utils/selectProject';
+import selectProject from '../utils/selectProject'
 
 /**
  * Ties ipc listeners to actions
@@ -109,7 +109,7 @@ import selectProject from '../utils/selectProject';
 const ipcActionEmitter = (store) => {
 
   ipc.on(SET_PROJECT_DIR, (evt, payload) => {
-    selectProject(payload, store.dispatch);
+    selectProject(payload, store.dispatch)
   })
 
   ipc.on(CUSTOM_CONFIG_ERROR, (evt, payload) => {

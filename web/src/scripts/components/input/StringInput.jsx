@@ -67,8 +67,6 @@ export default class StringInput extends Component {
     const {input} = this.refs
 
     if (autoFocus) {
-      console.log('string input mounted', value)
-
       if (value.length) {
         this.setState({
           selection: {start: 0, end: value.length},
