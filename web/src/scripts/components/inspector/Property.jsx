@@ -58,7 +58,7 @@ export default class Property extends Component {
     const {name, value, type, editWith} = prop
 
     const inputProps = {
-      value,
+      ...prop,
       title: name,
       onChange: this.onChange,
       actions,

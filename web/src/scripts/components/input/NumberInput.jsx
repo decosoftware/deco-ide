@@ -16,10 +16,12 @@
  */
 
 import _ from 'lodash'
-import React, { Component, } from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
+
+import { getLockedValue } from '../../utils/NumberUtils'
 
 const stylesCreator = ({input}, {type, width, disabled}) => ({
   input: {
@@ -36,10 +38,13 @@ const stylesCreator = ({input}, {type, width, disabled}) => ({
 export default class NumberInput extends Component {
 
   static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func,
-    value: React.PropTypes.number.isRequired,
-    disabled: React.PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func,
+    value: PropTypes.number.isRequired,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    disabled: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -89,23 +94,28 @@ export default class NumberInput extends Component {
   }
 
   onKeyDown = (e) => {
+    const {step, max, min} = this.props
     let stopPropagation = false
     let incrementBy = 0
 
     switch (e.keyCode) {
+      // Tab
       case 9:
         ;
       break
+      // Enter
       case 13:
         stopPropagation = true
         this.props.onSubmit(e.target.value)
       break
+      // Up arrow
       case 38:
-        incrementBy = 1
+        incrementBy = step || 1
         stopPropagation = true
       break
+      // Down arrow
       case 40:
-        incrementBy = -1
+        incrementBy = step ? step * -1 : -1
         stopPropagation = true
       break
       default:
@@ -142,6 +152,7 @@ export default class NumberInput extends Component {
     }
 
     value = this.roundInput(value)
+    value = getLockedValue(value, min, max, step)
 
     this.props.onChange(value)
 

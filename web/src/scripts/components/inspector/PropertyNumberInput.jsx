@@ -18,6 +18,7 @@
 import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
+import _ from 'lodash'
 
 import PropertyField from './PropertyField'
 import PropertyDivider from './PropertyDivider'
@@ -37,6 +38,8 @@ const stylesCreator = ({fonts}) => ({
   }
 })
 
+const inputPropKeys = ['value', 'min', 'max', 'step', 'onChange', 'disabled']
+
 @StylesEnhancer(stylesCreator)
 @pureRender
 export default class PropertyNumberInput extends Component {
@@ -44,10 +47,15 @@ export default class PropertyNumberInput extends Component {
   static defaultProps = {
     title: '',
     value: 0,
+    min: 0,
+    max: 100,
+    step: 1,
   }
 
   render() {
-    const {styles, title, value, onChange, actions, dividerType, disabled} = this.props
+    const {styles, title, actions, dividerType} = this.props
+
+    const inputProps = _.pick(this.props, inputPropKeys)
 
     return (
       <PropertyField
@@ -57,15 +65,11 @@ export default class PropertyNumberInput extends Component {
       >
         <div style={styles.row}>
           <SliderInput
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
+            {...inputProps}
           />
           <div style={styles.spacer} />
           <NumberInput
-            value={value}
-            onChange={onChange}
-            disabled={disabled}
+            {...inputProps}
           />
         </div>
       </PropertyField>

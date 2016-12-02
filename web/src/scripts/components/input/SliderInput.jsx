@@ -16,9 +16,11 @@
  */
 
 import _ from 'lodash'
-import React, { Component, } from 'react'
+import React, { Component, PropTypes } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
+
+import { getLockedValue } from '../../utils/NumberUtils'
 
 let SLIDER_REF = 'slider'
 
@@ -86,17 +88,19 @@ const stylesCreator = ({input, colors}, {type, width, height, trackHeight, disab
 export default class SliderInput extends Component {
 
   static propTypes = {
-    value: React.PropTypes.number,
-    min: React.PropTypes.number,
-    max: React.PropTypes.number,
-    onChange: React.PropTypes.func,
-    disabled: React.PropTypes.bool,
+    value: PropTypes.number,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    onChange: PropTypes.func,
+    disabled: PropTypes.bool,
   }
 
   static defaultProps = {
     value: 0,
     min: 0,
     max: 100,
+    step: 1,
     height: 30,
     trackHeight: 3,
     knobWidth: 12,
@@ -168,7 +172,7 @@ export default class SliderInput extends Component {
 
   calculateValueFromPosition(position, bounds) {
     const trackWidth = this.getTrackWidth(bounds)
-    const {min, max, knobWidth} = this.props
+    const {min, max, knobWidth, step} = this.props
 
     // Prevent division by 0
     if (trackWidth === 0) {
@@ -180,7 +184,7 @@ export default class SliderInput extends Component {
     const percent = (position - bounds.min) / trackWidth
     const range = max - min
     const value = (percent * range) + min
-    return Math.round(_.clamp(value, min, max))
+    return getLockedValue(value, min, max, step)
   }
 
   getPercentValue() {
