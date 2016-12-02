@@ -18,8 +18,7 @@ var cli;
 var cliPath = path.resolve(
   process.cwd(),
   'node_modules',
-  '@exponent',
-  'minimal-packager',
+  'react-native',
   'cli.js'
 )
 
