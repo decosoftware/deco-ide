@@ -16,7 +16,7 @@
  */
 
 import _ from 'lodash'
-import React, { Component, } from 'react'
+import React, { Component, PropTypes } from 'react'
 import ReactDOM from 'react-dom'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
@@ -38,10 +38,13 @@ const stylesCreator = ({input}, {type, width, disabled}) => ({
 export default class NumberInput extends Component {
 
   static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func,
-    value: React.PropTypes.number.isRequired,
-    disabled: React.PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func,
+    value: PropTypes.number.isRequired,
+    min: PropTypes.number,
+    max: PropTypes.number,
+    step: PropTypes.number,
+    disabled: PropTypes.bool,
   }
 
   static defaultProps = {

@@ -24,15 +24,6 @@ import { getLockedValue } from '../../utils/NumberUtils'
 
 let SLIDER_REF = 'slider'
 
-const getNearestValue = (val, low, high) => {
-  return Math.abs(val - low) < Math.abs(val - high) ? low : high
-}
-
-const getDecimalCount = (num) => {
-  const decSplitArr = num.toString().split('.')
-  return decSplitArr[1] ? decSplitArr[1].length : 0
-}
-
 const stylesCreator = ({input, colors}, {type, width, height, trackHeight, disabled, knobWidth}) => {
   height = type === 'platform' ? 20 : height
   const trackRadius = trackHeight / 2
