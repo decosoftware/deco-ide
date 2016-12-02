@@ -31,7 +31,6 @@ const style = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  WebkitAppRegion: 'drag',
 }
 
 const topStyle = {
@@ -69,13 +68,14 @@ const logoWrapperStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
+  WebkitAppRegion: 'drag',
 }
 
 const buttonDividerStyle = {
   height: 15,
 }
 
-const LandingPage = ({ onOpen, onCreateNew, recentProjects, onViewTemplates }) => {
+const LandingPage = ({ onOpen, onCreateNew, recentProjects, onViewTemplates, showTemplates }) => {
   return (
     <div className='helvetica-smooth' style={style}>
       <div style={topStyle}>
@@ -107,14 +107,19 @@ const LandingPage = ({ onOpen, onCreateNew, recentProjects, onViewTemplates }) =
       <div style={bottomStyle}>
         <LandingButton
           id={'new-project'}
-          onClick={onCreateNew}>
+          onClick={onCreateNew}
+        >
           <NewIcon />
           New Project
         </LandingButton>
-        <div style={buttonDividerStyle} />
-        <LandingButton onClick={onViewTemplates}>
-          Project Templates...
-        </LandingButton>
+        {showTemplates && (
+          <div style={buttonDividerStyle} />
+        )}
+        {showTemplates && (
+          <LandingButton onClick={onViewTemplates}>
+            Project Templates...
+          </LandingButton>
+        )}
       </div>
     </div>
   )

@@ -201,7 +201,6 @@ class WorkspaceToolbar extends Component {
     this.props.dispatch(setConsoleVisibility(!consoleVisible))
   }
 
-
   toggleRightPane = (content) => {
     const {rightSidebarVisible} = this.props
 
