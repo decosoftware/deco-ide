@@ -50,13 +50,19 @@ export default class PropertyField extends Component {
   static defaultProps = {
     title: '',
     dividerType: 'regular',
+    active: false,
   }
 
   renderDivider() {
-    const {dividerType} = this.props
+    const {dividerType, active} = this.props
 
     if (dividerType !== 'none') {
-      return <PropertyDivider type={dividerType} />
+      return (
+        <PropertyDivider
+          type={dividerType}
+          active={active}
+        />
+      )
     } else {
       return null
     }

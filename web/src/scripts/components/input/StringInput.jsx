@@ -22,7 +22,8 @@ import pureRender from 'pure-render-decorator'
 
 const stylesCreator = ({input}, {type, width, disabled}) => ({
   input: {
-    ...(type === 'platform' ? input.platform : input.regular),
+    ...type === 'platform' ? input.platform : input.regular,
+    ...type !== 'platform' && {outline: 'none'},
     display: 'flex',
     flex: '1 0 0px',
     width: width ? width : 0,
@@ -37,6 +38,8 @@ export default class StringInput extends Component {
   static propTypes = {
     onChange: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func,
+    onFocus: React.PropTypes.func,
+    onBlur: React.PropTypes.func,
     value: React.PropTypes.string.isRequired,
     placeholder: React.PropTypes.string,
     width: React.PropTypes.oneOfType([
@@ -44,20 +47,44 @@ export default class StringInput extends Component {
       React.PropTypes.number,
     ]),
     disabled: React.PropTypes.bool,
+    autoFocus: React.PropTypes.bool,
   }
 
   static defaultProps = {
     className: '',
     style: {},
     onSubmit: () => {},
+    onFocus: () => {},
+    onBlur: () => {},
     disabled: false,
+    autoFocus: false,
   }
 
   state = {}
 
+  componentDidMount() {
+    const {autoFocus, value} = this.props
+    const {input} = this.refs
+
+    if (autoFocus) {
+      if (value.length) {
+        this.setState({
+          selection: {start: 0, end: value.length},
+        })
+      }
+
+      input.focus()
+    }
+  }
+
   onInputChange = (e) => this.props.onChange(e.target.value)
 
-  onBlur = () => this.setState({selection: null})
+  onBlur = () => {
+    const {onBlur} = this.props
+
+    this.setState({selection: null})
+    onBlur()
+  }
 
   onKeyDown = (e) => {
     const {value} = e.target
@@ -78,6 +105,7 @@ export default class StringInput extends Component {
         return
       break
       default:
+        this.setState({selection: null})
         return
       break
     }
@@ -104,7 +132,7 @@ export default class StringInput extends Component {
   }
 
   render() {
-    const {styles, value, placeholder, width, disabled} = this.props
+    const {styles, value, placeholder, width, disabled, onFocus} = this.props
 
     return (
       <input
@@ -117,6 +145,7 @@ export default class StringInput extends Component {
         onChange={this.onInputChange}
         onKeyDown={this.onKeyDown}
         onBlur={this.onBlur}
+        onFocus={onFocus}
       />
     )
   }

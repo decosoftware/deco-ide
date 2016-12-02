@@ -25,6 +25,7 @@ import {
   CLEAR_FILE_STATE,
   UPDATE_FILE_TREE_VERSION,
   SET_TOP_DIR,
+  SET_PROJECT_TEMPLATE_TYPE,
 } from '../actions/fileActions'
 
 const initialState = {
@@ -77,6 +78,8 @@ const fileReducer = (state = initialState, action) => {
     case SET_TOP_DIR:
       const {rootPath, rootName} = payload
       return {...state, rootPath, rootName}
+    case SET_PROJECT_TEMPLATE_TYPE:
+      return {...state, projectTemplateType: payload}
     default:
       return state
   }

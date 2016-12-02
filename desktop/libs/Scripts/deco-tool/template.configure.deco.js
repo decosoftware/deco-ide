@@ -15,7 +15,7 @@ const packagerPort = Deco.setting.packagerPort
 
 /**
  *
- * HOW TO USE THIS FILE (https://github.com/decosoftware/deco-ide/blob/master/desktop/CONFIGURE.MD)
+ * HOW TO USE THIS FILE (https://github.com/decosoftware/deco-ide/blob/master/desktop/CONFIGURE.md)
  *
  * Runs a registered function in an isolated NodeJS environment when that function's corresponding
  * command is triggered from within the Deco application or when run from shell as a 'deco-tool' command

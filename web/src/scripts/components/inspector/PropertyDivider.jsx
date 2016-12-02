@@ -19,15 +19,21 @@ import React, { Component } from 'react'
 import { StylesEnhancer } from 'react-styles-provider'
 import pureRender from 'pure-render-decorator'
 
-const stylesCreator = ({colors}, {type}) => ({
-  divider: {
-    flex: '1 1 auto',
-    height: 2,
-    backgroundColor: type === 'vibrant' ? colors.dividerVibrant : colors.divider,
-  },
-})
+const stylesCreator = ({colors}, {type, active}) => {
+  return {
+    divider: {
+      flex: '1 1 auto',
+      height: 2,
+      backgroundColor: active
+        ? colors.tabs.highlight
+        : type === 'vibrant'
+        ? colors.dividerVibrant
+        : colors.divider,
+    },
+  }
+}
 
-@StylesEnhancer(stylesCreator, ({type}) => ({type}))
+@StylesEnhancer(stylesCreator, ({type, active}) => ({type, active}))
 @pureRender
 export default class PropertyDivider extends Component {
   render() {

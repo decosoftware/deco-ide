@@ -101,6 +101,7 @@ import { ProcessStatus } from '../constants/ProcessStatus'
 import { CONTENT_PANES } from '../constants/LayoutConstants'
 import { closeTabWindow } from '../actions/compositeFileActions'
 import { clearFileState, markSaved } from '../actions/fileActions'
+import selectProject from '../utils/selectProject'
 
 /**
  * Ties ipc listeners to actions
@@ -108,19 +109,7 @@ import { clearFileState, markSaved } from '../actions/fileActions'
 const ipcActionEmitter = (store) => {
 
   ipc.on(SET_PROJECT_DIR, (evt, payload) => {
-    const rootPath = payload.absolutePath
-    let query = {}
-    if (payload.isTemp) {
-      query.temp = true
-    }
-    store.dispatch(clearFileState())
-    store.dispatch(editorActions.clearEditorState())
-    store.dispatch(tabActions.closeAllTabs())
-    const state = store.getState()
-    store.dispatch(routeActions.push({
-      pathname: `/workspace/${rootPath}`,
-      query: query,
-    }))
+    selectProject(payload, store.dispatch)
   })
 
   ipc.on(CUSTOM_CONFIG_ERROR, (evt, payload) => {

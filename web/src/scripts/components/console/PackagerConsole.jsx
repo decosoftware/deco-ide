@@ -23,7 +23,8 @@ const style = {
     color: 'rgba(255,255,255,0.8)',
     width: '100%',
     flex: '1 1 auto',
-    overflow: 'auto',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     paddingLeft: 9,
     paddingBottom: 9,
     margin: 0,
@@ -31,6 +32,12 @@ const style = {
     fontSize: 12,
     lineHeight: '16px',
     fontFamily: '"Roboto Mono", monospace',
+    fontWeight: 300,
+    overflowWrap: 'break-word',
+    wordWrap: 'break-word',
+    wordBreak: 'break-all',
+    hyphens: 'auto',
+    whiteSpace: 'pre-wrap'
   }
 }
 

@@ -35,6 +35,7 @@ const defaultStyle = {
   cursor: 'default',
   flex: '0 0 35px',
   fontWeight: '400',
+  whiteSpace: 'pre',
 }
 
 const activeStyle = {

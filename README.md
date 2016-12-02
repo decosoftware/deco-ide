@@ -56,18 +56,11 @@ Linux is not supported at this time.
 Windows is not supported at this time.
 
 ### Clone and Install Dependencies
+
 ```
-$ git clone git@github.com:decosoftware/deco-ide
-$ cd ./deco-ide/web
-$ npm install
-$ bundle install
-$ cd ../desktop
-$ npm install
-$ npm run copy-libs
-$ cd ../shared
-$ npm install
-$ cd ../desktop/libs/Scripts/sync-service
-$ npm install
+npm i -g hyperinstall
+git clone git@github.com:decosoftware/deco-ide
+./deco-ide/tools/install-dependencies
 ```
 
 ### Development

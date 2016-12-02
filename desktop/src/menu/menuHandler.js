@@ -21,18 +21,13 @@ const Menu = require('electron').Menu
 const TemplateBuilder = require('./templateBuilder.js')
 
 class MenuHandler {
-  instantiateTemplate() {
-    var template = new TemplateBuilder(process.platform).makeTemplate()
-    this._template = template
-    this._menu = Menu.buildFromTemplate(this._template)
-    Menu.setApplicationMenu(this._menu)
-  }
+  instantiateTemplate(options = {}) {
+    const builder = new TemplateBuilder({platform: process.platform, ...options})
+    const template = builder.makeTemplate()
+    const menu = Menu.buildFromTemplate(template)
 
-  get menu() {
-    return this._menu
+    Menu.setApplicationMenu(menu)
   }
 }
 
-const handler = new MenuHandler()
-
-module.exports = handler
+module.exports = new MenuHandler()

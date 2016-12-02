@@ -53,10 +53,10 @@ class AppRouter extends Component {
       const match = params.pathname.match(/\/workspace\/(.*)?/)
       if (match && match[1]) {
         const hexString = new Buffer(match[1], 'hex')
-        const path = hexString.toString('utf8')
-        this.props.store.dispatch(setTopDir(path))
-        this.props.store.dispatch(scanLocalRegistries(path))
-        this.props.store.dispatch(initializeProcessesForDir(path))
+        const rootPath = hexString.toString('utf8')
+        this.props.store.dispatch(setTopDir(rootPath))
+        this.props.store.dispatch(scanLocalRegistries(rootPath))
+        this.props.store.dispatch(initializeProcessesForDir(rootPath))
       }
     })
   }

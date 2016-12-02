@@ -71,7 +71,36 @@ import {
 
 const Logger = require('../log/logger')
 
-const TemplateBuilder = function(platform) {
+const restartPackager = () => PackagerController.runPackager(null)
+
+const buildProject = () => BuildController.buildIOS()
+
+const cleanProject = () => {
+  try {
+    const root = fileHandler.getWatchedPath()
+    if (root) {
+      projectHandler.cleanBuildDir(root)
+    }
+  } catch (e) {
+    Logger.error(e)
+  }
+}
+
+const reloadSimulator = () => {
+  processHandler.onHardReloadSimulator({}, (response) => {
+    if (response.type == ERROR) {
+      Logger.error(response.message)
+    }
+  })
+}
+
+const reloadApplicationUI = (item, focusedWindow) => {
+  if (focusedWindow) {
+    focusedWindow.reload()
+  }
+}
+
+const TemplateBuilder = function({platform, projectTemplateType}) {
 
   this.fileMenu = {
     label: 'File',
@@ -292,60 +321,20 @@ const TemplateBuilder = function(platform) {
 
   this.toolsMenu = {
     label: 'Tools',
-    submenu: [{
-      label: 'Restart Packager',
-      click: function() {
-        PackagerController.runPackager(null)
-      }
-    }, {
-      type: 'separator',
-    }, {
-      label: 'Build Native Modules',
-      accelerator: 'Command+B',
-      click: function() {
-        BuildController.buildIOS()
-      }
-    }, {
-      label: 'Clean',
-      accelerator: 'CommandOrCtrl+Alt+K',
-      click: function() {
-        try {
-          const root = fileHandler.getWatchedPath()
-          if (root) {
-            projectHandler.cleanBuildDir(root)
-          }
-        } catch (e) {
-          Logger.error(e)
-        }
-      },
-    }, {
-      type: 'separator'
-    }, {
-      label: 'Run/Reload Simulator',
-      accelerator: 'CmdOrCtrl+R',
-      click: function() {
-        processHandler.onHardReloadSimulator({}, (response) => {
-          if (response.type == ERROR) {
-            Logger.error(response.message)
-          }
-        })
-      }
-    }, ]
-  }
-
-  if (global.__DEV__) {
-    this.toolsMenu.submenu.push({
-      type: 'separator'
-    })
-    this.toolsMenu.submenu.push({
-      label: 'Reload Last Save',
-      accelerator: 'CmdOrCtrl+Shift+R',
-      click: function(item, focusedWindow) {
-        if (focusedWindow) {
-          focusedWindow.reload()
-        }
-      }
-    })
+    submenu: [
+      {label: 'Restart Packager', click: restartPackager},
+      {type: 'separator'},
+      ...projectTemplateType !== 'Exponent' && [
+        {label: 'Build Native Modules', accelerator: 'Command+B', click: buildProject},
+        {label: 'Clean', accelerator: 'CommandOrCtrl+Alt+K', click: cleanProject},
+      ],
+      {type: 'separator'},
+      {label: 'Run/Reload Simulator', accelerator: 'CmdOrCtrl+R', click: reloadSimulator},
+      ...global.__DEV__ && [
+        {type: 'separator'},
+        {label: 'Reload Last Save', accelerator: 'CmdOrCtrl+Shift+R', click: reloadApplicationUI},
+      ],
+    ],
   }
 
   this.viewMenu = {
