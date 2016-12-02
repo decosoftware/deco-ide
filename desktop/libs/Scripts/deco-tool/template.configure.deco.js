@@ -7,7 +7,6 @@ var path = require('path')
 var Deco = require('deco-tool')
 
 // These are settings from the local projects .deco/.settings JSON file
-const client = Deco.setting.client
 const iosTarget = Deco.setting.iosTarget
 const iosProject = Deco.setting.iosProject
 const iosBuildScheme = Deco.setting.iosBuildScheme
